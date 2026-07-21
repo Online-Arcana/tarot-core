@@ -1,0 +1,839 @@
+import http from "http";
+import path from "path";
+import fs from "fs/promises";
+import { randomUUID } from "crypto";
+
+import { TerminalTui } from "./tui";
+import type { JSONConversation, SendOptions } from "./jsonConvos";
+
+type MaybePromise<T> = T | Promise<T>;
+
+type Style = ReturnType<TerminalTui["sgr"]["style"]>;
+// NOTE: If your TS complains about the above line, keep your original:
+// type Style = ReturnType<TerminalTui["sgr"]["style"]>;
+type RetryInfo = Parameters<NonNullable<SendOptions["onRetry"]>>[0];
+
+export type WebUiOptions = {
+    host?: string;
+    port?: number;
+    title?: string;
+    logUrl?: boolean;
+
+    /**
+     * Path to the HTML template, defaults to ./webUI.html next to this file.
+     */
+    templatePath?: string;
+
+    // Optional UI defaults, mirroring TerminalIo.
+    promptStyle?: Style;
+    infoStyle?: Style;
+    mutedStyle?: Style;
+
+    // TerminalTui passthrough (for sgr defaults only).
+    tui?: ConstructorParameters<typeof TerminalTui>[0];
+};
+
+export type AskLineOptions = {
+    trim?: boolean;
+    allowEmpty?: boolean;
+    promptStyle?: Style;
+};
+
+export type AskNonEmptyOptions = {
+    trim?: boolean;
+    promptStyle?: Style;
+    onEmpty?: () => void;
+};
+
+export type AskChoiceOptions<T> = {
+    render?: () => void;
+    promptStyle?: Style;
+    onInvalid?: (raw: string) => void;
+    accept?: (v: T) => boolean;
+};
+
+export type SendWithUiOptions = {
+    thinkingLabel?: string;
+    thinkingIntervalMs?: number;
+    thinkingStyle?: Style;
+
+    retryLine?: (info: RetryInfo) => MaybePromise<string | null | undefined>;
+    retryLineStyle?: Style;
+
+    onRetryLine?: (line: string, info: RetryInfo) => MaybePromise<void>;
+
+    send?: SendOptions;
+};
+
+type UiLine = {
+    kind: "line" | "centred";
+    id: string;
+    text: string;
+    classes: readonly string[];
+};
+
+type UiBox = {
+    kind: "box";
+    id: string;
+
+    title: string | null;
+    body: string;
+
+    boxClasses: readonly string[];
+    borderClasses: readonly string[];
+    titleClasses: readonly string[];
+    bodyClasses: readonly string[];
+};
+
+type UiElement = UiLine | UiBox;
+
+type UiSpinner = {
+    id: string;
+    label: string;
+    classes: readonly string[];
+    intervalMs: number;
+};
+
+type PromptState = {
+    promptId: string;
+    prompt: string;
+    mode: "line" | "enter";
+    trim: boolean;
+    allowEmpty: boolean;
+    classes: readonly string[];
+};
+
+type UiInitEvent = {
+    t: "init";
+    title: string;
+    elements: readonly UiElement[];
+    spinners: readonly UiSpinner[];
+    prompt: PromptState | null;
+    css: string;
+};
+
+type UiEvent =
+    | UiInitEvent
+    | { t: "clear" }
+    | { t: "append"; el: UiElement }
+    | { t: "thinking_start"; spinner: UiSpinner }
+    | { t: "thinking_stop"; id: string }
+    | { t: "prompt"; prompt: PromptState }
+    | { t: "prompt_clear" }
+    | { t: "meta"; key: string; value: string }
+    | { t: "css"; css: string };
+
+function escapeHtml(s: string): string {
+    return s
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function parseAnsiColourIndex(code: string): { kind: "fg" | "bg"; n: number } | null {
+    const fg = /^\x1b\[38;5;(\d{1,3})m$/u.exec(code);
+    if (fg) {
+        const n = Number.parseInt(fg[1], 10);
+        if (Number.isNaN(n) || n < 0 || n > 255) return null;
+        return { kind: "fg", n };
+    }
+
+    const bg = /^\x1b\[48;5;(\d{1,3})m$/u.exec(code);
+    if (bg) {
+        const n = Number.parseInt(bg[1], 10);
+        if (Number.isNaN(n) || n < 0 || n > 255) return null;
+        return { kind: "bg", n };
+    }
+
+    return null;
+}
+
+function styleToClasses(style?: Style): string[] {
+    if (!style || style.length === 0) return [];
+
+    const out: string[] = [];
+    for (const code of style) {
+        if (code === "\x1b[1m") out.push("sgr-bold");
+        else if (code === "\x1b[3m") out.push("sgr-italic");
+        else if (code === "\x1b[4m") out.push("sgr-underline");
+        else if (code === "\x1b[2m") out.push("sgr-dim");
+        else {
+            const c = parseAnsiColourIndex(code);
+            if (!c) continue;
+            out.push(c.kind === "fg" ? `sgr-fg-${c.n}` : `sgr-bg-${c.n}`);
+        }
+    }
+
+    return out;
+}
+
+function ansi256ToRgb(n: number): { r: number; g: number; b: number } {
+    const base16: Array<{ r: number; g: number; b: number }> = [
+        { r: 0, g: 0, b: 0 },
+        { r: 128, g: 0, b: 0 },
+        { r: 0, g: 128, b: 0 },
+        { r: 128, g: 128, b: 0 },
+        { r: 0, g: 0, b: 128 },
+        { r: 128, g: 0, b: 128 },
+        { r: 0, g: 128, b: 128 },
+        { r: 192, g: 192, b: 192 },
+        { r: 128, g: 128, b: 128 },
+        { r: 255, g: 0, b: 0 },
+        { r: 0, g: 255, b: 0 },
+        { r: 255, g: 255, b: 0 },
+        { r: 0, g: 0, b: 255 },
+        { r: 255, g: 0, b: 255 },
+        { r: 0, g: 255, b: 255 },
+        { r: 255, g: 255, b: 255 }
+    ];
+
+    if (n >= 0 && n <= 15) return base16[n];
+
+    if (n >= 16 && n <= 231) {
+        const idx = n - 16;
+        const r = Math.floor(idx / 36);
+        const g = Math.floor((idx % 36) / 6);
+        const b = idx % 6;
+
+        const levels = [0, 95, 135, 175, 215, 255];
+        return { r: levels[r], g: levels[g], b: levels[b] };
+    }
+
+    const v = 8 + (n - 232) * 10;
+    return { r: v, g: v, b: v };
+}
+
+function buildAnsiPaletteCss(): string {
+    const vars: string[] = [];
+    const fg: string[] = [];
+    const bg: string[] = [];
+
+    for (let i = 0; i < 256; i += 1) {
+        const { r, g, b } = ansi256ToRgb(i);
+        vars.push(`:root { --ansi-${i}: rgb(${r}, ${g}, ${b}); }`);
+        fg.push(`.sgr-fg-${i} { color: var(--ansi-${i}); }`);
+        bg.push(`.sgr-bg-${i} { background-color: var(--ansi-${i}); }`);
+    }
+
+    return [...vars, ...fg, ...bg].join("\n");
+}
+
+function toSseData(evt: UiEvent): string {
+    return JSON.stringify(evt).replace(/\n/g, "\\n");
+}
+
+async function readJsonBody(req: http.IncomingMessage): Promise<unknown> {
+    const chunks: Buffer[] = [];
+    for await (const chunk of req) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+
+    const raw = Buffer.concat(chunks).toString("utf8").trim();
+    if (!raw) return null;
+
+    try {
+        return JSON.parse(raw) as unknown;
+    } catch {
+        return null;
+    }
+}
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+    return typeof v === "object" && v !== null;
+}
+
+export class WebUi {
+    public readonly ui: Readonly<{
+        sgr: TerminalTui["sgr"];
+        sleep: (ms: number) => Promise<void>;
+        startThinking: (label: string, opts?: { intervalMs?: number; labelStyle?: Style }) => () => void;
+    }>;
+
+    public readonly ready: Promise<void>;
+
+    private readonly host: string;
+    private port: number;
+    private readonly title: string;
+    private readonly logUrl: boolean;
+
+    private readonly sgrSource: TerminalTui;
+
+    private readonly promptStyle: Style;
+    private readonly infoStyle: Style;
+    private readonly mutedStyle: Style;
+
+    private readonly server: http.Server;
+    private readonly clients = new Set<http.ServerResponse>();
+
+    private readonly elements: UiElement[] = [];
+    private readonly spinners = new Map<string, UiSpinner>();
+
+    private templateHtml: string | null = null;
+
+    private pendingPrompt: {
+        state: PromptState;
+        resolve: (v: string) => void;
+    } | null = null;
+
+    private waitTimer: NodeJS.Timeout | null = null;
+    private seq = 0;
+
+    private cssText = "";
+
+    public constructor(opts: WebUiOptions = {}) {
+        this.host = opts.host ?? "127.0.0.1";
+        this.port = opts.port ?? 3210;
+        this.title = opts.title ?? "Web UI";
+        this.logUrl = opts.logUrl ?? true;
+
+        this.sgrSource = new TerminalTui({ ...(opts.tui ?? {}) });
+
+        const S = this.sgrSource.sgr;
+        this.promptStyle = opts.promptStyle ?? S.style(S.fg256(245));
+        this.infoStyle = opts.infoStyle ?? S.style(S.italicOn, S.fg256(245));
+        this.mutedStyle = opts.mutedStyle ?? S.style(S.fg256(240));
+
+        this.ui = Object.freeze({
+            sgr: this.sgrSource.sgr,
+            sleep: async (ms: number) => {
+                await new Promise<void>(resolve => setTimeout(resolve, ms));
+            },
+            startThinking: (label: string, o?: { intervalMs?: number; labelStyle?: Style }) => {
+                const intervalMs = o?.intervalMs ?? 300;
+                const classes = ["tui-elem", "tui-thinking", ...styleToClasses(o?.labelStyle)];
+                const id = this.nextId("thinking");
+
+                const spinner: UiSpinner = { id, label, classes, intervalMs };
+                this.spinners.set(id, spinner);
+                this.broadcast({ t: "thinking_start", spinner });
+
+                return () => {
+                    this.spinners.delete(id);
+                    this.broadcast({ t: "thinking_stop", id });
+                };
+            }
+        });
+
+        this.server = http.createServer((req, res) => {
+            void this.route(req, res);
+        });
+
+        const templatePath =
+            opts.templatePath ??
+            path.resolve(__dirname, "webUI.html");
+
+        const templateReady = fs.readFile(templatePath, "utf8")
+            .then(s => {
+                this.templateHtml = s;
+            });
+
+        const serverReady = new Promise<void>((resolve, reject) => {
+            const onError = (err: unknown) => {
+                const e = err as { code?: string };
+                const wantFallback = e.code === "EADDRINUSE" && opts.port === undefined;
+                if (!wantFallback) return reject(err);
+
+                this.server.listen(0, this.host, () => {
+                    const addr = this.server.address();
+                    if (addr && typeof addr === "object") this.port = addr.port;
+                    if (this.logUrl) console.log(this.url());
+                    resolve();
+                });
+            };
+
+            this.server.once("error", onError);
+
+            this.server.listen(this.port, this.host, () => {
+                const addr = this.server.address();
+                if (addr && typeof addr === "object") this.port = addr.port;
+                this.server.off("error", onError);
+                if (this.logUrl) console.log(this.url());
+                resolve();
+            });
+        });
+
+        this.ready = Promise.all([templateReady, serverReady]).then(() => undefined);
+    }
+
+    public setCss(css: string): void {
+        this.cssText = css;
+        this.broadcast({ t: "css", css: this.cssText });
+    }
+
+    public url(): string {
+        return `http://${this.host}:${this.port}/`;
+    }
+
+    public close(): void {
+        for (const c of this.clients) c.end();
+        this.clients.clear();
+
+        if (this.waitTimer) {
+            clearTimeout(this.waitTimer);
+            this.waitTimer = null;
+        }
+
+        this.server.close();
+    }
+
+    /* =========================
+       Output primitives (TerminalIo-like)
+    ========================= */
+
+    public clearScreen(): void {
+        this.elements.length = 0;
+        this.broadcast({ t: "clear" });
+    }
+
+    public write(s: string): void {
+        this.appendLine(s);
+    }
+
+    public line(s = ""): void {
+        this.appendLine(s);
+    }
+
+    public centred(text: string, style?: Style): void {
+        const id = this.nextId("centred");
+        const classes = ["tui-elem", "tui-centred", ...styleToClasses(style)];
+        const el: UiLine = { kind: "centred", id, text, classes };
+        this.elements.push(el);
+        this.broadcast({ t: "append", el });
+    }
+
+    public boxed(
+        title: string | null,
+        body: string,
+        styles?: {
+            borderStyle?: Style;
+            bodyStyle?: Style;
+            titleStyle?: Style;
+        }
+    ): void {
+        const id = this.nextId("box");
+
+        const el: UiBox = {
+            kind: "box",
+            id,
+            title,
+            body,
+            boxClasses: ["tui-elem", "tui-box"],
+            borderClasses: ["tui-box__border", ...styleToClasses(styles?.borderStyle)],
+            titleClasses: ["tui-box__title", ...styleToClasses(styles?.titleStyle)],
+            bodyClasses: ["tui-box__body", ...styleToClasses(styles?.bodyStyle)]
+        };
+
+        this.elements.push(el);
+        this.broadcast({ t: "append", el });
+    }
+
+    public paint(text: string, _style?: Style): string {
+        return text;
+    }
+
+    public paintPrompt(text: string): string {
+        return text;
+    }
+
+    public info(text: string): void {
+        this.centred(text, this.infoStyle);
+    }
+
+    public muted(text: string): void {
+        this.centred(text, this.mutedStyle);
+    }
+
+    /* =========================
+       Input primitives (TerminalIo-like)
+    ========================= */
+
+    public async askLine(prompt: string, opts: AskLineOptions = {}): Promise<string> {
+        const trim = opts.trim ?? true;
+        const allowEmpty = opts.allowEmpty ?? true;
+        const promptStyle = opts.promptStyle ?? this.promptStyle;
+
+        const raw = await this.promptUser({
+            prompt,
+            mode: "line",
+            trim,
+            allowEmpty,
+            classes: ["tui-prompt", ...styleToClasses(promptStyle)]
+        });
+
+        const out = trim ? raw.trim() : raw;
+        if (allowEmpty) return out;
+        if (out) return out;
+        return "";
+    }
+
+    public async askNonEmpty(prompt: string, opts: AskNonEmptyOptions = {}): Promise<string> {
+        const trim = opts.trim ?? true;
+        const promptStyle = opts.promptStyle ?? this.promptStyle;
+
+        while (true) {
+            const raw = await this.promptUser({
+                prompt,
+                mode: "line",
+                trim,
+                allowEmpty: true,
+                classes: ["tui-prompt", ...styleToClasses(promptStyle)]
+            });
+
+            const out = trim ? raw.trim() : raw;
+            if (out) return out;
+
+            if (opts.onEmpty) opts.onEmpty();
+        }
+    }
+
+    public async askChoice<T>(
+        prompt: string,
+        parse: (raw: string) => T | null,
+        opts: AskChoiceOptions<T> = {}
+    ): Promise<T> {
+        const promptStyle = opts.promptStyle ?? this.promptStyle;
+
+        while (true) {
+            if (opts.render) opts.render();
+
+            const raw = await this.promptUser({
+                prompt,
+                mode: "line",
+                trim: true,
+                allowEmpty: true,
+                classes: ["tui-prompt", ...styleToClasses(promptStyle)]
+            });
+
+            const v = parse(raw.trim());
+
+            if (!v) {
+                if (opts.onInvalid) opts.onInvalid(raw);
+                continue;
+            }
+
+            if (opts.accept && !opts.accept(v)) {
+                if (opts.onInvalid) opts.onInvalid(raw);
+                continue;
+            }
+
+            return v;
+        }
+    }
+
+    public async waitForEnterOrTimeout(timeoutMs: number): Promise<void> {
+        if (timeoutMs <= 0) return;
+        if (this.pendingPrompt) return;
+
+        const promptId = randomUUID();
+
+        const p = new Promise<void>(resolve => {
+            const state: PromptState = {
+                promptId,
+                prompt: "Press Enter to continue…",
+                mode: "enter",
+                trim: true,
+                allowEmpty: true,
+                classes: ["tui-prompt", "tui-prompt-enter", ...styleToClasses(this.promptStyle)]
+            };
+
+            this.pendingPrompt = {
+                state,
+                resolve: () => resolve()
+            };
+
+            this.broadcast({ t: "prompt", prompt: state });
+
+            this.waitTimer = setTimeout(() => {
+                this.waitTimer = null;
+
+                const pending = this.pendingPrompt;
+                if (!pending) return;
+                if (pending.state.promptId !== promptId) return;
+
+                this.pendingPrompt = null;
+                this.broadcast({ t: "prompt_clear" });
+                resolve();
+            }, timeoutMs);
+        });
+
+        await p;
+    }
+
+    /* =========================
+       Generic “do work with spinner”
+    ========================= */
+
+    public withThinking<T>(
+        label: string,
+        fn: () => Promise<T>,
+        opts: { intervalMs?: number; style?: Style } = {}
+    ): Promise<T> {
+        const stop = this.ui.startThinking(label, {
+            intervalMs: opts.intervalMs,
+            labelStyle: opts.style ?? this.infoStyle
+        });
+
+        const run = async (): Promise<T> => {
+            try {
+                return await fn();
+            } finally {
+                stop();
+            }
+        };
+
+        return run();
+    }
+
+    /* =========================
+       JSONConversation orchestration with UI
+    ========================= */
+
+    public async sendWithUi<T extends object>(
+        convo: JSONConversation<T>,
+        role: "system" | "user",
+        content: string,
+        opts: SendWithUiOptions = {}
+    ): Promise<T> {
+        const thinkingLabel = opts.thinkingLabel;
+        const intervalMs = opts.thinkingIntervalMs ?? 300;
+        const thinkingStyle = opts.thinkingStyle ?? this.infoStyle;
+
+        const startThinking = (): (() => void) | null => {
+            if (!thinkingLabel) return null;
+            return this.ui.startThinking(thinkingLabel, { intervalMs, labelStyle: thinkingStyle });
+        };
+
+        let stopThinking = startThinking();
+
+        const stopSpinner = (): void => {
+            if (!stopThinking) return;
+            stopThinking();
+            stopThinking = null;
+        };
+
+        const restartSpinner = (): void => {
+            if (!thinkingLabel) return;
+            stopThinking = startThinking();
+        };
+
+        const externalOnRetry = opts.send?.onRetry;
+
+        const mergedSend: SendOptions = {
+            ...(opts.send ?? {}),
+            onRetry: async (info) => {
+                stopSpinner();
+
+                const line = opts.retryLine ? await opts.retryLine(info) : null;
+                const printable = typeof line === "string" ? line.trim() : "";
+
+                if (printable) {
+                    if (opts.onRetryLine) {
+                        await opts.onRetryLine(printable, info);
+                    } else {
+                        this.centred(printable, opts.retryLineStyle ?? this.infoStyle);
+                    }
+                }
+
+                if (externalOnRetry) await externalOnRetry(info);
+                restartSpinner();
+            }
+        };
+
+        try {
+            const out = await convo.send(role, content, mergedSend);
+            stopSpinner();
+            return out;
+        } catch (err) {
+            stopSpinner();
+            throw err;
+        }
+    }
+
+    /* =========================
+       Meta helpers
+    ========================= */
+
+    public setMeta(key: string, value: string): void {
+        this.broadcast({ t: "meta", key, value });
+    }
+
+    /* =========================
+       Private helpers
+    ========================= */
+
+    private appendLine(text: string): void {
+        const id = this.nextId("line");
+        const classes = ["tui-elem", "tui-line"];
+        const el: UiLine = { kind: "line", id, text, classes };
+        this.elements.push(el);
+        this.broadcast({ t: "append", el });
+    }
+
+    private nextId(kind: string): string {
+        this.seq += 1;
+        const n = String(this.seq).padStart(6, "0");
+        return `tui-${kind}-${n}`;
+    }
+
+    private broadcast(evt: UiEvent): void {
+        const data = `data: ${toSseData(evt)}\n\n`;
+        for (const res of this.clients) res.write(data);
+    }
+
+    private async promptUser(cfg: {
+        prompt: string;
+        mode: "line" | "enter";
+        trim: boolean;
+        allowEmpty: boolean;
+        classes: readonly string[];
+    }): Promise<string> {
+        if (this.pendingPrompt) return "";
+
+        const promptId = randomUUID();
+
+        const out = await new Promise<string>(resolve => {
+            const state: PromptState = {
+                promptId,
+                prompt: cfg.prompt,
+                mode: cfg.mode,
+                trim: cfg.trim,
+                allowEmpty: cfg.allowEmpty,
+                classes: [...cfg.classes]
+            };
+
+            this.pendingPrompt = { state, resolve };
+            this.broadcast({ t: "prompt", prompt: state });
+        });
+
+        return out;
+    }
+
+    private template(): string | null {
+        const tpl = this.templateHtml;
+        if (!tpl) return null;
+
+        const paletteCss = buildAnsiPaletteCss();
+
+        return tpl
+            .replaceAll("{{TITLE}}", escapeHtml(this.title))
+            .replaceAll("{{PALETTE_CSS}}", paletteCss);
+    }
+
+    private snapshotInit(): UiInitEvent {
+        const spinners = [...this.spinners.values()];
+        const prompt = this.pendingPrompt ? this.pendingPrompt.state : null;
+
+        return {
+            t: "init",
+            title: this.title,
+            elements: [...this.elements],
+            spinners,
+            prompt,
+            css: this.cssText
+        };
+    }
+
+    private async route(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+        const method = req.method ?? "GET";
+        const url = req.url ?? "/";
+
+        if (method === "GET" && url === "/") {
+            const html = this.template();
+            if (!html) {
+                res.writeHead(503, { "content-type": "text/plain; charset=utf-8" });
+                res.end("Template not loaded yet");
+                return;
+            }
+
+            res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+            res.end(html);
+            return;
+        }
+
+        if (method === "GET" && url === "/styles.css") {
+            const cssPath = path.resolve(process.cwd(), "styles.css");
+            try {
+                const css = await fs.readFile(cssPath, "utf8");
+                res.writeHead(200, {
+                    "content-type": "text/css; charset=utf-8",
+                    "cache-control": "no-store"
+                });
+                res.end(css);
+            } catch {
+                res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+                res.end("styles.css not found");
+            }
+            return;
+        }
+
+        if (method === "GET" && url === "/events") {
+            res.writeHead(200, {
+                "content-type": "text/event-stream",
+                "cache-control": "no-cache",
+                "connection": "keep-alive",
+                "access-control-allow-origin": "*"
+            });
+
+            res.write(`data: ${toSseData(this.snapshotInit())}\n\n`);
+            this.clients.add(res);
+
+            req.on("close", () => {
+                this.clients.delete(res);
+            });
+
+            return;
+        }
+
+        if (method === "POST" && url === "/input") {
+            const data = await readJsonBody(req);
+            if (!isRecord(data)) {
+                res.writeHead(400, { "content-type": "application/json" });
+                res.end(JSON.stringify({ ok: false, error: "invalid_json" }));
+                return;
+            }
+
+            const promptId = typeof data["promptId"] === "string" ? data["promptId"] : "";
+            const value = typeof data["value"] === "string" ? data["value"] : "";
+
+            const pending = this.pendingPrompt;
+            if (!pending) {
+                res.writeHead(409, { "content-type": "application/json" });
+                res.end(JSON.stringify({ ok: false, error: "no_pending_prompt" }));
+                return;
+            }
+
+            if (pending.state.promptId !== promptId) {
+                res.writeHead(409, { "content-type": "application/json" });
+                res.end(JSON.stringify({ ok: false, error: "prompt_mismatch" }));
+                return;
+            }
+
+            if (this.waitTimer) {
+                clearTimeout(this.waitTimer);
+                this.waitTimer = null;
+            }
+
+            const out = pending.state.trim ? value.trim() : value;
+
+            if (!pending.state.allowEmpty && !out) {
+                res.writeHead(200, { "content-type": "application/json" });
+                res.end(JSON.stringify({ ok: true, accepted: false }));
+                return;
+            }
+
+            this.pendingPrompt = null;
+            this.broadcast({ t: "prompt_clear" });
+
+            pending.resolve(out);
+
+            res.writeHead(200, { "content-type": "application/json" });
+            res.end(JSON.stringify({ ok: true, accepted: true }));
+            return;
+        }
+
+        res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+        res.end("Not found");
+    }
+}

@@ -1,0 +1,374 @@
+{
+    "suits": [
+      {
+        "name": "Major Arcana",
+        "tarot_associations": {
+          "element": "Transcendental",
+          "domain": "Archetypes, destiny, life cycles, consciousness, major trials",
+          "energy": "Inevitable forces, deep learning, transformation"
+        },
+        "meaning_upright": "Major life processes, lessons of destiny, structural changes, moments that mark life stages.",
+        "meaning_reversed": "Resistance to change, denial of deep lessons, blockage of personal growth.",
+        "cards": [
+          {
+            "name": "The Fool",
+            "meaning_upright": "Free beginning, leap of faith, spontaneity, pure potential.",
+            "meaning_reversed": "Recklessness, avoidance, irresponsibility."
+          },
+          {
+            "name": "The Magician",
+            "meaning_upright": "Willpower, skill, manifestation, personal power.",
+            "meaning_reversed": "Manipulation, deceit, misused talent."
+          },
+          {
+            "name": "The High Priestess",
+            "meaning_upright": "Intuition, inner wisdom, hidden knowledge.",
+            "meaning_reversed": "Intuitive blockage, harmful secrets."
+          },
+          {
+            "name": "The Empress",
+            "meaning_upright": "Creativity, fertility, abundance, care.",
+            "meaning_reversed": "Dependence, excess, creative stagnation."
+          },
+          {
+            "name": "The Emperor",
+            "meaning_upright": "Order, authority, structure, leadership.",
+            "meaning_reversed": "Authoritarianism, rigidity, abuse of power."
+          },
+          {
+            "name": "The Hierophant",
+            "meaning_upright": "Tradition, spiritual guidance, teaching.",
+            "meaning_reversed": "Dogmatism, hypocrisy, moral rigidity."
+          },
+          {
+            "name": "The Lovers",
+            "meaning_upright": "Conscious choice, union, aligned values.",
+            "meaning_reversed": "Indecision, inner conflict, wrong choices."
+          },
+          {
+            "name": "The Chariot",
+            "meaning_upright": "Determined progress, control, victory.",
+            "meaning_reversed": "Lack of direction, defeat through impulsiveness."
+          },
+          {
+            "name": "Strength",
+            "meaning_upright": "Inner mastery, courage, compassion.",
+            "meaning_reversed": "Emotional weakness, suppressed anger."
+          },
+          {
+            "name": "The Hermit",
+            "meaning_upright": "Inner search, conscious withdrawal, wisdom.",
+            "meaning_reversed": "Excessive isolation, avoidance."
+          },
+          {
+            "name": "Wheel of Fortune",
+            "meaning_upright": "Inevitable change, cycles, destiny in motion.",
+            "meaning_reversed": "Resistance to change, stagnation."
+          },
+          {
+            "name": "Justice",
+            "meaning_upright": "Truth, balance, responsibility.",
+            "meaning_reversed": "Injustice, denial of truth."
+          },
+          {
+            "name": "The Hanged Man",
+            "meaning_upright": "Conscious sacrifice, new perspective.",
+            "meaning_reversed": "Futile stagnation, victim mentality."
+          },
+          {
+            "name": "Death",
+            "meaning_upright": "Necessary ending, deep transformation.",
+            "meaning_reversed": "Fear of change, resistance to closing cycles."
+          },
+          {
+            "name": "Temperance",
+            "meaning_upright": "Balance, harmony, integration.",
+            "meaning_reversed": "Excesses, internal imbalance."
+          },
+          {
+            "name": "The Devil",
+            "meaning_upright": "Attachments, hidden desires, dependencies.",
+            "meaning_reversed": "Liberation, awakening of awareness."
+          },
+          {
+            "name": "The Tower",
+            "meaning_upright": "Abrupt rupture, collapse of false structures.",
+            "meaning_reversed": "Denial of change, prolonged crisis."
+          },
+          {
+            "name": "The Star",
+            "meaning_upright": "Hope, faith, healing.",
+            "meaning_reversed": "Discouragement, loss of trust."
+          },
+          {
+            "name": "The Moon",
+            "meaning_upright": "Subconscious, fears, illusions.",
+            "meaning_reversed": "Clarity, overcoming fears."
+          },
+          {
+            "name": "The Sun",
+            "meaning_upright": "Success, clarity, vitality.",
+            "meaning_reversed": "Naive optimism, delays."
+          },
+          {
+            "name": "Judgement",
+            "meaning_upright": "Rebirth, inner calling, final evaluation.",
+            "meaning_reversed": "Self-deception, denial of the calling."
+          },
+          {
+            "name": "The World",
+            "meaning_upright": "Completion, fulfilment, total achievement.",
+            "meaning_reversed": "Incomplete closure, feeling of emptiness."
+          }
+        ]
+      },
+      {
+        "name": "Pentacles",
+        "tarot_associations": {
+          "element": "Earth",
+          "domain": "Material matters, money, work, security, physical body",
+          "energy": "Manifestation, stability, practical value"
+        },
+        "meaning_upright": "Material prosperity, financial stability, steady work, tangible achievements, security and gradual growth. Represents the relationship with resources, sustained effort, and the ability to build something lasting.",
+        "meaning_reversed": "Financial blockages, greed, fear of scarcity, poor resource management, material stagnation or excessive dependence on money.",
+        "cards": [
+          {
+            "name": "Ace of Pentacles",
+            "meaning_upright": "New material beginning, financial opportunity, seed of prosperity, concrete offer, real possibility of physical or financial growth.",
+            "meaning_reversed": "Missed opportunity, material insecurity, financial delays, lack of practical vision."
+          },
+          {
+            "name": "Two of Pentacles",
+            "meaning_upright": "Balance of resources, adaptability, managing multiple responsibilities, financial flexibility.",
+            "meaning_reversed": "Financial imbalance, poor administration, overload, inability to prioritise."
+          },
+          {
+            "name": "Three of Pentacles",
+            "meaning_upright": "Teamwork, learning, professional collaboration, recognition of skills.",
+            "meaning_reversed": "Lack of cooperation, undervalued work, errors due to disorganisation."
+          },
+          {
+            "name": "Four of Pentacles",
+            "meaning_upright": "Attachment to security, saving, protecting what has been gained, material control.",
+            "meaning_reversed": "Greed, fear of loss, rigidity, inability to share."
+          },
+          {
+            "name": "Five of Pentacles",
+            "meaning_upright": "Lack, financial hardship, feeling abandoned, precariousness.",
+            "meaning_reversed": "Gradual recovery, available help, way out of a material crisis."
+          },
+          {
+            "name": "Six of Pentacles",
+            "meaning_upright": "Generosity, fair exchange, mutual support, balance between giving and receiving.",
+            "meaning_reversed": "Dependence, self-interested charity, power imbalance."
+          },
+          {
+            "name": "Seven of Pentacles",
+            "meaning_upright": "Patience, assessment of progress, conscious waiting for results.",
+            "meaning_reversed": "Impatience, frustration, effort without clear reward."
+          },
+          {
+            "name": "Page of Pentacles",
+            "meaning_upright": "Practical learning, curiosity, beginning of studies or material projects.",
+            "meaning_reversed": "Lack of commitment, immaturity, wasted opportunities."
+          },
+          {
+            "name": "Knight of Pentacles",
+            "meaning_upright": "Consistency, discipline, responsibility, slow but steady progress.",
+            "meaning_reversed": "Excessive routine, stagnation, stubbornness."
+          },
+          {
+            "name": "King of Pentacles",
+            "meaning_upright": "Material success, practical leadership, security, achieved stability.",
+            "meaning_reversed": "Extreme materialism, abuse of power, rigidity."
+          }
+        ]
+      },
+      {
+        "name": "Cups",
+        "tarot_associations": {
+          "element": "Water",
+          "domain": "Emotions, relationships, intuition, emotional bonds",
+          "energy": "Sensitivity, receptivity, inner world"
+        },
+        "meaning_upright": "Love, deep emotions, emotional connection, empathy, meaningful affective experiences.",
+        "meaning_reversed": "Emotional confusion, affective blockage, shattered illusions, emotional dependence.",
+        "cards": [
+          {
+            "name": "Ace of Cups",
+            "meaning_upright": "Birth of a feeling, pure love, emotional openness, affective renewal.",
+            "meaning_reversed": "Repressed emotions, fear of loving, inner emptiness."
+          },
+          {
+            "name": "Two of Cups",
+            "meaning_upright": "Union, reciprocity, emotional agreement, balanced relationship.",
+            "meaning_reversed": "Emotional imbalance, breakup, lack of reciprocity."
+          },
+          {
+            "name": "Three of Cups",
+            "meaning_upright": "Celebration, friendship, community, shared joy.",
+            "meaning_reversed": "Excesses, superficiality, social conflicts."
+          },
+          {
+            "name": "Four of Cups",
+            "meaning_upright": "Apathy, introspection, emotional dissatisfaction.",
+            "meaning_reversed": "New motivation, acceptance of emotional opportunities."
+          },
+          {
+            "name": "Five of Cups",
+            "meaning_upright": "Loss, grief, regret, sadness.",
+            "meaning_reversed": "Healing, acceptance, emotional learning."
+          },
+          {
+            "name": "Six of Cups",
+            "meaning_upright": "Nostalgia, memories, innocence, the past.",
+            "meaning_reversed": "Excessive attachment to the past, difficulty moving forward."
+          },
+          {
+            "name": "Seven of Cups",
+            "meaning_upright": "Illusions, fantasies, multiple options, confusion.",
+            "meaning_reversed": "Emotional clarity, conscious choice."
+          },
+          {
+            "name": "Page of Cups",
+            "meaning_upright": "Sensitivity, emotional message, creativity.",
+            "meaning_reversed": "Emotional immaturity, insecurity."
+          },
+          {
+            "name": "Knight of Cups",
+            "meaning_upright": "Romanticism, idealism, emotional expression.",
+            "meaning_reversed": "Emotional inconsistency, manipulation."
+          },
+          {
+            "name": "King of Cups",
+            "meaning_upright": "Emotional maturity, compassion, inner balance.",
+            "meaning_reversed": "Emotional repression, apparent coldness."
+          }
+        ]
+      },
+      {
+        "name": "Swords",
+        "tarot_associations": {
+          "element": "Air",
+          "domain": "Mind, conflict, truth, communication",
+          "energy": "Clarity, analysis, confrontation"
+        },
+        "meaning_upright": "Logical thinking, difficult decisions, revealed truth, necessary conflict.",
+        "meaning_reversed": "Mental confusion, lies, avoidance, blocked communication.",
+        "cards": [
+          {
+            "name": "Ace of Swords",
+            "meaning_upright": "Truth, mental clarity, justice, new understanding.",
+            "meaning_reversed": "Confusion, distorted ideas, destructive use of truth."
+          },
+          {
+            "name": "Two of Swords",
+            "meaning_upright": "Indecision, mental blockage, denial.",
+            "meaning_reversed": "Forced decision, inevitable truth."
+          },
+          {
+            "name": "Three of Swords",
+            "meaning_upright": "Emotional pain, betrayal, disappointment.",
+            "meaning_reversed": "Mental healing, release of pain."
+          },
+          {
+            "name": "Four of Swords",
+            "meaning_upright": "Mental rest, recovery, necessary pause.",
+            "meaning_reversed": "Exhaustion, inability to disconnect."
+          },
+          {
+            "name": "Five of Swords",
+            "meaning_upright": "Conflict, bitter victory, tension.",
+            "meaning_reversed": "Reconciliation, learning after conflict."
+          },
+          {
+            "name": "Six of Swords",
+            "meaning_upright": "Transition, mental change, moving away from conflict.",
+            "meaning_reversed": "Resistance to change, mental stagnation."
+          },
+          {
+            "name": "Seven of Swords",
+            "meaning_upright": "Strategy, deceit, cunning.",
+            "meaning_reversed": "Exposure, guilt, confrontation."
+          },
+          {
+            "name": "Page of Swords",
+            "meaning_upright": "Mental curiosity, vigilance, new ideas.",
+            "meaning_reversed": "Gossip, verbal impulsiveness."
+          },
+          {
+            "name": "Knight of Swords",
+            "meaning_upright": "Swift action, determination, direct confrontation.",
+            "meaning_reversed": "Aggression, recklessness."
+          },
+          {
+            "name": "King of Swords",
+            "meaning_upright": "Intellectual authority, justice, strategic thinking.",
+            "meaning_reversed": "Extreme coldness, tyranny, manipulation."
+          }
+        ]
+      },
+      {
+        "name": "Wands",
+        "tarot_associations": {
+          "element": "Fire",
+          "domain": "Action, vital energy, creativity, purpose",
+          "energy": "Drive, initiative, expansion"
+        },
+        "meaning_upright": "Passion, movement, inspiration, will to act.",
+        "meaning_reversed": "Creative blockages, misdirected impulsiveness, exhaustion.",
+        "cards": [
+          {
+            "name": "Ace of Wands",
+            "meaning_upright": "Creative beginning, vital spark, opportunity for action.",
+            "meaning_reversed": "Lack of energy, project without direction."
+          },
+          {
+            "name": "Two of Wands",
+            "meaning_upright": "Planning, future vision, decision to expand.",
+            "meaning_reversed": "Fear of change, indecision."
+          },
+          {
+            "name": "Three of Wands",
+            "meaning_upright": "Expansion, progress, positive expectations.",
+            "meaning_reversed": "Delays, frustrated plans."
+          },
+          {
+            "name": "Four of Wands",
+            "meaning_upright": "Stability, celebration, solid foundation.",
+            "meaning_reversed": "Instability, lack of support."
+          },
+          {
+            "name": "Five of Wands",
+            "meaning_upright": "Conflict, competition, creative chaos.",
+            "meaning_reversed": "Avoiding conflict, internal tension."
+          },
+          {
+            "name": "Six of Wands",
+            "meaning_upright": "Victory, recognition, public success.",
+            "meaning_reversed": "Perceived failure, wounded pride."
+          },
+          {
+            "name": "Seven of Wands",
+            "meaning_upright": "Defence, resistance, holding one’s ground.",
+            "meaning_reversed": "Surrender, exhaustion."
+          },
+          {
+            "name": "Page of Wands",
+            "meaning_upright": "Enthusiasm, exploration, free spirit.",
+            "meaning_reversed": "Immaturity, impulsiveness."
+          },
+          {
+            "name": "Knight of Wands",
+            "meaning_upright": "Adventure, swift action, intense passion.",
+            "meaning_reversed": "Recklessness, lack of consistency."
+          },
+          {
+            "name": "King of Wands",
+            "meaning_upright": "Inspirational leadership, vision, charisma.",
+            "meaning_reversed": "Authoritarianism, dominant impulsiveness."
+          }
+        ]
+      }
+    ]
+  }  
