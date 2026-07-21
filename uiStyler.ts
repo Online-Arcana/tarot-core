@@ -34,7 +34,7 @@ type ThemeState = Readonly<{
     elemMarginPx: number;
 
     // boxes
-    boxBorder: string;
+    //boxBorder: string;
     boxBg: string;
     boxRadiusPx: number;
     boxPaddingYpx: number;
@@ -90,7 +90,7 @@ function defaultTheme(): ThemeState {
 
         elemMarginPx: 6,
 
-        boxBorder: "rgba(0, 0, 0, 0.18)",
+        //boxBorder: "rgba(0, 0, 0, 0.18)",
         boxBg: "transparent",
         boxRadiusPx: 10,
         boxPaddingYpx: 10,
@@ -165,7 +165,7 @@ function renderCss(t: ThemeState, template: string): string {
 
         TUI_ELEM_MARGIN: String(t.elemMarginPx),
 
-        TUI_BOX_BORDER: t.boxBorder,
+        //TUI_BOX_BORDER: t.boxBorder,
         TUI_BOX_BG: t.boxBg,
         TUI_BOX_RADIUS: String(t.boxRadiusPx),
         TUI_BOX_PAD_Y: String(t.boxPaddingYpx),
@@ -204,7 +204,8 @@ function themeSummary(t: ThemeState): string {
         `meta: bg ${t.metaBg}, border ${t.metaBorder}`,
         `root: bg ${t.rootBg}, padding ${t.rootPaddingPx}px`,
         `elemMargin: ${t.elemMarginPx}px`,
-        `box: border ${t.boxBorder}, bg ${t.boxBg}, radius ${t.boxRadiusPx}px, pad ${t.boxPaddingYpx}px ${t.boxPaddingXpx}px`,
+        //`box: border ${t.boxBorder}, bg ${t.boxBg}, radius ${t.boxRadiusPx}px, pad ${t.boxPaddingYpx}px ${t.boxPaddingXpx}px`,
+        `box: border (locked), bg ${t.boxBg}, radius ${t.boxRadiusPx}px, pad ${t.boxPaddingYpx}px ${t.boxPaddingXpx}px`,
         `io: bg ${t.ioBg}, border ${t.ioBorder}`,
         `io prompt: ${t.ioPromptFg}`,
         `input: bg ${t.inputBg}, fg ${t.inputFg}, border ${t.inputBorder}, radius ${t.inputRadiusPx}px`,
@@ -223,7 +224,7 @@ function presets(): Readonly<Record<string, ThemeState>> {
         metaBg: "#0b0e12",
         metaBorder: "rgba(255, 255, 255, 0.10)",
         rootBg: "#0b0e12",
-        boxBorder: "rgba(255, 255, 255, 0.18)",
+        //  boxBorder: "rgba(255, 255, 255, 0.18)",
         boxBg: "rgba(255, 255, 255, 0.03)",
         ioBg: "#0b0e12",
         ioBorder: "rgba(255, 255, 255, 0.10)",
@@ -242,7 +243,7 @@ function presets(): Readonly<Record<string, ThemeState>> {
         bodyFg: "#eceff4",
         metaBg: "#2e3440",
         rootBg: "#2e3440",
-        boxBorder: "rgba(236, 239, 244, 0.18)",
+        //boxBorder: "rgba(236, 239, 244, 0.18)",
         boxBg: "rgba(236, 239, 244, 0.05)",
         inputBg: "rgba(236, 239, 244, 0.08)",
         buttonBg: "rgba(236, 239, 244, 0.10)"
@@ -433,7 +434,7 @@ class UiStyler {
             { label: "Dark border", value: "rgba(255, 255, 255, 0.18)" }
         ];
 
-        const boxBorder = await this.chooseColour("Box border colour", this.theme.boxBorder, presetsList);
+        //const boxBorder = await this.chooseColour("Box border colour", this.theme.boxBorder, presetsList);
         const boxBg = await this.chooseColour("Box background", this.theme.boxBg, presetsList);
 
         const radius = await this.chooseNumber("Box radius (px)", this.theme.boxRadiusPx, 0, 30);
@@ -444,7 +445,7 @@ class UiStyler {
 
         this.theme = {
             ...this.theme,
-            boxBorder,
+            //boxBorder,
             boxBg,
             boxRadiusPx: radius,
             boxPaddingYpx: padY,

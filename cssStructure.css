@@ -13,7 +13,6 @@
     
         --tui-elem-margin: {{TUI_ELEM_MARGIN}}px;
     
-        --tui-box-border: {{TUI_BOX_BORDER}};
         --tui-box-bg: {{TUI_BOX_BG}};
         --tui-box-radius: {{TUI_BOX_RADIUS}}px;
         --tui-box-pad-y: {{TUI_BOX_PAD_Y}}px;
@@ -60,7 +59,7 @@ body {
 }
 
 .tui-box__border {
-    border: 1px solid var(--tui-box-border);
+    border: 3px solid currentColor;
     background: var(--tui-box-bg);
     border-radius: var(--tui-box-radius);
     padding: var(--tui-box-pad-y) var(--tui-box-pad-x);

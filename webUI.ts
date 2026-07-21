@@ -1,3 +1,4 @@
+// webUI.ts
 import http from "http";
 import path from "path";
 import fs from "fs/promises";
@@ -9,8 +10,6 @@ import type { JSONConversation, SendOptions } from "./jsonConvos";
 type MaybePromise<T> = T | Promise<T>;
 
 type Style = ReturnType<TerminalTui["sgr"]["style"]>;
-// NOTE: If your TS complains about the above line, keep your original:
-// type Style = ReturnType<TerminalTui["sgr"]["style"]>;
 type RetryInfo = Parameters<NonNullable<SendOptions["onRetry"]>>[0];
 
 export type WebUiOptions = {
@@ -109,7 +108,6 @@ type UiInitEvent = {
     elements: readonly UiElement[];
     spinners: readonly UiSpinner[];
     prompt: PromptState | null;
-    css: string;
 };
 
 type UiEvent =
@@ -121,7 +119,9 @@ type UiEvent =
     | { t: "prompt"; prompt: PromptState }
     | { t: "prompt_clear" }
     | { t: "meta"; key: string; value: string }
-    | { t: "css"; css: string };
+    | { t: "css"; css: string }
+    | { t: "input_placeholder"; id: string; inputType: string; placeholder: string; generated?: boolean }
+    | { t: "dom_disabled"; id: string; disabled: boolean };
 
 function escapeHtml(s: string): string {
     return s
@@ -244,13 +244,197 @@ function isRecord(v: unknown): v is Record<string, unknown> {
     return typeof v === "object" && v !== null;
 }
 
-export class WebUi {
+type PendingPrompt = {
+    state: PromptState;
+    resolve: (v: string) => void;
+};
+
+type SessionState = {
+    clients: Set<http.ServerResponse>;
+    elements: UiElement[];
+    spinners: Map<string, UiSpinner>;
+    pendingPrompt: PendingPrompt | null;
+    waitTimer: NodeJS.Timeout | null;
+    seq: number;
+    disabledCounts: Map<string, number>;
+};
+
+type ParsedSession = {
+    sessionToken: string | null;
+    chatId: string | null;
+};
+
+function parseSessionFromRawUrl(rawUrl: string): ParsedSession {
+    try {
+        const u = new URL(rawUrl, "http://local/");
+        const s = (u.searchParams.get("sessionToken") || "").trim();
+        const c = (u.searchParams.get("chatId") || "").trim();
+        return {
+            sessionToken: s ? s : null,
+            chatId: c ? c : null
+        };
+    } catch {
+        return { sessionToken: null, chatId: null };
+    }
+}
+
+type SessionKeyCandidates = {
+    tokenKey: string | null;
+    chatKey: string | null;
+};
+
+function sessionKeyCandidates(rawUrl: string): SessionKeyCandidates {
+    const p = parseSessionFromRawUrl(rawUrl);
+    const tokenKey = p.sessionToken ? p.sessionToken : null;
+    const chatKey = p.chatId ? `chat:${p.chatId}` : null;
+    return { tokenKey, chatKey };
+}
+
+/**
+ * Prefer sessionToken for true isolation.
+ * If a client connects before it has a sessionToken, fall back to a chatId-scoped session key.
+ */
+function resolveSessionKey(rawUrl: string): string | null {
+    const p = parseSessionFromRawUrl(rawUrl);
+    if (p.sessionToken) return p.sessionToken;
+    if (p.chatId) return `chat:${p.chatId}`;
+    return null;
+}
+
+export class WebUiSession {
+    private readonly parent: WebUi;
+    private readonly sessionKey: string;
+
     public readonly ui: Readonly<{
         sgr: TerminalTui["sgr"];
         sleep: (ms: number) => Promise<void>;
         startThinking: (label: string, opts?: { intervalMs?: number; labelStyle?: Style }) => () => void;
     }>;
 
+    public readonly ready: Promise<void>;
+
+    public constructor(parent: WebUi, sessionKey: string) {
+        this.parent = parent;
+        this.sessionKey = sessionKey;
+        this.ready = parent.ready;
+
+        this.ui = Object.freeze({
+            sgr: parent.sgr,
+            sleep: parent.sleep,
+            startThinking: (label: string, o?: { intervalMs?: number; labelStyle?: Style }) => {
+                return parent.sessionStartThinking(this.sessionKey, label, o);
+            }
+        });
+    }
+
+    public url(): string {
+        return this.parent.url();
+    }
+
+    /**
+     * Ends this session only (clients, prompts, spinners, elements).
+     * Does not stop the HTTP server.
+     */
+    public close(): void {
+        this.parent.closeSession(this.sessionKey);
+    }
+
+    public setCss(css: string): void {
+        this.parent.setCss(css);
+    }
+
+    public clearScreen(): void {
+        this.parent.sessionClearScreen(this.sessionKey);
+    }
+
+    public write(s: string): void {
+        this.parent.sessionWrite(this.sessionKey, s);
+    }
+
+    public line(s = ""): void {
+        this.parent.sessionLine(this.sessionKey, s);
+    }
+
+    public centred(text: string, style?: Style): void {
+        this.parent.sessionCentred(this.sessionKey, text, style);
+    }
+
+    public boxed(
+        title: string | null,
+        body: string,
+        styles?: {
+            borderStyle?: Style;
+            bodyStyle?: Style;
+            titleStyle?: Style;
+        }
+    ): void {
+        this.parent.sessionBoxed(this.sessionKey, title, body, styles);
+    }
+
+    public paint(text: string, style?: Style): string {
+        return this.parent.paint(text, style);
+    }
+
+    public paintPrompt(text: string): string {
+        return this.parent.paintPrompt(text);
+    }
+
+    public info(text: string): void {
+        this.parent.sessionInfo(this.sessionKey, text);
+    }
+
+    public muted(text: string): void {
+        this.parent.sessionMuted(this.sessionKey, text);
+    }
+
+    public async askLine(prompt: string, opts: AskLineOptions = {}): Promise<string> {
+        return this.parent.sessionAskLine(this.sessionKey, prompt, opts);
+    }
+
+    public async askNonEmpty(prompt: string, opts: AskNonEmptyOptions = {}): Promise<string> {
+        return this.parent.sessionAskNonEmpty(this.sessionKey, prompt, opts);
+    }
+
+    public async askChoice<T>(
+        prompt: string,
+        parse: (raw: string) => T | null,
+        opts: AskChoiceOptions<T> = {}
+    ): Promise<T> {
+        return this.parent.sessionAskChoice(this.sessionKey, prompt, parse, opts);
+    }
+
+    public async waitForEnterOrTimeout(timeoutMs: number): Promise<void> {
+        return this.parent.sessionWaitForEnterOrTimeout(this.sessionKey, timeoutMs);
+    }
+
+    public withThinking<T>(
+        label: string,
+        fn: () => Promise<T>,
+        opts: { intervalMs?: number; style?: Style } = {}
+    ): Promise<T> {
+        return this.parent.sessionWithThinking(this.sessionKey, label, fn, opts);
+    }
+
+    public async sendWithUi<T extends object>(
+        convo: JSONConversation<T>,
+        role: "system" | "user",
+        content: string,
+        opts: SendWithUiOptions = {}
+    ): Promise<T> {
+        return this.parent.sessionSendWithUi(this.sessionKey, convo, role, content, opts);
+    }
+
+    public setMeta(key: string, value: string): void {
+        this.parent.sessionSetMeta(this.sessionKey, key, value);
+    }
+
+    public setInputPlaceholder(inputId: string, placeholder: string, generated?: boolean, inputType = "text"): void {
+        this.parent.sessionSetInputPlaceholder(this.sessionKey, inputId, placeholder, generated, inputType);
+    }
+
+}
+
+export class WebUi {
     public readonly ready: Promise<void>;
 
     private readonly host: string;
@@ -265,26 +449,16 @@ export class WebUi {
     private readonly mutedStyle: Style;
 
     private readonly server: http.Server;
-    private readonly clients = new Set<http.ServerResponse>();
 
-    private readonly elements: UiElement[] = [];
-    private readonly spinners = new Map<string, UiSpinner>();
+    private readonly sessions = new Map<string, SessionState>();
 
     private templateHtml: string | null = null;
-
-    private pendingPrompt: {
-        state: PromptState;
-        resolve: (v: string) => void;
-    } | null = null;
-
-    private waitTimer: NodeJS.Timeout | null = null;
-    private seq = 0;
 
     private cssText = "";
 
     public constructor(opts: WebUiOptions = {}) {
         this.host = opts.host ?? "127.0.0.1";
-        this.port = opts.port ?? 3210;
+        this.port = opts.port ?? 6667;
         this.title = opts.title ?? "Web UI";
         this.logUrl = opts.logUrl ?? true;
 
@@ -295,34 +469,13 @@ export class WebUi {
         this.infoStyle = opts.infoStyle ?? S.style(S.italicOn, S.fg256(245));
         this.mutedStyle = opts.mutedStyle ?? S.style(S.fg256(240));
 
-        this.ui = Object.freeze({
-            sgr: this.sgrSource.sgr,
-            sleep: async (ms: number) => {
-                await new Promise<void>(resolve => setTimeout(resolve, ms));
-            },
-            startThinking: (label: string, o?: { intervalMs?: number; labelStyle?: Style }) => {
-                const intervalMs = o?.intervalMs ?? 300;
-                const classes = ["tui-elem", "tui-thinking", ...styleToClasses(o?.labelStyle)];
-                const id = this.nextId("thinking");
-
-                const spinner: UiSpinner = { id, label, classes, intervalMs };
-                this.spinners.set(id, spinner);
-                this.broadcast({ t: "thinking_start", spinner });
-
-                return () => {
-                    this.spinners.delete(id);
-                    this.broadcast({ t: "thinking_stop", id });
-                };
-            }
-        });
-
         this.server = http.createServer((req, res) => {
             void this.route(req, res);
         });
 
         const templatePath =
             opts.templatePath ??
-            path.resolve(__dirname, "webUI.html");
+            path.resolve(import.meta.dir, "webUI.html");
 
         const templateReady = fs.readFile(templatePath, "utf8")
             .then(s => {
@@ -357,53 +510,95 @@ export class WebUi {
         this.ready = Promise.all([templateReady, serverReady]).then(() => undefined);
     }
 
+    public get sgr(): TerminalTui["sgr"] {
+        return this.sgrSource.sgr;
+    }
+
+    public sleep = async (ms: number): Promise<void> => {
+        await new Promise<void>(resolve => setTimeout(resolve, ms));
+    };
+
+    public forSession(sessionKey: string): WebUiSession {
+        const k = sessionKey.trim();
+        if (!k) throw new Error("sessionKey is required");
+        this.ensureSession(k);
+        return new WebUiSession(this, k);
+    }
+
     public setCss(css: string): void {
         this.cssText = css;
-        this.broadcast({ t: "css", css: this.cssText });
+        this.broadcastAll({ t: "css", css: this.cssText });
     }
 
     public url(): string {
         return `http://${this.host}:${this.port}/`;
     }
 
+    /**
+     * Stops the HTTP server (global).
+     */
     public close(): void {
-        for (const c of this.clients) c.end();
-        this.clients.clear();
-
-        if (this.waitTimer) {
-            clearTimeout(this.waitTimer);
-            this.waitTimer = null;
+        for (const key of this.sessions.keys()) {
+            this.closeSession(key);
         }
-
+        this.sessions.clear();
         this.server.close();
     }
 
+    /**
+     * Ends a single session (clients, prompts, spinners, elements) without stopping the HTTP server.
+     */
+    public closeSession(sessionKey: string): void {
+        const ssn = this.sessions.get(sessionKey);
+        if (!ssn) return;
+
+        for (const c of ssn.clients) c.end();
+        ssn.clients.clear();
+
+        if (ssn.waitTimer) {
+            clearTimeout(ssn.waitTimer);
+            ssn.waitTimer = null;
+        }
+
+        const pending = ssn.pendingPrompt;
+        ssn.pendingPrompt = null;
+        if (pending) {
+            // Resolve with empty string to unblock awaiting code.
+            pending.resolve("");
+        }
+
+        this.sessions.delete(sessionKey);
+    }
+
     /* =========================
-       Output primitives (TerminalIo-like)
+       Session-scoped primitives (used by WebUiSession)
     ========================= */
 
-    public clearScreen(): void {
-        this.elements.length = 0;
-        this.broadcast({ t: "clear" });
+    public sessionClearScreen(sessionKey: string): void {
+        const ssn = this.ensureSession(sessionKey);
+        ssn.elements.length = 0;
+        this.broadcast(sessionKey, { t: "clear" });
     }
 
-    public write(s: string): void {
-        this.appendLine(s);
+    public sessionWrite(sessionKey: string, s: string): void {
+        this.sessionAppendLine(sessionKey, s);
     }
 
-    public line(s = ""): void {
-        this.appendLine(s);
+    public sessionLine(sessionKey: string, s = ""): void {
+        this.sessionAppendLine(sessionKey, s);
     }
 
-    public centred(text: string, style?: Style): void {
-        const id = this.nextId("centred");
+    public sessionCentred(sessionKey: string, text: string, style?: Style): void {
+        const ssn = this.ensureSession(sessionKey);
+        const id = this.nextId(ssn, "centred");
         const classes = ["tui-elem", "tui-centred", ...styleToClasses(style)];
         const el: UiLine = { kind: "centred", id, text, classes };
-        this.elements.push(el);
-        this.broadcast({ t: "append", el });
+        ssn.elements.push(el);
+        this.broadcast(sessionKey, { t: "append", el });
     }
 
-    public boxed(
+    public sessionBoxed(
+        sessionKey: string,
         title: string | null,
         body: string,
         styles?: {
@@ -412,7 +607,8 @@ export class WebUi {
             titleStyle?: Style;
         }
     ): void {
-        const id = this.nextId("box");
+        const ssn = this.ensureSession(sessionKey);
+        const id = this.nextId(ssn, "box");
 
         const el: UiBox = {
             kind: "box",
@@ -425,8 +621,8 @@ export class WebUi {
             bodyClasses: ["tui-box__body", ...styleToClasses(styles?.bodyStyle)]
         };
 
-        this.elements.push(el);
-        this.broadcast({ t: "append", el });
+        ssn.elements.push(el);
+        this.broadcast(sessionKey, { t: "append", el });
     }
 
     public paint(text: string, _style?: Style): string {
@@ -437,24 +633,109 @@ export class WebUi {
         return text;
     }
 
-    public info(text: string): void {
-        this.centred(text, this.infoStyle);
+    public sessionInfo(sessionKey: string, text: string): void {
+        this.sessionCentred(sessionKey, text, this.infoStyle);
     }
 
-    public muted(text: string): void {
-        this.centred(text, this.mutedStyle);
+    public sessionMuted(sessionKey: string, text: string): void {
+        this.sessionCentred(sessionKey, text, this.mutedStyle);
     }
 
-    /* =========================
-       Input primitives (TerminalIo-like)
-    ========================= */
+    public sessionStartThinking(
+        sessionKey: string,
+        label: string,
+        o?: { intervalMs?: number; labelStyle?: Style }
+    ): () => void {
+        const ssn = this.ensureSession(sessionKey);
+        const intervalMs = o?.intervalMs ?? 300;
+        const classes = ["tui-elem", "tui-thinking", ...styleToClasses(o?.labelStyle)];
+        const id = this.nextId(ssn, "thinking");
 
-    public async askLine(prompt: string, opts: AskLineOptions = {}): Promise<string> {
+        const spinner: UiSpinner = { id, label, classes, intervalMs };
+        ssn.spinners.set(id, spinner);
+        this.broadcast(sessionKey, { t: "thinking_start", spinner });
+
+        return () => {
+            const ssn2 = this.sessions.get(sessionKey);
+            if (!ssn2) return;
+            ssn2.spinners.delete(id);
+            this.broadcast(sessionKey, { t: "thinking_stop", id });
+        };
+    }
+
+    public sessionSetMeta(sessionKey: string, key: string, value: string): void {
+        this.broadcast(sessionKey, { t: "meta", key, value });
+    }
+
+    public sessionSetInputPlaceholder(
+        sessionKey: string,
+        inputId: string,
+        placeholder: string,
+        generated?: boolean,
+        inputType = "text"
+    ): void {
+        const id = (inputId || "").trim();
+        if (!id) return;
+
+        this.broadcast(sessionKey, {
+            t: "input_placeholder",
+            id,
+            inputType: (inputType || "text").trim() || "text",
+            placeholder: placeholder ?? "",
+            generated: generated ?? undefined
+        });
+    }
+
+    public sessionSetDomDisabled(sessionKey: string, id: string, disabled: boolean): void {
+        const elId = (id || "").trim();
+        if (!elId) return;
+
+        this.broadcast(sessionKey, { t: "dom_disabled", id: elId, disabled: Boolean(disabled) });
+    }
+
+    private sessionAcquireDomDisabled(sessionKey: string, ids: readonly string[]): void {
+        const ssn = this.ensureSession(sessionKey);
+
+        for (const raw of ids) {
+            const id = (raw || "").trim();
+            if (!id) continue;
+
+            const prev = ssn.disabledCounts.get(id) ?? 0;
+            const next = prev + 1;
+            ssn.disabledCounts.set(id, next);
+
+            if (next === 1) {
+                this.broadcast(sessionKey, { t: "dom_disabled", id, disabled: true });
+            }
+        }
+    }
+
+    private sessionReleaseDomDisabled(sessionKey: string, ids: readonly string[]): void {
+        const ssn = this.sessions.get(sessionKey);
+        if (!ssn) return;
+
+        for (const raw of ids) {
+            const id = (raw || "").trim();
+            if (!id) continue;
+
+            const prev = ssn.disabledCounts.get(id) ?? 0;
+            const next = Math.max(0, prev - 1);
+
+            if (next === 0) {
+                ssn.disabledCounts.delete(id);
+                this.broadcast(sessionKey, { t: "dom_disabled", id, disabled: false });
+            } else {
+                ssn.disabledCounts.set(id, next);
+            }
+        }
+    }
+
+    public async sessionAskLine(sessionKey: string, prompt: string, opts: AskLineOptions = {}): Promise<string> {
         const trim = opts.trim ?? true;
         const allowEmpty = opts.allowEmpty ?? true;
         const promptStyle = opts.promptStyle ?? this.promptStyle;
 
-        const raw = await this.promptUser({
+        const raw = await this.sessionPromptUser(sessionKey, {
             prompt,
             mode: "line",
             trim,
@@ -468,12 +749,12 @@ export class WebUi {
         return "";
     }
 
-    public async askNonEmpty(prompt: string, opts: AskNonEmptyOptions = {}): Promise<string> {
+    public async sessionAskNonEmpty(sessionKey: string, prompt: string, opts: AskNonEmptyOptions = {}): Promise<string> {
         const trim = opts.trim ?? true;
         const promptStyle = opts.promptStyle ?? this.promptStyle;
 
         while (true) {
-            const raw = await this.promptUser({
+            const raw = await this.sessionPromptUser(sessionKey, {
                 prompt,
                 mode: "line",
                 trim,
@@ -488,7 +769,8 @@ export class WebUi {
         }
     }
 
-    public async askChoice<T>(
+    public async sessionAskChoice<T>(
+        sessionKey: string,
         prompt: string,
         parse: (raw: string) => T | null,
         opts: AskChoiceOptions<T> = {}
@@ -498,7 +780,7 @@ export class WebUi {
         while (true) {
             if (opts.render) opts.render();
 
-            const raw = await this.promptUser({
+            const raw = await this.sessionPromptUser(sessionKey, {
                 prompt,
                 mode: "line",
                 trim: true,
@@ -522,9 +804,11 @@ export class WebUi {
         }
     }
 
-    public async waitForEnterOrTimeout(timeoutMs: number): Promise<void> {
+    public async sessionWaitForEnterOrTimeout(sessionKey: string, timeoutMs: number): Promise<void> {
         if (timeoutMs <= 0) return;
-        if (this.pendingPrompt) return;
+
+        const ssn = this.ensureSession(sessionKey);
+        if (ssn.pendingPrompt) return;
 
         const promptId = randomUUID();
 
@@ -538,22 +822,22 @@ export class WebUi {
                 classes: ["tui-prompt", "tui-prompt-enter", ...styleToClasses(this.promptStyle)]
             };
 
-            this.pendingPrompt = {
+            ssn.pendingPrompt = {
                 state,
                 resolve: () => resolve()
             };
 
-            this.broadcast({ t: "prompt", prompt: state });
+            this.broadcast(sessionKey, { t: "prompt", prompt: state });
 
-            this.waitTimer = setTimeout(() => {
-                this.waitTimer = null;
+            ssn.waitTimer = setTimeout(() => {
+                ssn.waitTimer = null;
 
-                const pending = this.pendingPrompt;
+                const pending = ssn.pendingPrompt;
                 if (!pending) return;
                 if (pending.state.promptId !== promptId) return;
 
-                this.pendingPrompt = null;
-                this.broadcast({ t: "prompt_clear" });
+                ssn.pendingPrompt = null;
+                this.broadcast(sessionKey, { t: "prompt_clear" });
                 resolve();
             }, timeoutMs);
         });
@@ -561,16 +845,13 @@ export class WebUi {
         await p;
     }
 
-    /* =========================
-       Generic “do work with spinner”
-    ========================= */
-
-    public withThinking<T>(
+    public sessionWithThinking<T>(
+        sessionKey: string,
         label: string,
         fn: () => Promise<T>,
         opts: { intervalMs?: number; style?: Style } = {}
     ): Promise<T> {
-        const stop = this.ui.startThinking(label, {
+        const stop = this.sessionStartThinking(sessionKey, label, {
             intervalMs: opts.intervalMs,
             labelStyle: opts.style ?? this.infoStyle
         });
@@ -586,11 +867,8 @@ export class WebUi {
         return run();
     }
 
-    /* =========================
-       JSONConversation orchestration with UI
-    ========================= */
-
-    public async sendWithUi<T extends object>(
+    public async sessionSendWithUi<T extends object>(
+        sessionKey: string,
         convo: JSONConversation<T>,
         role: "system" | "user",
         content: string,
@@ -600,9 +878,13 @@ export class WebUi {
         const intervalMs = opts.thinkingIntervalMs ?? 300;
         const thinkingStyle = opts.thinkingStyle ?? this.infoStyle;
 
+        const lockIds = ["tui-input", "tui-send"] as const;
+        this.sessionAcquireDomDisabled(sessionKey, lockIds);
+
+
         const startThinking = (): (() => void) | null => {
             if (!thinkingLabel) return null;
-            return this.ui.startThinking(thinkingLabel, { intervalMs, labelStyle: thinkingStyle });
+            return this.sessionStartThinking(sessionKey, thinkingLabel, { intervalMs, labelStyle: thinkingStyle });
         };
 
         let stopThinking = startThinking();
@@ -632,7 +914,7 @@ export class WebUi {
                     if (opts.onRetryLine) {
                         await opts.onRetryLine(printable, info);
                     } else {
-                        this.centred(printable, opts.retryLineStyle ?? this.infoStyle);
+                        this.sessionCentred(sessionKey, printable, opts.retryLineStyle ?? this.infoStyle);
                     }
                 }
 
@@ -648,48 +930,76 @@ export class WebUi {
         } catch (err) {
             stopSpinner();
             throw err;
+        } finally {
+            this.sessionReleaseDomDisabled(sessionKey, lockIds);
         }
-    }
-
-    /* =========================
-       Meta helpers
-    ========================= */
-
-    public setMeta(key: string, value: string): void {
-        this.broadcast({ t: "meta", key, value });
     }
 
     /* =========================
        Private helpers
     ========================= */
 
-    private appendLine(text: string): void {
-        const id = this.nextId("line");
-        const classes = ["tui-elem", "tui-line"];
-        const el: UiLine = { kind: "line", id, text, classes };
-        this.elements.push(el);
-        this.broadcast({ t: "append", el });
+    private ensureSession(sessionKey: string): SessionState {
+        const existing = this.sessions.get(sessionKey);
+        if (existing) return existing;
+
+        const created: SessionState = {
+            clients: new Set<http.ServerResponse>(),
+            elements: [],
+            spinners: new Map<string, UiSpinner>(),
+            pendingPrompt: null,
+            waitTimer: null,
+            seq: 0,
+            disabledCounts: new Map<string, number>()
+        };
+
+        this.sessions.set(sessionKey, created);
+        return created;
     }
 
-    private nextId(kind: string): string {
-        this.seq += 1;
-        const n = String(this.seq).padStart(6, "0");
+    private sessionAppendLine(sessionKey: string, text: string): void {
+        const ssn = this.ensureSession(sessionKey);
+        const id = this.nextId(ssn, "line");
+        const classes = ["tui-elem", "tui-line"];
+        const el: UiLine = { kind: "line", id, text, classes };
+        ssn.elements.push(el);
+        this.broadcast(sessionKey, { t: "append", el });
+    }
+
+    private nextId(ssn: SessionState, kind: string): string {
+        ssn.seq += 1;
+        const n = String(ssn.seq).padStart(6, "0");
         return `tui-${kind}-${n}`;
     }
 
-    private broadcast(evt: UiEvent): void {
+    private broadcast(sessionKey: string, evt: UiEvent): void {
+        const ssn = this.sessions.get(sessionKey);
+        if (!ssn) return;
+
         const data = `data: ${toSseData(evt)}\n\n`;
-        for (const res of this.clients) res.write(data);
+        for (const res of ssn.clients) res.write(data);
     }
 
-    private async promptUser(cfg: {
+    private broadcastAll(evt: UiEvent): void {
+        const data = `data: ${toSseData(evt)}\n\n`;
+        for (const ssn of this.sessions.values()) {
+            for (const res of ssn.clients) res.write(data);
+        }
+    }
+
+    private sendToClient(res: http.ServerResponse, evt: UiEvent): void {
+        res.write(`data: ${toSseData(evt)}\n\n`);
+    }
+
+    private async sessionPromptUser(cfgSessionKey: string, cfg: {
         prompt: string;
         mode: "line" | "enter";
         trim: boolean;
         allowEmpty: boolean;
         classes: readonly string[];
     }): Promise<string> {
-        if (this.pendingPrompt) return "";
+        const ssn = this.ensureSession(cfgSessionKey);
+        if (ssn.pendingPrompt) return "";
 
         const promptId = randomUUID();
 
@@ -703,8 +1013,8 @@ export class WebUi {
                 classes: [...cfg.classes]
             };
 
-            this.pendingPrompt = { state, resolve };
-            this.broadcast({ t: "prompt", prompt: state });
+            ssn.pendingPrompt = { state, resolve };
+            this.broadcast(cfgSessionKey, { t: "prompt", prompt: state });
         });
 
         return out;
@@ -721,25 +1031,26 @@ export class WebUi {
             .replaceAll("{{PALETTE_CSS}}", paletteCss);
     }
 
-    private snapshotInit(): UiInitEvent {
-        const spinners = [...this.spinners.values()];
-        const prompt = this.pendingPrompt ? this.pendingPrompt.state : null;
+    private snapshotInit(sessionKey: string): UiInitEvent {
+        const ssn = this.ensureSession(sessionKey);
+        const spinners = [...ssn.spinners.values()];
+        const prompt = ssn.pendingPrompt ? ssn.pendingPrompt.state : null;
 
         return {
             t: "init",
             title: this.title,
-            elements: [...this.elements],
+            elements: [...ssn.elements],
             spinners,
-            prompt,
-            css: this.cssText
+            prompt
         };
     }
 
     private async route(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
         const method = req.method ?? "GET";
-        const url = req.url ?? "/";
+        const rawUrl = req.url ?? "/";
+        const pathname = rawUrl.split("?", 1)[0];
 
-        if (method === "GET" && url === "/") {
+        if (method === "GET" && pathname === "/") {
             const html = this.template();
             if (!html) {
                 res.writeHead(503, { "content-type": "text/plain; charset=utf-8" });
@@ -752,41 +1063,47 @@ export class WebUi {
             return;
         }
 
-        if (method === "GET" && url === "/styles.css") {
-            const cssPath = path.resolve(process.cwd(), "styles.css");
-            try {
-                const css = await fs.readFile(cssPath, "utf8");
-                res.writeHead(200, {
-                    "content-type": "text/css; charset=utf-8",
-                    "cache-control": "no-store"
-                });
-                res.end(css);
-            } catch {
-                res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
-                res.end("styles.css not found");
-            }
-            return;
-        }
+        if (method === "GET" && pathname === "/events") {
+            const keys = sessionKeyCandidates(rawUrl);
+            const sessionKey =
+                (keys.tokenKey && this.sessions.has(keys.tokenKey) ? keys.tokenKey : null) ??
+                (keys.chatKey && this.sessions.has(keys.chatKey) ? keys.chatKey : null) ??
+                keys.tokenKey ??
+                keys.chatKey;
 
-        if (method === "GET" && url === "/events") {
+            if (!sessionKey) {
+                res.writeHead(400, { "content-type": "text/plain; charset=utf-8" });
+                res.end("Missing sessionToken (or chatId).");
+                return;
+            }
+
+            const ssn = this.ensureSession(sessionKey);
+
             res.writeHead(200, {
                 "content-type": "text/event-stream",
                 "cache-control": "no-cache",
                 "connection": "keep-alive",
-                "access-control-allow-origin": "*"
+                "access-control-allow-origin": "*",
+                "x-accel-buffering": "no"
             });
 
-            res.write(`data: ${toSseData(this.snapshotInit())}\n\n`);
-            this.clients.add(res);
+            this.sendToClient(res, this.snapshotInit(sessionKey));
+
+            // Global CSS should be applied even for late joiners.
+            if (this.cssText.trim()) {
+                this.sendToClient(res, { t: "css", css: this.cssText });
+            }
+
+            ssn.clients.add(res);
 
             req.on("close", () => {
-                this.clients.delete(res);
+                ssn.clients.delete(res);
             });
 
             return;
         }
 
-        if (method === "POST" && url === "/input") {
+        if (method === "POST" && pathname === "/input") {
             const data = await readJsonBody(req);
             if (!isRecord(data)) {
                 res.writeHead(400, { "content-type": "application/json" });
@@ -797,7 +1114,39 @@ export class WebUi {
             const promptId = typeof data["promptId"] === "string" ? data["promptId"] : "";
             const value = typeof data["value"] === "string" ? data["value"] : "";
 
-            const pending = this.pendingPrompt;
+            const keys = sessionKeyCandidates(rawUrl);
+            const wantPid = promptId.trim();
+
+            const tokenSsn = keys.tokenKey ? this.sessions.get(keys.tokenKey) : undefined;
+            const chatSsn = keys.chatKey ? this.sessions.get(keys.chatKey) : undefined;
+
+            const tokenPid = tokenSsn?.pendingPrompt?.state.promptId ?? "";
+            const chatPid = chatSsn?.pendingPrompt?.state.promptId ?? "";
+
+            const sessionKey =
+                (wantPid && keys.tokenKey && tokenPid === wantPid ? keys.tokenKey : null) ??
+                (wantPid && keys.chatKey && chatPid === wantPid ? keys.chatKey : null) ??
+                (keys.tokenKey && tokenSsn?.pendingPrompt ? keys.tokenKey : null) ??
+                (keys.chatKey && chatSsn?.pendingPrompt ? keys.chatKey : null) ??
+                (keys.tokenKey && tokenSsn ? keys.tokenKey : null) ??
+                (keys.chatKey && chatSsn ? keys.chatKey : null) ??
+                keys.tokenKey ??
+                keys.chatKey;
+
+            if (!sessionKey) {
+                res.writeHead(400, { "content-type": "application/json" });
+                res.end(JSON.stringify({ ok: false, error: "missing_session" }));
+                return;
+            }
+
+            const ssn = this.sessions.get(sessionKey);
+            if (!ssn) {
+                res.writeHead(409, { "content-type": "application/json" });
+                res.end(JSON.stringify({ ok: false, error: "unknown_session" }));
+                return;
+            }
+
+            const pending = ssn.pendingPrompt;
             if (!pending) {
                 res.writeHead(409, { "content-type": "application/json" });
                 res.end(JSON.stringify({ ok: false, error: "no_pending_prompt" }));
@@ -810,9 +1159,9 @@ export class WebUi {
                 return;
             }
 
-            if (this.waitTimer) {
-                clearTimeout(this.waitTimer);
-                this.waitTimer = null;
+            if (ssn.waitTimer) {
+                clearTimeout(ssn.waitTimer);
+                ssn.waitTimer = null;
             }
 
             const out = pending.state.trim ? value.trim() : value;
@@ -823,8 +1172,8 @@ export class WebUi {
                 return;
             }
 
-            this.pendingPrompt = null;
-            this.broadcast({ t: "prompt_clear" });
+            ssn.pendingPrompt = null;
+            this.broadcast(sessionKey, { t: "prompt_clear" });
 
             pending.resolve(out);
 

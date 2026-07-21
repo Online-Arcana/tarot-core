@@ -3,7 +3,93 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script>
+        (function () {
+            function computePrefix() {
+                const p = String(window.location.pathname || "/");
+                if (p === "/") return "";
+
+                // If we're on a directory path, use it (without trailing slash)
+                if (p.endsWith("/")) return p.replace(/\/+$/, "");
+
+                // Otherwise, use the parent directory
+                const lastSlash = p.lastIndexOf("/");
+                if (lastSlash <= 0) return "";
+                return p.slice(0, lastSlash);
+            }
+
+            const prefix = computePrefix();
+            window.__TUI_PREFIX__ = prefix;
+
+            function isAbsoluteScheme(s) {
+                return /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(s);
+            }
+
+            function shouldRewriteStringUrl(raw) {
+                if (typeof raw !== "string") return false;
+                if (raw.startsWith("//")) return false;
+                if (isAbsoluteScheme(raw)) return false;
+                return raw.startsWith("/");
+            }
+
+            function rewriteUrl(raw) {
+                if (!prefix) return raw;
+                if (typeof raw !== "string") return raw;
+                if (!shouldRewriteStringUrl(raw)) return raw;
+
+                try {
+                    const u = new URL(raw, window.location.origin);
+                    if (u.origin !== window.location.origin) return raw;
+
+                    const p = u.pathname;
+                    if (p === prefix || p.startsWith(prefix + "/")) return raw;
+
+                    u.pathname = prefix + p;
+                    return u.toString();
+                } catch {
+                    // Best-effort fallback for plain paths with no query string
+                    if (raw === prefix || raw.startsWith(prefix + "/")) return raw;
+                    return prefix + raw;
+                }
+            }
+
+            // Patch fetch so "/input" becomes "<prefix>/input" when mounted
+            if (typeof window.fetch === "function") {
+                const origFetch = window.fetch.bind(window);
+
+                window.fetch = function (input, init) {
+                    if (typeof input === "string") {
+                        return origFetch(rewriteUrl(input), init);
+                    }
+
+                    if (input && typeof input === "object" && typeof input.url === "string") {
+                        const nextUrl = rewriteUrl(input.url);
+                        if (nextUrl === input.url) return origFetch(input, init);
+
+                        const nextReq = new Request(nextUrl, input);
+                        return origFetch(nextReq, init);
+                    }
+
+                    return origFetch(input, init);
+                };
+            }
+
+            // Patch EventSource so "/events" becomes "<prefix>/events" when mounted
+            if (typeof window.EventSource === "function") {
+                const OrigEventSource = window.EventSource;
+
+                function PatchedEventSource(url, cfg) {
+                    return new OrigEventSource(rewriteUrl(String(url)), cfg);
+                }
+
+                PatchedEventSource.prototype = OrigEventSource.prototype;
+                Object.setPrototypeOf(PatchedEventSource, OrigEventSource);
+
+                window.EventSource = PatchedEventSource;
+            }
+        })();
+    </script>
     <title>{{TITLE}}</title>
 
     <style>
@@ -22,10 +108,14 @@
             padding: 8px 12px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.08);
             font-size: 12px;
+            display: none;
         }
 
         #tui-root {
-            flex: 1;
+	    overflow-x: hidden;
+	    overflow-y: auto;
+	    max-width: 100%;
+	    flex: 1;
             overflow: auto;
             padding: 16px;
         }
@@ -33,26 +123,46 @@
         #tui-io {
             border-top: 1px solid rgba(0, 0, 0, 0.08);
             padding: 10px 12px;
-            display: flex;
+
+            display: grid;
+            grid-template-columns: 20fr 70fr 10fr;
             gap: 10px;
-            align-items: center;
+
+            align-items: end;
         }
+	
+	#tui-prompt,
+	#tui-input {
+	    min-width: 0
+	} 
 
         #tui-prompt {
-            flex: 1;
             white-space: pre-wrap;
+            max-width: 24ch;
+            overflow-wrap: anywhere;
+            min-width: 0;
         }
 
         #tui-input {
-            flex: 2;
+            width: auto;
+            min-width: min(100%, 600px);
+	    box-sizing: border-box;
+
             padding: 8px 10px;
             font: inherit;
+            line-height: 1.25;
+
+            min-height: calc(1.25em * 2 + 16px);
+            max-height: 35vh;
+            resize: vertical;
+            min-width: 0;
         }
 
         #tui-send {
             padding: 8px 12px;
             font: inherit;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .tui-elem {
@@ -62,6 +172,15 @@
         .tui-line {
             white-space: pre-wrap;
         }
+
+	.tui-line,
+	.tui-centred,
+	.tui-box__body {
+	    max-width: 100%;
+	    white-space: pre-wrap;
+	    overflow-wrap: anywhere;
+	    word-break: break-word;
+	}
 
         .tui-centred {
             text-align: center;
@@ -108,11 +227,10 @@
             opacity: 0.78;
         }
 
-        /*{{PALETTE_CSS}}*/
+        {{PALETTE_CSS}}
     </style>
 
     <style id="tui-user-css"></style>
-    <link rel="stylesheet" href="/styles.css">
 
 </head>
 
@@ -127,7 +245,7 @@
 
         <div id="tui-io">
             <div id="tui-prompt"></div>
-            <input id="tui-input" class="tui-input" type="text" autocomplete="off" />
+            <textarea id="tui-input" class="tui-input" rows="4" autocomplete="on"></textarea>
             <button id="tui-send" class="tui-send" type="button">Send</button>
         </div>
     </div>
@@ -207,9 +325,21 @@
             sendBtn.addEventListener("click", onSend);
             inputEl.addEventListener("keydown", (e) => {
                 if (e.key !== "Enter") return;
+
+                // Shift+Enter inserts a newline in the textarea
+                if (e.shiftKey) return;
+
+                // Enter sends
                 e.preventDefault();
                 onSend();
             });
+
+            document.addEventListener("focusin", (e) => {
+                const t = e.target;
+                if (t === inputEl || t === sendBtn) return;
+
+                if (t && typeof t.blur === "function") t.blur();
+            }, true);
 
             function renderElement(el) {
                 if (!el || !el.kind) return;
@@ -371,6 +501,69 @@
             sendBtn.disabled = true;
         })();
     </script>
+        <footer>
+        <script>
+            async function checkMobile() {
+                while (document.readyState === 'loading') {
+                    await new Promise(r => requestAnimationFrame(r));
+                }
+
+                if (!window.MobileDetect) {
+                    await new Promise(r => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/mobile-detect@1.4.5/mobile-detect.min.js';
+                    s.onload = r;
+                    s.onerror = r;
+                    document.body.appendChild(s);
+                    });
+                }
+
+                const ua = navigator.userAgent;
+                const md = new MobileDetect(ua);
+
+                const mdHit = !!md.mobile();
+                const touch = navigator.maxTouchPoints > 0;
+
+                const desktop =
+                    /\b(Windows NT|Macintosh|X11|Linux x86_64)\b/.test(ua) &&
+                    !touch;
+
+                return mdHit || !desktop;
+            }
+
+            function reduceFontSize() {
+                const DELTA = -1; // px to subtract
+
+                const walker = document.createTreeWalker(
+                    document.body,
+                    NodeFilter.SHOW_ELEMENT,
+                    null
+                );
+
+                let node = walker.currentNode;
+
+                while (node) {
+                    const style = window.getComputedStyle(node);
+                    const size = parseFloat(style.fontSize);
+
+                    if (!Number.isNaN(size)) {
+                        node.style.fontSize = (size + DELTA) + "px";
+                    }
+                    node = walker.nextNode();
+                }
+            }
+
+            const checkMobileSync = async () => {
+                const isMobile = await checkMobile();
+                if (isMobile){
+                    reduceFontSize();
+                }
+                return;
+            };
+
+            checkMobileSync();
+        </script>
+    </footer>
 </body>
 
 </html>

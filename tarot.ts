@@ -1,5 +1,7 @@
 // tarot.ts
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { readFileSync } from "fs";
+import { ConversationDbManager } from "./dbManager";
+
 import path from "path";
 
 import { JSONConversation } from "./jsonConvos";
@@ -24,6 +26,18 @@ type StoredMessage = {
 type StoredConversation = {
   id: string;
   createdAt: string;
+
+  /**
+   * Present in newer DB formats. Optional for backwards compatibility.
+   */
+  keyId?: string;
+
+  /**
+   * TEMPORARY (debugging only): the runtime session ID associated with this conversation.
+   * Optional so older records, or records written without this, still validate.
+   */
+  sessionId?: string;
+
   messages: StoredMessage[];
 };
 
@@ -42,72 +56,68 @@ type MaybePromise<T> = T | Promise<T>;
 ========================= */
 
 const DATA_DIR = path.resolve("./data");
-const DB_PATH = path.join(DATA_DIR, "conversations.json");
+const dbManager = new ConversationDbManager(DATA_DIR);
 
-/**
- * Ensures the on-disk database exists.
- * This keeps persistence logic simple and avoids sprinkling filesystem checks throughout the code.
- */
-function ensureDb(): void {
-  if (!existsSync(DATA_DIR)) {
-    mkdirSync(DATA_DIR, { recursive: true });
-  }
-
-  if (!existsSync(DB_PATH)) {
-    const empty: ConversationDB = { conversations: {} };
-    writeFileSync(DB_PATH, JSON.stringify(empty, null, 2), "utf8");
-  }
+function dbAppendSupportsSessionId(): boolean {
+  const fn = dbManager.appendMessage as unknown as { length: number };
+  return typeof fn.length === "number" && fn.length >= 5;
 }
 
-export function persistConversationStep(
+export async function persistConversationStep(
   conversationId: string,
   prompt: string,
-  fullResponse: unknown
-): void {
-  const db = readDb();
+  fullResponse: unknown,
+  keyId?: string,
+  sessionId?: string
+): Promise<void> {
+  if (!keyId) return;
 
-  if (!db.conversations[conversationId]) {
-    db.conversations[conversationId] = {
-      id: conversationId,
-      createdAt: new Date().toISOString(),
-      messages: []
-    };
+  const append = dbManager.appendMessage.bind(dbManager) as unknown as (...args: unknown[]) => Promise<void>;
+
+  if (!dbAppendSupportsSessionId()) {
+    await append(conversationId, keyId, prompt, fullResponse);
+    return;
   }
 
-  db.conversations[conversationId].messages.push({
-    role: "user",
-    prompt,
-    response: fullResponse
-  });
-
-  writeDb(db);
+  const effectiveSessionId = sessionId ?? keyId;
+  await append(conversationId, keyId, prompt, fullResponse, effectiveSessionId);
 }
 
-function readDb(): ConversationDB {
-  ensureDb();
-  return JSON.parse(readFileSync(DB_PATH, "utf8")) as ConversationDB;
-}
+export function restoreConversation(
+  conversationId: string | undefined,
+  keyId?: string,
+  sessionId?: string
+): StoredConversation | null {
+  if (!keyId) return null;
 
-function writeDb(db: ConversationDB): void {
-  writeFileSync(DB_PATH, JSON.stringify(db, null, 2), "utf8");
-}
+  const effectiveSessionId = sessionId ?? keyId;
 
-export function restoreConversation(conversationId: string): StoredConversation | null {
-  const db = readDb();
-  return db.conversations[conversationId] ?? null;
+  const normalise = (s: string | undefined): string => (s || "").trim();
+
+  const hydrate = (conv: StoredConversation): StoredConversation => {
+    if (conv.sessionId) return conv;
+    return { ...conv, sessionId: effectiveSessionId };
+  };
+
+  const tryLoad = (id: string): StoredConversation | null => {
+    const c = dbManager.loadConversationSync(id, keyId) as StoredConversation | null;
+    return c ? hydrate(c) : null;
+  };
+
+  const wanted = normalise(conversationId);
+  if (wanted) {
+    const loaded = tryLoad(wanted);
+    if (loaded) return loaded;
+  }
+
+  const fallbackId = dbManager.findLatestConversationIdSync(keyId, effectiveSessionId);
+  if (!fallbackId) return null;
+
+  return tryLoad(fallbackId);
 }
 
 export function clearConversation(conversationId: string): boolean {
-  const db = readDb();
-
-  if (!db.conversations[conversationId]) {
-    return false;
-  }
-
-  delete db.conversations[conversationId];
-  writeDb(db);
-
-  return true;
+  return dbManager.clearConversationSync(conversationId);
 }
 
 /* =========================
@@ -628,6 +638,7 @@ export function buildTarotSystemPrompt(persona: TarotReaderPersona, querentName?
     "- Never mention AI, models, prompts, or technical terms.",
     "- Avoid sermons and cold explanations.",
     "- If you nuance, do it gently and symbolically.",
+    "- Respond in the language you are spoken to. Do not assume the language from the user's name.",
     "",
     "Reading quality",
     "- React to the question as if you weigh it carefully.",
@@ -1061,8 +1072,9 @@ export class TarotEngine {
   private readonly restored: StoredConversation | null;
 
   private welcomePrimed = false;
+  private readonly sessionKey: string;
 
-  constructor(apiKey: string, data: TarotData, opts?: TarotEngineOptions) {
+  constructor(apiKey: string, data: TarotData, sessionKey: string, opts?: TarotEngineOptions) {
     this.apiKey = apiKey;
     this.io = opts?.io ?? null;
 
@@ -1072,7 +1084,11 @@ export class TarotEngine {
 
     this.persona = loadTarotReaderJson(opts?.readerPath ?? "./tarotista.json");
 
-    const restored = opts?.chatId ? restoreConversation(opts.chatId) : null;
+    this.apiKey = apiKey;
+    this.sessionKey = sessionKey;
+    this.io = opts?.io ?? null;
+
+    const restored = restoreConversation(opts?.chatId, this.sessionKey, this.sessionKey);
     this.restored = restored;
     const initialId = restored?.id;
 
@@ -1092,7 +1108,7 @@ export class TarotEngine {
       schemaTheatreRetry(),
       undefined,
       {
-        model: opts?.model ?? "gpt-4.1",
+        model: opts?.model ?? "gpt-4.1-nano",
         temperature: 0.95,
         maxOutputTokens: 120
       }
@@ -1103,7 +1119,7 @@ export class TarotEngine {
       schemaWelcomeTheatreLine(),
       undefined,
       {
-        model: opts?.model ?? "gpt-4.1",
+        model: opts?.model ?? "gpt-4.1-nano",
         temperature: 0.9,
         maxOutputTokens: 80
       }
@@ -1114,6 +1130,10 @@ export class TarotEngine {
 
   public get restoredConversation(): StoredConversation | null {
     return this.restored;
+  }
+
+  public get jsonConversation(): JSONConversation<TarotInterpretation> {
+    return this.convo
   }
 
   public setQuerentName(name: string): void {
@@ -1141,7 +1161,7 @@ export class TarotEngine {
     send?: SendOptions
   ): Promise<T> {
     const io = this.io;
-    if (!io) return convo.send(role, content, send);
+    if (!io) return await convo.send(role, content, send);
     return io.sendWithUi(convo, role, content, { send });
   }
 
@@ -1154,13 +1174,15 @@ export class TarotEngine {
       question: string;
       hooks?: { onTheatre?: (line: string) => MaybePromise<void> };
       retryDelayMs: number;
+      model?: string;
     }
   ): Promise<T> {
     const retries = 2;
 
     if (this.io) {
       return this.io.sendWithUi(convo, role, content, {
-        send: { retries, retryDelayMs: ctx.retryDelayMs },
+        send: { retries, retryDelayMs: ctx.retryDelayMs, model: ctx.model },
+
         retryLine: async (info) => {
           return this.generateTheatreLine(ctx.question, ctx.type, info.attempt);
         },
@@ -1173,13 +1195,14 @@ export class TarotEngine {
     const send: SendOptions = {
       retries,
       retryDelayMs: ctx.retryDelayMs,
+      model: ctx.model,
       onRetry: async (info) => {
         const line = await this.generateTheatreLine(ctx.question, ctx.type, info.attempt);
         await callIfPresent(ctx.hooks?.onTheatre, line);
       }
     };
 
-    return convo.send(role, content, send);
+    return await convo.send(role, content, send);
   }
 
   private async syncNameMain(): Promise<void> {
@@ -1265,7 +1288,7 @@ export class TarotEngine {
         this.theatreConvo,
         "system",
         buildTheatreSystemPrompt(this.persona, this.querentName ?? undefined),
-        { retries: 1 }
+        { retries: 1, model: "gpt-4.1-nano" }
       );
     }
 
@@ -1311,7 +1334,7 @@ export class TarotEngine {
         schemaPostReadingChat(),
         id,
         {
-          model: "gpt-4.1",
+          model: "gpt-4.1-nano",
           temperature: 0.85,
           maxOutputTokens: 400
         }
@@ -1343,7 +1366,7 @@ export class TarotEngine {
         attempt,
         querentName: this.querentName ?? undefined
       }),
-      { retries: 1 }
+      { retries: 1, model: "gpt-4.1-nano" }
     );
 
     return r.line;
@@ -1357,7 +1380,7 @@ export class TarotEngine {
     await this.primeSystem();
 
     const convo = this.convo as unknown as JSONConversation<TarotOpening>;
-    convo.updateSchema(schemaOpening(params.type));
+    await convo.updateSchema(schemaOpening(params.type));
 
     return this.sendStage(
       convo,
@@ -1366,7 +1389,8 @@ export class TarotEngine {
         ...params,
         querentName: this.querentName ?? undefined
       }),
-      { type: params.type, question: params.question, hooks, retryDelayMs: 450 }
+      { type: params.type, question: params.question, hooks, retryDelayMs: 450, model: "gpt-4.1-nano" }
+
     );
   }
 
@@ -1379,7 +1403,7 @@ export class TarotEngine {
     await this.primeSystem();
 
     const convo = this.convo as unknown as JSONConversation<TarotRitual>;
-    convo.updateSchema(schemaRitual(params.type));
+    await convo.updateSchema(schemaRitual(params.type));
 
     return this.sendStage(
       convo,
@@ -1388,7 +1412,7 @@ export class TarotEngine {
         ...params,
         querentName: this.querentName ?? undefined
       }),
-      { type: params.type, question: params.question, hooks, retryDelayMs: 500 }
+      { type: params.type, question: params.question, hooks, retryDelayMs: 500, model: "gpt-4.1-nano" }
     );
   }
 
@@ -1403,7 +1427,7 @@ export class TarotEngine {
 
     const cardCount = countCards(params.reading);
     const convo = this.convo as unknown as JSONConversation<TarotInterpretationCore>;
-    convo.updateSchema(schemaInterpretationCore(params.type, cardCount));
+    await convo.updateSchema(schemaInterpretationCore(params.type, cardCount));
 
     return this.sendStage(
       convo,
@@ -1412,7 +1436,7 @@ export class TarotEngine {
         ...params,
         querentName: this.querentName ?? undefined
       }),
-      { type: params.type, question: params.question, hooks, retryDelayMs: 550 }
+      { type: params.type, question: params.question, hooks, retryDelayMs: 550, model: "gpt-4.1" }
     );
   }
 
@@ -1470,7 +1494,7 @@ export class TarotEngine {
 
     const convoId = this.convo.id;
     if (convoId) {
-      persistConversationStep(convoId, params.question, interpretation);
+      await persistConversationStep(convoId, params.question, interpretation, this.sessionKey, this.sessionKey);
     }
 
     return { reading, interpretation };
@@ -1517,7 +1541,7 @@ export class TarotEngine {
 
     const convoId = this.convo.id;
     if (convoId) {
-      persistConversationStep(convoId, message, reply);
+      await persistConversationStep(convoId, message, reply, this.sessionKey, this.sessionKey);
     }
 
     return reply;

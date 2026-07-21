@@ -3,8 +3,12 @@ import fs from "fs"
 import path from "path"
 import * as pty from "node-pty"
 import { WebSocketServer } from "ws"
+import dotenv from "dotenv";
 
-const PORT = 6666
+
+// load port from .env if available
+dotenv.config();
+const PORT = process.env.TAROT_TERM_PORT ? parseInt(process.env.TAROT_TERM_PORT) : 6666
 const HOST = "127.0.0.1"
 
 const webRoot = path.join(process.cwd(), "web")

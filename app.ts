@@ -96,6 +96,100 @@ function readInitialChatId(): string | undefined {
   return undefined;
 }
 
+function readSessionKey(): string | undefined {
+  const env =
+    (process.env.TAROT_SESSION_KEY || "").trim() ||
+    (process.env.TAROT_SESSION_TOKEN || "").trim() ||
+    (process.env.SESSION_TOKEN || "").trim();
+
+  if (env) return env;
+
+  const inline = process.argv.find(a =>
+    a.startsWith("--sessionKey=") ||
+    a.startsWith("--sessionToken=") ||
+    a.startsWith("--session=")
+  );
+
+  if (inline) {
+    const v = inline.split("=", 2)[1];
+    return v && v.trim() ? v.trim() : undefined;
+  }
+
+  const idx = process.argv.findIndex(a =>
+    a === "--sessionKey" ||
+    a === "--sessionToken" ||
+    a === "--session"
+  );
+
+  if (idx >= 0) {
+    const v = process.argv[idx + 1];
+    return v && v.trim() ? v.trim() : undefined;
+  }
+
+  return undefined;
+}
+
+/* ==========================
+   Session token auto-fetch (Option B)
+============================= */
+
+type SessionTokenPayload = Readonly<{ sessionToken: string }>;
+
+function isSessionTokenPayload(v: unknown): v is SessionTokenPayload {
+  if (typeof v !== "object" || v === null) return false;
+  const rec = v as Record<string, unknown>;
+  const tok = rec["sessionToken"];
+  return typeof tok === "string" && tok.trim().length > 0;
+}
+
+async function fetchSessionToken(url: string, timeoutMs: number): Promise<string | undefined> {
+  const u = url.trim();
+  if (!u) return undefined;
+
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(u, {
+      method: "GET",
+      headers: { accept: "application/json" },
+      signal: controller.signal
+    });
+
+    if (!res.ok) return undefined;
+
+    const data: unknown = await res.json();
+    if (!isSessionTokenPayload(data)) return undefined;
+
+    return data.sessionToken.trim();
+  } catch {
+    return undefined;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+async function resolveSessionKey(): Promise<string> {
+  const explicit = readSessionKey();
+  if (explicit) return explicit;
+
+  const url = (process.env.TAROT_SESSION_TOKEN_URL || "https://srv.kittycrypto.gg/session-token").trim();
+  const timeoutMsRaw = (process.env.TAROT_SESSION_TOKEN_TIMEOUT_MS || "").trim();
+  const timeoutMsParsed = timeoutMsRaw ? Number.parseInt(timeoutMsRaw, 10) : NaN;
+  const timeoutMs = Number.isFinite(timeoutMsParsed) && timeoutMsParsed > 0 ? timeoutMsParsed : 5000;
+
+  const fetched = await fetchSessionToken(url, timeoutMs);
+  if (fetched) return fetched;
+
+  throw new Error(
+    "Missing session token. Provide TAROT_SESSION_KEY (or TAROT_SESSION_TOKEN), pass --sessionToken=<token>, or set TAROT_SESSION_TOKEN_URL to a token endpoint."
+  );
+}
+
+/* ==========================
+   Type guards / printing
+============================= */
+
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
 }
@@ -242,12 +336,14 @@ async function main(): Promise<void> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("Missing OPENAI_API_KEY");
 
+  const sessionKey = await resolveSessionKey();
+
   const data = loadCardsJson("./cards.json");
   let initialChatId = readInitialChatId();
 
   sessionLoop:
   while (true) {
-    const engine = new TarotEngine(apiKey, data, {
+    const engine = new TarotEngine(apiKey, data, sessionKey, {
       chatId: initialChatId,
       io
     });
@@ -343,11 +439,11 @@ async function main(): Promise<void> {
       if (!question) continue;
 
       const openingLabel =
-        `${readerName} listens to your question, gaze steady, as if weighing every hidden edge of it`;
+        `${readerName}'s gaze is steady, listening to the question`;
       const ritualLabel =
-        `${readerName} takes the deck, eyes closed, shuffling in a slow trance as though the room itself is breathing`;
+        `${readerName}'s eyes close, shuffling the deck`;
       const interpretLabel =
-        `${readerName} studies the cards in silence, breathing slow and even, letting meaning rise like mist`;
+        `${readerName} studies the cards in silence`;
 
       let currentLabel = openingLabel;
       let stopThinking = ui.startThinking(currentLabel, { labelStyle: STYLE_ITALIC_GREY });

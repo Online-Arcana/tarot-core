@@ -23,6 +23,7 @@ export type SendOptions = {
   retries?: number
   retryDelayMs?: number
   onRetry?: (info: RetryInfo) => void | Promise<void>
+  model?: string
 }
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -84,6 +85,10 @@ export class JSONConversation<T extends object> {
   private conversationId?: string
   private tools: Record<string, toolDef> = {}
 
+  private lockTail: Promise<void> = Promise.resolve()
+  private busyCount = 0
+  private pendingCount = 0
+
   constructor(
     apiKey: string,
     schema: schemaDef,
@@ -103,27 +108,62 @@ export class JSONConversation<T extends object> {
     this.conversationId = conversationId
   }
 
-  // ✅ Esto es lo que te falta
   public get key(): string {
     return this.apiKey
   }
 
-  updateSchema(newSchema: schemaDef): void {
-    this.schema = newSchema
+  async updateSchema(newSchema: schemaDef): Promise<void> {
+    await this.enqueue(async () => {
+      this.schema = newSchema
+    })
   }
 
-  registerTool(tool: {
+  async registerTool(tool: {
     name: string
     description: string
     parameters: schemaDef
     handler: ToolFn
-  }): void {
-    const { name, description, parameters, handler } = tool
-    this.tools[name] = { name, description, parameters, handler }
+  }): Promise<void> {
+    await this.enqueue(async () => {
+      const { name, description, parameters, handler } = tool
+      this.tools[name] = { name, description, parameters, handler }
+    })
   }
 
   get registeredTools(): Record<string, toolDef> {
     return this.tools
+  }
+
+  private enqueue<R>(fn: () => Promise<R>): Promise<R> {
+    this.pendingCount += 1
+
+    const run = async (): Promise<R> => {
+      this.busyCount += 1
+      try {
+        return await fn()
+      } finally {
+        this.busyCount -= 1
+        this.pendingCount -= 1
+      }
+    }
+
+    const start = this.lockTail.catch(() => undefined)
+    const p = start.then(run)
+
+    // Ensure the queue continues even if this task rejects
+    this.lockTail = p.then(
+      () => undefined,
+      () => undefined
+    )
+
+    return p
+  }
+
+  private enqueueVoid(fn: () => void): void {
+    void this.enqueue(async () => {
+      fn()
+      return undefined
+    }).catch(() => undefined)
   }
 
   private async initConversation(): Promise<void> {
@@ -134,86 +174,97 @@ export class JSONConversation<T extends object> {
   }
 
   async send(role: "system" | "user", content: string, opts?: SendOptions): Promise<T> {
-    await this.initConversation()
-    const conversationId = this.conversationId!
+    return this.enqueue(async () => {
+      await this.initConversation()
+      const conversationId = this.conversationId!
 
-    const retries = Math.max(0, opts?.retries ?? 0)
-    const maxAttempts = 1 + retries
-    const retryDelayMs = Math.max(0, opts?.retryDelayMs ?? 450)
+      const retries = Math.max(0, opts?.retries ?? 0)
+      const maxAttempts = 1 + retries
+      const retryDelayMs = Math.max(0, opts?.retryDelayMs ?? 450)
 
-    const retrySuffix =
-      "\n\nIMPORTANTE: Devuelve SOLO un JSON válido que cumpla estrictamente el JSON Schema. No añadas texto fuera del JSON."
+      const retrySuffix =
+        "\n\nIMPORTANT: You must return a single json object that has the spected schema shape and nothing else."
 
-    let lastRaw = ""
-    let lastErr = ""
+      let lastRaw = ""
+      let lastErr = ""
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const userContent = attempt === 1 ? content : (content + retrySuffix)
-
-      try {
-        const response = await (this.client.responses as OpenAI["responses"]).create({
-          model: this.model,
-          input: [{ role, content: userContent }],
-          temperature: this.temperature,
-          max_output_tokens: this.maxOutputTokens,
-          text: {
-            format: {
-              type: "json_schema",
-              name: "DynamicSchema",
-              schema: this.schema,
-              strict: true
-            }
-          },
-          conversation: { id: conversationId }
-        }, {
-          signal: opts?.signal
-        })
-
-        const outputText = extractOutputText(response as unknown)
-        const raw = outputText ?? ""
-        lastRaw = raw
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const userContent = attempt === 1 ? content : (content + retrySuffix)
 
         try {
-          return JSON.parse(raw) as T
-        } catch (e: unknown) {
-          const msg = e instanceof Error ? e.message : "unknown parse error"
-          lastErr = msg
+          const response = await (this.client.responses as OpenAI["responses"]).create({
+            model: opts?.model ?? this.model,
+            input: [{ role, content: userContent }],
+            temperature: this.temperature,
+            max_output_tokens: this.maxOutputTokens,
+            text: {
+              format: {
+                type: "json_schema",
+                name: "DynamicSchema",
+                schema: this.schema,
+                strict: true
+              }
+            },
+            conversation: { id: conversationId }
+          }, {
+            signal: opts?.signal
+          })
 
-          if (attempt < maxAttempts) {
-            if (opts?.onRetry) {
-              await opts.onRetry({
-                attempt,
-                maxAttempts,
-                rawText: raw,
-                parseError: msg
-              })
+          const outputText = extractOutputText(response as unknown)
+          const raw = outputText ?? ""
+          lastRaw = raw
+
+          try {
+            return JSON.parse(raw) as T
+          } catch (e: unknown) {
+            const msg = e instanceof Error ? e.message : "unknown parse error"
+            lastErr = msg
+
+            if (attempt < maxAttempts) {
+              if (opts?.onRetry) {
+                await opts.onRetry({
+                  attempt,
+                  maxAttempts,
+                  rawText: raw,
+                  parseError: msg
+                })
+              }
+              await sleep(retryDelayMs + (attempt - 1) * 250)
+              continue
             }
-            await sleep(retryDelayMs + (attempt - 1) * 250)
-            continue
+
+            throw new StructuredOutputParseError(
+              `Could not parse the expected output after ${maxAttempts} tries`,
+              raw,
+              maxAttempts
+            )
           }
-
-          throw new StructuredOutputParseError(
-            `No se pudo parsear la salida estructurada tras ${maxAttempts} intento(s).`,
-            raw,
-            maxAttempts
-          )
+        } catch (err: unknown) {
+          if (err instanceof Error && err.name === "APIUserAbortError") {
+            return { bot_response: "⏹️ Request cancelled." } as unknown as T
+          }
+          throw err
         }
-      } catch (err: unknown) {
-        if (err instanceof Error && err.name === "APIUserAbortError") {
-          return { bot_response: "⏹️ Request cancelled." } as unknown as T
-        }
-        throw err
       }
-    }
 
-    throw new StructuredOutputParseError(
-      `No se pudo obtener salida estructurada. Último error: ${lastErr}`,
-      lastRaw,
-      1 + retries
-    )
+      throw new StructuredOutputParseError(
+        `${lastErr}`,
+        lastRaw,
+        1 + retries
+      )
+    });
   }
 
   get id(): string | undefined {
     return this.conversationId
   }
+
+  get isBusy(): boolean {
+    return this.busyCount > 0
+  }
+
+  get queued(): number {
+    return this.pendingCount
+  }
+
 }

@@ -3,7 +3,7 @@
         --tui-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         --tui-body-bg: #0b0e12;
         --tui-body-fg: #ffffff;
-        --tui-io-prompt-fg: #0b0e12;
+        --tui-io-prompt-fg: #111111;
     
         --tui-meta-bg: #ffffff;
         --tui-meta-border: rgba(0, 0, 0, 0.08);
@@ -13,7 +13,7 @@
     
         --tui-elem-margin: 6px;
     
-        --tui-box-border: rgba(0, 0, 0, 0.18);
+        --tui-box-border: ;
         --tui-box-bg: transparent;
         --tui-box-radius: 10px;
         --tui-box-pad-y: 10px;
