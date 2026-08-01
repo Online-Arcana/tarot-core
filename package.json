@@ -1,0 +1,35 @@
+{
+  "name": "tarot-engine-core",
+  "version": "3.2.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "tarot-core": "./dist/cli/main.js"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./cli/*": "./dist/cli/*.js",
+    "./contracts/*": "./dist/contracts/*.js",
+    "./domain/*": "./dist/domain/*.js",
+    "./model/*": "./dist/model/*.js",
+    "./packs/*": "./dist/packs/*.js",
+    "./readers/*": "./dist/readers/*.js",
+    "./reading/*": "./dist/reading/*.js",
+    "./transport/*": "./dist/transport/*.js"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "check": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "cli": "npm run build --silent && node dist/cli/main.js",
+    "ci": "npm run check && npm run test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.8.3"
+  }
+}

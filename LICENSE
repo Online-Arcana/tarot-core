@@ -1,0 +1,177 @@
+ONLINE ARCANA MIXED LICENCE
+
+Copyright (c) 2026 Kitty Crow
+
+This repository contains materials distributed under different terms. No licence
+is granted except as expressly stated below.
+
+1. LICENCE MAP
+
+1.1 MIT front-end code
+
+The MIT Licence in Appendix A applies to:
+
+- source code under `src/client/`;
+- generic browser-interface markup, styling and client-side support code under
+  `public/`; and
+- any other file that expressly states that it is licensed under the MIT
+  Licence or carries `SPDX-License-Identifier: MIT`.
+
+The MIT Licence applies only to code. It does not apply to the engine,
+characters, personas, artwork, images, narrative material, prompts, reader
+identities, branding or other protected material described below, even when
+such material is stored in, referenced by, or embedded alongside MIT-licensed
+front-end code.
+
+1.2 Proprietary source-available engine
+
+The Online Arcana engine is proprietary source-available software. It includes:
+
+- source code under `src/core/`;
+- server-side and API code under `functions/`;
+- prompt construction, response orchestration and model-integration logic;
+- reading, spread, suitability, referral, handover, synthesis, archive and
+  conversation logic; and
+- any other file that expressly states that it is governed by the Online
+  Arcana Engine Terms in section 2 or carries
+  `SPDX-License-Identifier: LicenseRef-Online-Arcana-Engine`.
+
+Where engine logic exists elsewhere under `src/`, section 2 applies to that
+logic. The express MIT grant for `src/client/` takes precedence for ordinary,
+generic front-end code in that directory, subject to the protected-content
+exceptions in section 1.3.
+
+1.3 Protected creative material and identity
+
+All original creative material and intellectual identity associated with
+Online Arcana are copyright protected and all rights are reserved. This
+includes, without limitation:
+
+- characters, readers, names, personas, personalities, biographies, dialogue,
+  voices, relationships and lore;
+- reader instructions, persona prompts and characteristic response material;
+- illustrations, photographs, card artwork, symbols, emblems, logos, icons,
+  visual compositions and animations;
+- distinctive themes, palettes, presentation, written copy and narrative
+  expression; and
+- the Online Arcana name, identity and branding.
+
+These protections apply regardless of the file or directory containing the
+material. Nothing in this licence claims exclusive rights in traditional tarot
+concepts, public-domain material, standard card names, general ideas or
+uncopyrightable facts. The protection applies to Online Arcana's original
+expression and identity.
+
+If a file contains both licensed code and protected creative material, the
+applicable code licence does not grant permission to copy, adapt, extract or
+reuse the protected creative material.
+
+2. ONLINE ARCANA ENGINE TERMS
+
+2.1 Source inspection grant
+
+Subject to these terms, you may:
+
+- access, read and study the engine source code;
+- make and retain exact, unmodified copies of the engine solely for inspection,
+  archival, backup and preservation purposes;
+- run the original engine as distributed for personal evaluation, testing and
+  security review; and
+- describe its externally observable behaviour and general ideas in your own
+  words.
+
+Every permitted copy must retain this licence and all copyright, attribution
+and proprietary notices.
+
+2.2 Restrictions
+
+Except with prior written permission from the copyright holder, you may not:
+
+- copy or reuse engine source code, in whole or in substantial part, in another
+  work;
+- modify, adapt, arrange, translate, transpile or create a derivative work from
+  the engine source code;
+- publish, distribute or maintain a modified version or fork of the engine;
+- incorporate engine source code or protected implementation structure into
+  another programme, library, service or product;
+- remove or alter copyright, attribution, licence or proprietary notices;
+- sublicense, sell, rent or commercially exploit the engine source code; or
+- use the engine source code as training data or input for a system intended to
+  reproduce, transform or generate the same or substantially similar protected
+  implementation.
+
+An exact, unmodified archival or preservation copy permitted by section 2.1 is
+not a fork. A repository or distribution containing changes to the engine is a
+fork or derivative work and is not permitted.
+
+2.3 Independent implementation is permitted
+
+You may independently implement the ideas, algorithms, interfaces, file
+formats and externally observable behaviour of the engine, provided that the
+new implementation is genuinely independently written and does not copy,
+adapt, translate or derive from protected expression in the engine source
+code.
+
+Equivalent functionality or behaviour alone does not breach these terms.
+Permission under this section does not include permission to use the protected
+characters, personas, artwork, identity or other material described in section
+1.3.
+
+2.4 No implied rights
+
+Possession of, access to, or visibility of the engine source code grants no
+rights beyond those expressly stated here. All other rights are reserved.
+
+3. CREATIVE MATERIAL TERMS
+
+The material described in section 1.3 may be included only when making or
+running an exact, unmodified copy of Online Arcana as permitted by this
+licence. It may not be extracted, republished, adapted, imitated, incorporated
+into another work, used to create derivative characters or personas, or used
+separately from the unmodified software without prior written permission.
+
+No right is granted to use the Online Arcana name, logos, reader identities or
+other branding in a way that suggests affiliation, endorsement or authorship.
+
+4. TERMINATION
+
+Any permission granted under sections 2 or 3 terminates automatically upon a
+breach of these terms. On termination, all unauthorised copies and derivative
+materials must be destroyed, without limiting any other rights or remedies of
+the copyright holder.
+
+5. DISCLAIMER
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, MATERIAL PROVIDED UNDER SECTIONS 2 AND
+3 IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+TITLE AND NON-INFRINGEMENT. THE COPYRIGHT HOLDER SHALL NOT BE LIABLE FOR ANY
+CLAIM, LOSS OR OTHER LIABILITY ARISING FROM ITS USE OR INABILITY TO BE USED.
+
+6. COMMERCIAL OR ALTERNATIVE LICENSING
+
+Commercial use, engine modification, redistribution, derivative works, asset
+licensing or other rights not granted here require a separate written licence
+from the copyright holder.
+
+APPENDIX A: MIT LICENCE
+
+Copyright (c) 2026 Kitty Crow
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of the software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

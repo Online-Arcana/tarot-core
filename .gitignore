@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.test-build/
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+!.env.example
+.DS_Store

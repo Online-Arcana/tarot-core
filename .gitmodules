@@ -1,0 +1,3 @@
+[submodule "src/vendor/openai-schema"]
+	path = src/vendor/openai-schema
+	url = https://github.com/kitty-crow/openai-schema.git
