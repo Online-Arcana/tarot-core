@@ -46,7 +46,6 @@ interface CulturalElementDef {
 interface OrientationDef {
   readonly observation: LocalText;
   readonly fictionalCorrespondence: LocalText;
-  readonly ritualDirective: LocalText;
 }
 
 interface MappingDef {
@@ -86,6 +85,8 @@ const RAW_PACKS: Readonly<Record<MappedReader, unknown>> = {
   nahid: nahidRaw as unknown,
   mictli: mictliRaw as unknown,
 };
+
+const META = /(?:online arcana|tarot|fiction|fictici|documented|documentad|attested|atestiguad|historical|históric|archaeolog|arqueolog|source|fuente|museum|museo)/iu;
 
 function record(value: unknown, path: string): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -174,7 +175,6 @@ function parseOrientation(value: unknown, path: string): OrientationDef {
   return {
     observation: localText(source.observation, `${path}.observation`),
     fictionalCorrespondence: localText(source.fictionalCorrespondence, `${path}.fictionalCorrespondence`),
-    ritualDirective: localText(source.ritualDirective, `${path}.ritualDirective`),
   };
 }
 
@@ -245,6 +245,43 @@ function translatedList(value: LocalList, code: LangCode): string[] {
   return [...value[lang(code)]];
 }
 
+function punctuate(value: string): string {
+  const clean = value
+    .replace(/\s+([,.;:!?])/gu, "$1")
+    .replace(/\s{2,}/gu, " ")
+    .replace(/(?:\.\s*){2,}/gu, ". ")
+    .trim();
+  if (!clean) return clean;
+  return /[.!?]$/u.test(clean) ? clean : `${clean}.`;
+}
+
+function scene(value: string): string {
+  return punctuate(value
+    .replace(/^In Online Arcana['’]s fiction,\s*/iu, "")
+    .replace(/^En la ficción de Online Arcana,\s*/iu, "")
+    .replace(/\b(?:documented|attested|authentic|authored|mapped|predetermined|fictional)\b/giu, "")
+    .replace(/\b(?:documentad[oa]s?|atestiguad[oa]s?|auténtic[oa]s?|diseñad[oa]s?|asignad[oa]s?|predeterminad[oa]s?|fictici[oa]s?)\b/giu, "")
+    .replace(/\balready determined\b/giu, "")
+    .replace(/\bya determinad[oa]\b/giu, "")
+    .replace(/\bdesignated beginning\b/giu, "marked beginning")
+    .replace(/\binicio designado\b/giu, "extremo marcado"));
+}
+
+function description(value: string): string {
+  const trimmed = value
+    .replace(/\s+in an authored composition using documented[^.]*\.?$/iu, ".")
+    .replace(/\s+en una composición propia que utiliza[^.]*documentad[^.]*\.?$/iu, ".");
+  const clauses = trimmed.split(/(?<=[.!?])\s+|;\s*/u);
+  const kept = clauses.filter(clause => clause.trim() && !META.test(clause));
+  return scene(kept.join(" "));
+}
+
+function direction(item: string, observation: string, code: LangCode): string {
+  return lang(code) === "es"
+    ? `Deja que ${item} emerja mediante el ritual oculto y conserva exactamente esta posición final: ${observation}`
+    : `Let ${item} emerge through the concealed ritual and preserve this exact final position: ${observation}`;
+}
+
 function orientation(mapping: MappingDef, side: Side): OrientationDef {
   return side === "upright" ? mapping.upright : mapping.reversed;
 }
@@ -260,30 +297,32 @@ export function mediaFor(
   const mapping = pack.mappings.get(card.id);
   if (!mapping) return null;
   const state = orientation(mapping, card.side);
+  const itemName = scene(translated(mapping.itemName, code)).replace(/[.]$/u, "");
+  const observation = scene(translated(state.observation, code));
   const culturalElements: MediumElement[] = mapping.culturalElementIds.map(id => {
     const element = pack.elements.get(id);
     if (!element) throw new Error(`Reader media ${reader} lost cultural element ${id}`);
-    return { id, name: translated(element.name, code) };
+    return { id, name: scene(translated(element.name, code)).replace(/[.]$/u, "") };
   });
   const ritual: MediumRitual = {
-    concealment: translated(readerRitual.ritual.concealment, code),
-    chance: translated(readerRitual.ritual.chance, code),
-    orientation: translated(card.side === "upright" ? readerRitual.ritual.upright : readerRitual.ritual.reversed, code),
-    beats: translatedList(readerRitual.ritual.beats, code),
+    concealment: scene(translated(readerRitual.ritual.concealment, code)),
+    chance: scene(translated(readerRitual.ritual.chance, code)),
+    orientation: scene(translated(card.side === "upright" ? readerRitual.ritual.upright : readerRitual.ritual.reversed, code)),
+    beats: translatedList(readerRitual.ritual.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
   };
   return {
     version: pack.version,
     reader,
     cardId: card.id,
     side: card.side,
-    culture: translated(pack.culture, code),
-    medium: translated(readerRitual.medium, code),
+    culture: scene(translated(pack.culture, code)).replace(/[.]$/u, ""),
+    medium: scene(translated(readerRitual.medium, code)).replace(/[.]$/u, ""),
     itemId: mapping.itemId,
-    itemName: translated(mapping.itemName, code),
-    itemDescription: translated(mapping.itemDescription, code),
-    observation: translated(state.observation, code),
-    fictionalCorrespondence: translated(state.fictionalCorrespondence, code),
-    ritualDirective: translated(state.ritualDirective, code),
+    itemName,
+    itemDescription: description(translated(mapping.itemDescription, code)),
+    observation,
+    fictionalCorrespondence: scene(translated(state.fictionalCorrespondence, code)),
+    ritualDirective: direction(itemName, observation, code),
     culturalElements,
     ritual,
   };
@@ -321,7 +360,7 @@ export function mediaPrompt(req: ApiReq): string {
       `${spanish ? "Azar narrativo" : "Narrative chance"}: ${medium.ritual.chance}`,
       `${spanish ? "Posición final" : "Final position"}: ${medium.observation}`,
       `${spanish ? "Secuencia sensorial" : "Sensory sequence"}: ${medium.ritual.beats.join(", ")}.`,
-      `${spanish ? "Directiva exacta" : "Exact directive"}: ${medium.ritualDirective}`,
+      `${spanish ? "Dirección" : "Direction"}: ${medium.ritualDirective}`,
       spanish
         ? "Puedes nombrar el objeto y sus marcas, pero no los interpretes antes de la revelación ni expliques cómo se determinó el resultado."
         : "You may name the item and its marks, but do not interpret them before the reveal or explain how the result was determined.",
@@ -358,7 +397,7 @@ function ritualPayload(medium: MediumPresentation): unknown {
     chance: medium.ritual.chance,
     orientation: medium.ritual.orientation,
     sensoryBeats: medium.ritual.beats,
-    ritualDirective: medium.ritualDirective,
+    direction: medium.ritualDirective,
   };
 }
 
