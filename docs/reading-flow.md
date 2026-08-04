@@ -6,6 +6,10 @@ Core exposes the domain operations used to build a complete reading while allowi
 
 A caller may run `fit` before drawing. The result classifies the dominant topic and reader suitability as `good`, `acceptable`, `weak` or `very_weak`, with an optional stronger reader recommendation.
 
+`topicForQuestion` and `resolveFit` provide a deterministic routing layer for clearly expressed topics. Reader suitability is derived from the maintained reader profiles rather than left to prompt compliance. When the current reader is weak for a clearly detected topic and a strong specialist exists, `resolveFit` returns a `very_weak` decision with that specialist. For example, explicit grief or death questions route Selena to Mictli even if a model fit response is generic, malformed or unavailable.
+
+The front-facing application applies this gate to both new readings and follow-up chat. The user may accept the handover, continue with the current reader or cancel.
+
 ## 2. Draw
 
 `Deck.draw` selects the spread, cryptographically shuffles all 78 cards, assigns upright or reversed orientation and copies the selected meaning into each draw item. The returned draw is complete and should be persisted unchanged with the reading turn.
@@ -51,7 +55,7 @@ After a reading, separate tasks may generate:
 
 `handoverSummary` derives a grounded fallback from stored turns. A generated `handover` task may enrich conclusions and unresolved items, but `handoverConv` replaces questions and cards with source-derived values and retains only facts found in the transcript.
 
-The new conversation records the prior reader, target reader, referral reason, acknowledgement and cross-file visit trail.
+The new conversation records the prior reader, target reader, referral reason, acknowledgement and cross-file visit trail. The source conversation is exported before the encrypted local slot is replaced, and the new conversation continues using the same user-facing key.
 
 ## 8. Return to a previous reader
 
