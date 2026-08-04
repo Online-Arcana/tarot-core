@@ -5,6 +5,7 @@ import type {
   HandoverOut,
   ReadingOut,
 } from "../contracts/types.js";
+import { attachMedia, mediaFor } from "../readers/media/runtime.js";
 import { auditModelOut, words } from "./audit.js";
 import { fallbackFor } from "./fallback.js";
 
@@ -176,9 +177,12 @@ const cardFallback = (
   req: Extract<ApiReq, { task: "read" }>,
   card: Extract<ApiReq, { task: "read" }>["draw"]["cards"][number],
   text: string,
-): string => req.lang.toLocaleLowerCase().startsWith("es")
-  ? `${card.name}, en la posición ${card.posName}: ${text}`
-  : `${card.name} in ${card.posName}: ${text}`;
+): string => {
+  const name = mediaFor(req.reader, card, req.lang)?.itemName ?? card.name;
+  return req.lang.toLocaleLowerCase().startsWith("es")
+    ? `${name}, en la posición ${card.posName}: ${text}`
+    : `${name} in ${card.posName}: ${text}`;
+};
 
 const cardTextFrom = (
   req: Extract<ApiReq, { task: "read" }>,
@@ -271,7 +275,7 @@ const handover = (
   };
 };
 
-export const fallbackModelOut = (req: ApiReq): ApiOut => {
+const bareFallbackModelOut = (req: ApiReq): ApiOut => {
   const fallback = fallbackFor(req.lang);
   switch (req.task) {
     case "invite": return { text: fallback.invite };
@@ -291,6 +295,9 @@ export const fallbackModelOut = (req: ApiReq): ApiOut => {
     case "return": return { text: fallback.returning };
   }
 };
+
+export const fallbackModelOut = (req: ApiReq): ApiOut =>
+  attachMedia(req, bareFallbackModelOut(req));
 
 const suggestionsFrom = (
   candidates: readonly (ApiOut | undefined)[],
@@ -366,7 +373,7 @@ const reconstruct = (
       }),
     }; break;
   }
-  return auditModelOut(req, output).valid ? output : fallbackModelOut(req);
+  return auditModelOut(req, output).valid ? output : bareFallbackModelOut(req);
 };
 
 export const reconstructModelOut = (
@@ -374,7 +381,7 @@ export const reconstructModelOut = (
   candidates: readonly (ApiOut | undefined)[],
 ): ApiOut => {
   try {
-    return reconstruct(req, candidates);
+    return attachMedia(req, reconstruct(req, candidates));
   } catch {
     return fallbackModelOut(req);
   }
