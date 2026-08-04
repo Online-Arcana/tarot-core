@@ -16,21 +16,6 @@ const TOPIC_PATTERNS: readonly [Topic, RegExp][] = [
   ["identity", /\b(identity|who am i|self worth|self-esteem|authentic self|identidad|quien soy|autoestima|valor propio|yo autentico)\b/iu],
 ];
 
-const PREFERRED: Readonly<Record<Topic, ReaderId>> = {
-  love: "selena",
-  intimacy: "selena",
-  family: "yejide",
-  grief: "mictli",
-  death: "mictli",
-  change: "brennos",
-  career: "yejide",
-  conflict: "brennos",
-  purpose: "brennos",
-  spirituality: "ame",
-  identity: "selena",
-  healing: "ame",
-};
-
 const LABEL: Readonly<Record<Topic, { en: string; es: string }>> = {
   love: { en: "love and relationships", es: "el amor y las relaciones" },
   intimacy: { en: "intimacy and desire", es: "la intimidad y el deseo" },
@@ -54,9 +39,15 @@ export function topicForQuestion(question: string): Topic | null {
 }
 
 function strongerReader(reader: ReaderId, topic: Topic): ReaderId | null {
-  const preferred = PREFERRED[topic];
-  if (preferred !== reader && profileFor(preferred).fit.strong.includes(topic)) return preferred;
-  return profiles().find(profile => profile.id !== reader && profile.fit.strong.includes(topic))?.id ?? null;
+  const candidates = profiles()
+    .filter(profile => profile.id !== reader && profile.fit.strong.includes(topic))
+    .map((profile, order) => ({
+      id: profile.id,
+      rank: profile.fit.strong.indexOf(topic),
+      order
+    }))
+    .sort((left, right) => left.rank - right.rank || left.order - right.order);
+  return candidates[0]?.id ?? null;
 }
 
 function copy(reader: ReaderId, target: ReaderId, topic: Topic, code: LangCode): Pick<FitOut, "reason" | "offer"> {
