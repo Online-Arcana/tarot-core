@@ -35,9 +35,9 @@ export interface ModelTiers {
 
 export const DEFAULT_MODEL_TIERS: ModelTiers = {
   shortPrimary: "gpt-5-nano",
-  shortEscalation: "gpt-5-mini",
-  longPrimary: "gpt-5.4-nano",
-  longEscalation: "gpt-5.4-mini",
+  shortEscalation: "gpt-5.6-luna",
+  longPrimary: "gpt-5.6-luna",
+  longEscalation: "gpt-5.6-luna",
 };
 
 export interface ModelCfg {
