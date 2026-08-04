@@ -1,0 +1,352 @@
+{
+  "version": 1,
+  "status": "draft-text-only",
+  "runtimeIntegrated": false,
+  "globalContract": {
+    "existingFlow": {
+      "en": "Preserve the existing ritual → reveal → interpretation → place flow. Add no user-facing step.",
+      "es": "Conservar el flujo existente ritual → revelación → interpretación → colocación. No añadir ningún paso visible para la persona."
+    },
+    "narrativeParticipation": {
+      "en": "Any action attributed to the user is narrative only. Never request a click, confirmation, selection or reply.",
+      "es": "Toda acción atribuida a la persona es exclusivamente narrativa. Nunca solicitar clic, confirmación, selección ni respuesta."
+    },
+    "fixedOutcome": {
+      "en": "The canonical card and upright/reversed orientation are already fixed before ritual generation.",
+      "es": "La carta canónica y la orientación vertical/invertida ya están fijadas antes de generar el ritual."
+    },
+    "concealedChance": {
+      "en": "The ritual must make the selection feel uncontrolled by hiding the available items or obscuring the emerging sign.",
+      "es": "El ritual debe hacer que la selección parezca fuera de control ocultando los objetos disponibles o el signo que emerge."
+    },
+    "oneItem": {
+      "en": "Exactly one item or authored sign corresponds to each canonical card. Never combine multiple reading items.",
+      "es": "Exactamente un objeto o signo diseñado corresponde a cada carta canónica. Nunca combinar varios objetos de lectura."
+    },
+    "meaningBoundary": {
+      "en": "Use the supplied cultural element accurately. The tarot correspondence is fictional and must not be described as historical practice.",
+      "es": "Usar con precisión el elemento cultural suministrado. La correspondencia con el tarot es ficticia y no debe describirse como práctica histórica."
+    },
+    "prohibited": {
+      "en": [
+        "do not reroll or replace the predetermined item",
+        "do not invent a new cultural symbol",
+        "do not alter upright/reversed orientation",
+        "do not introduce a new interface flow",
+        "do not ask the user to physically act or wait",
+        "do not claim Online Arcana's fictional divination method is authentic historical practice"
+      ],
+      "es": [
+        "no volver a sortear ni sustituir el objeto predeterminado",
+        "no inventar un símbolo cultural nuevo",
+        "no alterar la orientación vertical/invertida",
+        "no introducir un flujo de interfaz nuevo",
+        "no pedir a la persona que actúe físicamente ni que espere",
+        "no afirmar que el método ficticio de adivinación de Online Arcana es una práctica histórica auténtica"
+      ]
+    }
+  },
+  "readers": {
+    "selena": {
+      "mode": "vanilla",
+      "rule": {
+        "en": "Use Selena's current naipes ritual exactly as implemented. Do not consult a medium map.",
+        "es": "Usar exactamente el ritual actual de naipes de Selena. No consultar ningún mapa de medio."
+      }
+    },
+    "brennos": {
+      "mode": "mapped-medium",
+      "medium": {
+        "en": "individually carved bone",
+        "es": "hueso tallado individualmente"
+      },
+      "ritual": {
+        "concealment": {
+          "en": "All carved bones remain hidden inside a shallow iron shield.",
+          "es": "Todos los huesos tallados permanecen ocultos dentro de un escudo de hierro poco profundo."
+        },
+        "chance": {
+          "en": "Brennos shakes the shield with deliberate care until exactly one bone escapes the rim and strikes the fire-scarred table.",
+          "es": "Brennos agita el escudo con cuidado deliberado hasta que un solo hueso supera el borde y golpea la mesa marcada por el fuego."
+        },
+        "upright": {
+          "en": "The fallen bone rests entirely between the burnt cracks.",
+          "es": "El hueso caído queda completamente entre las grietas quemadas."
+        },
+        "reversed": {
+          "en": "Any part of the fallen bone touches or crosses a burnt crack.",
+          "es": "Cualquier parte del hueso caído toca o cruza una grieta quemada."
+        },
+        "beats": {
+          "en": [
+            "iron shield",
+            "bones striking iron",
+            "one bone escaping",
+            "impact on the table",
+            "relationship to the burnt cracks"
+          ],
+          "es": [
+            "escudo de hierro",
+            "huesos golpeando el hierro",
+            "un solo hueso que escapa",
+            "impacto sobre la mesa",
+            "relación con las grietas quemadas"
+          ]
+        }
+      },
+      "mappingFile": "maps/brennos.json"
+    },
+    "yejide": {
+      "mode": "mapped-medium",
+      "medium": {
+        "en": "large carved seed",
+        "es": "semilla tallada de gran tamaño"
+      },
+      "ritual": {
+        "concealment": {
+          "en": "The large carved seeds remain hidden in an opaque woven bag.",
+          "es": "Las grandes semillas talladas permanecen ocultas en una bolsa tejida opaca."
+        },
+        "chance": {
+          "en": "Yejide reaches into the bag without looking, takes a concealed handful and casts it onto the desk; one predetermined seed separates from the rest.",
+          "es": "Yejide introduce la mano en la bolsa sin mirar, toma un puñado oculto y lo lanza sobre la mesa; una semilla predeterminada se separa de las demás."
+        },
+        "upright": {
+          "en": "The chosen seed settles with its carved face visible.",
+          "es": "La semilla elegida queda con la cara tallada visible."
+        },
+        "reversed": {
+          "en": "The chosen seed settles carved-side down; Yejide records how it landed, then turns it only to identify the carving.",
+          "es": "La semilla elegida queda con la talla contra la mesa; Yejide registra cómo cayó y después la gira únicamente para identificar el grabado."
+        },
+        "beats": {
+          "en": [
+            "opaque woven bag",
+            "concealed handful",
+            "seeds striking the desk",
+            "one seed separating",
+            "inspection of the carving"
+          ],
+          "es": [
+            "bolsa tejida opaca",
+            "puñado oculto",
+            "semillas golpeando la mesa",
+            "una semilla que se separa",
+            "inspección del tallado"
+          ]
+        }
+      },
+      "mappingFile": "maps/yejide.json"
+    },
+    "ngaru": {
+      "mode": "mapped-medium",
+      "medium": {
+        "en": "painted seashell",
+        "es": "concha marina pintada"
+      },
+      "ritual": {
+        "concealment": {
+          "en": "All painted shells remain inside an opaque, sea-worn bag.",
+          "es": "Todas las conchas pintadas permanecen dentro de una bolsa opaca desgastada por el mar."
+        },
+        "chance": {
+          "en": "The ritual narrates the user reaching into the bag without looking and withdrawing the already determined shell.",
+          "es": "El ritual narra que la persona introduce la mano en la bolsa sin mirar y saca la concha ya determinada."
+        },
+        "upright": {
+          "en": "The shell emerges with its painted reading face and natural opening presented in the mapped upright relation.",
+          "es": "La concha emerge con la cara pintada de lectura y la abertura natural en la relación vertical prevista."
+        },
+        "reversed": {
+          "en": "The shell emerges with the painted face or opening turned inward, downward or away; Ngaru records that position before rotating it enough to inspect the motif.",
+          "es": "La concha emerge con la cara pintada o la abertura vuelta hacia dentro, abajo o lejos; Ngaru registra esa posición antes de girarla lo suficiente para inspeccionar el motivo."
+        },
+        "beats": {
+          "en": [
+            "sea-worn opaque bag",
+            "blind reach",
+            "texture of shells",
+            "one shell withdrawn",
+            "study of natural colour and painted pattern"
+          ],
+          "es": [
+            "bolsa opaca desgastada por el mar",
+            "búsqueda a ciegas",
+            "textura de las conchas",
+            "extracción de una concha",
+            "estudio del color natural y el patrón pintado"
+          ]
+        }
+      },
+      "mappingFile": "maps/ngaru.json"
+    },
+    "ame": {
+      "mode": "mapped-medium",
+      "medium": {
+        "en": "sakura and lotus leaves moving on collected rainwater",
+        "es": "hojas de sakura y loto moviéndose sobre agua de lluvia recogida"
+      },
+      "ritual": {
+        "concealment": {
+          "en": "Ame holds a gathered mass of sakura petals and lotus leaves above a basin of collected rainwater; the mapped leaf cannot be distinguished before release.",
+          "es": "Ame sostiene un conjunto de pétalos de sakura y hojas de loto sobre una pila de agua de lluvia recogida; la hoja asignada no puede distinguirse antes de soltarla."
+        },
+        "chance": {
+          "en": "She releases them together and watches turbulence, collisions, ripples and drift until one mapped leaf becomes dominant and the water settles.",
+          "es": "Los suelta juntos y observa la turbulencia, los choques, las ondas y la deriva hasta que una hoja asignada se vuelve dominante y el agua se aquieta."
+        },
+        "upright": {
+          "en": "The mapped leaf settles on its intended surface and completes the authored Shinto-related form or motion.",
+          "es": "La hoja asignada se asienta sobre la superficie prevista y completa la forma o el movimiento sintoísta diseñado."
+        },
+        "reversed": {
+          "en": "The mapped leaf settles underside-up or completes the authored contrary motion or resting relation.",
+          "es": "La hoja asignada queda con el envés hacia arriba o completa el movimiento o la relación de reposo contraria diseñada."
+        },
+        "beats": {
+          "en": [
+            "basin of collected rainwater",
+            "handful of sakura and lotus leaves",
+            "release without selection",
+            "ripples and collisions",
+            "silence after the water settles"
+          ],
+          "es": [
+            "pila de agua de lluvia recogida",
+            "puñado de hojas de sakura y loto",
+            "liberación sin selección",
+            "ondas y choques",
+            "silencio cuando el agua se aquieta"
+          ]
+        }
+      },
+      "mappingFile": "maps/ame.json"
+    },
+    "amaru": {
+      "mode": "mapped-medium",
+      "medium": {
+        "en": "one knotted cord drawn from an opaque vase",
+        "es": "un cordón anudado extraído de un jarrón opaco"
+      },
+      "ritual": {
+        "concealment": {
+          "en": "All 78 knotted cords remain hidden inside a tall opaque vase; the knot patterns cannot be seen before the draw.",
+          "es": "Los 78 cordones anudados permanecen ocultos dentro de un jarrón alto y opaco; los patrones de nudos no pueden verse antes de la extracción."
+        },
+        "chance": {
+          "en": "The ritual narrates the user mixing the cords by touch and pulling the already determined cord without seeing its knots.",
+          "es": "El ritual narra que la persona mezcla los cordones al tacto y extrae el cordón ya determinado sin ver sus nudos."
+        },
+        "upright": {
+          "en": "The cord emerges from its designated beginning and Amaru reads the knot sequence in that direction.",
+          "es": "El cordón emerge por su inicio designado y Amaru lee la secuencia de nudos en esa dirección."
+        },
+        "reversed": {
+          "en": "The cord emerges from the opposite end and Amaru reads the same authentic structure in reverse order.",
+          "es": "El cordón emerge por el extremo opuesto y Amaru lee la misma estructura auténtica en orden inverso."
+        },
+        "beats": {
+          "en": [
+            "opaque vase",
+            "mixing cords by touch",
+            "one cord drawn unseen",
+            "direction of emergence",
+            "laying out the knots without reversing them"
+          ],
+          "es": [
+            "jarrón opaco",
+            "mezcla de cordones al tacto",
+            "extracción a ciegas de un cordón",
+            "dirección de salida",
+            "extensión de los nudos sin invertirlos"
+          ]
+        }
+      },
+      "mappingFile": "maps/amaru.json"
+    },
+    "nahid": {
+      "mode": "mapped-medium",
+      "medium": {
+        "en": "one authored incense-smoke signature",
+        "es": "una formación de humo de incienso diseñada"
+      },
+      "ritual": {
+        "concealment": {
+          "en": "The outcome is obscured by natural turbulence: heat, small air currents and the changing ember prevent the next smoke form from being known in advance.",
+          "es": "El resultado queda oculto por la turbulencia natural: el calor, las pequeñas corrientes de aire y la brasa cambiante impiden conocer de antemano la siguiente forma del humo."
+        },
+        "chance": {
+          "en": "Nahid lights the incense and waits without forcing the smoke until the predetermined signature gradually becomes recognisable.",
+          "es": "Nahid enciende el incienso y espera sin forzar el humo hasta que la formación predeterminada se vuelve gradualmente reconocible."
+        },
+        "upright": {
+          "en": "The smoke completes the authored rising, opening or joining form.",
+          "es": "El humo completa la forma diseñada de ascenso, apertura o unión."
+        },
+        "reversed": {
+          "en": "The same signature manifests through its authored contrary behaviour: folding inward, breaking, descending briefly, mirroring or failing to join.",
+          "es": "La misma formación se manifiesta mediante su comportamiento contrario diseñado: plegarse hacia dentro, romperse, descender brevemente, reflejarse o no llegar a unirse."
+        },
+        "beats": {
+          "en": [
+            "lighting incense",
+            "uncontrolled first curls",
+            "waiting without interpretation",
+            "one recognisable signature forming",
+            "Nahid naming the real Zoroastrian element it evokes"
+          ],
+          "es": [
+            "encendido del incienso",
+            "primeras volutas incontroladas",
+            "espera sin interpretación",
+            "formación de una firma reconocible",
+            "Nahid nombra el elemento zoroastriano real que evoca"
+          ]
+        }
+      },
+      "mappingFile": "maps/nahid.json"
+    },
+    "mictli": {
+      "mode": "mapped-medium",
+      "medium": {
+        "en": "one carved stone disk",
+        "es": "un disco de piedra tallado"
+      },
+      "ritual": {
+        "concealment": {
+          "en": "All carved stone disks remain hidden in a dark covered vessel.",
+          "es": "Todos los discos de piedra tallados permanecen ocultos dentro de un recipiente oscuro y cubierto."
+        },
+        "chance": {
+          "en": "Mictli mixes the disks without exposing their carvings and draws the already determined disk.",
+          "es": "Mictli mezcla los discos sin exponer sus tallas y extrae el disco ya determinado."
+        },
+        "upright": {
+          "en": "He places the disk exactly as it emerged, with the glyph in its mapped upright orientation.",
+          "es": "Coloca el disco exactamente como salió, con el glifo en su orientación vertical asignada."
+        },
+        "reversed": {
+          "en": "He places the disk exactly as it emerged, with the glyph rotated into its mapped inverted orientation.",
+          "es": "Coloca el disco exactamente como salió, con el glifo girado a su orientación invertida asignada."
+        },
+        "beats": {
+          "en": [
+            "covered stone vessel",
+            "stone grinding against stone",
+            "unseen draw",
+            "disk placed without correction",
+            "glyph revealed"
+          ],
+          "es": [
+            "recipiente de piedra cubierto",
+            "piedra rozando contra piedra",
+            "extracción a ciegas",
+            "disco colocado sin corregir",
+            "revelación del glifo"
+          ]
+        }
+      },
+      "mappingFile": "maps/mictli.json"
+    }
+  }
+}

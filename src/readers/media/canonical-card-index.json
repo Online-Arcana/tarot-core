@@ -1,0 +1,1370 @@
+{
+  "version": 1,
+  "status": "mapping-aid-only",
+  "note": {
+    "en": "This index mirrors the current 78 canonical naipes IDs for mapping validation. Runtime integration should continue to obtain meanings from the canonical deck rather than duplicate interpretation logic here.",
+    "es": "Este índice refleja los 78 identificadores canónicos actuales de los naipes para validar los mapas. La integración futura debe seguir obteniendo los significados de la baraja canónica y no duplicar aquí la lógica de interpretación."
+  },
+  "cards": [
+    {
+      "id": "major-fool",
+      "name": {
+        "en": "The Fool",
+        "es": "El Loco"
+      },
+      "upright": {
+        "en": "Beginnings, freedom, trust and a leap into the unknown.",
+        "es": "Comienzos, libertad, confianza y un salto hacia lo desconocido."
+      },
+      "reversed": {
+        "en": "Recklessness, naivety or fear of beginning.",
+        "es": "Imprudencia, ingenuidad o miedo a comenzar."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-magician",
+      "name": {
+        "en": "The Magician",
+        "es": "El Mago"
+      },
+      "upright": {
+        "en": "Skill, will, focus and the power to act.",
+        "es": "Habilidad, voluntad, concentración y poder para actuar."
+      },
+      "reversed": {
+        "en": "Manipulation, scattered ability or unused potential.",
+        "es": "Manipulación, talento disperso o potencial sin utilizar."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-priestess",
+      "name": {
+        "en": "The High Priestess",
+        "es": "La Sacerdotisa"
+      },
+      "upright": {
+        "en": "Intuition, silence, hidden knowledge and inner truth.",
+        "es": "Intuición, silencio, conocimiento oculto y verdad interior."
+      },
+      "reversed": {
+        "en": "Blocked intuition, secrecy or refusing what you already know.",
+        "es": "Intuición bloqueada, secretos o rechazo de lo que ya sabes."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-empress",
+      "name": {
+        "en": "The Empress",
+        "es": "La Emperatriz"
+      },
+      "upright": {
+        "en": "Abundance, creativity, nurture and embodied pleasure.",
+        "es": "Abundancia, creatividad, cuidado y placer encarnado."
+      },
+      "reversed": {
+        "en": "Overgiving, dependence or creative stagnation.",
+        "es": "Dar en exceso, dependencia o estancamiento creativo."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-emperor",
+      "name": {
+        "en": "The Emperor",
+        "es": "El Emperador"
+      },
+      "upright": {
+        "en": "Structure, authority, protection and firm boundaries.",
+        "es": "Estructura, autoridad, protección y límites firmes."
+      },
+      "reversed": {
+        "en": "Rigidity, domination or fear disguised as control.",
+        "es": "Rigidez, dominio o miedo disfrazado de control."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-hierophant",
+      "name": {
+        "en": "The Hierophant",
+        "es": "El Sumo Sacerdote"
+      },
+      "upright": {
+        "en": "Tradition, teaching, shared values and spiritual guidance.",
+        "es": "Tradición, enseñanza, valores compartidos y guía espiritual."
+      },
+      "reversed": {
+        "en": "Dogma, empty convention or the need to find your own path.",
+        "es": "Dogma, convención vacía o necesidad de hallar tu propio camino."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-lovers",
+      "name": {
+        "en": "The Lovers",
+        "es": "Los Enamorados"
+      },
+      "upright": {
+        "en": "Union, aligned values and a meaningful choice.",
+        "es": "Unión, valores alineados y una elección significativa."
+      },
+      "reversed": {
+        "en": "Disharmony, divided values or avoiding a necessary choice.",
+        "es": "Desarmonía, valores divididos o evasión de una elección necesaria."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-chariot",
+      "name": {
+        "en": "The Chariot",
+        "es": "El Carro"
+      },
+      "upright": {
+        "en": "Direction, determination and disciplined momentum.",
+        "es": "Dirección, determinación e impulso disciplinado."
+      },
+      "reversed": {
+        "en": "Loss of direction, aggression or conflicting impulses.",
+        "es": "Pérdida de rumbo, agresividad o impulsos enfrentados."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-strength",
+      "name": {
+        "en": "Strength",
+        "es": "La Fuerza"
+      },
+      "upright": {
+        "en": "Courage, patience and gentle mastery of instinct.",
+        "es": "Valor, paciencia y dominio amable del instinto."
+      },
+      "reversed": {
+        "en": "Self-doubt, suppressed anger or force without compassion.",
+        "es": "Duda, ira reprimida o fuerza sin compasión."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-hermit",
+      "name": {
+        "en": "The Hermit",
+        "es": "El Ermitaño"
+      },
+      "upright": {
+        "en": "Solitude, reflection and wisdom found within.",
+        "es": "Soledad consciente, reflexión y sabiduría interior."
+      },
+      "reversed": {
+        "en": "Isolation, avoidance or refusing useful guidance.",
+        "es": "Aislamiento, evasión o rechazo de una guía útil."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-wheel",
+      "name": {
+        "en": "Wheel of Fortune",
+        "es": "La Rueda de la Fortuna"
+      },
+      "upright": {
+        "en": "Turning cycles, change, chance and a shift in fortune.",
+        "es": "Ciclos que giran, cambio, azar y un vuelco de la fortuna."
+      },
+      "reversed": {
+        "en": "Resistance to change, repeated patterns or poor timing.",
+        "es": "Resistencia al cambio, patrones repetidos o mal momento."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-justice",
+      "name": {
+        "en": "Justice",
+        "es": "La Justicia"
+      },
+      "upright": {
+        "en": "Truth, balance, accountability and fair consequence.",
+        "es": "Verdad, equilibrio, responsabilidad y consecuencia justa."
+      },
+      "reversed": {
+        "en": "Bias, denial or avoiding responsibility.",
+        "es": "Parcialidad, negación o evasión de responsabilidades."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-hanged",
+      "name": {
+        "en": "The Hanged Man",
+        "es": "El Colgado"
+      },
+      "upright": {
+        "en": "Surrender, pause and a new perspective.",
+        "es": "Entrega, pausa y una perspectiva nueva."
+      },
+      "reversed": {
+        "en": "Stalling, needless sacrifice or refusal to let go.",
+        "es": "Estancamiento, sacrificio inútil o negativa a soltar."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-death",
+      "name": {
+        "en": "Death",
+        "es": "La Muerte"
+      },
+      "upright": {
+        "en": "An ending that makes transformation possible.",
+        "es": "Un final que hace posible la transformación."
+      },
+      "reversed": {
+        "en": "Clinging to what is over or fear of necessary change.",
+        "es": "Apego a lo terminado o miedo al cambio necesario."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-temperance",
+      "name": {
+        "en": "Temperance",
+        "es": "La Templanza"
+      },
+      "upright": {
+        "en": "Integration, moderation, healing and patient balance.",
+        "es": "Integración, moderación, sanación y equilibrio paciente."
+      },
+      "reversed": {
+        "en": "Excess, imbalance or incompatible forces left unresolved.",
+        "es": "Exceso, desequilibrio o fuerzas incompatibles sin resolver."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-devil",
+      "name": {
+        "en": "The Devil",
+        "es": "El Diablo"
+      },
+      "upright": {
+        "en": "Attachment, temptation and the chains we help maintain.",
+        "es": "Apego, tentación y las cadenas que ayudamos a mantener."
+      },
+      "reversed": {
+        "en": "Release, recognition and reclaiming choice.",
+        "es": "Liberación, reconocimiento y recuperación de la elección."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-tower",
+      "name": {
+        "en": "The Tower",
+        "es": "La Torre"
+      },
+      "upright": {
+        "en": "Sudden truth, rupture and the collapse of false structure.",
+        "es": "Verdad repentina, ruptura y caída de una estructura falsa."
+      },
+      "reversed": {
+        "en": "Avoided upheaval, delayed truth or fear of necessary disruption.",
+        "es": "Conmoción evitada, verdad retrasada o miedo a una ruptura necesaria."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-star",
+      "name": {
+        "en": "The Star",
+        "es": "La Estrella"
+      },
+      "upright": {
+        "en": "Hope, renewal, honesty and quiet faith in the future.",
+        "es": "Esperanza, renovación, sinceridad y fe serena en el futuro."
+      },
+      "reversed": {
+        "en": "Discouragement, disconnection or difficulty trusting again.",
+        "es": "Desánimo, desconexión o dificultad para volver a confiar."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-moon",
+      "name": {
+        "en": "The Moon",
+        "es": "La Luna"
+      },
+      "upright": {
+        "en": "Dreams, uncertainty, instinct and what moves below awareness.",
+        "es": "Sueños, incertidumbre, instinto y lo que se mueve bajo la conciencia."
+      },
+      "reversed": {
+        "en": "Confusion lifting, hidden facts emerging or fear losing its grip.",
+        "es": "La confusión se disipa, aparecen hechos ocultos o el miedo pierde fuerza."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-sun",
+      "name": {
+        "en": "The Sun",
+        "es": "El Sol"
+      },
+      "upright": {
+        "en": "Clarity, vitality, warmth and open success.",
+        "es": "Claridad, vitalidad, calidez y éxito visible."
+      },
+      "reversed": {
+        "en": "Delayed joy, overconfidence or light temporarily obscured.",
+        "es": "Alegría retrasada, exceso de confianza o luz temporalmente oculta."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-judgement",
+      "name": {
+        "en": "Judgement",
+        "es": "El Juicio"
+      },
+      "upright": {
+        "en": "Awakening, reckoning and answering a deeper call.",
+        "es": "Despertar, balance y respuesta a una llamada profunda."
+      },
+      "reversed": {
+        "en": "Self-judgement, denial or refusing the call to change.",
+        "es": "Autojuicio, negación o rechazo de la llamada al cambio."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "major-world",
+      "name": {
+        "en": "The World",
+        "es": "El Mundo"
+      },
+      "upright": {
+        "en": "Completion, integration and arrival at a meaningful threshold.",
+        "es": "Culminación, integración y llegada a un umbral significativo."
+      },
+      "reversed": {
+        "en": "Unfinished work, lack of closure or success not yet embodied.",
+        "es": "Trabajo inconcluso, falta de cierre o éxito aún no asumido."
+      },
+      "arcana": "major"
+    },
+    {
+      "id": "wands-ace",
+      "name": {
+        "en": "Ace of Wands",
+        "es": "As de Bastos"
+      },
+      "upright": {
+        "en": "A fresh opening or concentrated opportunity in initiative, desire, creativity and purposeful action.",
+        "es": "Una apertura nueva o una oportunidad concentrada en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "A delayed, blocked or mishandled beginning in initiative, desire, creativity and purposeful action.",
+        "es": "Un comienzo retrasado, bloqueado o mal encauzado en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "ace"
+    },
+    {
+      "id": "wands-two",
+      "name": {
+        "en": "Two of Wands",
+        "es": "Dos de Bastos"
+      },
+      "upright": {
+        "en": "A choice, balance or partnership taking shape in initiative, desire, creativity and purposeful action.",
+        "es": "Una elección, un equilibrio o una alianza que toma forma en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Indecision, imbalance or divided priorities in initiative, desire, creativity and purposeful action.",
+        "es": "Indecisión, desequilibrio o prioridades divididas en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "two"
+    },
+    {
+      "id": "wands-three",
+      "name": {
+        "en": "Three of Wands",
+        "es": "Tres de Bastos"
+      },
+      "upright": {
+        "en": "Growth, collaboration and visible development in initiative, desire, creativity and purposeful action.",
+        "es": "Crecimiento, colaboración y desarrollo visible en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Scattered effort, poor cooperation or stalled growth in initiative, desire, creativity and purposeful action.",
+        "es": "Esfuerzo disperso, mala cooperación o crecimiento detenido en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "three"
+    },
+    {
+      "id": "wands-four",
+      "name": {
+        "en": "Four of Wands",
+        "es": "Cuatro de Bastos"
+      },
+      "upright": {
+        "en": "Stability, consolidation and a protected position in initiative, desire, creativity and purposeful action.",
+        "es": "Estabilidad, consolidación y una posición protegida en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Rigidity, stagnation or an unstable foundation in initiative, desire, creativity and purposeful action.",
+        "es": "Rigidez, estancamiento o una base inestable en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "four"
+    },
+    {
+      "id": "wands-five",
+      "name": {
+        "en": "Five of Wands",
+        "es": "Cinco de Bastos"
+      },
+      "upright": {
+        "en": "Disruption, tension or necessary adjustment in initiative, desire, creativity and purposeful action.",
+        "es": "Alteración, tensión o un ajuste necesario en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Recovery, reconciliation or learning after difficulty in initiative, desire, creativity and purposeful action.",
+        "es": "Recuperación, reconciliación o aprendizaje tras una dificultad en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "five"
+    },
+    {
+      "id": "wands-six",
+      "name": {
+        "en": "Six of Wands",
+        "es": "Seis de Bastos"
+      },
+      "upright": {
+        "en": "Movement towards harmony, support or improvement in initiative, desire, creativity and purposeful action.",
+        "es": "Movimiento hacia la armonía, el apoyo o la mejora en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Unequal exchange, delayed progress or difficulty moving on in initiative, desire, creativity and purposeful action.",
+        "es": "Intercambio desigual, progreso retrasado o dificultad para avanzar en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "six"
+    },
+    {
+      "id": "wands-seven",
+      "name": {
+        "en": "Seven of Wands",
+        "es": "Siete de Bastos"
+      },
+      "upright": {
+        "en": "Assessment, strategy and testing what is real in initiative, desire, creativity and purposeful action.",
+        "es": "Evaluación, estrategia y una prueba de realidad en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Confusion, avoidance or effort without clear direction in initiative, desire, creativity and purposeful action.",
+        "es": "Confusión, evasión o esfuerzo sin dirección clara en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "seven"
+    },
+    {
+      "id": "wands-eight",
+      "name": {
+        "en": "Eight of Wands",
+        "es": "Ocho de Bastos"
+      },
+      "upright": {
+        "en": "Focused movement, mastery or accelerating change in initiative, desire, creativity and purposeful action.",
+        "es": "Movimiento enfocado, dominio o cambio acelerado en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Restriction, repetition or energy moving without control in initiative, desire, creativity and purposeful action.",
+        "es": "Restricción, repetición o energía que avanza sin control en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "eight"
+    },
+    {
+      "id": "wands-nine",
+      "name": {
+        "en": "Nine of Wands",
+        "es": "Nueve de Bastos"
+      },
+      "upright": {
+        "en": "Near-completion, independence and the result of sustained effort in initiative, desire, creativity and purposeful action.",
+        "es": "Casi culminación, independencia y fruto del esfuerzo sostenido en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Exhaustion, insecurity or a result that does not satisfy in initiative, desire, creativity and purposeful action.",
+        "es": "Agotamiento, inseguridad o un resultado que no satisface en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "nine"
+    },
+    {
+      "id": "wands-ten",
+      "name": {
+        "en": "Ten of Wands",
+        "es": "Diez de Bastos"
+      },
+      "upright": {
+        "en": "Completion, culmination and the full weight of initiative, desire, creativity and purposeful action.",
+        "es": "Culminación, cierre y todo el peso de la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Overload, an ending resisted or a cycle ready to be released in initiative, desire, creativity and purposeful action.",
+        "es": "Sobrecarga, un final resistido o un ciclo que pide ser soltado en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "ten"
+    },
+    {
+      "id": "wands-page",
+      "name": {
+        "en": "Page of Wands",
+        "es": "Sota de Bastos"
+      },
+      "upright": {
+        "en": "Curiosity, a message or a learner's beginning in initiative, desire, creativity and purposeful action.",
+        "es": "Curiosidad, un mensaje o el comienzo de un aprendizaje en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Immaturity, unreliable news or unfocused curiosity in initiative, desire, creativity and purposeful action.",
+        "es": "Inmadurez, noticias poco fiables o curiosidad sin enfoque en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "page"
+    },
+    {
+      "id": "wands-knight",
+      "name": {
+        "en": "Knight of Wands",
+        "es": "Caballero de Bastos"
+      },
+      "upright": {
+        "en": "Active pursuit, movement and commitment in initiative, desire, creativity and purposeful action.",
+        "es": "Búsqueda activa, movimiento y compromiso en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Impulsiveness, inconsistency or a stalled pursuit in initiative, desire, creativity and purposeful action.",
+        "es": "Impulsividad, inconstancia o una búsqueda detenida en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "knight"
+    },
+    {
+      "id": "wands-queen",
+      "name": {
+        "en": "Queen of Wands",
+        "es": "Reina de Bastos"
+      },
+      "upright": {
+        "en": "Mature receptivity, confidence and embodied wisdom in initiative, desire, creativity and purposeful action.",
+        "es": "Receptividad madura, confianza y sabiduría encarnada en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Insecurity, overcontrol or care turned inward destructively in initiative, desire, creativity and purposeful action.",
+        "es": "Inseguridad, control excesivo o cuidado vuelto contra uno mismo en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "queen"
+    },
+    {
+      "id": "wands-king",
+      "name": {
+        "en": "King of Wands",
+        "es": "Rey de Bastos"
+      },
+      "upright": {
+        "en": "Mastery, responsibility and directed authority in initiative, desire, creativity and purposeful action.",
+        "es": "Dominio, responsabilidad y autoridad bien dirigida en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "reversed": {
+        "en": "Domination, rigidity or misuse of authority in initiative, desire, creativity and purposeful action.",
+        "es": "Dominación, rigidez o uso indebido de la autoridad en la iniciativa, el deseo, la creatividad y la acción con propósito."
+      },
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "king"
+    },
+    {
+      "id": "cups-ace",
+      "name": {
+        "en": "Ace of Cups",
+        "es": "As de Copas"
+      },
+      "upright": {
+        "en": "A fresh opening or concentrated opportunity in feelings, relationships, intuition and emotional exchange.",
+        "es": "Una apertura nueva o una oportunidad concentrada en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "A delayed, blocked or mishandled beginning in feelings, relationships, intuition and emotional exchange.",
+        "es": "Un comienzo retrasado, bloqueado o mal encauzado en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "ace"
+    },
+    {
+      "id": "cups-two",
+      "name": {
+        "en": "Two of Cups",
+        "es": "Dos de Copas"
+      },
+      "upright": {
+        "en": "A choice, balance or partnership taking shape in feelings, relationships, intuition and emotional exchange.",
+        "es": "Una elección, un equilibrio o una alianza que toma forma en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Indecision, imbalance or divided priorities in feelings, relationships, intuition and emotional exchange.",
+        "es": "Indecisión, desequilibrio o prioridades divididas en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "two"
+    },
+    {
+      "id": "cups-three",
+      "name": {
+        "en": "Three of Cups",
+        "es": "Tres de Copas"
+      },
+      "upright": {
+        "en": "Growth, collaboration and visible development in feelings, relationships, intuition and emotional exchange.",
+        "es": "Crecimiento, colaboración y desarrollo visible en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Scattered effort, poor cooperation or stalled growth in feelings, relationships, intuition and emotional exchange.",
+        "es": "Esfuerzo disperso, mala cooperación o crecimiento detenido en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "three"
+    },
+    {
+      "id": "cups-four",
+      "name": {
+        "en": "Four of Cups",
+        "es": "Cuatro de Copas"
+      },
+      "upright": {
+        "en": "Stability, consolidation and a protected position in feelings, relationships, intuition and emotional exchange.",
+        "es": "Estabilidad, consolidación y una posición protegida en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Rigidity, stagnation or an unstable foundation in feelings, relationships, intuition and emotional exchange.",
+        "es": "Rigidez, estancamiento o una base inestable en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "four"
+    },
+    {
+      "id": "cups-five",
+      "name": {
+        "en": "Five of Cups",
+        "es": "Cinco de Copas"
+      },
+      "upright": {
+        "en": "Disruption, tension or necessary adjustment in feelings, relationships, intuition and emotional exchange.",
+        "es": "Alteración, tensión o un ajuste necesario en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Recovery, reconciliation or learning after difficulty in feelings, relationships, intuition and emotional exchange.",
+        "es": "Recuperación, reconciliación o aprendizaje tras una dificultad en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "five"
+    },
+    {
+      "id": "cups-six",
+      "name": {
+        "en": "Six of Cups",
+        "es": "Seis de Copas"
+      },
+      "upright": {
+        "en": "Movement towards harmony, support or improvement in feelings, relationships, intuition and emotional exchange.",
+        "es": "Movimiento hacia la armonía, el apoyo o la mejora en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Unequal exchange, delayed progress or difficulty moving on in feelings, relationships, intuition and emotional exchange.",
+        "es": "Intercambio desigual, progreso retrasado o dificultad para avanzar en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "six"
+    },
+    {
+      "id": "cups-seven",
+      "name": {
+        "en": "Seven of Cups",
+        "es": "Siete de Copas"
+      },
+      "upright": {
+        "en": "Assessment, strategy and testing what is real in feelings, relationships, intuition and emotional exchange.",
+        "es": "Evaluación, estrategia y una prueba de realidad en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Confusion, avoidance or effort without clear direction in feelings, relationships, intuition and emotional exchange.",
+        "es": "Confusión, evasión o esfuerzo sin dirección clara en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "seven"
+    },
+    {
+      "id": "cups-eight",
+      "name": {
+        "en": "Eight of Cups",
+        "es": "Ocho de Copas"
+      },
+      "upright": {
+        "en": "Focused movement, mastery or accelerating change in feelings, relationships, intuition and emotional exchange.",
+        "es": "Movimiento enfocado, dominio o cambio acelerado en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Restriction, repetition or energy moving without control in feelings, relationships, intuition and emotional exchange.",
+        "es": "Restricción, repetición o energía que avanza sin control en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "eight"
+    },
+    {
+      "id": "cups-nine",
+      "name": {
+        "en": "Nine of Cups",
+        "es": "Nueve de Copas"
+      },
+      "upright": {
+        "en": "Near-completion, independence and the result of sustained effort in feelings, relationships, intuition and emotional exchange.",
+        "es": "Casi culminación, independencia y fruto del esfuerzo sostenido en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Exhaustion, insecurity or a result that does not satisfy in feelings, relationships, intuition and emotional exchange.",
+        "es": "Agotamiento, inseguridad o un resultado que no satisface en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "nine"
+    },
+    {
+      "id": "cups-ten",
+      "name": {
+        "en": "Ten of Cups",
+        "es": "Diez de Copas"
+      },
+      "upright": {
+        "en": "Completion, culmination and the full weight of feelings, relationships, intuition and emotional exchange.",
+        "es": "Culminación, cierre y todo el peso de los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Overload, an ending resisted or a cycle ready to be released in feelings, relationships, intuition and emotional exchange.",
+        "es": "Sobrecarga, un final resistido o un ciclo que pide ser soltado en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "ten"
+    },
+    {
+      "id": "cups-page",
+      "name": {
+        "en": "Page of Cups",
+        "es": "Sota de Copas"
+      },
+      "upright": {
+        "en": "Curiosity, a message or a learner's beginning in feelings, relationships, intuition and emotional exchange.",
+        "es": "Curiosidad, un mensaje o el comienzo de un aprendizaje en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Immaturity, unreliable news or unfocused curiosity in feelings, relationships, intuition and emotional exchange.",
+        "es": "Inmadurez, noticias poco fiables o curiosidad sin enfoque en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "page"
+    },
+    {
+      "id": "cups-knight",
+      "name": {
+        "en": "Knight of Cups",
+        "es": "Caballero de Copas"
+      },
+      "upright": {
+        "en": "Active pursuit, movement and commitment in feelings, relationships, intuition and emotional exchange.",
+        "es": "Búsqueda activa, movimiento y compromiso en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Impulsiveness, inconsistency or a stalled pursuit in feelings, relationships, intuition and emotional exchange.",
+        "es": "Impulsividad, inconstancia o una búsqueda detenida en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "knight"
+    },
+    {
+      "id": "cups-queen",
+      "name": {
+        "en": "Queen of Cups",
+        "es": "Reina de Copas"
+      },
+      "upright": {
+        "en": "Mature receptivity, confidence and embodied wisdom in feelings, relationships, intuition and emotional exchange.",
+        "es": "Receptividad madura, confianza y sabiduría encarnada en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Insecurity, overcontrol or care turned inward destructively in feelings, relationships, intuition and emotional exchange.",
+        "es": "Inseguridad, control excesivo o cuidado vuelto contra uno mismo en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "queen"
+    },
+    {
+      "id": "cups-king",
+      "name": {
+        "en": "King of Cups",
+        "es": "Rey de Copas"
+      },
+      "upright": {
+        "en": "Mastery, responsibility and directed authority in feelings, relationships, intuition and emotional exchange.",
+        "es": "Dominio, responsabilidad y autoridad bien dirigida en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "reversed": {
+        "en": "Domination, rigidity or misuse of authority in feelings, relationships, intuition and emotional exchange.",
+        "es": "Dominación, rigidez o uso indebido de la autoridad en los sentimientos, las relaciones, la intuición y el intercambio emocional."
+      },
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "king"
+    },
+    {
+      "id": "swords-ace",
+      "name": {
+        "en": "Ace of Swords",
+        "es": "As de Espadas"
+      },
+      "upright": {
+        "en": "A fresh opening or concentrated opportunity in thought, truth, conflict, judgement and communication.",
+        "es": "Una apertura nueva o una oportunidad concentrada en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "A delayed, blocked or mishandled beginning in thought, truth, conflict, judgement and communication.",
+        "es": "Un comienzo retrasado, bloqueado o mal encauzado en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "ace"
+    },
+    {
+      "id": "swords-two",
+      "name": {
+        "en": "Two of Swords",
+        "es": "Dos de Espadas"
+      },
+      "upright": {
+        "en": "A choice, balance or partnership taking shape in thought, truth, conflict, judgement and communication.",
+        "es": "Una elección, un equilibrio o una alianza que toma forma en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Indecision, imbalance or divided priorities in thought, truth, conflict, judgement and communication.",
+        "es": "Indecisión, desequilibrio o prioridades divididas en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "two"
+    },
+    {
+      "id": "swords-three",
+      "name": {
+        "en": "Three of Swords",
+        "es": "Tres de Espadas"
+      },
+      "upright": {
+        "en": "Growth, collaboration and visible development in thought, truth, conflict, judgement and communication.",
+        "es": "Crecimiento, colaboración y desarrollo visible en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Scattered effort, poor cooperation or stalled growth in thought, truth, conflict, judgement and communication.",
+        "es": "Esfuerzo disperso, mala cooperación o crecimiento detenido en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "three"
+    },
+    {
+      "id": "swords-four",
+      "name": {
+        "en": "Four of Swords",
+        "es": "Cuatro de Espadas"
+      },
+      "upright": {
+        "en": "Stability, consolidation and a protected position in thought, truth, conflict, judgement and communication.",
+        "es": "Estabilidad, consolidación y una posición protegida en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Rigidity, stagnation or an unstable foundation in thought, truth, conflict, judgement and communication.",
+        "es": "Rigidez, estancamiento o una base inestable en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "four"
+    },
+    {
+      "id": "swords-five",
+      "name": {
+        "en": "Five of Swords",
+        "es": "Cinco de Espadas"
+      },
+      "upright": {
+        "en": "Disruption, tension or necessary adjustment in thought, truth, conflict, judgement and communication.",
+        "es": "Alteración, tensión o un ajuste necesario en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Recovery, reconciliation or learning after difficulty in thought, truth, conflict, judgement and communication.",
+        "es": "Recuperación, reconciliación o aprendizaje tras una dificultad en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "five"
+    },
+    {
+      "id": "swords-six",
+      "name": {
+        "en": "Six of Swords",
+        "es": "Seis de Espadas"
+      },
+      "upright": {
+        "en": "Movement towards harmony, support or improvement in thought, truth, conflict, judgement and communication.",
+        "es": "Movimiento hacia la armonía, el apoyo o la mejora en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Unequal exchange, delayed progress or difficulty moving on in thought, truth, conflict, judgement and communication.",
+        "es": "Intercambio desigual, progreso retrasado o dificultad para avanzar en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "six"
+    },
+    {
+      "id": "swords-seven",
+      "name": {
+        "en": "Seven of Swords",
+        "es": "Siete de Espadas"
+      },
+      "upright": {
+        "en": "Assessment, strategy and testing what is real in thought, truth, conflict, judgement and communication.",
+        "es": "Evaluación, estrategia y una prueba de realidad en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Confusion, avoidance or effort without clear direction in thought, truth, conflict, judgement and communication.",
+        "es": "Confusión, evasión o esfuerzo sin dirección clara en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "seven"
+    },
+    {
+      "id": "swords-eight",
+      "name": {
+        "en": "Eight of Swords",
+        "es": "Ocho de Espadas"
+      },
+      "upright": {
+        "en": "Focused movement, mastery or accelerating change in thought, truth, conflict, judgement and communication.",
+        "es": "Movimiento enfocado, dominio o cambio acelerado en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Restriction, repetition or energy moving without control in thought, truth, conflict, judgement and communication.",
+        "es": "Restricción, repetición o energía que avanza sin control en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "eight"
+    },
+    {
+      "id": "swords-nine",
+      "name": {
+        "en": "Nine of Swords",
+        "es": "Nueve de Espadas"
+      },
+      "upright": {
+        "en": "Near-completion, independence and the result of sustained effort in thought, truth, conflict, judgement and communication.",
+        "es": "Casi culminación, independencia y fruto del esfuerzo sostenido en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Exhaustion, insecurity or a result that does not satisfy in thought, truth, conflict, judgement and communication.",
+        "es": "Agotamiento, inseguridad o un resultado que no satisface en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "nine"
+    },
+    {
+      "id": "swords-ten",
+      "name": {
+        "en": "Ten of Swords",
+        "es": "Diez de Espadas"
+      },
+      "upright": {
+        "en": "Completion, culmination and the full weight of thought, truth, conflict, judgement and communication.",
+        "es": "Culminación, cierre y todo el peso de el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Overload, an ending resisted or a cycle ready to be released in thought, truth, conflict, judgement and communication.",
+        "es": "Sobrecarga, un final resistido o un ciclo que pide ser soltado en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "ten"
+    },
+    {
+      "id": "swords-page",
+      "name": {
+        "en": "Page of Swords",
+        "es": "Sota de Espadas"
+      },
+      "upright": {
+        "en": "Curiosity, a message or a learner's beginning in thought, truth, conflict, judgement and communication.",
+        "es": "Curiosidad, un mensaje o el comienzo de un aprendizaje en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Immaturity, unreliable news or unfocused curiosity in thought, truth, conflict, judgement and communication.",
+        "es": "Inmadurez, noticias poco fiables o curiosidad sin enfoque en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "page"
+    },
+    {
+      "id": "swords-knight",
+      "name": {
+        "en": "Knight of Swords",
+        "es": "Caballero de Espadas"
+      },
+      "upright": {
+        "en": "Active pursuit, movement and commitment in thought, truth, conflict, judgement and communication.",
+        "es": "Búsqueda activa, movimiento y compromiso en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Impulsiveness, inconsistency or a stalled pursuit in thought, truth, conflict, judgement and communication.",
+        "es": "Impulsividad, inconstancia o una búsqueda detenida en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "knight"
+    },
+    {
+      "id": "swords-queen",
+      "name": {
+        "en": "Queen of Swords",
+        "es": "Reina de Espadas"
+      },
+      "upright": {
+        "en": "Mature receptivity, confidence and embodied wisdom in thought, truth, conflict, judgement and communication.",
+        "es": "Receptividad madura, confianza y sabiduría encarnada en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Insecurity, overcontrol or care turned inward destructively in thought, truth, conflict, judgement and communication.",
+        "es": "Inseguridad, control excesivo o cuidado vuelto contra uno mismo en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "queen"
+    },
+    {
+      "id": "swords-king",
+      "name": {
+        "en": "King of Swords",
+        "es": "Rey de Espadas"
+      },
+      "upright": {
+        "en": "Mastery, responsibility and directed authority in thought, truth, conflict, judgement and communication.",
+        "es": "Dominio, responsabilidad y autoridad bien dirigida en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "reversed": {
+        "en": "Domination, rigidity or misuse of authority in thought, truth, conflict, judgement and communication.",
+        "es": "Dominación, rigidez o uso indebido de la autoridad en el pensamiento, la verdad, el conflicto, el juicio y la comunicación."
+      },
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "king"
+    },
+    {
+      "id": "pentacles-ace",
+      "name": {
+        "en": "Ace of Pentacles",
+        "es": "As de Oros"
+      },
+      "upright": {
+        "en": "A fresh opening or concentrated opportunity in work, money, health, resources and the material world.",
+        "es": "Una apertura nueva o una oportunidad concentrada en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "A delayed, blocked or mishandled beginning in work, money, health, resources and the material world.",
+        "es": "Un comienzo retrasado, bloqueado o mal encauzado en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "ace"
+    },
+    {
+      "id": "pentacles-two",
+      "name": {
+        "en": "Two of Pentacles",
+        "es": "Dos de Oros"
+      },
+      "upright": {
+        "en": "A choice, balance or partnership taking shape in work, money, health, resources and the material world.",
+        "es": "Una elección, un equilibrio o una alianza que toma forma en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Indecision, imbalance or divided priorities in work, money, health, resources and the material world.",
+        "es": "Indecisión, desequilibrio o prioridades divididas en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "two"
+    },
+    {
+      "id": "pentacles-three",
+      "name": {
+        "en": "Three of Pentacles",
+        "es": "Tres de Oros"
+      },
+      "upright": {
+        "en": "Growth, collaboration and visible development in work, money, health, resources and the material world.",
+        "es": "Crecimiento, colaboración y desarrollo visible en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Scattered effort, poor cooperation or stalled growth in work, money, health, resources and the material world.",
+        "es": "Esfuerzo disperso, mala cooperación o crecimiento detenido en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "three"
+    },
+    {
+      "id": "pentacles-four",
+      "name": {
+        "en": "Four of Pentacles",
+        "es": "Cuatro de Oros"
+      },
+      "upright": {
+        "en": "Stability, consolidation and a protected position in work, money, health, resources and the material world.",
+        "es": "Estabilidad, consolidación y una posición protegida en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Rigidity, stagnation or an unstable foundation in work, money, health, resources and the material world.",
+        "es": "Rigidez, estancamiento o una base inestable en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "four"
+    },
+    {
+      "id": "pentacles-five",
+      "name": {
+        "en": "Five of Pentacles",
+        "es": "Cinco de Oros"
+      },
+      "upright": {
+        "en": "Disruption, tension or necessary adjustment in work, money, health, resources and the material world.",
+        "es": "Alteración, tensión o un ajuste necesario en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Recovery, reconciliation or learning after difficulty in work, money, health, resources and the material world.",
+        "es": "Recuperación, reconciliación o aprendizaje tras una dificultad en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "five"
+    },
+    {
+      "id": "pentacles-six",
+      "name": {
+        "en": "Six of Pentacles",
+        "es": "Seis de Oros"
+      },
+      "upright": {
+        "en": "Movement towards harmony, support or improvement in work, money, health, resources and the material world.",
+        "es": "Movimiento hacia la armonía, el apoyo o la mejora en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Unequal exchange, delayed progress or difficulty moving on in work, money, health, resources and the material world.",
+        "es": "Intercambio desigual, progreso retrasado o dificultad para avanzar en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "six"
+    },
+    {
+      "id": "pentacles-seven",
+      "name": {
+        "en": "Seven of Pentacles",
+        "es": "Siete de Oros"
+      },
+      "upright": {
+        "en": "Assessment, strategy and testing what is real in work, money, health, resources and the material world.",
+        "es": "Evaluación, estrategia y una prueba de realidad en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Confusion, avoidance or effort without clear direction in work, money, health, resources and the material world.",
+        "es": "Confusión, evasión o esfuerzo sin dirección clara en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "seven"
+    },
+    {
+      "id": "pentacles-eight",
+      "name": {
+        "en": "Eight of Pentacles",
+        "es": "Ocho de Oros"
+      },
+      "upright": {
+        "en": "Focused movement, mastery or accelerating change in work, money, health, resources and the material world.",
+        "es": "Movimiento enfocado, dominio o cambio acelerado en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Restriction, repetition or energy moving without control in work, money, health, resources and the material world.",
+        "es": "Restricción, repetición o energía que avanza sin control en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "eight"
+    },
+    {
+      "id": "pentacles-nine",
+      "name": {
+        "en": "Nine of Pentacles",
+        "es": "Nueve de Oros"
+      },
+      "upright": {
+        "en": "Near-completion, independence and the result of sustained effort in work, money, health, resources and the material world.",
+        "es": "Casi culminación, independencia y fruto del esfuerzo sostenido en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Exhaustion, insecurity or a result that does not satisfy in work, money, health, resources and the material world.",
+        "es": "Agotamiento, inseguridad o un resultado que no satisface en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "nine"
+    },
+    {
+      "id": "pentacles-ten",
+      "name": {
+        "en": "Ten of Pentacles",
+        "es": "Diez de Oros"
+      },
+      "upright": {
+        "en": "Completion, culmination and the full weight of work, money, health, resources and the material world.",
+        "es": "Culminación, cierre y todo el peso de el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Overload, an ending resisted or a cycle ready to be released in work, money, health, resources and the material world.",
+        "es": "Sobrecarga, un final resistido o un ciclo que pide ser soltado en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "ten"
+    },
+    {
+      "id": "pentacles-page",
+      "name": {
+        "en": "Page of Pentacles",
+        "es": "Sota de Oros"
+      },
+      "upright": {
+        "en": "Curiosity, a message or a learner's beginning in work, money, health, resources and the material world.",
+        "es": "Curiosidad, un mensaje o el comienzo de un aprendizaje en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Immaturity, unreliable news or unfocused curiosity in work, money, health, resources and the material world.",
+        "es": "Inmadurez, noticias poco fiables o curiosidad sin enfoque en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "page"
+    },
+    {
+      "id": "pentacles-knight",
+      "name": {
+        "en": "Knight of Pentacles",
+        "es": "Caballero de Oros"
+      },
+      "upright": {
+        "en": "Active pursuit, movement and commitment in work, money, health, resources and the material world.",
+        "es": "Búsqueda activa, movimiento y compromiso en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Impulsiveness, inconsistency or a stalled pursuit in work, money, health, resources and the material world.",
+        "es": "Impulsividad, inconstancia o una búsqueda detenida en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "knight"
+    },
+    {
+      "id": "pentacles-queen",
+      "name": {
+        "en": "Queen of Pentacles",
+        "es": "Reina de Oros"
+      },
+      "upright": {
+        "en": "Mature receptivity, confidence and embodied wisdom in work, money, health, resources and the material world.",
+        "es": "Receptividad madura, confianza y sabiduría encarnada en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Insecurity, overcontrol or care turned inward destructively in work, money, health, resources and the material world.",
+        "es": "Inseguridad, control excesivo o cuidado vuelto contra uno mismo en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "queen"
+    },
+    {
+      "id": "pentacles-king",
+      "name": {
+        "en": "King of Pentacles",
+        "es": "Rey de Oros"
+      },
+      "upright": {
+        "en": "Mastery, responsibility and directed authority in work, money, health, resources and the material world.",
+        "es": "Dominio, responsabilidad y autoridad bien dirigida en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "reversed": {
+        "en": "Domination, rigidity or misuse of authority in work, money, health, resources and the material world.",
+        "es": "Dominación, rigidez o uso indebido de la autoridad en el trabajo, el dinero, la salud, los recursos y el mundo material."
+      },
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "king"
+    }
+  ]
+}

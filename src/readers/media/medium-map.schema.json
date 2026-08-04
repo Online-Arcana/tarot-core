@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kittycrow.dev/schemas/online-arcana-medium-map-v1.json",
+  "title": "Online Arcana reader medium map",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "status",
+    "reader",
+    "readerName",
+    "culture",
+    "medium",
+    "canonicalDeck",
+    "ritual",
+    "sourceRegistry",
+    "culturalElementRegistry",
+    "mappings"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "const": 1
+    },
+    "status": {
+      "type": "object"
+    },
+    "reader": {
+      "enum": [
+        "brennos",
+        "yejide",
+        "ngaru",
+        "ame",
+        "amaru",
+        "nahid",
+        "mictli"
+      ]
+    },
+    "readerName": {
+      "$ref": "#/$defs/localString"
+    },
+    "culture": {
+      "$ref": "#/$defs/localString"
+    },
+    "medium": {
+      "$ref": "#/$defs/localString"
+    },
+    "canonicalDeck": {
+      "type": "object"
+    },
+    "ritual": {
+      "$ref": "#/$defs/ritual"
+    },
+    "sourceRegistry": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "culturalElementRegistry": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/element"
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "minItems": 78,
+      "maxItems": 78,
+      "items": {
+        "$ref": "#/$defs/mapping"
+      }
+    }
+  },
+  "$defs": {
+    "localString": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "en",
+        "es"
+      ],
+      "properties": {
+        "en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "es": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "localStringArray": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "en",
+        "es"
+      ],
+      "properties": {
+        "en": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "es": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "url",
+        "note"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "element": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "documentedContext",
+        "sourceIds",
+        "sensitivity"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/localString"
+        },
+        "documentedContext": {
+          "$ref": "#/$defs/localString"
+        },
+        "sourceIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "sensitivity": {
+          "type": "string"
+        }
+      }
+    },
+    "ritual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "concealment",
+        "chance",
+        "upright",
+        "reversed",
+        "beats"
+      ],
+      "properties": {
+        "concealment": {
+          "$ref": "#/$defs/localString"
+        },
+        "chance": {
+          "$ref": "#/$defs/localString"
+        },
+        "upright": {
+          "$ref": "#/$defs/localString"
+        },
+        "reversed": {
+          "$ref": "#/$defs/localString"
+        },
+        "beats": {
+          "$ref": "#/$defs/localStringArray"
+        }
+      }
+    },
+    "mapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cardId",
+        "canonicalName",
+        "itemId",
+        "itemName",
+        "culturalElementIds",
+        "sourceIds",
+        "itemDescription",
+        "upright",
+        "reversed"
+      ],
+      "properties": {
+        "cardId": {
+          "type": "string"
+        },
+        "canonicalName": {
+          "$ref": "#/$defs/localString"
+        },
+        "itemId": {
+          "type": "string"
+        },
+        "itemName": {
+          "$ref": "#/$defs/localString"
+        },
+        "culturalElementIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "sourceIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "itemDescription": {
+          "$ref": "#/$defs/localString"
+        },
+        "upright": {
+          "$ref": "#/$defs/orientation"
+        },
+        "reversed": {
+          "$ref": "#/$defs/orientation"
+        }
+      }
+    },
+    "orientation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observation",
+        "fictionalCorrespondence",
+        "ritualDirective"
+      ],
+      "properties": {
+        "observation": {
+          "$ref": "#/$defs/localString"
+        },
+        "fictionalCorrespondence": {
+          "$ref": "#/$defs/localString"
+        },
+        "ritualDirective": {
+          "$ref": "#/$defs/localString"
+        }
+      }
+    }
+  }
+}

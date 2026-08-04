@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "status": "draft-text-only",
+  "runtimeIntegrated": false,
+  "installPath": "src/readers/media",
+  "vanillaReader": {
+    "id": "selena",
+    "mappingFile": null,
+    "rule": {
+      "en": "Use the existing naipes, ritual and presentation unchanged.",
+      "es": "Usar sin cambios los naipes, el ritual y la presentación existentes."
+    }
+  },
+  "mappedReaders": [
+    {
+      "id": "brennos",
+      "name": {
+        "en": "Brennos",
+        "es": "Brennos"
+      },
+      "file": "maps/brennos.json",
+      "cardCount": 78,
+      "medium": {
+        "en": "individually carved bone",
+        "es": "hueso tallado individualmente"
+      }
+    },
+    {
+      "id": "yejide",
+      "name": {
+        "en": "Yejide",
+        "es": "Yejide"
+      },
+      "file": "maps/yejide.json",
+      "cardCount": 78,
+      "medium": {
+        "en": "large carved seed",
+        "es": "semilla tallada de gran tamaño"
+      }
+    },
+    {
+      "id": "ngaru",
+      "name": {
+        "en": "Ngaru",
+        "es": "Ngaru"
+      },
+      "file": "maps/ngaru.json",
+      "cardCount": 78,
+      "medium": {
+        "en": "painted seashell",
+        "es": "concha marina pintada"
+      }
+    },
+    {
+      "id": "ame",
+      "name": {
+        "en": "Ame",
+        "es": "Ame"
+      },
+      "file": "maps/ame.json",
+      "cardCount": 78,
+      "medium": {
+        "en": "sakura and lotus leaves moving on collected rainwater",
+        "es": "hojas de sakura y loto moviéndose sobre agua de lluvia recogida"
+      }
+    },
+    {
+      "id": "amaru",
+      "name": {
+        "en": "Amaru",
+        "es": "Amaru"
+      },
+      "file": "maps/amaru.json",
+      "cardCount": 78,
+      "medium": {
+        "en": "one knotted cord drawn from an opaque vase",
+        "es": "un cordón anudado extraído de un jarrón opaco"
+      }
+    },
+    {
+      "id": "nahid",
+      "name": {
+        "en": "Nahid",
+        "es": "Nahid"
+      },
+      "file": "maps/nahid.json",
+      "cardCount": 78,
+      "medium": {
+        "en": "one authored incense-smoke signature",
+        "es": "una formación de humo de incienso diseñada"
+      }
+    },
+    {
+      "id": "mictli",
+      "name": {
+        "en": "Mictli",
+        "es": "Mictli"
+      },
+      "file": "maps/mictli.json",
+      "cardCount": 78,
+      "medium": {
+        "en": "one carved stone disk",
+        "es": "un disco de piedra tallado"
+      }
+    }
+  ],
+  "sharedFiles": {
+    "schema": "medium-map.schema.json",
+    "ritualContracts": "reader-rituals.json",
+    "canonicalCardIndex": "canonical-card-index.json"
+  }
+}
