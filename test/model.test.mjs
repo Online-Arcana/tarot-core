@@ -33,7 +33,7 @@ test("builds a strict shape without embedding application routing", () => {
   assert.deepEqual(shape.schema.required, ["text"]);
 });
 
-test("routes short and long tasks through their own nano and mini lanes", () => {
+test("routes short and long tasks through independently configurable tiers", () => {
   assert.deepEqual(modelRoute(req, { apiKey: "test", conversation: false, body: {} }), [
     DEFAULT_MODEL_TIERS.shortPrimary,
     DEFAULT_MODEL_TIERS.shortEscalation,
@@ -48,7 +48,7 @@ test("routes short and long tasks through their own nano and mini lanes", () => 
   ]);
 });
 
-test("audits the primary output and escalates to the lane mini model", async () => {
+test("audits GPT-5 nano output and escalates short tasks to Luna", async () => {
   const calls = [];
   const fetch = async (url, init) => {
     const body = JSON.parse(init.body);
@@ -70,7 +70,7 @@ test("audits the primary output and escalates to the lane mini model", async () 
   assert.equal(result.source, "escalation");
   assert.equal(calls.length, 2);
   assert.equal(calls[0].body.model, "gpt-5-nano");
-  assert.equal(calls[1].body.model, "gpt-5-mini");
+  assert.equal(calls[1].body.model, "gpt-5.6-luna");
   assert.match(calls[1].body.input[0].content, /deterministic NLP validation/u);
 });
 
@@ -106,7 +106,7 @@ test("throws only when a core caller deliberately leaves guaranteed recovery dis
       fetch,
       body: {},
     }),
-    error => error instanceof ModelOutputError && error.primaryModel === "gpt-5-nano" && error.escalationModel === "gpt-5-mini",
+    error => error instanceof ModelOutputError && error.primaryModel === "gpt-5-nano" && error.escalationModel === "gpt-5.6-luna",
   );
 });
 
