@@ -86,7 +86,6 @@ export interface Draw {
 export interface MediumElement {
   id: string;
   name: string;
-  documentedContext: string;
 }
 
 export interface MediumRitual {
