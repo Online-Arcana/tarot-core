@@ -10,6 +10,7 @@ import {
 import { parseReq } from "../dist/transport/request.js";
 
 const allowed = new Set(["en-GB", "es-ES"]);
+const readers = ["brennos", "yejide", "ngaru", "ame", "amaru", "nahid", "mictli"];
 const card = {
   pos: 1,
   posName: "The present",
@@ -21,8 +22,8 @@ const card = {
   meaning: "Beginnings, freedom, trust and a leap into the unknown.",
 };
 
-function base(task, reader = "amaru") {
-  return { task, lang: "en-GB", reader, name: "", history: [] };
+function base(task, reader = "amaru", lang = "en-GB") {
+  return { task, lang, reader, name: "", history: [] };
 }
 
 function assertNoArchiveMetadata(value) {
@@ -31,6 +32,8 @@ function assertNoArchiveMetadata(value) {
   assert.doesNotMatch(text, /https?:\/\//iu);
   assert.doesNotMatch(text, /sourceRegistry|sourceIds|documentedContext|draft-text-only/iu);
   assert.doesNotMatch(text, /runtimeIntegrated|culturalSpecialistReviewRequired|cultural review checklist/iu);
+  assert.doesNotMatch(text, /Online Arcana|tarot|fiction|fictici|documented|documentad|attested|atestiguad/iu);
+  assert.doesNotMatch(text, /archaeolog|arqueolog|authored|mapped|predetermined|museum|museo/iu);
 }
 
 test("all seven mapped readers load exactly 78 entries", () => {
@@ -52,25 +55,37 @@ test("Selena remains vanilla and receives no medium translation", () => {
   assert.equal(mediaPayload(req), null);
 });
 
-test("runtime media contains only in-character presentation data", () => {
-  const medium = mediaFor("amaru", card, "en-GB");
-  assert.ok(medium);
-  assert.equal(medium.reader, "amaru");
-  assert.equal(medium.cardId, card.id);
-  assert.ok(medium.itemName);
-  assert.ok(medium.itemDescription);
-  assert.ok(medium.culturalElements.length > 0);
-  assert.ok(medium.culturalElements.every(element => Object.keys(element).sort().join(",") === "id,name"));
-  assertNoArchiveMetadata(medium);
+test("every reader exposes clean English and Spanish scene data", () => {
+  for (const reader of readers) {
+    for (const lang of ["en-GB", "es-ES"]) {
+      const medium = mediaFor(reader, card, lang);
+      assert.ok(medium, `${reader} ${lang}`);
+      assert.equal(medium.reader, reader);
+      assert.equal(medium.cardId, card.id);
+      assert.ok(medium.itemName);
+      assert.ok(medium.itemDescription);
+      assert.ok(medium.observation);
+      assert.ok(medium.interpretation);
+      assert.ok(medium.ritualDirection);
+      assert.ok(medium.culturalElements.length > 0);
+      assert.ok(medium.culturalElements.every(element => Object.keys(element).sort().join(",") === "id,name"));
+      assert.equal("fictionalCorrespondence" in medium, false);
+      assert.equal("ritualDirective" in medium, false);
+      assertNoArchiveMetadata(medium);
+    }
+  }
 });
 
 test("ritual prompts and payloads cannot receive archival provenance", () => {
-  const req = { ...base("ritual"), question: "What now?", spread: "one", card: 0, drawn: card };
-  const prompt = mediaPrompt(req);
-  const payload = mediaPayload(req);
-  assert.match(prompt, /opaque vase|knotted cord/iu);
-  assertNoArchiveMetadata(prompt);
-  assertNoArchiveMetadata(payload);
+  for (const reader of readers) {
+    const req = { ...base("ritual", reader), question: "What now?", spread: "one", card: 0, drawn: card };
+    const prompt = mediaPrompt(req);
+    const payload = mediaPayload(req);
+    assert.ok(prompt);
+    assert.ok(payload);
+    assertNoArchiveMetadata(prompt);
+    assertNoArchiveMetadata(payload);
+  }
 });
 
 test("reading outputs carry optional media without archival fields", () => {
@@ -83,8 +98,8 @@ test("reading outputs carry optional media without archival fields", () => {
     gesture: "The reader settles into the moment with deliberate attention and lets the room grow quiet around the question before beginning.",
     opening: "A measured breath steadies the space while the chosen medium waits between you.",
     link: "The reading can now unfold without haste or interruption.",
-    cardText: ["You are entering a beginning that asks for trust, movement and a willingness to meet uncertainty directly."],
-    synthesis: "You are being asked to move with openness while keeping enough awareness to avoid careless choices.",
+    cardText: ["The Fool asks you to enter a beginning with trust, movement and awareness."],
+    synthesis: "The Fool asks you to move with openness while keeping enough awareness to avoid careless choices.",
     reading: "You can begin before every detail is certain, provided that your freedom remains joined to attention and responsibility.",
     closing: "Carry this beginning gently and deliberately.",
     note: "Reflect before acting.",
@@ -92,6 +107,8 @@ test("reading outputs carry optional media without archival fields", () => {
   const attached = attachMedia(req, out);
   assert.ok(Array.isArray(attached.media));
   assert.equal(attached.media.length, 1);
+  assert.doesNotMatch(attached.cardText[0], /The Fool/u);
+  assert.doesNotMatch(attached.synthesis, /The Fool/u);
   assertNoArchiveMetadata(attached);
 });
 
