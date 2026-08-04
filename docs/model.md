@@ -4,16 +4,18 @@ The model layer converts a validated `ApiReq` into strict structured output, aud
 
 ## Model lanes
 
-Tasks use one of two independent lanes:
+Tasks use one of two independent configurable lanes:
 
 ```text
-short tasks: gpt-5-nano     -> audit -> gpt-5-mini     -> audit -> reconstruction
-long tasks:  gpt-5.4-nano   -> audit -> gpt-5.4-mini   -> audit -> reconstruction
+short tasks: gpt-5-nano   -> audit -> gpt-5.6-luna -> audit -> reconstruction
+long tasks:  gpt-5.6-luna -> audit -> gpt-5.6-luna -> audit -> reconstruction
 ```
+
+For long tasks, the second Luna call is not a blind retry. It receives the first candidate and the exact deterministic NLP findings, and is instructed to preserve sound fields while making only the required corrections.
 
 `read` and `chat` are long tasks. Invitation, fit, ritual, suggestions, continuation, title, handover and returning-reader tasks are short tasks.
 
-The default catalogue is exported as `DEFAULT_MODEL_TIERS`. A caller may override any role through `models` without changing task classification.
+The default catalogue is exported as `DEFAULT_MODEL_TIERS`. A caller may override any role through `models` without changing task classification. The four roles remain separate even when two or more currently use the same model, allowing model assignments to change later without restructuring orchestration.
 
 ## Configuration
 
@@ -35,6 +37,17 @@ interface ModelCfg {
   retries?: number;
   retryDelayMs?: number;
 }
+```
+
+The production defaults are:
+
+```ts
+const DEFAULT_MODEL_TIERS = {
+  shortPrimary: "gpt-5-nano",
+  shortEscalation: "gpt-5.6-luna",
+  longPrimary: "gpt-5.6-luna",
+  longEscalation: "gpt-5.6-luna",
+};
 ```
 
 `body.model` remains a compatibility override for the primary model in the selected lane. `escalationModel` remains a compatibility override for that lane's escalation model.
