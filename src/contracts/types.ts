@@ -106,8 +106,8 @@ export interface MediumPresentation {
   itemName: string;
   itemDescription: string;
   observation: string;
-  fictionalCorrespondence: string;
-  ritualDirective: string;
+  interpretation: string;
+  ritualDirection: string;
   culturalElements: MediumElement[];
   ritual: MediumRitual;
 }
