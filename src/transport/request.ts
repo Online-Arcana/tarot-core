@@ -114,9 +114,18 @@ export function parseReq(value: unknown, allowedLangs: ReadonlySet<string>): Api
       const question = text(value.question, 2000);
       const spread = value.spread;
       const cardNo = value.card;
-      return question && SPREADS.has(spread as SpreadId) && Number.isInteger(cardNo) && Number(cardNo) >= 0 && Number(cardNo) < 10
-        ? { task, ...base, question, spread: spread as SpreadId, card: Number(cardNo) }
-        : null;
+      const drawn = value.drawn === undefined ? undefined : card(value.drawn);
+      const validCard = Number.isInteger(cardNo) && Number(cardNo) >= 0 && Number(cardNo) < 10;
+      if (!question || !SPREADS.has(spread as SpreadId) || !validCard || drawn === null) return null;
+      if (drawn !== undefined && drawn.pos !== Number(cardNo) + 1) return null;
+      return {
+        task,
+        ...base,
+        question,
+        spread: spread as SpreadId,
+        card: Number(cardNo),
+        ...(drawn === undefined ? {} : { drawn }),
+      };
     }
     case "read": {
       const question = text(value.question, 2000);
