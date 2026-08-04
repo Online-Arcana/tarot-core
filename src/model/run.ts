@@ -13,6 +13,7 @@ import { systemPrompt } from "./system.js";
 import { isApiOut } from "../contracts/guard.js";
 import { profileFor, profilePrompt, profiles } from "../readers/profiles.js";
 import { readerIdentity } from "../readers/meta.js";
+import { attachMedia, mediaPayload, mediaPrompt } from "../readers/media/runtime.js";
 import { auditModelOut, correctionFromAudit, type ModelAudit } from "./audit.js";
 import { reconstructModelOut } from "./recover.js";
 import type { ApiOut, ApiReq, Task } from "../contracts/types.js";
@@ -140,20 +141,20 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
         "Generate one complete atmospheric paragraph of non-interpretive theatre before the next card draw.",
         "The combined gesture, opening and ritual fields must contain 36 to 110 words, read continuously as one paragraph and end with a complete sentence.",
         "Never truncate the paragraph and never end it with an ellipsis.",
-        "Do not name, imply, interpret or predict any card.",
-        "Do not pretend the card has already been revealed or placed.",
+        "Do not name, imply, interpret or predict any canonical card.",
+        "Do not pretend the canonical card has already been revealed or placed.",
         `This is draw ${req.card + 1} in the ${req.spread} spread.`
       ].join("\n");
     case "read":
       return [
         p.prompt.reading,
-        "The browser will reveal the cards one at a time.",
-        "cardText must contain exactly one interpretation per card in draw order.",
-        "Each cardText item may mention that card and earlier revealed cards only. It must never name or imply a later card.",
+        "The browser will reveal the results one at a time.",
+        "cardText must contain exactly one interpretation per result in draw order.",
+        "Each cardText item may mention that result and earlier revealed results only. It must never name or imply a later result.",
         "The gesture, opening and link fields must combine into one complete atmospheric theatre paragraph of 36 to 110 words.",
         "That theatre paragraph must end naturally, never with an ellipsis or an abruptly cut sentence.",
         "Use complete sentences with natural sentence boundaries so long dialogue can be split into readable animated passages.",
-        "Do not place every card into one giant paragraph. Keep the final answer detailed but easy to divide into short passages."
+        "Do not place every result into one giant paragraph. Keep the final answer detailed but easy to divide into short passages."
       ].join("\n");
     case "chat":
       return [
@@ -199,12 +200,28 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
   }
 }
 
+function withTranslation(base: Record<string, unknown>, req: ApiReq): unknown {
+  const translation = mediaPayload(req);
+  return translation === null ? base : { ...base, mediumTranslation: translation };
+}
+
 function payload(req: ApiReq): unknown {
   switch (req.task) {
     case "invite": return { querent: req.name || null };
     case "fit": return { querent: req.name || null, question: req.question, history: req.history };
-    case "ritual": return { querent: req.name || null, question: req.question, spread: req.spread, draw: req.card + 1, history: req.history };
-    case "read": return { querent: req.name || null, question: req.question, spread: req.draw, history: req.history };
+    case "ritual": return withTranslation({
+      querent: req.name || null,
+      question: req.question,
+      spread: req.spread,
+      draw: req.card + 1,
+      history: req.history,
+    }, req);
+    case "read": return withTranslation({
+      querent: req.name || null,
+      question: req.question,
+      spread: req.draw,
+      history: req.history,
+    }, req);
     case "chat": return { querent: req.name || null, question: req.question, history: req.history };
     case "suggest":
     case "continue":
@@ -252,6 +269,7 @@ export function modelPrompt(p: ModelPack, req: ApiReq, correction = ""): string 
     profilePrompt(req.reader, req.lang),
     `Reader identity: ${readerIdentity(req.reader, req.lang)}.`,
     taskPrompt(p, req),
+    mediaPrompt(req),
     correction,
     "Return only the requested JSON object.",
     JSON.stringify(payload(req))
@@ -315,13 +333,14 @@ const message = (cause: unknown): string =>
   cause instanceof Error ? cause.message : String(cause);
 
 const accepted = (
+  req: ApiReq,
   audit: ModelAudit,
   source: ModelResult["source"],
   primaryModel: string,
   escalationModel: string,
   sessionKey: string | undefined,
 ): ModelResult => ({
-  out: audit.value,
+  out: attachMedia(req, audit.value),
   source,
   primaryModel,
   escalationModel,
@@ -371,7 +390,7 @@ export async function runModelSession(
     primaryFailure = message(cause);
   }
   if (primaryAudit?.valid === true) {
-    return accepted(primaryAudit, "primary", primaryModel, escalationModel, ai.id);
+    return accepted(req, primaryAudit, "primary", primaryModel, escalationModel, ai.id);
   }
 
   let escalation: ApiOut | undefined;
@@ -385,7 +404,7 @@ export async function runModelSession(
     escalationFailure = message(cause);
   }
   if (escalationAudit?.valid === true) {
-    return accepted(escalationAudit, "escalation", primaryModel, escalationModel, ai.id);
+    return accepted(req, escalationAudit, "escalation", primaryModel, escalationModel, ai.id);
   }
 
   const errors = failures(primaryAudit, primaryFailure, escalationAudit, escalationFailure);
@@ -396,7 +415,7 @@ export async function runModelSession(
   const out = reconstructModelOut(req, [primary, escalation]);
   const finalAudit = auditModelOut(req, out);
   return {
-    out,
+    out: attachMedia(req, out),
     source: "reconstructed",
     primaryModel,
     escalationModel,
