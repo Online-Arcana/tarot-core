@@ -6,6 +6,7 @@ import nahidRaw from "./maps/nahid.json" with { type: "json" };
 import ngaruRaw from "./maps/ngaru.json" with { type: "json" };
 import yejideRaw from "./maps/yejide.json" with { type: "json" };
 import ritualsRaw from "./reader-rituals.json" with { type: "json" };
+import { presentMappedReading, presentMappedRitual } from "./output.js";
 import type {
   ApiOut,
   ApiReq,
@@ -15,9 +16,7 @@ import type {
   MediumPresentation,
   MediumRitual,
   ReaderId,
-  ReadingOut,
   ReadTurn,
-  RitualOut,
   Side,
 } from "../../contracts/types.js";
 
@@ -65,6 +64,14 @@ interface PackDef {
   readonly culture: LocalText;
   readonly elements: ReadonlyMap<string, ElementDef>;
   readonly mappings: ReadonlyMap<string, MappingDef>;
+}
+
+export interface MediumRitualContext {
+  readonly reader: ReaderId;
+  readonly medium: string;
+  readonly concealment: string;
+  readonly chance: string;
+  readonly beats: string[];
 }
 
 const MAPPED = [
@@ -130,6 +137,10 @@ function localList(value: unknown, path: string): LocalList {
 
 function isMapped(value: unknown): value is MappedReader {
   return typeof value === "string" && (MAPPED as readonly string[]).includes(value);
+}
+
+export function isMappedReader(value: ReaderId): value is MappedReader {
+  return isMapped(value);
 }
 
 function parseRitual(value: unknown, path: string): RitualDef {
@@ -281,6 +292,18 @@ function side(mapping: MappingDef, value: Side): OrientationDef {
   return value === "upright" ? mapping.upright : mapping.reversed;
 }
 
+export function mediumRitualFor(reader: ReaderId, code: LangCode): MediumRitualContext | null {
+  if (!isMapped(reader)) return null;
+  const ritual = RITUALS[reader];
+  return {
+    reader,
+    medium: scene(tr(ritual.medium, code)).replace(/[.]$/u, ""),
+    concealment: scene(tr(ritual.ritual.concealment, code)),
+    chance: scene(tr(ritual.ritual.chance, code)),
+    beats: trs(ritual.ritual.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
+  };
+}
+
 export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): MediumPresentation | null {
   if (!isMapped(reader)) return null;
   const pack = PACKS[reader];
@@ -331,18 +354,12 @@ function marks(medium: MediumPresentation): string[] {
   return medium.culturalElements.map(element => element.name);
 }
 
-function ritualData(medium: MediumPresentation): unknown {
+function ritualData(context: MediumRitualContext): unknown {
   return {
-    medium: medium.medium,
-    itemName: medium.itemName,
-    itemDescription: medium.itemDescription,
-    visibleMarks: marks(medium),
-    observation: medium.observation,
-    concealment: medium.ritual.concealment,
-    chance: medium.ritual.chance,
-    orientation: medium.ritual.orientation,
-    sensoryBeats: medium.ritual.beats,
-    direction: medium.ritualDirection,
+    medium: context.medium,
+    concealment: context.concealment,
+    chance: context.chance,
+    sensoryBeats: context.beats,
   };
 }
 
@@ -361,30 +378,27 @@ function readingData(medium: MediumPresentation, position: number): unknown {
 
 export function mediaPrompt(req: ApiReq): string {
   if (req.task === "ritual") {
-    if (!req.drawn) return "";
-    const medium = mediaFor(req.reader, req.drawn, req.lang);
-    if (!medium) return "";
+    const context = mediumRitualFor(req.reader, req.lang);
+    if (!context) return "";
     const spanish = language(req.lang) === "es";
     return [
       spanish ? "Permanece por completo dentro de la escena ritual." : "Remain entirely inside the ritual scene.",
       spanish
-        ? "El objeto y su posición final ya están fijados. Narra el azar oculto sin volver a sortear ni sustituir el resultado."
-        : "The item and its final position are fixed. Narrate the concealed chance without rerolling or replacing the result.",
+        ? "Describe únicamente el medio, la ocultación y el movimiento aleatorio de la selección."
+        : "Describe only the medium, concealment and chance movement of the selection.",
+      spanish
+        ? "No nombres, describas, interpretes ni insinúes el objeto oculto, sus marcas o su posición final antes de la revelación."
+        : "Do not name, describe, interpret or imply the hidden item, its marks or its final position before the reveal.",
       spanish
         ? "Toda acción atribuida a la persona es narrativa; no solicites clic, confirmación, elección ni respuesta."
         : "Any action attributed to the user is narrative; do not request a click, confirmation, choice or reply.",
-      `${spanish ? "Medio" : "Medium"}: ${medium.medium}.`,
-      `${spanish ? "Objeto" : "Item"}: ${medium.itemName}.`,
-      `${spanish ? "Aspecto" : "Appearance"}: ${medium.itemDescription}`,
-      `${spanish ? "Marcas visibles" : "Visible marks"}: ${marks(medium).join(", ")}.`,
-      `${spanish ? "Ocultación" : "Concealment"}: ${medium.ritual.concealment}`,
-      `${spanish ? "Azar narrativo" : "Narrative chance"}: ${medium.ritual.chance}`,
-      `${spanish ? "Posición final" : "Final position"}: ${medium.observation}`,
-      `${spanish ? "Secuencia sensorial" : "Sensory sequence"}: ${medium.ritual.beats.join(", ")}.`,
-      `${spanish ? "Dirección" : "Direction"}: ${medium.ritualDirection}`,
+      `${spanish ? "Medio" : "Medium"}: ${context.medium}.`,
+      `${spanish ? "Ocultación" : "Concealment"}: ${context.concealment}`,
+      `${spanish ? "Movimiento de azar" : "Chance movement"}: ${context.chance}`,
+      `${spanish ? "Secuencia sensorial" : "Sensory sequence"}: ${context.beats.join(", ")}.`,
       spanish
-        ? "Puedes nombrar el objeto y sus marcas, pero no los interpretes antes de la revelación ni expliques cómo se determinó el resultado."
-        : "You may name the item and its marks, but do not interpret them before the reveal or explain how the result was determined.",
+        ? "Usa el nombre público de la persona lectora. No uses «el lector», baraja, carta, naipes ni tarot."
+        : "Use the reader's public name. Do not use 'the reader', deck, card, cards or tarot.",
     ].join("\n");
   }
 
@@ -394,21 +408,22 @@ export function mediaPrompt(req: ApiReq): string {
       "Permanece por completo en personaje y dentro de la escena.",
       "Conserva exactamente el significado suministrado y exprésalo mediante el objeto visible asignado.",
       "Nombra únicamente el objeto, sus marcas, su posición y lo que la persona lectora entiende de ellos.",
-      "No sustituyas, combines ni vuelvas a sortear ningún objeto. No nombres ningún resultado oculto ni expliques cómo se eligió la equivalencia.",
+      "No sustituyas, combines ni vuelvas a sortear ningún objeto. No nombres el resultado canónico ni expliques cómo se eligió la equivalencia.",
+      "Usa el nombre público de la persona lectora cuando nombres a quien interpreta. No uses «el lector», baraja, carta, naipes ni tarot.",
     ].join("\n")
     : [
       "Remain fully in character and inside the scene.",
       "Preserve the supplied meaning exactly and express it through the assigned visible item.",
       "Name only the item, its marks, its position and what the reader understands from them.",
-      "Do not substitute, combine or reroll any item. Do not name any hidden result or explain how the equivalence was chosen.",
+      "Do not substitute, combine or reroll any item. Do not name the canonical result or explain how the equivalence was chosen.",
+      "Use the reader's public name when naming the interpreting person. Do not use 'the reader', deck, card, cards or tarot.",
     ].join("\n");
 }
 
 export function mediaPayload(req: ApiReq): unknown | null {
   if (req.task === "ritual") {
-    if (!req.drawn) return null;
-    const medium = mediaFor(req.reader, req.drawn, req.lang);
-    return medium ? ritualData(medium) : null;
+    const context = mediumRitualFor(req.reader, req.lang);
+    return context ? ritualData(context) : null;
   }
   if (req.task !== "read") return null;
   return allMedia(req)?.map((medium, index) => readingData(medium, index + 1)) ?? null;
@@ -467,63 +482,32 @@ export function mediaTurnInput(
   };
 }
 
-function escaped(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
-}
-
-function replaceName(value: string, from: string, to: string): string {
-  return value.replace(new RegExp(escaped(from), "giu"), to);
-}
-
-function replaceNames(
-  req: Extract<ApiReq, { task: "read" }>,
-  value: string,
-  media: readonly MediumPresentation[],
-): string {
-  return req.draw.cards.reduce((current, card, index) => {
-    const item = media[index];
-    return item ? replaceName(current, card.name, item.itemName) : current;
-  }, value);
-}
-
-function presentReading(
-  req: Extract<ApiReq, { task: "read" }>,
-  out: ReadingOut,
-  media: readonly MediumPresentation[],
-): ReadingOut {
-  const present = (value: string): string => replaceNames(req, value, media);
-  return {
-    ...out,
-    gesture: present(out.gesture),
-    opening: present(out.opening),
-    link: present(out.link),
-    cardText: out.cardText.map(present),
-    synthesis: present(out.synthesis),
-    reading: present(out.reading),
-    closing: present(out.closing),
-    note: present(out.note),
-    media: [...media],
-  };
-}
-
 export function attachMedia(req: ApiReq, out: ApiOut): ApiOut {
   if (req.task === "ritual") {
-    if (!req.drawn) return out;
-    const medium = mediaFor(req.reader, req.drawn, req.lang);
-    if (!medium) return out;
-    const ritual = out as RitualOut;
-    const present = (value: string): string => replaceName(value, req.drawn!.name, medium.itemName);
-    return {
-      ...ritual,
-      opening: present(ritual.opening),
-      ritual: present(ritual.ritual),
-      gesture: present(ritual.gesture),
-      medium,
-    };
+    if (!isMappedReader(req.reader)) return out;
+    const context = mediumRitualFor(req.reader, req.lang);
+    if (!context) return out;
+    const medium = req.drawn ? mediaFor(req.reader, req.drawn, req.lang) : null;
+    return presentMappedRitual(req, out as import("../../contracts/types.js").RitualOut, {
+      medium: context.medium,
+      concealment: context.concealment,
+      chance: context.chance,
+      beats: context.beats,
+      ...(medium ? { hiddenItem: medium.itemName } : {}),
+      ...(req.drawn ? { canonicalName: req.drawn.name } : {}),
+    });
   }
   if (req.task !== "read") return out;
   const media = allMedia(req);
-  return media ? presentReading(req, out as ReadingOut, media) : out;
+  if (!media) return out;
+  const context = mediumRitualFor(req.reader, req.lang);
+  if (!context) return out;
+  return presentMappedReading(
+    req,
+    out as import("../../contracts/types.js").ReadingOut,
+    media,
+    context.medium,
+  );
 }
 
 export function mediaRuntimeSummary(): Readonly<Record<MappedReader, number>> {

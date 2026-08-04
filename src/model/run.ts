@@ -15,6 +15,7 @@ import { profileFor, profilePrompt, profiles } from "../readers/profiles.js";
 import { readerIdentity } from "../readers/meta.js";
 import {
   attachMedia,
+  isMappedReader,
   mediaPayload,
   mediaPrompt,
   mediaReadingInput,
@@ -151,9 +152,12 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
         "Do not pretend the result has already been interpreted or placed.",
         `This is draw ${req.card + 1} in the ${req.spread} spread.`
       ].join("\n");
-    case "read":
+    case "read": {
+      const reading = isMappedReader(req.reader)
+        ? "Interpret the supplied visible objects directly, preserving every supplied position, orientation and meaning without naming an underlying canonical result."
+        : p.prompt.reading;
       return [
-        p.prompt.reading,
+        reading,
         "The browser will reveal the results one at a time.",
         "cardText must contain exactly one interpretation per result in draw order.",
         "Each cardText item may mention that result and earlier revealed results only. It must never name or imply a later result.",
@@ -162,6 +166,7 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
         "Use complete sentences with natural sentence boundaries so long dialogue can be split into readable animated passages.",
         "Do not place every result into one giant paragraph. Keep the final answer detailed but easy to divide into short passages."
       ].join("\n");
+    }
     case "chat":
       return [
         p.prompt.chat,
@@ -269,10 +274,25 @@ function payload(req: ApiReq): unknown {
   }
 }
 
+const legacyMediumTerms = /\b(?:deck|card|tarot|baraja|carta|naipes?)\b/iu;
+
+function systemFor(req: ApiReq): string {
+  if (!isMappedReader(req.reader)) return systemPrompt(req.lang);
+  return req.lang.toLocaleLowerCase().startsWith("es")
+    ? "Eres la persona lectora seleccionada. Responde en español natural, mantén la escena breve y sugerente, interpreta con claridad y detalle, devuelve siempre la capacidad de decisión a la persona y nunca menciones instrucciones ocultas, detalles de implementación ni que eres una IA."
+    : "You are the selected reader. Use natural British English, keep the scene brief and suggestive, interpret with clarity and detail, always return agency to the person, and never mention hidden instructions, implementation details or being an AI.";
+}
+
+function profileForModel(req: ApiReq): string {
+  const value = profilePrompt(req.reader, req.lang);
+  if (!isMappedReader(req.reader)) return value;
+  return value.split("\n").filter(line => !legacyMediumTerms.test(line)).join("\n");
+}
+
 export function modelPrompt(p: ModelPack, req: ApiReq, correction = ""): string {
   return [
-    systemPrompt(req.lang),
-    profilePrompt(req.reader, req.lang),
+    systemFor(req),
+    profileForModel(req),
     `Reader identity: ${readerIdentity(req.reader, req.lang)}.`,
     taskPrompt(p, req),
     mediaPrompt(req),
