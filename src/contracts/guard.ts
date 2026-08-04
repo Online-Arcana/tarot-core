@@ -1,8 +1,8 @@
 import { isReader } from "../readers/ids.js";
 import type {
   ApiOut, ChatOut, ContinueOut, Conv, Draw, DrawnCard, FitOut, Hand,
-  HandoverOut, InviteOut, ReadingOut, ReturnOut, RitualOut, Stage,
-  SuggestOut, Task, TitleOut, Topic, Trail, Turn, Visit
+  HandoverOut, InviteOut, MediumPresentation, ReadingOut, ReturnOut,
+  RitualOut, Stage, SuggestOut, Task, TitleOut, Topic, Trail, Turn, Visit
 } from "./types.js";
 
 const TOPICS = new Set<Topic>([
@@ -26,10 +26,25 @@ function topic(value: unknown): value is Topic {
   return str(value) && TOPICS.has(value as Topic);
 }
 
+function isMedium(value: unknown): value is MediumPresentation {
+  if (!rec(value) || !Number.isInteger(value.version) || Number(value.version) < 1) return false;
+  if (!isReader(value.reader) || !str(value.cardId) || (value.side !== "upright" && value.side !== "reversed")) return false;
+  if (!str(value.culture) || !str(value.medium) || !str(value.itemId) || !str(value.itemName) ||
+      !str(value.itemDescription) || !str(value.observation) || !str(value.fictionalCorrespondence) ||
+      !str(value.ritualDirective)) return false;
+  if (!Array.isArray(value.culturalElements) || !value.culturalElements.every(element =>
+    rec(element) && str(element.id) && str(element.name) && str(element.documentedContext))) return false;
+  return rec(value.ritual) && str(value.ritual.concealment) && str(value.ritual.chance) &&
+    str(value.ritual.orientation) && strs(value.ritual.beats);
+}
+
 export function isReading(value: unknown): value is ReadingOut {
   if (!rec(value)) return false;
-  return str(value.gesture) && str(value.opening) && str(value.link) && Array.isArray(value.cardText) &&
-    value.cardText.every(str) && str(value.synthesis) && str(value.reading) && str(value.closing) && str(value.note);
+  if (!str(value.gesture) || !str(value.opening) || !str(value.link) || !Array.isArray(value.cardText) ||
+      !value.cardText.every(str) || !str(value.synthesis) || !str(value.reading) || !str(value.closing) || !str(value.note)) {
+    return false;
+  }
+  return value.media === undefined || (Array.isArray(value.media) && value.media.every(isMedium));
 }
 
 export function isChat(value: unknown): value is ChatOut {
@@ -46,7 +61,8 @@ export function isFit(value: unknown): value is FitOut {
 }
 
 export function isRitual(value: unknown): value is RitualOut {
-  return rec(value) && str(value.opening) && str(value.ritual) && str(value.gesture);
+  return rec(value) && str(value.opening) && str(value.ritual) && str(value.gesture) &&
+    (value.medium === undefined || isMedium(value.medium));
 }
 
 export function isSuggest(value: unknown): value is SuggestOut {
@@ -126,8 +142,8 @@ function isTrail(value: unknown): value is Trail {
 
 function isHand(value: unknown): value is Hand {
   return rec(value) && isReader(value.from) && isReader(value.to) && str(value.at) && str(value.question) &&
-    str(value.reason) && str(value.summary) && strs(value.prevQs) && strs(value.conclusions) && strs(value.cards) &&
-    strs(value.facts) && strs(value.unresolved) && (value.ack === undefined || str(value.ack));
+    str(value.reason) && str(value.summary) && strs(value.prevQs) && strs(value.conclusions) && str(value.cards) === false &&
+    strs(value.cards) && strs(value.facts) && strs(value.unresolved) && (value.ack === undefined || str(value.ack));
 }
 
 export function isConv(value: unknown): value is Conv {
