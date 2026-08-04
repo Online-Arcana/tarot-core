@@ -6,9 +6,11 @@ Core exposes the domain operations used to build a complete reading while allowi
 
 A caller may run `fit` before drawing. The result classifies the dominant topic and reader suitability as `good`, `acceptable`, `weak` or `very_weak`, with an optional stronger reader recommendation.
 
-`topicForQuestion` and `resolveFit` provide a deterministic routing layer for clearly expressed topics. Reader suitability is derived from the maintained reader profiles rather than left to prompt compliance. When the current reader is weak for a clearly detected topic and a strong specialist exists, `resolveFit` returns a `very_weak` decision with that specialist. For example, explicit grief or death questions route Selena to Mictli even if a model fit response is generic, malformed or unavailable.
+`topicForQuestion` and `resolveFit` provide a deterministic routing layer for clearly expressed topics. Reader suitability is derived exclusively from the maintained reader profiles rather than a fixed reader-to-reader route or prompt compliance. When the current reader is weak for a detected topic, the resolver evaluates every other profile and recommends an eligible reader whose `strong` topics include it. Strong and capable topics remain with the current reader.
 
-The front-facing application applies this gate to both new readings and follow-up chat. The user may accept the handover, continue with the current reader or cancel.
+The same rule applies regardless of the current or receiving reader. Grief is an ordinary fit topic rather than a crisis category: it proceeds directly into compatibility analysis and may produce a handover when another reader is stronger for it.
+
+The front-facing application applies the fit gate to both new readings and follow-up chat. The user may accept the handover, continue with the current reader or cancel.
 
 ## 2. Draw
 
