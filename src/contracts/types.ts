@@ -83,6 +83,36 @@ export interface Draw {
   cards: DrawnCard[];
 }
 
+export interface MediumElement {
+  id: string;
+  name: string;
+  documentedContext: string;
+}
+
+export interface MediumRitual {
+  concealment: string;
+  chance: string;
+  orientation: string;
+  beats: string[];
+}
+
+export interface MediumPresentation {
+  version: number;
+  reader: ReaderId;
+  cardId: string;
+  side: Side;
+  culture: string;
+  medium: string;
+  itemId: string;
+  itemName: string;
+  itemDescription: string;
+  observation: string;
+  fictionalCorrespondence: string;
+  ritualDirective: string;
+  culturalElements: MediumElement[];
+  ritual: MediumRitual;
+}
+
 export interface ReadingOut {
   gesture: string;
   opening: string;
@@ -92,6 +122,7 @@ export interface ReadingOut {
   reading: string;
   closing: string;
   note: string;
+  media?: MediumPresentation[];
 }
 
 export interface ChatOut { gesture: string; response: string }
@@ -105,7 +136,12 @@ export interface FitOut {
   offer: string;
 }
 export interface FitDecision extends FitOut { question: string; spread: SpreadId }
-export interface RitualOut { opening: string; ritual: string; gesture: string }
+export interface RitualOut {
+  opening: string;
+  ritual: string;
+  gesture: string;
+  medium?: MediumPresentation;
+}
 export interface SuggestOut { suggestions: string[] }
 export interface ContinueOut { text: string }
 export interface TitleOut { title: string }
@@ -209,7 +245,7 @@ interface ReqBase {
 export type ApiReq =
   | (ReqBase & { task: "invite" })
   | (ReqBase & { task: "fit"; question: string })
-  | (ReqBase & { task: "ritual"; question: string; spread: SpreadId; card: number })
+  | (ReqBase & { task: "ritual"; question: string; spread: SpreadId; card: number; drawn?: DrawnCard })
   | (ReqBase & { task: "read"; question: string; draw: Draw })
   | (ReqBase & { task: "chat"; question: string })
   | (ReqBase & { task: "suggest"; turn: ReadTurn })
