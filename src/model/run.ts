@@ -18,6 +18,7 @@ import {
   mediaPayload,
   mediaPrompt,
   mediaReadingInput,
+  mediaTurnInput,
 } from "../readers/media/runtime.js";
 import { auditModelOut, correctionFromAudit, type ModelAudit } from "./audit.js";
 import { reconstructModelOut } from "./recover.js";
@@ -146,7 +147,7 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
         "Generate one complete atmospheric paragraph of non-interpretive theatre before the next draw.",
         "The combined gesture, opening and ritual fields must contain 36 to 110 words, read continuously as one paragraph and end with a complete sentence.",
         "Never truncate the paragraph and never end it with an ellipsis.",
-        "Do not name, imply, interpret or predict the underlying canonical result.",
+        "Do not name, imply, interpret or predict the hidden result.",
         "Do not pretend the result has already been interpreted or placed.",
         `This is draw ${req.card + 1} in the ${req.spread} spread.`
       ].join("\n");
@@ -172,21 +173,21 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
       return [
         "Generate exactly three short contextual follow-up questions based on this reading.",
         "Each must be one editable user question, not an explanation.",
-        "Anchor them to concrete cards, positions, tensions or unresolved themes.",
+        "Anchor them to concrete visible results, positions, tensions or unresolved themes.",
         "Avoid generic prompts such as 'tell me more'."
       ].join("\n");
     case "continue":
       return [
         "Generate a fresh invitation to continue after this completed reading.",
         "Return exactly one sentence of eight to twenty-four words, with no line breaks and no ellipsis.",
-        "Use this reader's distinct voice and fit the actual question, cards or conclusion without summarising the reading.",
+        "Use this reader's distinct voice and fit the actual question, results or conclusion without summarising the reading.",
         "Invite the user to continue naturally, without headings, labels, option lists or stock phrasing.",
         "The sentence must be newly fitted to this reading and should differ from invitations for other readings."
       ].join("\n");
     case "title":
       return [
         "Generate one evocative conversation title of three to eight words.",
-        "Do not use the reader name, spread name, a card list or the phrase Tarot Reading.",
+        "Do not use the reader name, spread name, a result list or the phrase Tarot Reading.",
         "Use title case in English and natural title capitalisation in Spanish."
       ].join("\n");
     case "handover":
@@ -230,7 +231,7 @@ function payload(req: ApiReq): unknown {
     case "chat": return { querent: req.name || null, question: req.question, history: req.history };
     case "suggest":
     case "continue":
-    case "title": return { querent: req.name || null, reading: req.turn, history: req.history };
+    case "title": return { querent: req.name || null, reading: mediaTurnInput(req), history: req.history };
     case "handover":
       return {
         querent: req.name || null,
