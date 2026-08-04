@@ -1,11 +1,11 @@
-import amaruRaw from "./maps/amaru.json";
-import ameRaw from "./maps/ame.json";
-import brennosRaw from "./maps/brennos.json";
-import mictliRaw from "./maps/mictli.json";
-import nahidRaw from "./maps/nahid.json";
-import ngaruRaw from "./maps/ngaru.json";
-import yejideRaw from "./maps/yejide.json";
-import ritualsRaw from "./reader-rituals.json";
+import amaruRaw from "./maps/amaru.json" with { type: "json" };
+import ameRaw from "./maps/ame.json" with { type: "json" };
+import brennosRaw from "./maps/brennos.json" with { type: "json" };
+import mictliRaw from "./maps/mictli.json" with { type: "json" };
+import nahidRaw from "./maps/nahid.json" with { type: "json" };
+import ngaruRaw from "./maps/ngaru.json" with { type: "json" };
+import yejideRaw from "./maps/yejide.json" with { type: "json" };
+import ritualsRaw from "./reader-rituals.json" with { type: "json" };
 import type {
   ApiOut,
   ApiReq,
