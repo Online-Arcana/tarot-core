@@ -13,7 +13,12 @@ import { systemPrompt } from "./system.js";
 import { isApiOut } from "../contracts/guard.js";
 import { profileFor, profilePrompt, profiles } from "../readers/profiles.js";
 import { readerIdentity } from "../readers/meta.js";
-import { attachMedia, mediaPayload, mediaPrompt } from "../readers/media/runtime.js";
+import {
+  attachMedia,
+  mediaPayload,
+  mediaPrompt,
+  mediaReadingInput,
+} from "../readers/media/runtime.js";
 import { auditModelOut, correctionFromAudit, type ModelAudit } from "./audit.js";
 import { reconstructModelOut } from "./recover.js";
 import type { ApiOut, ApiReq, Task } from "../contracts/types.js";
@@ -138,11 +143,11 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
       ].join("\n");
     case "ritual":
       return [
-        "Generate one complete atmospheric paragraph of non-interpretive theatre before the next card draw.",
+        "Generate one complete atmospheric paragraph of non-interpretive theatre before the next draw.",
         "The combined gesture, opening and ritual fields must contain 36 to 110 words, read continuously as one paragraph and end with a complete sentence.",
         "Never truncate the paragraph and never end it with an ellipsis.",
-        "Do not name, imply, interpret or predict any canonical card.",
-        "Do not pretend the canonical card has already been revealed or placed.",
+        "Do not name, imply, interpret or predict the underlying canonical result.",
+        "Do not pretend the result has already been interpreted or placed.",
         `This is draw ${req.card + 1} in the ${req.spread} spread.`
       ].join("\n");
     case "read":
@@ -216,12 +221,12 @@ function payload(req: ApiReq): unknown {
       draw: req.card + 1,
       history: req.history,
     }, req);
-    case "read": return withTranslation({
+    case "read": return {
       querent: req.name || null,
       question: req.question,
-      spread: req.draw,
+      spread: mediaReadingInput(req),
       history: req.history,
-    }, req);
+    };
     case "chat": return { querent: req.name || null, question: req.question, history: req.history };
     case "suggest":
     case "continue":
