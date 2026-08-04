@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   attachMedia,
@@ -36,6 +37,20 @@ function assertNoArchiveMetadata(value) {
   assert.doesNotMatch(text, /archaeolog|arqueolog|authored|mapped|predetermined|museum|museo/iu);
 }
 
+function mappedCard(def, side, lang) {
+  const local = lang === "es-ES" ? "es" : "en";
+  return {
+    pos: 1,
+    posName: local === "es" ? "El presente" : "The present",
+    posMeaning: local === "es" ? "Lo activo ahora" : "What is active now",
+    id: def.id,
+    name: def.name[local],
+    suit: def.arcana,
+    side,
+    meaning: def[side][local],
+  };
+}
+
 test("all seven mapped readers load exactly 78 entries", () => {
   assert.deepEqual(mediaRuntimeSummary(), {
     brennos: 78,
@@ -55,23 +70,33 @@ test("Selena remains vanilla and receives no medium translation", () => {
   assert.equal(mediaPayload(req), null);
 });
 
-test("every reader exposes clean English and Spanish scene data", () => {
+test("every one of the 546 mappings stays clean in both languages and orientations", async () => {
+  const raw = await readFile(new URL("../src/readers/media/canonical-card-index.json", import.meta.url), "utf8");
+  const index = JSON.parse(raw);
+  assert.equal(index.cards.length, 78);
+
   for (const reader of readers) {
     for (const lang of ["en-GB", "es-ES"]) {
-      const medium = mediaFor(reader, card, lang);
-      assert.ok(medium, `${reader} ${lang}`);
-      assert.equal(medium.reader, reader);
-      assert.equal(medium.cardId, card.id);
-      assert.ok(medium.itemName);
-      assert.ok(medium.itemDescription);
-      assert.ok(medium.observation);
-      assert.ok(medium.interpretation);
-      assert.ok(medium.ritualDirection);
-      assert.ok(medium.culturalElements.length > 0);
-      assert.ok(medium.culturalElements.every(element => Object.keys(element).sort().join(",") === "id,name"));
-      assert.equal("fictionalCorrespondence" in medium, false);
-      assert.equal("ritualDirective" in medium, false);
-      assertNoArchiveMetadata(medium);
+      for (const def of index.cards) {
+        for (const side of ["upright", "reversed"]) {
+          const drawn = mappedCard(def, side, lang);
+          const medium = mediaFor(reader, drawn, lang);
+          assert.ok(medium, `${reader} ${lang} ${def.id} ${side}`);
+          assert.equal(medium.reader, reader);
+          assert.equal(medium.cardId, def.id);
+          assert.equal(medium.side, side);
+          assert.ok(medium.itemName);
+          assert.ok(medium.itemDescription);
+          assert.ok(medium.observation);
+          assert.ok(medium.interpretation);
+          assert.ok(medium.ritualDirection);
+          assert.ok(medium.culturalElements.length > 0);
+          assert.ok(medium.culturalElements.every(element => Object.keys(element).sort().join(",") === "id,name"));
+          assert.equal("fictionalCorrespondence" in medium, false);
+          assert.equal("ritualDirective" in medium, false);
+          assertNoArchiveMetadata(medium);
+        }
+      }
     }
   }
 });
