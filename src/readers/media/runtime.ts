@@ -306,13 +306,13 @@ export function mediaPrompt(req: ApiReq): string {
     if (!medium) return "";
     const spanish = lang(req.lang) === "es";
     return [
-      spanish ? "Mantente completamente en personaje y describe únicamente la escena ritual." : "Remain fully in character and describe only the ritual scene.",
+      spanish ? "Permanece por completo dentro de la escena ritual." : "Remain entirely inside the ritual scene.",
       spanish
-        ? "No menciones naipes, mapas, archivos, investigación, fuentes, museos, arqueología, metadatos ni revisión cultural."
-        : "Never mention naipes, mappings, files, research, sources, museums, archaeology, metadata or cultural review.",
+        ? "El objeto y su orientación final ya están fijados. Narra el azar oculto sin volver a sortear ni sustituir el resultado."
+        : "The item and its final orientation are already fixed. Narrate the concealed chance without rerolling or replacing the result.",
       spanish
-        ? "El objeto y su orientación ya están fijados. No vuelvas a sortearlos, no los sustituyas y no pidas ninguna acción real a la persona."
-        : "The item and orientation are already fixed. Do not reroll or replace them, and do not request any real action from the user.",
+        ? "Toda acción atribuida a la persona es narrativa; no solicites clic, confirmación, elección ni respuesta."
+        : "Any action attributed to the user is narrative; do not request a click, confirmation, choice or reply.",
       `${spanish ? "Medio" : "Medium"}: ${medium.medium}.`,
       `${spanish ? "Objeto" : "Item"}: ${medium.itemName}.`,
       `${spanish ? "Aspecto" : "Appearance"}: ${medium.itemDescription}`,
@@ -323,8 +323,8 @@ export function mediaPrompt(req: ApiReq): string {
       `${spanish ? "Secuencia sensorial" : "Sensory sequence"}: ${medium.ritual.beats.join(", ")}.`,
       `${spanish ? "Directiva exacta" : "Exact directive"}: ${medium.ritualDirective}`,
       spanish
-        ? "Puedes nombrar el objeto y sus marcas, pero no los interpretes todavía ni reveles el naipe interno."
-        : "You may name the item and its marks, but do not interpret them yet or reveal the internal naipe.",
+        ? "Puedes nombrar el objeto y sus marcas, pero no los interpretes antes de la revelación ni expliques cómo se determinó el resultado."
+        : "You may name the item and its marks, but do not interpret them before the reveal or explain how the result was determined.",
     ].join("\n");
   }
   if (req.task === "read") {
@@ -332,16 +332,16 @@ export function mediaPrompt(req: ApiReq): string {
     if (!media) return "";
     return lang(req.lang) === "es"
       ? [
-        "Mantente completamente en personaje. No menciones naipes, mapas, archivos, investigación, fuentes, museos, arqueología, metadatos ni revisión cultural.",
-        "Los significados semánticos suministrados son internos. Conserva exactamente su interpretación, pero expresa cada resultado mediante el objeto asignado en mediumTranslation.",
+        "Permanece por completo en personaje y dentro de la escena.",
+        "Los significados semánticos suministrados son internos. Conserva exactamente su interpretación, pero expresa cada resultado mediante el objeto asignado.",
         "Nombra únicamente el objeto, sus marcas, su posición y lo que la persona lectora entiende de ellos.",
-        "No sustituyas, combines ni vuelvas a sortear ningún objeto, y no nombres jamás el naipe canónico oculto."
+        "No sustituyas, combines ni vuelvas a sortear ningún objeto. No nombres el resultado canónico subyacente ni expliques cómo se creó la correspondencia."
       ].join("\n")
       : [
-        "Remain fully in character. Never mention naipes, mappings, files, research, sources, museums, archaeology, metadata or cultural review.",
-        "The supplied semantic meanings are internal. Preserve their interpretation exactly, but express each result through its assigned item in mediumTranslation.",
+        "Remain fully in character and inside the scene.",
+        "The supplied semantic meanings are internal. Preserve their interpretation exactly, but express each result through its assigned item.",
         "Name only the item, its marks, its position and what the reader understands from them.",
-        "Do not substitute, combine or reroll any item, and never name the hidden canonical naipe."
+        "Do not substitute, combine or reroll any item. Do not name the underlying canonical result or explain how the correspondence was created."
       ].join("\n");
   }
   return "";
@@ -407,15 +407,63 @@ export function mediaReadingInput(req: Extract<ApiReq, { task: "read" }>): unkno
   };
 }
 
+function escaped(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+function replaceName(value: string, from: string, to: string): string {
+  return value.replace(new RegExp(escaped(from), "giu"), to);
+}
+
+function replaceCanonicalNames(
+  req: Extract<ApiReq, { task: "read" }>,
+  value: string,
+  media: readonly MediumPresentation[],
+): string {
+  return req.draw.cards.reduce((textValue, card, index) => {
+    const item = media[index];
+    return item ? replaceName(textValue, card.name, item.itemName) : textValue;
+  }, value);
+}
+
+function presentReading(
+  req: Extract<ApiReq, { task: "read" }>,
+  out: ReadingOut,
+  media: readonly MediumPresentation[],
+): ReadingOut {
+  const present = (value: string): string => replaceCanonicalNames(req, value, media);
+  return {
+    ...out,
+    gesture: present(out.gesture),
+    opening: present(out.opening),
+    link: present(out.link),
+    cardText: out.cardText.map(present),
+    synthesis: present(out.synthesis),
+    reading: present(out.reading),
+    closing: present(out.closing),
+    note: present(out.note),
+    media: [...media],
+  };
+}
+
 export function attachMedia(req: ApiReq, out: ApiOut): ApiOut {
   if (req.task === "ritual") {
     if (!req.drawn) return out;
     const medium = mediaFor(req.reader, req.drawn, req.lang);
-    return medium ? { ...(out as RitualOut), medium } : out;
+    if (!medium) return out;
+    const ritual = out as RitualOut;
+    const present = (value: string): string => replaceName(value, req.drawn!.name, medium.itemName);
+    return {
+      ...ritual,
+      opening: present(ritual.opening),
+      ritual: present(ritual.ritual),
+      gesture: present(ritual.gesture),
+      medium,
+    };
   }
   if (req.task === "read") {
     const media = allMedia(req);
-    return media ? { ...(out as ReadingOut), media } : out;
+    return media ? presentReading(req, out as ReadingOut, media) : out;
   }
   return out;
 }
