@@ -20,7 +20,7 @@ const response = value => new Response(JSON.stringify({ output_text: JSON.string
   headers: { "content-type": "application/json" },
 });
 
-test("long tasks audit GPT-5.4 nano then escalate once to GPT-5.4 mini", async () => {
+test("long tasks audit Luna then ask Luna once for a constrained correction", async () => {
   const calls = [];
   const fetch = async (_url, init) => {
     const body = JSON.parse(init.body);
@@ -44,7 +44,8 @@ test("long tasks audit GPT-5.4 nano then escalate once to GPT-5.4 mini", async (
 
   assert.equal(result.source, "escalation");
   assert.equal(calls.length, 2);
-  assert.equal(calls[0].model, "gpt-5.4-nano");
-  assert.equal(calls[1].model, "gpt-5.4-mini");
+  assert.equal(calls[0].model, "gpt-5.6-luna");
+  assert.equal(calls[1].model, "gpt-5.6-luna");
   assert.match(calls[1].input[0].content, /chat\.gesture/u);
+  assert.match(calls[1].input[0].content, /deterministic NLP validation/u);
 });
