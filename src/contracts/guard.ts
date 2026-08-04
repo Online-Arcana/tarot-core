@@ -33,7 +33,7 @@ function isMedium(value: unknown): value is MediumPresentation {
       !str(value.itemDescription) || !str(value.observation) || !str(value.fictionalCorrespondence) ||
       !str(value.ritualDirective)) return false;
   if (!Array.isArray(value.culturalElements) || !value.culturalElements.every(element =>
-    rec(element) && str(element.id) && str(element.name) && str(element.documentedContext))) return false;
+    rec(element) && str(element.id) && str(element.name))) return false;
   return rec(value.ritual) && str(value.ritual.concealment) && str(value.ritual.chance) &&
     str(value.ritual.orientation) && strs(value.ritual.beats);
 }
