@@ -13,6 +13,7 @@ export * from "./packs/cards.js";
 export * from "./readers/ids.js";
 export * from "./readers/meta.js";
 export * from "./readers/profiles.js";
+export * from "./reading/fit.js";
 export * from "./reading/handover.js";
 export * from "./reading/reveal.js";
 export * from "./reading/stages.js";
