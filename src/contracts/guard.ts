@@ -142,7 +142,7 @@ function isTrail(value: unknown): value is Trail {
 
 function isHand(value: unknown): value is Hand {
   return rec(value) && isReader(value.from) && isReader(value.to) && str(value.at) && str(value.question) &&
-    str(value.reason) && str(value.summary) && strs(value.prevQs) && strs(value.conclusions) && str(value.cards) === false &&
+    str(value.reason) && str(value.summary) && strs(value.prevQs) && strs(value.conclusions) &&
     strs(value.cards) && strs(value.facts) && strs(value.unresolved) && (value.ack === undefined || str(value.ack));
 }
 
