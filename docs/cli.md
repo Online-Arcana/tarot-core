@@ -29,19 +29,21 @@ npm run cli --silent -- --pack ./public/lang/en-GB.json < request.json
 The default reading lane is:
 
 ```text
-gpt-5.4-nano -> deterministic NLP audit -> gpt-5.4-mini -> deterministic NLP audit -> reconstruction
+gpt-5.6-luna -> deterministic NLP audit -> gpt-5.6-luna constrained correction -> deterministic NLP audit -> reconstruction
 ```
 
 Environment overrides are optional:
 
 ```bash
 export TAROT_SHORT_PRIMARY_MODEL='gpt-5-nano'
-export TAROT_SHORT_ESCALATION_MODEL='gpt-5-mini'
-export TAROT_LONG_PRIMARY_MODEL='gpt-5.4-nano'
-export TAROT_LONG_ESCALATION_MODEL='gpt-5.4-mini'
+export TAROT_SHORT_ESCALATION_MODEL='gpt-5.6-luna'
+export TAROT_LONG_PRIMARY_MODEL='gpt-5.6-luna'
+export TAROT_LONG_ESCALATION_MODEL='gpt-5.6-luna'
 ```
 
 `TAROT_MODEL` remains a compatibility alias for `TAROT_LONG_PRIMARY_MODEL`.
+
+The four settings remain independent even where their current values match. This allows later model changes to be made as configuration updates without changing the routing architecture.
 
 ## Input
 
@@ -103,10 +105,10 @@ The CLI:
 2. resolves and validates the language pack
 3. expands and validates exactly 78 cards
 4. draws the selected spread
-5. calls the long-task primary model
+5. calls Luna for the long-task primary response
 6. audits the structured result deterministically
-7. escalates once to the long-task mini model when required
-8. audits the escalation result
+7. asks Luna once for a constrained correction when required
+8. audits the corrected result
 9. deterministically reconstructs any remaining invalid fields
 10. returns the complete draw, reading and available conversation or recovery key
 
