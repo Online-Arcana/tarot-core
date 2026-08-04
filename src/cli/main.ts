@@ -2,6 +2,7 @@
 import { parseCliInput } from "./input.js";
 import { loadCliPack } from "./pack.js";
 import { runCli } from "./run.js";
+import type { ModelOverrides } from "../model/run.js";
 
 interface Fail {
   readonly ok: false;
@@ -20,20 +21,39 @@ function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function env(name: string): string | undefined {
+  return process.env[name]?.trim() || undefined;
+}
+
+function models(): ModelOverrides | undefined {
+  const shortPrimary = env("TAROT_SHORT_PRIMARY_MODEL");
+  const shortEscalation = env("TAROT_SHORT_ESCALATION_MODEL");
+  const longPrimary = env("TAROT_LONG_PRIMARY_MODEL") ?? env("TAROT_MODEL");
+  const longEscalation = env("TAROT_LONG_ESCALATION_MODEL");
+  const value: ModelOverrides = {
+    ...(shortPrimary === undefined ? {} : { shortPrimary }),
+    ...(shortEscalation === undefined ? {} : { shortEscalation }),
+    ...(longPrimary === undefined ? {} : { longPrimary }),
+    ...(longEscalation === undefined ? {} : { longEscalation }),
+  };
+  return Object.keys(value).length === 0 ? undefined : value;
+}
+
 async function main(): Promise<void> {
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  const apiKey = env("OPENAI_API_KEY");
   if (!apiKey) throw new Error("OPENAI_API_KEY is required");
-  const packPath = arg("--pack") ?? process.env.TAROT_PACK?.trim();
+  const packPath = arg("--pack") ?? env("TAROT_PACK");
   if (!packPath) throw new Error("Provide --pack or TAROT_PACK");
   process.stdin.setEncoding("utf8");
   let source = "";
   for await (const chunk of process.stdin) source += String(chunk);
   const input = parseCliInput(JSON.parse(source) as unknown);
   const pack = await loadCliPack(packPath);
+  const selected = models();
   const output = await runCli(input, {
     apiKey,
-    model: process.env.TAROT_MODEL?.trim() || "gpt-5.4-mini",
     pack,
+    ...(selected === undefined ? {} : { models: selected }),
   });
   process.stdout.write(`${JSON.stringify(output)}\n`);
 }

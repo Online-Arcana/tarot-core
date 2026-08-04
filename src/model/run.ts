@@ -13,13 +13,39 @@ import { systemPrompt } from "./system.js";
 import { isApiOut } from "../contracts/guard.js";
 import { profileFor, profilePrompt, profiles } from "../readers/profiles.js";
 import { readerIdentity } from "../readers/meta.js";
+import { auditModelOut, correctionFromAudit, type ModelAudit } from "./audit.js";
+import { reconstructModelOut } from "./recover.js";
 import type { ApiOut, ApiReq, Task } from "../contracts/types.js";
 
 export interface ModelPack { readonly prompt: { readonly reading: string; readonly chat: string } }
 
+export interface ModelOverrides {
+  readonly shortPrimary?: string;
+  readonly shortEscalation?: string;
+  readonly longPrimary?: string;
+  readonly longEscalation?: string;
+}
+
+export interface ModelTiers {
+  readonly shortPrimary: string;
+  readonly shortEscalation: string;
+  readonly longPrimary: string;
+  readonly longEscalation: string;
+}
+
+export const DEFAULT_MODEL_TIERS: ModelTiers = {
+  shortPrimary: "gpt-5-nano",
+  shortEscalation: "gpt-5-mini",
+  longPrimary: "gpt-5.4-nano",
+  longEscalation: "gpt-5.4-mini",
+};
+
 export interface ModelCfg {
   readonly apiKey: string;
-  readonly body: Dict & { model: string };
+  readonly body: Dict & { model?: string };
+  readonly models?: ModelOverrides;
+  readonly escalationModel?: string;
+  readonly guaranteeOutput?: boolean;
   readonly conversation: boolean;
   readonly conversationId?: string;
   readonly fetch?: Fetch;
@@ -232,83 +258,88 @@ export function modelPrompt(p: ModelPack, req: ApiReq, correction = ""): string 
   ].filter(Boolean).join("\n\n");
 }
 
-function words(textValue: string): number {
-  return textValue.trim().split(/\s+/u).filter(Boolean).length;
-}
-
-function completeTheatre(parts: readonly string[]): boolean {
-  const textValue = parts.join(" ").replace(/\s+/gu, " ").trim();
-  const count = words(textValue);
-  return count >= 36 && count <= 110 && !/[\r\n]/u.test(textValue) &&
-    !/(?:…|\.\.\.)\s*$/u.test(textValue) && /[.!?]["'’”)]*$/u.test(textValue);
-}
-
-export function validModelOut(req: ApiReq, out: ApiOut): boolean {
-  if (req.task === "invite") {
-    if (!("text" in out) || words(out.text) > 24 || /[\r\n]/u.test(out.text)) return false;
-    const sentences = out.text.match(/[.!?¿¡]+/gu)?.length ?? 0;
-    return sentences <= 2;
-  }
-  if (req.task === "fit") {
-    return "offer" in out && "reason" in out && words(out.offer) <= 32 && words(out.reason) <= 32 &&
-      !/[\r\n]/u.test(out.offer) && !/[\r\n]/u.test(out.reason);
-  }
-  if (req.task === "continue") {
-    if (!("text" in out)) return false;
-    const clean = out.text.trim();
-    return words(clean) >= 8 && words(clean) <= 24 && !/[\r\n]/u.test(clean) &&
-      !/(?:…|\.\.\.)/u.test(clean) && /[.!?]["'’”)]*$/u.test(clean) &&
-      !/[.!?]["'’”)]*\s+\S/u.test(clean);
-  }
-  if (req.task === "title") {
-    return "title" in out && words(out.title) >= 3 && words(out.title) <= 8;
-  }
-  if (req.task === "handover") {
-    if (!("summary" in out) || !out.summary.trim() || words(out.summary) > 160) return false;
-    return [out.questions, out.conclusions, out.cards, out.facts, out.unresolved]
-      .every(items => items.length <= 12 && items.every(item => item.trim().length > 0 && item.length <= 500));
-  }
-  if (req.task === "return") {
-    return "text" in out && out.text.trim().length > 0 && words(out.text) <= 80 && !/[\r\n]/u.test(out.text);
-  }
-  if (req.task === "ritual") {
-    return "ritual" in out && "gesture" in out && "opening" in out &&
-      completeTheatre([out.gesture, out.opening, out.ritual]);
-  }
-  if (req.task === "chat") {
-    return "response" in out && "gesture" in out && completeTheatre([out.gesture]);
-  }
-  if (req.task !== "read" || !("cardText" in out)) return true;
-  if (!completeTheatre([out.gesture, out.opening, out.link])) return false;
-  const names = req.draw.cards.map(x => x.name.toLocaleLowerCase(req.lang));
-  return out.cardText.every((part, i) => {
-    const lower = part.toLocaleLowerCase(req.lang);
-    return names.slice(i + 1).every(name => !lower.includes(name));
-  });
-}
+export const validModelOut = (req: ApiReq, out: ApiOut): boolean =>
+  auditModelOut(req, out).valid;
 
 export function correctionFor(req: ApiReq): string {
-  if (req.task === "continue") {
-    return "The previous attempt was not exactly one complete sentence of eight to twenty-four words. Return one fresh reader-specific invitation with no ellipsis or line break.";
-  }
-  if (req.task === "fit") {
-    return "The previous fit response was too long or used invalid formatting. Keep offer and reason to at most 32 words each, use no line breaks, and preserve every registered reader gender and pronoun exactly.";
-  }
-  return "The previous attempt violated a length, completion, grounding or reveal-order constraint. Theatre text must be a complete paragraph and must not end with an ellipsis. Correct it strictly without mentioning the correction.";
+  return `The previous attempt violated deterministic validation for ${req.task}. Return a complete corrected object without mentioning the correction.`;
 }
 
 export interface ModelResult {
   readonly out: ApiOut;
+  readonly source: "primary" | "escalation" | "reconstructed";
+  readonly primaryModel: string;
+  readonly escalationModel: string;
+  readonly auditErrors: readonly string[];
   readonly sessionKey?: string;
 }
 
-function sendOpts(cfg: ModelCfg) {
+export class ModelOutputError extends Error {
+  readonly primaryModel: string;
+  readonly escalationModel: string;
+  readonly auditErrors: readonly string[];
+
+  constructor(primaryModel: string, escalationModel: string, errors: readonly string[]) {
+    super(`Model output failed deterministic validation after ${primaryModel} and ${escalationModel}`);
+    this.name = "ModelOutputError";
+    this.primaryModel = primaryModel;
+    this.escalationModel = escalationModel;
+    this.auditErrors = [...errors];
+  }
+}
+
+const longTask = (task: Task): boolean => task === "read" || task === "chat";
+
+export const modelRoute = (req: ApiReq, cfg: ModelCfg): readonly [string, string] => {
+  if (longTask(req.task)) {
+    return [
+      cfg.models?.longPrimary ?? cfg.body.model ?? DEFAULT_MODEL_TIERS.longPrimary,
+      cfg.models?.longEscalation ?? cfg.escalationModel ?? DEFAULT_MODEL_TIERS.longEscalation,
+    ];
+  }
+  return [
+    cfg.models?.shortPrimary ?? cfg.body.model ?? DEFAULT_MODEL_TIERS.shortPrimary,
+    cfg.models?.shortEscalation ?? cfg.escalationModel ?? DEFAULT_MODEL_TIERS.shortEscalation,
+  ];
+};
+
+function sendOpts(cfg: ModelCfg, model: string) {
   return {
-    body: cfg.body,
+    body: { ...cfg.body, model },
     ...(cfg.retries === undefined ? {} : { retries: cfg.retries }),
     ...(cfg.retryDelayMs === undefined ? {} : { retryDelayMs: cfg.retryDelayMs }),
   };
 }
+
+const message = (cause: unknown): string =>
+  cause instanceof Error ? cause.message : String(cause);
+
+const accepted = (
+  audit: ModelAudit,
+  source: ModelResult["source"],
+  primaryModel: string,
+  escalationModel: string,
+  sessionKey: string | undefined,
+): ModelResult => ({
+  out: audit.value,
+  source,
+  primaryModel,
+  escalationModel,
+  auditErrors: audit.errors,
+  ...(sessionKey === undefined ? {} : { sessionKey }),
+});
+
+const failures = (
+  primaryAudit: ModelAudit | undefined,
+  primaryFailure: string | undefined,
+  escalationAudit: ModelAudit | undefined,
+  escalationFailure: string | undefined,
+): string[] => [...new Set([
+  ...(primaryAudit?.errors ?? []),
+  ...(primaryFailure === undefined ? [] : [primaryFailure]),
+  ...(escalationAudit?.errors ?? []),
+  ...(escalationFailure === undefined ? [] : [escalationFailure]),
+])];
 
 export async function runModelSession(
   pack: ModelPack,
@@ -324,18 +355,52 @@ export async function runModelSession(
       ...(cfg.fetch === undefined ? {} : { fetch: cfg.fetch }),
     },
   );
-
-  const send = (correction = "") => ai.send(
+  const [primaryModel, escalationModel] = modelRoute(req, cfg);
+  const send = (model: string, correction = "") => ai.send(
     [{ role: "system", content: modelPrompt(pack, req, correction) }],
-    sendOpts(cfg),
+    sendOpts(cfg, model),
   );
 
-  let out = await send();
-  if (!validModelOut(req, out)) out = await send(correctionFor(req));
-  if (!validModelOut(req, out)) throw new Error("Invalid structured model output");
+  let primary: ApiOut | undefined;
+  let primaryAudit: ModelAudit | undefined;
+  let primaryFailure: string | undefined;
+  try {
+    primary = await send(primaryModel);
+    primaryAudit = auditModelOut(req, primary);
+  } catch (cause: unknown) {
+    primaryFailure = message(cause);
+  }
+  if (primaryAudit?.valid === true) {
+    return accepted(primaryAudit, "primary", primaryModel, escalationModel, ai.id);
+  }
 
+  let escalation: ApiOut | undefined;
+  let escalationAudit: ModelAudit | undefined;
+  let escalationFailure: string | undefined;
+  const correction = correctionFromAudit(primary, primaryAudit, primaryFailure);
+  try {
+    escalation = await send(escalationModel, correction);
+    escalationAudit = auditModelOut(req, escalation);
+  } catch (cause: unknown) {
+    escalationFailure = message(cause);
+  }
+  if (escalationAudit?.valid === true) {
+    return accepted(escalationAudit, "escalation", primaryModel, escalationModel, ai.id);
+  }
+
+  const errors = failures(primaryAudit, primaryFailure, escalationAudit, escalationFailure);
+  if (cfg.guaranteeOutput !== true) {
+    throw new ModelOutputError(primaryModel, escalationModel, errors);
+  }
+
+  const out = reconstructModelOut(req, [primary, escalation]);
+  const finalAudit = auditModelOut(req, out);
   return {
     out,
+    source: "reconstructed",
+    primaryModel,
+    escalationModel,
+    auditErrors: [...new Set([...errors, ...finalAudit.errors])],
     ...(ai.id === undefined ? {} : { sessionKey: ai.id }),
   };
 }
