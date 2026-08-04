@@ -266,9 +266,9 @@ function description(value: string, item: string): string {
   const tailored = value
     .replace(/\s+in an authored composition using documented[^.]*\.?$/iu, ".")
     .replace(/\s+en una composición propia que utiliza[^.]*documentad[^.]*\.?$/iu, ".");
-  const clauses = tailored.split(/(?<=[.!?])\s+|;\s*/u);
-  const clean = scene(clauses.filter(clause => clause.trim() && !ARCHIVE.test(clause)).join(" "));
-  return clean || sentence(item);
+  const first = tailored.split(/;|(?<=[.!?])\s+/u)[0]?.trim() ?? "";
+  const clean = scene(first);
+  return clean && !ARCHIVE.test(clean) ? clean : sentence(item);
 }
 
 function direction(item: string, observation: string, code: LangCode): string {
