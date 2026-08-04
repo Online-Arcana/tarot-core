@@ -33,10 +33,14 @@ interface RitualLocal {
   readonly beats: LocalList;
 }
 
+interface ReaderRitualDef {
+  readonly medium: LocalText;
+  readonly ritual: RitualLocal;
+}
+
 interface CulturalElementDef {
   readonly id: string;
   readonly name: LocalText;
-  readonly documentedContext: LocalText;
 }
 
 interface OrientationDef {
@@ -59,15 +63,8 @@ interface PackDef {
   readonly version: number;
   readonly reader: MappedReader;
   readonly culture: LocalText;
-  readonly medium: LocalText;
-  readonly ritual: RitualLocal;
   readonly elements: ReadonlyMap<string, CulturalElementDef>;
   readonly mappings: ReadonlyMap<string, MappingDef>;
-}
-
-interface GlobalContract {
-  readonly lines: readonly LocalText[];
-  readonly prohibited: LocalList;
 }
 
 const MAPPED_READERS = [
@@ -147,12 +144,28 @@ function parseRitual(value: unknown, path: string): RitualLocal {
   };
 }
 
+function parseReaderRituals(value: unknown): Readonly<Record<MappedReader, ReaderRitualDef>> {
+  const root = record(value, "reader ritual contracts");
+  const readers = record(root.readers, "reader ritual contracts.readers");
+  const selena = record(readers.selena, "reader ritual contracts.readers.selena");
+  if (selena.mode !== "vanilla") throw new Error("Selena must remain the vanilla naipes reader");
+
+  return Object.fromEntries(MAPPED_READERS.map(reader => {
+    const path = `reader ritual contracts.readers.${reader}`;
+    const source = record(readers[reader], path);
+    if (source.mode !== "mapped-medium") throw new Error(`${path}.mode must be mapped-medium`);
+    return [reader, {
+      medium: localText(source.medium, `${path}.medium`),
+      ritual: parseRitual(source.ritual, `${path}.ritual`),
+    }];
+  })) as Readonly<Record<MappedReader, ReaderRitualDef>>;
+}
+
 function parseElement(value: unknown, path: string): CulturalElementDef {
   const source = record(value, path);
   return {
     id: text(source.id, `${path}.id`),
     name: localText(source.name, `${path}.name`),
-    documentedContext: localText(source.documentedContext, `${path}.documentedContext`),
   };
 }
 
@@ -210,31 +223,12 @@ function parsePack(expected: MappedReader, value: unknown): PackDef {
     version: integer(source.version, `${path}.version`),
     reader,
     culture: localText(source.culture, `${path}.culture`),
-    medium: localText(source.medium, `${path}.medium`),
-    ritual: parseRitual(source.ritual, `${path}.ritual`),
     elements,
     mappings,
   };
 }
 
-function parseGlobal(value: unknown): GlobalContract {
-  const root = record(value, "reader ritual contracts");
-  const source = record(root.globalContract, "reader ritual contracts.globalContract");
-  const keys = [
-    "existingFlow",
-    "narrativeParticipation",
-    "fixedOutcome",
-    "concealedChance",
-    "oneItem",
-    "meaningBoundary",
-  ] as const;
-  return {
-    lines: keys.map(key => localText(source[key], `reader ritual contracts.globalContract.${key}`)),
-    prohibited: localList(source.prohibited, "reader ritual contracts.globalContract.prohibited"),
-  };
-}
-
-const GLOBAL = parseGlobal(ritualsRaw as unknown);
+const RITUALS = parseReaderRituals(ritualsRaw as unknown);
 const PACKS: Readonly<Record<MappedReader, PackDef>> = Object.fromEntries(
   MAPPED_READERS.map(reader => [reader, parsePack(reader, RAW_PACKS[reader])]),
 ) as Readonly<Record<MappedReader, PackDef>>;
@@ -262,23 +256,20 @@ export function mediaFor(
 ): MediumPresentation | null {
   if (!isMappedReader(reader)) return null;
   const pack = PACKS[reader];
+  const readerRitual = RITUALS[reader];
   const mapping = pack.mappings.get(card.id);
   if (!mapping) return null;
   const state = orientation(mapping, card.side);
   const culturalElements: MediumElement[] = mapping.culturalElementIds.map(id => {
     const element = pack.elements.get(id);
     if (!element) throw new Error(`Reader media ${reader} lost cultural element ${id}`);
-    return {
-      id,
-      name: translated(element.name, code),
-      documentedContext: translated(element.documentedContext, code),
-    };
+    return { id, name: translated(element.name, code) };
   });
   const ritual: MediumRitual = {
-    concealment: translated(pack.ritual.concealment, code),
-    chance: translated(pack.ritual.chance, code),
-    orientation: translated(card.side === "upright" ? pack.ritual.upright : pack.ritual.reversed, code),
-    beats: translatedList(pack.ritual.beats, code),
+    concealment: translated(readerRitual.ritual.concealment, code),
+    chance: translated(readerRitual.ritual.chance, code),
+    orientation: translated(card.side === "upright" ? readerRitual.ritual.upright : readerRitual.ritual.reversed, code),
+    beats: translatedList(readerRitual.ritual.beats, code),
   };
   return {
     version: pack.version,
@@ -286,7 +277,7 @@ export function mediaFor(
     cardId: card.id,
     side: card.side,
     culture: translated(pack.culture, code),
-    medium: translated(pack.medium, code),
+    medium: translated(readerRitual.medium, code),
     itemId: mapping.itemId,
     itemName: translated(mapping.itemName, code),
     itemDescription: translated(mapping.itemDescription, code),
@@ -304,10 +295,8 @@ function allMedia(req: Extract<ApiReq, { task: "read" }>): MediumPresentation[] 
   return output.every((item): item is MediumPresentation => item !== null) ? output : null;
 }
 
-function culturalLine(medium: MediumPresentation): string {
-  return medium.culturalElements
-    .map(element => `${element.name}: ${element.documentedContext}`)
-    .join(" | ");
+function symbolNames(medium: MediumPresentation): string {
+  return medium.culturalElements.map(element => element.name).join(", ");
 }
 
 export function mediaPrompt(req: ApiReq): string {
@@ -317,23 +306,25 @@ export function mediaPrompt(req: ApiReq): string {
     if (!medium) return "";
     const spanish = lang(req.lang) === "es";
     return [
-      spanish ? "Contrato vinculante del medio de lectura:" : "Binding reader-medium contract:",
-      ...GLOBAL.lines.map(line => translated(line, req.lang)),
-      ...(spanish ? ["Prohibido:"] : ["Prohibited:"]),
-      ...translatedList(GLOBAL.prohibited, req.lang).map(rule => `- ${rule}`),
+      spanish ? "Mantente completamente en personaje y describe únicamente la escena ritual." : "Remain fully in character and describe only the ritual scene.",
+      spanish
+        ? "No menciones naipes, mapas, archivos, investigación, fuentes, museos, arqueología, metadatos ni revisión cultural."
+        : "Never mention naipes, mappings, files, research, sources, museums, archaeology, metadata or cultural review.",
+      spanish
+        ? "El objeto y su orientación ya están fijados. No vuelvas a sortearlos, no los sustituyas y no pidas ninguna acción real a la persona."
+        : "The item and orientation are already fixed. Do not reroll or replace them, and do not request any real action from the user.",
       `${spanish ? "Medio" : "Medium"}: ${medium.medium}.`,
-      `${spanish ? "Marco cultural documentado" : "Documented cultural frame"}: ${medium.culture}.`,
+      `${spanish ? "Objeto" : "Item"}: ${medium.itemName}.`,
+      `${spanish ? "Aspecto" : "Appearance"}: ${medium.itemDescription}`,
+      `${spanish ? "Marcas visibles" : "Visible marks"}: ${symbolNames(medium)}.`,
       `${spanish ? "Ocultación" : "Concealment"}: ${medium.ritual.concealment}`,
-      `${spanish ? "Azar aparente" : "Apparent chance"}: ${medium.ritual.chance}`,
-      `${spanish ? "Objeto fijado" : "Fixed item"}: ${medium.itemName}.`,
-      `${spanish ? "Descripción física" : "Physical description"}: ${medium.itemDescription}`,
-      `${spanish ? "Elementos culturales reales" : "Real cultural elements"}: ${culturalLine(medium)}`,
-      `${spanish ? "Evidencia de orientación" : "Orientation evidence"}: ${medium.observation}`,
-      `${spanish ? "Secuencia sensorial" : "Sensory beats"}: ${medium.ritual.beats.join(", ")}.`,
+      `${spanish ? "Azar narrativo" : "Narrative chance"}: ${medium.ritual.chance}`,
+      `${spanish ? "Posición final" : "Final position"}: ${medium.observation}`,
+      `${spanish ? "Secuencia sensorial" : "Sensory sequence"}: ${medium.ritual.beats.join(", ")}.`,
       `${spanish ? "Directiva exacta" : "Exact directive"}: ${medium.ritualDirective}`,
       spanish
-        ? "No nombres el naipe canónico ni su significado. El ritual puede nombrar el objeto del medio, pero no debe interpretarlo antes de la revelación."
-        : "Do not name the canonical naipe or its meaning. The ritual may name the medium item, but must not interpret it before the reveal.",
+        ? "Puedes nombrar el objeto y sus marcas, pero no los interpretes todavía ni reveles el naipe interno."
+        : "You may name the item and its marks, but do not interpret them yet or reveal the internal naipe.",
     ].join("\n");
   }
   if (req.task === "read") {
@@ -341,16 +332,16 @@ export function mediaPrompt(req: ApiReq): string {
     if (!media) return "";
     return lang(req.lang) === "es"
       ? [
-        "Esta persona lectora no manipula naipes visibles. Los naipes suministran únicamente la semántica canónica interna.",
-        "Conserva exactamente esas interpretaciones, pero presenta cada resultado mediante el objeto cultural asignado en mediumTranslation.",
-        "Nombra el objeto asignado y su símbolo real; no afirmes que la correspondencia con el tarot o el método de adivinación sean históricos.",
-        "No sustituyas, combines ni vuelvas a sortear ningún objeto.",
+        "Mantente completamente en personaje. No menciones naipes, mapas, archivos, investigación, fuentes, museos, arqueología, metadatos ni revisión cultural.",
+        "Los significados semánticos suministrados son internos. Conserva exactamente su interpretación, pero expresa cada resultado mediante el objeto asignado en mediumTranslation.",
+        "Nombra únicamente el objeto, sus marcas, su posición y lo que la persona lectora entiende de ellos.",
+        "No sustituyas, combines ni vuelvas a sortear ningún objeto, y no nombres jamás el naipe canónico oculto."
       ].join("\n")
       : [
-        "This reader does not handle visible naipes. The supplied naipes provide only the internal canonical semantics.",
-        "Preserve those interpretations exactly, but present each result through its assigned cultural item in mediumTranslation.",
-        "Name the assigned item and its real symbol; never claim that the tarot correspondence or divination method is historical.",
-        "Do not substitute, combine or reroll any item.",
+        "Remain fully in character. Never mention naipes, mappings, files, research, sources, museums, archaeology, metadata or cultural review.",
+        "The supplied semantic meanings are internal. Preserve their interpretation exactly, but express each result through its assigned item in mediumTranslation.",
+        "Name only the item, its marks, its position and what the reader understands from them.",
+        "Do not substitute, combine or reroll any item, and never name the hidden canonical naipe."
       ].join("\n");
   }
   return "";
@@ -359,12 +350,14 @@ export function mediaPrompt(req: ApiReq): string {
 function ritualPayload(medium: MediumPresentation): unknown {
   return {
     medium: medium.medium,
-    culture: medium.culture,
     itemName: medium.itemName,
     itemDescription: medium.itemDescription,
+    visibleMarks: medium.culturalElements.map(element => element.name),
     observation: medium.observation,
-    culturalElements: medium.culturalElements,
-    ritual: medium.ritual,
+    concealment: medium.ritual.concealment,
+    chance: medium.ritual.chance,
+    orientation: medium.ritual.orientation,
+    sensoryBeats: medium.ritual.beats,
     ritualDirective: medium.ritualDirective,
   };
 }
@@ -372,14 +365,13 @@ function ritualPayload(medium: MediumPresentation): unknown {
 function readingPayload(medium: MediumPresentation, position: number): unknown {
   return {
     position,
-    cardId: medium.cardId,
     orientation: medium.side,
     medium: medium.medium,
     itemName: medium.itemName,
     itemDescription: medium.itemDescription,
+    visibleMarks: medium.culturalElements.map(element => element.name),
     observation: medium.observation,
-    culturalElements: medium.culturalElements,
-    fictionalCorrespondence: medium.fictionalCorrespondence,
+    interpretationBridge: medium.fictionalCorrespondence,
   };
 }
 
@@ -394,6 +386,25 @@ export function mediaPayload(req: ApiReq): unknown | null {
     return media?.map((item, index) => readingPayload(item, index + 1)) ?? null;
   }
   return null;
+}
+
+export function mediaReadingInput(req: Extract<ApiReq, { task: "read" }>): unknown {
+  const media = allMedia(req);
+  if (!media) return req.draw;
+  return {
+    id: req.draw.id,
+    name: req.draw.name,
+    purpose: req.draw.purpose,
+    results: req.draw.cards.map((card, index) => ({
+      position: card.pos,
+      positionName: card.posName,
+      positionMeaning: card.posMeaning,
+      ...(card.place ? { place: card.place } : {}),
+      orientation: card.side,
+      semanticMeaning: card.meaning,
+      mediumTranslation: readingPayload(media[index]!, index + 1),
+    })),
+  };
 }
 
 export function attachMedia(req: ApiReq, out: ApiOut): ApiOut {
