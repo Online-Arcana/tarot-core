@@ -30,8 +30,8 @@ function isMedium(value: unknown): value is MediumPresentation {
   if (!rec(value) || !Number.isInteger(value.version) || Number(value.version) < 1) return false;
   if (!isReader(value.reader) || !str(value.cardId) || (value.side !== "upright" && value.side !== "reversed")) return false;
   if (!str(value.culture) || !str(value.medium) || !str(value.itemId) || !str(value.itemName) ||
-      !str(value.itemDescription) || !str(value.observation) || !str(value.fictionalCorrespondence) ||
-      !str(value.ritualDirective)) return false;
+      !str(value.itemDescription) || !str(value.observation) || !str(value.interpretation) ||
+      !str(value.ritualDirection)) return false;
   if (!Array.isArray(value.culturalElements) || !value.culturalElements.every(element =>
     rec(element) && str(element.id) && str(element.name))) return false;
   return rec(value.ritual) && str(value.ritual.concealment) && str(value.ritual.chance) &&
