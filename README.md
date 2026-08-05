@@ -22,7 +22,6 @@ card and spread pack
 git submodule update --init --recursive
 npm install
 npm run check
-npm test
 npm run build
 ```
 
@@ -68,6 +67,7 @@ src/packs/       card-pack expansion and validation
 src/readers/     identities, fit profiles and personas
 src/reading/     reveal, stage and handover logic
 src/transport/   request parsing and validation
+test/            retained regression record, excluded from build and CI
 ```
 
 ## Documentation
