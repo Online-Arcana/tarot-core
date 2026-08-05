@@ -1,112 +1,72 @@
 {
-  "version": 1,
-  "status": "draft-text-only",
-  "runtimeIntegrated": false,
+  "version": 2,
+  "status": "source-backed-draft",
+  "runtimeIntegrated": true,
   "installPath": "src/readers/media",
   "vanillaReader": {
     "id": "selena",
     "mappingFile": null,
     "rule": {
-      "en": "Use the existing naipes, ritual and presentation unchanged.",
-      "es": "Usar sin cambios los naipes, el ritual y la presentación existentes."
+      "en": "Use Selena's existing naipes, ritual and presentation unchanged.",
+      "es": "Usar sin cambios los naipes, el ritual y la presentación existentes de Selena."
     }
   },
   "mappedReaders": [
     {
       "id": "brennos",
-      "name": {
-        "en": "Brennos",
-        "es": "Brennos"
-      },
       "file": "maps/brennos.json",
-      "cardCount": 78,
-      "medium": {
-        "en": "individually carved bone",
-        "es": "hueso tallado individualmente"
-      }
+      "logicalResults": 78,
+      "minorFamilies": ["Trees", "Flowers", "Birds", "Beasts"],
+      "states": ["between", "crossing"]
     },
     {
       "id": "yejide",
-      "name": {
-        "en": "Yejide",
-        "es": "Yejide"
-      },
       "file": "maps/yejide.json",
-      "cardCount": 78,
-      "medium": {
-        "en": "large carved seed",
-        "es": "semilla tallada de gran tamaño"
-      }
+      "logicalResults": 78,
+      "minorFamilies": ["Reptiles", "Fish", "Birds", "Creatures"],
+      "states": ["visible", "hidden"]
     },
     {
       "id": "ngaru",
-      "name": {
-        "en": "Ngaru",
-        "es": "Ngaru"
-      },
       "file": "maps/ngaru.json",
-      "cardCount": 78,
-      "medium": {
-        "en": "painted seashell",
-        "es": "concha marina pintada"
-      }
+      "logicalResults": 78,
+      "physicalItems": 156,
+      "minorFamilies": ["Kaokao", "Koru", "Niho taniwha", "Pātiki"],
+      "states": ["outer", "inner"]
     },
     {
       "id": "ame",
-      "name": {
-        "en": "Ame",
-        "es": "Ame"
-      },
       "file": "maps/ame.json",
-      "cardCount": 78,
-      "medium": {
-        "en": "sakura and lotus leaves moving on collected rainwater",
-        "es": "hojas de sakura y loto moviéndose sobre agua de lluvia recogida"
-      }
+      "logicalResults": 78,
+      "minorFamilies": ["Fuji", "Hasu", "Sakura", "Ajisai"],
+      "states": ["still", "drifting"],
+      "spreadCast": "single cast for the whole spread"
     },
     {
       "id": "amaru",
-      "name": {
-        "en": "Amaru",
-        "es": "Amaru"
-      },
       "file": "maps/amaru.json",
-      "cardCount": 78,
-      "medium": {
-        "en": "one knotted cord drawn from an opaque vase",
-        "es": "un cordón anudado extraído de un jarrón opaco"
-      }
+      "logicalResults": 78,
+      "minorFamilies": ["Buff", "Indigo", "Black", "Brown"],
+      "states": ["front", "rear"]
     },
     {
       "id": "nahid",
-      "name": {
-        "en": "Nahid",
-        "es": "Nahid"
-      },
       "file": "maps/nahid.json",
-      "cardCount": 78,
-      "medium": {
-        "en": "one authored incense-smoke signature",
-        "es": "una formación de humo de incienso diseñada"
-      }
+      "logicalResults": 78,
+      "minorFamilies": ["Fire", "Water", "Air", "Earth"],
+      "states": ["forming", "dispersing"]
     },
     {
       "id": "mictli",
-      "name": {
-        "en": "Mictli",
-        "es": "Mictli"
-      },
       "file": "maps/mictli.json",
-      "cardCount": 78,
-      "medium": {
-        "en": "one carved stone disk",
-        "es": "un disco de piedra tallado"
-      }
+      "logicalResults": 78,
+      "minorFamilies": ["Eagles", "Cempasúchil", "Jaguars", "Cacao"],
+      "states": ["aligned", "turned"]
     }
   ],
   "sharedFiles": {
     "schema": "medium-map.schema.json",
-    "ritualContracts": "reader-rituals.json",
+    "ritualContract": "reader-rituals.json",
     "canonicalCardIndex": "canonical-card-index.json"
   }
 }

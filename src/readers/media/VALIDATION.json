@@ -1,66 +1,50 @@
 {
+  "version": 2,
   "valid": true,
-  "files": {
-    "src/readers/media/CULTURAL-REVIEW.md": {
-      "bytes": 1798,
-      "sha256": "fc1c76773dc3765012e8a7b5558c86c4ef2acd2c2d62ee92b4cab49a945a47b1"
-    },
-    "src/readers/media/README.md": {
-      "bytes": 2404,
-      "sha256": "ac7486886f7013b271cfb4c4f2af9dee05a22fb6b68a87166904daaea0f9f894"
-    },
-    "src/readers/media/canonical-card-index.json": {
-      "bytes": 55799,
-      "sha256": "ed1878c3a172e6690f6566d3cdff0560b988d09c1ad0d0f4e17a0d3555391d75"
-    },
-    "src/readers/media/index.json": {
-      "bytes": 2584,
-      "sha256": "b4d53023a0569e26771e6da819b3a6217320289ebf2d0fa1623d740519d573cc"
-    },
-    "src/readers/media/maps/amaru.json": {
-      "bytes": 347796,
-      "sha256": "915c8283938514239befe1275c42b5612dbf5c9e8eecf714ed3cae1c6af31569"
-    },
-    "src/readers/media/maps/ame.json": {
-      "bytes": 365409,
-      "sha256": "7cc622332e1dc663d281e4172d405cdb0fd3640abfb06a80ffcb75ff7028ad42"
-    },
-    "src/readers/media/maps/brennos.json": {
-      "bytes": 340416,
-      "sha256": "9cbc4faa78463b73e70e91d1a9c83a5254b54db33425cdd01ea65ef60faea64c"
-    },
-    "src/readers/media/maps/mictli.json": {
-      "bytes": 356092,
-      "sha256": "ddbb316153a36d97cd0db5075009108fedfa91a22da0889559aeebeb94fe9f3f"
-    },
-    "src/readers/media/maps/nahid.json": {
-      "bytes": 367945,
-      "sha256": "30725246725cd6799b412acbfd4450a2a5675e7b6bb228dc823963334ffbb22a"
-    },
-    "src/readers/media/maps/ngaru.json": {
-      "bytes": 357679,
-      "sha256": "b6ea1df83de1d7ebd7ead0e100e6d19a1ac63e61616596f78d147bbb036de4c9"
-    },
-    "src/readers/media/maps/yejide.json": {
-      "bytes": 364050,
-      "sha256": "d1c7b0047eb0aba5d827aa69b6a1b59c9416c7b947d8314df280a62ef85cdab1"
-    },
-    "src/readers/media/medium-map.schema.json": {
-      "bytes": 5689,
-      "sha256": "166f2bf30bba0ff011a1b5ae8e1e1b9819f91991be480cd6dc7a13e4bd19abb5"
-    },
-    "src/readers/media/reader-rituals.json": {
-      "bytes": 16289,
-      "sha256": "fea4f009d45c847d91da78566e8afdfb25772b1a931dac25f37c8dc17e3079c9"
-    }
-  },
+  "scope": "archive shape and isolated runtime validation",
   "rules": {
     "selenaMappingAbsent": true,
     "mappedReaderCount": 7,
-    "mappingCount": 546,
-    "allMapsHave78": true,
-    "allCardIdsUnique": true,
-    "allBilingual": true,
-    "runtimeCodeIncluded": false
+    "logicalResultCount": 546,
+    "allMapsExpandTo78": true,
+    "allMapsHave22Majors": true,
+    "allMinorFamiliesHave14Ranks": true,
+    "allPublicStatesBilingual": true,
+    "allCulturalElementsReferenceKnownSources": true,
+    "canonicalMeaningsNotDuplicatedInMaps": true,
+    "runtimeCodeIncluded": true,
+    "uiFamilyInferenceRemovedInCoreContract": true
+  },
+  "specialRules": {
+    "ngaru": {
+      "logicalResults": 78,
+      "physicalShells": 156,
+      "statePair": ["outer", "inner"]
+    },
+    "ame": {
+      "singleCastForWholeSpread": true,
+      "laterPositionsReuseSameCast": true,
+      "minorRule": "one flower family with a direct count",
+      "majorRule": "fixed mixed-petal pattern",
+      "statePair": ["still", "drifting"]
+    },
+    "mictli": {
+      "requiredFamilyLabel": "Cempasúchil"
+    }
+  },
+  "localChecks": {
+    "compactArchivesParsed": true,
+    "isolatedStrictTypeScriptCompilation": true,
+    "runtimeResultChecks": 1092,
+    "runtimeResultChecksPassed": true,
+    "ameContinuationChecked": true,
+    "ngaruPairingChecked": true,
+    "mictliCempasuchilChecked": true,
+    "fullRepositoryTestSuiteRun": false
+  },
+  "review": {
+    "culturalSpecialistReviewRequired": true,
+    "sourceStatus": "source-backed-draft",
+    "note": "Full repository tests and tradition-specific cultural review remain required before release or merge."
   }
 }

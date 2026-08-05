@@ -5,11 +5,11 @@ import mictliRaw from "./maps/mictli.json" with { type: "json" };
 import nahidRaw from "./maps/nahid.json" with { type: "json" };
 import ngaruRaw from "./maps/ngaru.json" with { type: "json" };
 import yejideRaw from "./maps/yejide.json" with { type: "json" };
-import ritualsRaw from "./reader-rituals.json" with { type: "json" };
 import { presentMappedReading, presentMappedRitual } from "./output.js";
 import type {
   ApiOut,
   ApiReq,
+  ArcanaKind,
   DrawnCard,
   LangCode,
   MediumElement,
@@ -21,21 +21,19 @@ import type {
 } from "../../contracts/types.js";
 
 type Lang = "en" | "es";
+type Suit = "wands" | "cups" | "swords" | "pentacles";
 type MappedReader = Exclude<ReaderId, "selena">;
 type LocalText = Readonly<Record<Lang, string>>;
 type LocalList = Readonly<Record<Lang, readonly string[]>>;
+type FamilyDef = Readonly<Record<Suit, LocalText>>;
 
 interface RitualDef {
   readonly concealment: LocalText;
   readonly chance: LocalText;
+  readonly continuation?: LocalText;
   readonly upright: LocalText;
   readonly reversed: LocalText;
   readonly beats: LocalList;
-}
-
-interface ReaderRitual {
-  readonly medium: LocalText;
-  readonly ritual: RitualDef;
 }
 
 interface ElementDef {
@@ -43,27 +41,27 @@ interface ElementDef {
   readonly name: LocalText;
 }
 
-interface OrientationDef {
-  readonly observation: LocalText;
-  readonly interpretation: LocalText;
+interface EntryDef {
+  readonly itemName: LocalText;
+  readonly itemDescription?: LocalText;
+  readonly elementIds: readonly string[];
 }
 
-interface MappingDef {
-  readonly cardId: string;
-  readonly itemId: string;
-  readonly itemName: LocalText;
-  readonly itemDescription: LocalText;
-  readonly elementIds: readonly string[];
-  readonly upright: OrientationDef;
-  readonly reversed: OrientationDef;
+interface PresentationDef {
+  readonly states: Readonly<Record<Side, LocalText>>;
+  readonly families: FamilyDef;
 }
 
 interface PackDef {
   readonly version: number;
   readonly reader: MappedReader;
   readonly culture: LocalText;
+  readonly medium: LocalText;
+  readonly ritual: RitualDef;
+  readonly presentation: PresentationDef;
   readonly elements: ReadonlyMap<string, ElementDef>;
-  readonly mappings: ReadonlyMap<string, MappingDef>;
+  readonly major: readonly EntryDef[];
+  readonly minor: Readonly<Record<Suit, readonly EntryDef[]>>;
 }
 
 export interface MediumRitualContext {
@@ -71,6 +69,7 @@ export interface MediumRitualContext {
   readonly medium: string;
   readonly concealment: string;
   readonly chance: string;
+  readonly continuation?: string;
   readonly beats: string[];
 }
 
@@ -83,6 +82,20 @@ const MAPPED = [
   "nahid",
   "mictli",
 ] as const satisfies readonly MappedReader[];
+
+const SUITS = ["wands", "cups", "swords", "pentacles"] as const satisfies readonly Suit[];
+const RANKS = [
+  "ace", "two", "three", "four", "five", "six", "seven",
+  "eight", "nine", "ten", "page", "knight", "queen", "king",
+] as const;
+const MAJORS = [
+  "major-fool", "major-magician", "major-priestess", "major-empress",
+  "major-emperor", "major-hierophant", "major-lovers", "major-chariot",
+  "major-strength", "major-hermit", "major-wheel", "major-justice",
+  "major-hanged", "major-death", "major-temperance", "major-devil",
+  "major-tower", "major-star", "major-moon", "major-sun",
+  "major-judgement", "major-world",
+] as const;
 
 const RAW: Readonly<Record<MappedReader, unknown>> = {
   brennos: brennosRaw as unknown,
@@ -139,62 +152,95 @@ function isMapped(value: unknown): value is MappedReader {
   return typeof value === "string" && (MAPPED as readonly string[]).includes(value);
 }
 
+function isSuit(value: unknown): value is Suit {
+  return typeof value === "string" && (SUITS as readonly string[]).includes(value);
+}
+
 export function isMappedReader(value: ReaderId): value is MappedReader {
   return isMapped(value);
 }
 
 function parseRitual(value: unknown, path: string): RitualDef {
   const source = obj(value, path);
+  const continuation = source.continuation === undefined
+    ? {}
+    : { continuation: local(source.continuation, `${path}.continuation`) };
   return {
     concealment: local(source.concealment, `${path}.concealment`),
     chance: local(source.chance, `${path}.chance`),
+    ...continuation,
     upright: local(source.upright, `${path}.upright`),
     reversed: local(source.reversed, `${path}.reversed`),
     beats: localList(source.beats, `${path}.beats`),
   };
 }
 
-function parseRituals(value: unknown): Readonly<Record<MappedReader, ReaderRitual>> {
-  const root = obj(value, "reader rituals");
-  const readers = obj(root.readers, "reader rituals.readers");
-  const selena = obj(readers.selena, "reader rituals.readers.selena");
-  if (selena.mode !== "vanilla") throw new Error("Selena must remain the vanilla naipes reader");
-
-  return Object.fromEntries(MAPPED.map(reader => {
-    const path = `reader rituals.readers.${reader}`;
-    const source = obj(readers[reader], path);
-    if (source.mode !== "mapped-medium") throw new Error(`${path}.mode must be mapped-medium`);
-    return [reader, {
-      medium: local(source.medium, `${path}.medium`),
-      ritual: parseRitual(source.ritual, `${path}.ritual`),
-    }];
-  })) as Readonly<Record<MappedReader, ReaderRitual>>;
+function parseSources(value: unknown, path: string): ReadonlySet<string> {
+  const ids = new Set<string>();
+  for (const [index, raw] of list(value, path).entries()) {
+    const source = obj(raw, `${path}[${index}]`);
+    const id = text(source.id, `${path}[${index}].id`);
+    if (ids.has(id)) throw new Error(`${path} duplicates source ${id}`);
+    ids.add(id);
+  }
+  if (!ids.size) throw new Error(`${path} must not be empty`);
+  return ids;
 }
 
-function parseElement(value: unknown, path: string): ElementDef {
+function parseElement(value: unknown, path: string, sources: ReadonlySet<string>): ElementDef {
   const source = obj(value, path);
-  return { id: text(source.id, `${path}.id`), name: local(source.name, `${path}.name`) };
+  const id = text(source.id, `${path}.id`);
+  for (const sourceId of textList(source.sourceIds, `${path}.sourceIds`)) {
+    if (!sources.has(sourceId)) throw new Error(`${path} references unknown source ${sourceId}`);
+  }
+  return { id, name: local(source.name, `${path}.name`) };
 }
 
-function parseOrientation(value: unknown, path: string): OrientationDef {
+function parsePresentation(value: unknown, path: string): PresentationDef {
   const source = obj(value, path);
+  const states = obj(source.states, `${path}.states`);
+  const families = obj(source.families, `${path}.families`);
   return {
-    observation: local(source.observation, `${path}.observation`),
-    interpretation: local(source.fictionalCorrespondence, `${path}.fictionalCorrespondence`),
+    states: {
+      upright: local(states.upright, `${path}.states.upright`),
+      reversed: local(states.reversed, `${path}.states.reversed`),
+    },
+    families: Object.fromEntries(SUITS.map(suit => [
+      suit,
+      local(families[suit], `${path}.families.${suit}`),
+    ])) as FamilyDef,
   };
 }
 
-function parseMapping(value: unknown, path: string): MappingDef {
+function parseEntry(
+  value: unknown,
+  path: string,
+  elements: ReadonlyMap<string, ElementDef>,
+): EntryDef {
   const source = obj(value, path);
+  const elementIds = textList(source.culturalElementIds, `${path}.culturalElementIds`);
+  for (const id of elementIds) {
+    if (!elements.has(id)) throw new Error(`${path} references unknown cultural element ${id}`);
+  }
+  const itemDescription = source.itemDescription === undefined
+    ? {}
+    : { itemDescription: local(source.itemDescription, `${path}.itemDescription`) };
   return {
-    cardId: text(source.cardId, `${path}.cardId`),
-    itemId: text(source.itemId, `${path}.itemId`),
     itemName: local(source.itemName, `${path}.itemName`),
-    itemDescription: local(source.itemDescription, `${path}.itemDescription`),
-    elementIds: textList(source.culturalElementIds, `${path}.culturalElementIds`),
-    upright: parseOrientation(source.upright, `${path}.upright`),
-    reversed: parseOrientation(source.reversed, `${path}.reversed`),
+    ...itemDescription,
+    elementIds,
   };
+}
+
+function parseEntries(
+  value: unknown,
+  path: string,
+  count: number,
+  elements: ReadonlyMap<string, ElementDef>,
+): readonly EntryDef[] {
+  const raw = list(value, path);
+  if (raw.length !== count) throw new Error(`${path} must contain exactly ${count} entries`);
+  return raw.map((entry, index) => parseEntry(entry, `${path}[${index}]`, elements));
 }
 
 function parsePack(expected: MappedReader, value: unknown): PackDef {
@@ -202,40 +248,35 @@ function parsePack(expected: MappedReader, value: unknown): PackDef {
   const source = obj(value, path);
   const reader = source.reader;
   if (reader !== expected || !isMapped(reader)) throw new Error(`${path}.reader must equal ${expected}`);
+  if (source.version !== 2) throw new Error(`${path}.version must equal 2`);
 
+  const sources = parseSources(source.sourceRegistry, `${path}.sourceRegistry`);
   const elements = new Map<string, ElementDef>();
   for (const [index, raw] of list(source.culturalElementRegistry, `${path}.culturalElementRegistry`).entries()) {
-    const element = parseElement(raw, `${path}.culturalElementRegistry[${index}]`);
+    const element = parseElement(raw, `${path}.culturalElementRegistry[${index}]`, sources);
     if (elements.has(element.id)) throw new Error(`${path} duplicates cultural element ${element.id}`);
     elements.set(element.id, element);
   }
 
-  const mappings = new Map<string, MappingDef>();
-  const itemIds = new Set<string>();
-  const rawMappings = list(source.mappings, `${path}.mappings`);
-  if (rawMappings.length !== 78) throw new Error(`${path} must contain exactly 78 mappings`);
-
-  for (const [index, raw] of rawMappings.entries()) {
-    const mapping = parseMapping(raw, `${path}.mappings[${index}]`);
-    if (mappings.has(mapping.cardId)) throw new Error(`${path} duplicates card ${mapping.cardId}`);
-    if (itemIds.has(mapping.itemId)) throw new Error(`${path} duplicates item ${mapping.itemId}`);
-    for (const id of mapping.elementIds) {
-      if (!elements.has(id)) throw new Error(`${path} mapping ${mapping.cardId} references unknown cultural element ${id}`);
-    }
-    mappings.set(mapping.cardId, mapping);
-    itemIds.add(mapping.itemId);
-  }
+  const rawMinor = obj(source.minor, `${path}.minor`);
+  const minor = Object.fromEntries(SUITS.map(suit => [
+    suit,
+    parseEntries(rawMinor[suit], `${path}.minor.${suit}`, RANKS.length, elements),
+  ])) as Readonly<Record<Suit, readonly EntryDef[]>>;
 
   return {
     version: positive(source.version, `${path}.version`),
     reader,
     culture: local(source.culture, `${path}.culture`),
+    medium: local(source.medium, `${path}.medium`),
+    ritual: parseRitual(source.ritual, `${path}.ritual`),
+    presentation: parsePresentation(source.presentation, `${path}.presentation`),
     elements,
-    mappings,
+    major: parseEntries(source.major, `${path}.major`, MAJORS.length, elements),
+    minor,
   };
 }
 
-const RITUALS = parseRituals(ritualsRaw as unknown);
 const PACKS = Object.fromEntries(MAPPED.map(reader => [reader, parsePack(reader, RAW[reader])])) as
   Readonly<Record<MappedReader, PackDef>>;
 
@@ -268,62 +309,94 @@ function scene(value: string): string {
     .replace(/\b(?:documented|attested|authentic|authored|mapped|predetermined|fictional)\b/giu, "")
     .replace(/\b(?:documentad[oa]s?|atestiguad[oa]s?|auténtic[oa]s?|diseñad[oa]s?|asignad[oa]s?|predeterminad[oa]s?|fictici[oa]s?)\b/giu, "")
     .replace(/\balready determined\b/giu, "")
-    .replace(/\bya determinad[oa]\b/giu, "")
-    .replace(/\bdesignated beginning\b/giu, "marked beginning")
-    .replace(/\binicio designado\b/giu, "extremo marcado"));
+    .replace(/\bya determinad[oa]\b/giu, ""));
 }
 
-function description(value: string, item: string): string {
-  const tailored = value
-    .replace(/\s+in an authored composition using documented[^.]*\.?$/iu, ".")
-    .replace(/\s+en una composición propia que utiliza[^.]*documentad[^.]*\.?$/iu, ".");
-  const first = tailored.split(/;|(?<=[.!?])\s+/u)[0]?.trim() ?? "";
+function description(value: string | null, item: string): string {
+  if (!value) return sentence(item);
+  const first = value.split(/;|(?<=[.!?])\s+/u)[0]?.trim() ?? "";
   const clean = scene(first);
   return clean && !ARCHIVE.test(clean) ? clean : sentence(item);
 }
 
 function direction(item: string, observation: string, code: LangCode): string {
   return language(code) === "es"
-    ? `Deja que ${item} emerja mediante el ritual oculto y conserva exactamente esta posición final: ${observation}`
-    : `Let ${item} emerge through the concealed ritual and preserve this exact final position: ${observation}`;
+    ? `Deja que ${item} emerja mediante el ritual oculto y conserva exactamente este estado final: ${observation}`
+    : `Let ${item} emerge through the concealed ritual and preserve this exact final state: ${observation}`;
 }
 
-function side(mapping: MappingDef, value: Side): OrientationDef {
-  return value === "upright" ? mapping.upright : mapping.reversed;
+function arcana(card: DrawnCard): ArcanaKind {
+  return card.id.startsWith("major-") ? "major" : "minor";
+}
+
+function cardSuit(card: DrawnCard): Suit | null {
+  const prefix = card.id.split("-", 1)[0];
+  if (isSuit(prefix)) return prefix;
+  return isSuit(card.suit) ? card.suit : null;
+}
+
+function entryFor(pack: PackDef, card: DrawnCard): EntryDef {
+  if (arcana(card) === "major") {
+    const index = (MAJORS as readonly string[]).indexOf(card.id);
+    if (index < 0) throw new Error(`Mapped major ${card.id} is not canonical`);
+    return pack.major[index]!;
+  }
+  const suit = cardSuit(card);
+  if (!suit) throw new Error(`Mapped minor ${card.id} has no recognised suit`);
+  const rank = card.id.slice(suit.length + 1);
+  const index = (RANKS as readonly string[]).indexOf(rank);
+  if (index < 0) throw new Error(`Mapped minor ${card.id} has no recognised rank`);
+  return pack.minor[suit][index]!;
+}
+
+function family(pack: PackDef, card: DrawnCard, code: LangCode): string | null {
+  if (arcana(card) === "major") return null;
+  const suit = cardSuit(card);
+  if (!suit) throw new Error(`Mapped minor ${card.id} has no recognised suit`);
+  return scene(tr(pack.presentation.families[suit], code)).replace(/[.]$/u, "");
+}
+
+function stateLabel(pack: PackDef, card: DrawnCard, code: LangCode): string {
+  return scene(tr(pack.presentation.states[card.side], code)).replace(/[.]$/u, "");
+}
+
+function chanceFor(context: MediumRitualContext, req: Extract<ApiReq, { task: "ritual" }>): string {
+  if (req.card > 0 && context.continuation) return context.continuation;
+  return context.chance;
 }
 
 export function mediumRitualFor(reader: ReaderId, code: LangCode): MediumRitualContext | null {
   if (!isMapped(reader)) return null;
-  const ritual = RITUALS[reader];
+  const pack = PACKS[reader];
+  const continuation = pack.ritual.continuation
+    ? { continuation: scene(tr(pack.ritual.continuation, code)) }
+    : {};
   return {
     reader,
-    medium: scene(tr(ritual.medium, code)).replace(/[.]$/u, ""),
-    concealment: scene(tr(ritual.ritual.concealment, code)),
-    chance: scene(tr(ritual.ritual.chance, code)),
-    beats: trs(ritual.ritual.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
+    medium: scene(tr(pack.medium, code)).replace(/[.]$/u, ""),
+    concealment: scene(tr(pack.ritual.concealment, code)),
+    chance: scene(tr(pack.ritual.chance, code)),
+    ...continuation,
+    beats: trs(pack.ritual.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
   };
 }
 
 export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): MediumPresentation | null {
   if (!isMapped(reader)) return null;
   const pack = PACKS[reader];
-  const readerRitual = RITUALS[reader];
-  const mapping = pack.mappings.get(card.id);
-  if (!mapping) return null;
-
-  const state = side(mapping, card.side);
-  const itemName = scene(tr(mapping.itemName, code)).replace(/[.]$/u, "");
-  const observation = scene(tr(state.observation, code));
-  const culturalElements: MediumElement[] = mapping.elementIds.map(id => {
+  const entry = entryFor(pack, card);
+  const itemName = scene(tr(entry.itemName, code)).replace(/[.]$/u, "");
+  const observation = scene(tr(pack.ritual[card.side], code));
+  const culturalElements: MediumElement[] = entry.elementIds.map(id => {
     const element = pack.elements.get(id);
     if (!element) throw new Error(`Reader media ${reader} lost cultural element ${id}`);
     return { id, name: scene(tr(element.name, code)).replace(/[.]$/u, "") };
   });
   const ritual: MediumRitual = {
-    concealment: scene(tr(readerRitual.ritual.concealment, code)),
-    chance: scene(tr(readerRitual.ritual.chance, code)),
-    orientation: scene(tr(card.side === "upright" ? readerRitual.ritual.upright : readerRitual.ritual.reversed, code)),
-    beats: trs(readerRitual.ritual.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
+    concealment: scene(tr(pack.ritual.concealment, code)),
+    chance: scene(tr(pack.ritual.chance, code)),
+    orientation: observation,
+    beats: trs(pack.ritual.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
   };
 
   return {
@@ -331,13 +404,16 @@ export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): Med
     reader,
     cardId: card.id,
     side: card.side,
+    arcana: arcana(card),
+    family: family(pack, card, code),
+    stateLabel: stateLabel(pack, card, code),
     culture: scene(tr(pack.culture, code)).replace(/[.]$/u, ""),
-    medium: scene(tr(readerRitual.medium, code)).replace(/[.]$/u, ""),
-    itemId: mapping.itemId,
+    medium: scene(tr(pack.medium, code)).replace(/[.]$/u, ""),
+    itemId: `${reader}-${card.id}`,
     itemName,
-    itemDescription: description(tr(mapping.itemDescription, code), itemName),
+    itemDescription: description(entry.itemDescription ? tr(entry.itemDescription, code) : null, itemName),
     observation,
-    interpretation: scene(tr(state.interpretation, code)),
+    interpretation: sentence(card.meaning),
     ritualDirection: direction(itemName, observation, code),
     culturalElements,
     ritual,
@@ -354,11 +430,11 @@ function marks(medium: MediumPresentation): string[] {
   return medium.culturalElements.map(element => element.name);
 }
 
-function ritualData(context: MediumRitualContext): unknown {
+function ritualData(context: MediumRitualContext, chance: string): unknown {
   return {
     medium: context.medium,
     concealment: context.concealment,
-    chance: context.chance,
+    chance,
     sensoryBeats: context.beats,
   };
 }
@@ -366,7 +442,9 @@ function ritualData(context: MediumRitualContext): unknown {
 function readingData(medium: MediumPresentation, position: number): unknown {
   return {
     position,
-    orientation: medium.side,
+    arcana: medium.arcana,
+    ...(medium.family ? { family: medium.family } : {}),
+    state: medium.stateLabel,
     medium: medium.medium,
     itemName: medium.itemName,
     itemDescription: medium.itemDescription,
@@ -381,20 +459,21 @@ export function mediaPrompt(req: ApiReq): string {
     const context = mediumRitualFor(req.reader, req.lang);
     if (!context) return "";
     const spanish = language(req.lang) === "es";
+    const chance = chanceFor(context, req);
     return [
       spanish ? "Permanece por completo dentro de la escena ritual." : "Remain entirely inside the ritual scene.",
       spanish
         ? "Describe únicamente el medio, la ocultación y el movimiento aleatorio de la selección."
         : "Describe only the medium, concealment and chance movement of the selection.",
       spanish
-        ? "No nombres, describas, interpretes ni insinúes el objeto oculto, sus marcas o su posición final antes de la revelación."
-        : "Do not name, describe, interpret or imply the hidden item, its marks or its final position before the reveal.",
+        ? "No nombres, describas, interpretes ni insinúes el objeto oculto, sus rasgos o su estado final antes de la revelación."
+        : "Do not name, describe, interpret or imply the hidden item, its features or its final state before the reveal.",
       spanish
         ? "Toda acción atribuida a la persona es narrativa; no solicites clic, confirmación, elección ni respuesta."
         : "Any action attributed to the user is narrative; do not request a click, confirmation, choice or reply.",
       `${spanish ? "Medio" : "Medium"}: ${context.medium}.`,
       `${spanish ? "Ocultación" : "Concealment"}: ${context.concealment}`,
-      `${spanish ? "Movimiento de azar" : "Chance movement"}: ${context.chance}`,
+      `${spanish ? "Movimiento de azar" : "Chance movement"}: ${chance}`,
       `${spanish ? "Secuencia sensorial" : "Sensory sequence"}: ${context.beats.join(", ")}.`,
       spanish
         ? "Usa el nombre público de la persona lectora. No uses «el lector», baraja, carta, naipes ni tarot."
@@ -407,14 +486,14 @@ export function mediaPrompt(req: ApiReq): string {
     ? [
       "Permanece por completo en personaje y dentro de la escena.",
       "Conserva exactamente el significado suministrado y exprésalo mediante el objeto visible asignado.",
-      "Nombra únicamente el objeto, sus marcas, su posición y lo que la persona lectora entiende de ellos.",
+      "Nombra únicamente el objeto, sus rasgos, su estado y lo que la persona lectora entiende de ellos.",
       "No sustituyas, combines ni vuelvas a sortear ningún objeto. No nombres el resultado canónico ni expliques cómo se eligió la equivalencia.",
       "Usa el nombre público de la persona lectora cuando nombres a quien interpreta. No uses «el lector», baraja, carta, naipes ni tarot.",
     ].join("\n")
     : [
       "Remain fully in character and inside the scene.",
       "Preserve the supplied meaning exactly and express it through the assigned visible item.",
-      "Name only the item, its marks, its position and what the reader understands from them.",
+      "Name only the item, its features, its state and what the reader understands from them.",
       "Do not substitute, combine or reroll any item. Do not name the canonical result or explain how the equivalence was chosen.",
       "Use the reader's public name when naming the interpreting person. Do not use 'the reader', deck, card, cards or tarot.",
     ].join("\n");
@@ -423,7 +502,7 @@ export function mediaPrompt(req: ApiReq): string {
 export function mediaPayload(req: ApiReq): unknown | null {
   if (req.task === "ritual") {
     const context = mediumRitualFor(req.reader, req.lang);
-    return context ? ritualData(context) : null;
+    return context ? ritualData(context, chanceFor(context, req)) : null;
   }
   if (req.task !== "read") return null;
   return allMedia(req)?.map((medium, index) => readingData(medium, index + 1)) ?? null;
@@ -441,7 +520,7 @@ export function mediaReadingInput(req: Extract<ApiReq, { task: "read" }>): unkno
       positionName: card.posName,
       positionMeaning: card.posMeaning,
       ...(card.place ? { place: card.place } : {}),
-      orientation: card.side,
+      state: media[index]!.stateLabel,
       meaning: card.meaning,
       item: readingData(media[index]!, index + 1),
     })),
@@ -467,7 +546,7 @@ export function mediaTurnInput(
       results: turn.draw.cards.map((card, index) => ({
         position: card.pos,
         positionName: card.posName,
-        orientation: card.side,
+        state: media[index]!.stateLabel,
         meaning: card.meaning,
         item: readingData(media[index]!, index + 1),
       })),
@@ -491,7 +570,7 @@ export function attachMedia(req: ApiReq, out: ApiOut): ApiOut {
     return presentMappedRitual(req, out as import("../../contracts/types.js").RitualOut, {
       medium: context.medium,
       concealment: context.concealment,
-      chance: context.chance,
+      chance: chanceFor(context, req),
       beats: context.beats,
       ...(medium ? { hiddenItem: medium.itemName } : {}),
       ...(req.drawn ? { canonicalName: req.drawn.name } : {}),
@@ -511,6 +590,8 @@ export function attachMedia(req: ApiReq, out: ApiOut): ApiOut {
 }
 
 export function mediaRuntimeSummary(): Readonly<Record<MappedReader, number>> {
-  return Object.fromEntries(MAPPED.map(reader => [reader, PACKS[reader].mappings.size])) as
-    Readonly<Record<MappedReader, number>>;
+  return Object.fromEntries(MAPPED.map(reader => [
+    reader,
+    PACKS[reader].major.length + SUITS.reduce((total, suit) => total + PACKS[reader].minor[suit].length, 0),
+  ])) as Readonly<Record<MappedReader, number>>;
 }

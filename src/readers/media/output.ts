@@ -1,4 +1,5 @@
 import { profileFor } from "../profiles.js";
+import { ritualParticipation, type RitualAction } from "./participation.js";
 import type {
   ApiOut,
   ApiReq,
@@ -18,6 +19,12 @@ export interface RitualPresentationContext {
 
 const genericReader = /\b(?:the reader|el lector|la lectora|la persona lectora)\b/giu;
 const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?)\b/iu;
+const userActionEn = /\b(?:you|the querent)\s+(?:lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw|sit|stand|rest)\b/iu;
+const userActionEs = /\b(?:tú|usted|la persona consultante)\s+(?:levantas?|levanta|elevas?|eleva|tomas?|toma|alcanzas?|alcanza|tocas?|toca|sostienes?|sostiene|sacas?|saca|agitas?|agita|lanzas?|lanza|colocas?|coloca|eliges?|elige|jalas?|jala|tiras?|tira|sueltas?|suelta|giras?|gira|mueves?|mueve|mezclas?|mezcla|retiras?|retira|llevas?|lleva|abres?|abre|cierras?|cierra|manipulas?|manipula|agarras?|agarra|dejas?|deja|te sientas?|se sienta|te pones de pie|se pone de pie)\b/iu;
+const ngaruActionEn = /\byou\s+(?:(?:reach|slide|put)\b[\s\S]{0,70}\b(?:bag|shells?)\b|(?:draw|withdraw|take|pull|pick)\b[\s\S]{0,50}\bshell\b)/iu;
+const amaruActionEn = /\byou\s+(?:(?:reach|slide|put)\b[\s\S]{0,70}\b(?:vessel|cords?)\b|(?:draw|withdraw|take|pull|pick)\b[\s\S]{0,50}\bcord\b)/iu;
+const ngaruActionEs = /\b(?:tú|usted)\s+(?:(?:introduces?|introduce|metes?|mete)\b[\s\S]{0,70}\bbolsa\b|(?:sacas?|saca|extraes?|extrae|tomas?|toma|eliges?|elige)\b[\s\S]{0,50}\bconcha\b)/iu;
+const amaruActionEs = /\b(?:tú|usted)\s+(?:(?:introduces?|introduce|metes?|mete)\b[\s\S]{0,70}\brecipiente\b|(?:sacas?|saca|extraes?|extrae|tomas?|toma|eliges?|elige)\b[\s\S]{0,50}\bcordón\b)/iu;
 
 function spanish(req: ApiReq): boolean {
   return req.lang.toLocaleLowerCase().startsWith("es");
@@ -72,13 +79,37 @@ function includes(value: string, term: string | undefined, locale: string): bool
   return value.toLocaleLowerCase(locale).includes(term.toLocaleLowerCase(locale));
 }
 
+function hasUserAction(value: string, req: ApiReq): boolean {
+  return (spanish(req) ? userActionEs : userActionEn).test(value);
+}
+
+function hasRequiredUserAction(value: string, req: ApiReq, action: RitualAction): boolean {
+  if (action === "draw-shell") return (spanish(req) ? ngaruActionEs : ngaruActionEn).test(value);
+  return (spanish(req) ? amaruActionEs : amaruActionEn).test(value);
+}
+
 function ritualFallback(
   req: Extract<ApiReq, { task: "ritual" }>,
   context: RitualPresentationContext,
 ): RitualOut {
   const reader = readerName(req);
+  const participation = ritualParticipation(req.reader);
 
   if (spanish(req)) {
+    if (participation.action === "draw-shell") {
+      return {
+        gesture: `${reader} sostiene la bolsa opaca desgastada por el mar y la acerca sin abrirla.`,
+        opening: `Tú introduces la mano sin mirar, reconoces la textura de las conchas y extraes una sola.`,
+        ritual: `${reader} recibe la concha sin alterar cómo fue elegida y mantiene oculta la pintura hasta la revelación.`,
+      };
+    }
+    if (participation.action === "draw-cord") {
+      return {
+        gesture: `${reader} mezcla los cordones ocultos al tacto y acerca el recipiente opaco.`,
+        opening: `Tú introduces la mano sin mirar y extraes un solo cordón por el extremo que encuentras primero.`,
+        ritual: `${reader} lo recibe sin invertirlo, conserva su dirección exacta y deja los nudos ocultos hasta la revelación.`,
+      };
+    }
     return {
       gesture: `${reader} acerca ${context.medium} y deja que tu pregunta se asiente antes de comenzar la selección oculta.`,
       opening: `${context.concealment} La escena conserva ${context.beats.at(-1) ?? context.medium}; nada se muestra antes de tiempo.`,
@@ -86,6 +117,20 @@ function ritualFallback(
     };
   }
 
+  if (participation.action === "draw-shell") {
+    return {
+      gesture: `${reader} steadies the opaque sea-worn bag and brings it close without opening it.`,
+      opening: `You reach in without looking, feel the shells and withdraw exactly one.`,
+      ritual: `${reader} receives the shell without changing how it was chosen and keeps its painting concealed until the reveal.`,
+    };
+  }
+  if (participation.action === "draw-cord") {
+    return {
+      gesture: `${reader} mixes the hidden cords by touch and brings the opaque vessel close.`,
+      opening: `You reach in without looking and draw one cord by whichever end comes first.`,
+      ritual: `${reader} receives it without reversing it, preserves its exact direction and keeps the knots concealed until the reveal.`,
+    };
+  }
   return {
     gesture: `${reader} draws the ${context.medium} close and lets your question settle before the concealed selection begins.`,
     opening: `${context.concealment} The scene retains ${context.beats.at(-1) ?? context.medium}; nothing is shown early.`,
@@ -113,7 +158,13 @@ export function presentMappedRitual(
   };
   const value = combined(presented);
   const locale = req.lang;
+  const participation = ritualParticipation(req.reader);
+  const userRoleValid = participation.actor === "querent"
+    ? participation.action !== undefined && hasRequiredUserAction(value, req, participation.action)
+    : !hasUserAction(value, req);
   const valid = includes(value, readerName(req), locale)
+    && !includes(value, req.name, locale)
+    && userRoleValid
     && !hasMappedTerms(presented)
     && !includes(value, context.hiddenItem, locale)
     && !includes(value, context.canonicalName, locale)

@@ -1,26 +1,51 @@
 # Reader media mappings
 
-This directory is owned by the Online Arcana core. It contains authored text and data only; no runtime selection, rendering or interpretation code is wired to these files yet.
+This directory is owned by the Online Arcana core. It contains the bilingual, source-cited archives used at runtime for the seven mapped readers. Selena remains the unchanged vanilla naipes reader.
 
-## Invariants
+## Runtime structure
 
-- Selena is intentionally absent from the mapping packs. Her existing naipes, ritual and presentation remain the vanilla implementation.
-- Every other reader has exactly 78 explicit entries matching the canonical naipes IDs.
-- Every entry maps one canonical card to one item or one authored physical sign in that reader's single medium.
-- Upright and reversed remain the canonical tarot orientation. Each medium only translates how that orientation appears physically.
-- Cultural elements must be documented and sourced. Their historical or religious context is stored separately from the fictional tarot correspondence.
-- Every user-visible mapping field is authored in English and Spanish.
-- The ritual contracts are narrative only. They add no click, choice, pause or other user-interface flow.
-- The selected item and orientation are already fixed by the canonical draw. Ritual prose may create the illusion of concealed chance, but may not reroll or substitute anything.
-- These files are marked `draft-text-only`. Cultural specialist review is required before they can be marked `reviewed-text-only` or integrated at runtime.
+Each reader map contains:
+
+- four minor families with fourteen fixed ranks each;
+- twenty-two fixed major equivalents;
+- the public names for both physical states;
+- the medium and ritual contract;
+- item descriptions and cultural/source registries;
+- English and Spanish presentation text.
+
+The runtime expands the compact `22 + 4 × 14` archive deterministically against the canonical naipes IDs. It never rerolls, invents or substitutes a mapped result.
+
+## Presentation boundary
+
+Mapped results expose:
+
+- `arcana`: internal structural class, minor or major;
+- `family`: the public minor family, or `null` for a major;
+- `stateLabel`: the reader's physical state rather than upright/reversed;
+- the fixed item name and concise canonical meaning.
+
+The client must not infer a family from the first cultural element or hardcode reader-specific states.
+
+## Special physical systems
+
+- **Ngaru:** every logical shell has two physical copies, one painted on its outer surface and one on its inner surface. There are 78 logical results and 156 physical shells.
+- **Ame:** all four petal kinds are cast once for the entire spread. Marked basin areas are the spread positions. A single flower family and count forms a minor result; a fixed mixed-petal pattern forms a major result. Later positions inspect the same cast without casting again.
+
+## Historical and fictional boundary
+
+The physical elements and named beings are tied to the cited historical, museum, botanical, folklore or religious sources. The following remain Online Arcana fiction:
+
+- the one-to-one correspondence with the canonical naipes;
+- the rank ordering inside each family;
+- the complete divination method;
+- each reader's interpretation of the resulting physical sign.
+
+Every archive remains marked `source-backed-draft` and `culturalSpecialistReviewRequired` until the relevant cultural review is complete. Broad comparative sources must not be represented as proof of a specifically Helvetii, Yorùbá, Māori, Japanese, Inka, Zoroastrian or Mexica practice when they do not establish that narrower claim.
 
 ## Contents
 
-- `index.json` lists the seven mapped readers and explicitly records Selena's vanilla status.
-- `medium-map.schema.json` defines the mapping-pack structure.
-- `reader-rituals.json` defines the global and reader-specific ritual-writing contracts.
-- `maps/*.json` contains the cultural registry, source registry and 78 bilingual mappings for one reader.
-
-## Meaning boundary
-
-Each cultural element records its documented context. Each card mapping separately records an invented `fictionalCorrespondence`. The latter belongs to Online Arcana's fictional divination system and must never be represented as an authentic historical reading practice.
+- `index.json` summarises the final families, states and special physical rules.
+- `medium-map.schema.json` defines the compact version-2 archive shape.
+- `reader-rituals.json` defines the global writing boundary and points to each map as the ritual source of truth.
+- `canonical-card-index.json` mirrors the canonical identifiers for validation only; canonical meanings continue to come from the actual draw.
+- `maps/*.json` contains one complete reader archive.

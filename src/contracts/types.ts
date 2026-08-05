@@ -4,6 +4,7 @@ export type { ReaderId } from "../readers/ids.js";
 export type LangCode = string;
 export type SpreadId = "one" | "three" | "decision" | "advice" | "celtic";
 export type Side = "upright" | "reversed";
+export type ArcanaKind = "minor" | "major";
 export type ReqKind = "reading" | "chat";
 export type Task = "invite" | "fit" | "ritual" | "read" | "chat" | "suggest" | "continue" | "title" | "handover" | "return";
 export type Topic =
@@ -100,6 +101,9 @@ export interface MediumPresentation {
   reader: ReaderId;
   cardId: string;
   side: Side;
+  arcana: ArcanaKind;
+  family: string | null;
+  stateLabel: string;
   culture: string;
   medium: string;
   itemId: string;
