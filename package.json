@@ -1,6 +1,6 @@
 {
   "name": "tarot-engine-core",
-  "version": "3.5.1",
+  "version": "3.5.2",
   "private": true,
   "type": "module",
   "bin": {
@@ -21,10 +21,10 @@
   "scripts": {
     "check": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.build.json",
-    "test": "npm run build && node --test test/*.test.mjs",
-    "test:media": "npm run build --silent && node --test test/media-fallback.test.mjs",
-    "cli": "npm run build --silent && node dist/cli/main.js",
-    "ci": "npm run check && npm run test"
+    "test": "tsc -p tsconfig.build.json && node --test test/*.test.mjs",
+    "test:media": "tsc -p tsconfig.build.json && node --test test/media-fallback.test.mjs test/media-ritual-participation.test.mjs",
+    "cli": "tsc -p tsconfig.build.json && node dist/cli/main.js",
+    "ci": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.build.json && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=22"
