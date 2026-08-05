@@ -88,3 +88,7 @@ src/transport/   request parsing and validation
 ## Licence
 
 The engine is proprietary source-available software. See [LICENSE](LICENSE).
+
+Section 2 of the licence records the project's cultural inspirations, expressly
+disclaims ownership of historical, folkloric and living cultural heritage, and
+acknowledges the peoples whose traditions helped inspire the fictional readers.

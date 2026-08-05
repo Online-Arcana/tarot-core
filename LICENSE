@@ -1,80 +1,149 @@
-ONLINE ARCANA MIXED LICENCE
+ONLINE ARCANA TAROT CORE SOURCE-AVAILABLE LICENCE
 
 Copyright (c) 2026 Kitty Crow
 
-This repository contains materials distributed under different terms. No licence
-is granted except as expressly stated below.
+This repository contains proprietary source-available software, original
+creative material, documentation and separately licensed third-party material.
+No licence is granted except as expressly stated below.
 
-1. LICENCE MAP
+1. REPOSITORY MAP
 
-1.1 MIT front-end code
+1.1 Tarot Core source and repository material
 
-The MIT Licence in Appendix A applies to:
+The Online Arcana Engine Terms in section 3 apply to:
 
-- source code under `src/client/`;
-- generic browser-interface markup, styling and client-side support code under
-  `public/`; and
-- any other file that expressly states that it is licensed under the MIT
-  Licence or carries `SPDX-License-Identifier: MIT`.
+- source code and data under `src/`, except the separately licensed material
+  identified in section 1.2;
+- tests under `test/`;
+- documentation under `docs/`;
+- root-level package, build, TypeScript, configuration and maintenance files;
+- generated builds and distributions derived from those materials; and
+- any other file that expressly states that it is governed by these terms or
+  carries `SPDX-License-Identifier: LicenseRef-Online-Arcana-Engine`.
 
-The MIT Licence applies only to code. It does not apply to the engine,
-characters, personas, artwork, images, narrative material, prompts, reader
-identities, branding or other protected material described below, even when
-such material is stored in, referenced by, or embedded alongside MIT-licensed
-front-end code.
+The terms apply to the repository as it is presently structured. Historical
+paths in earlier versions do not alter the licence that applies to their
+current equivalents.
 
-1.2 Proprietary source-available engine
+1.2 Separately licensed material
 
-The Online Arcana engine is proprietary source-available software. It includes:
+The repository at `src/vendor/openai-schema` is a Git submodule and is governed
+solely by the licence distributed with that project. This licence neither
+relicenses that project nor claims ownership of it.
 
-- source code under `src/core/`;
-- server-side and API code under `functions/`;
-- prompt construction, response orchestration and model-integration logic;
-- reading, spread, suitability, referral, handover, synthesis, archive and
-  conversation logic; and
-- any other file that expressly states that it is governed by the Online
-  Arcana Engine Terms in section 2 or carries
-  `SPDX-License-Identifier: LicenseRef-Online-Arcana-Engine`.
+Any other third-party component remains governed by its own copyright and
+licence notices. Where those notices conflict with this document, the
+third-party notices control for that component.
 
-Where engine logic exists elsewhere under `src/`, section 2 applies to that
-logic. The express MIT grant for `src/client/` takes precedence for ordinary,
-generic front-end code in that directory, subject to the protected-content
-exceptions in section 1.3.
+1.3 Protected original expression
 
-1.3 Protected creative material and identity
+All rights are reserved in Online Arcana's protectable original expression,
+including, without limitation:
 
-All original creative material and intellectual identity associated with
-Online Arcana are copyright protected and all rights are reserved. This
-includes, without limitation:
-
-- characters, readers, names, personas, personalities, biographies, dialogue,
-  voices, relationships and lore;
-- reader instructions, persona prompts and characteristic response material;
-- illustrations, photographs, card artwork, symbols, emblems, logos, icons,
-  visual compositions and animations;
-- distinctive themes, palettes, presentation, written copy and narrative
-  expression; and
+- the specific fictional reader characters as expressed in this project,
+  including their original personalities, biographies, dialogue, voices,
+  relationships and lore;
+- original reader instructions, persona prompts, characteristic response
+  material and narrative writing;
+- original illustrations, photographs, card artwork, emblems, logos, icons,
+  visual compositions, animations and sound recordings;
+- original software implementation, documentation and arrangement of
+  protectable material; and
 - the Online Arcana name, identity and branding.
 
-These protections apply regardless of the file or directory containing the
-material. Nothing in this licence claims exclusive rights in traditional tarot
-concepts, public-domain material, standard card names, general ideas or
-uncopyrightable facts. The protection applies to Online Arcana's original
-expression and identity.
-
-If a file contains both licensed code and protected creative material, the
-applicable code licence does not grant permission to copy, adapt, extract or
+Names, short phrases, historical facts, cultural references and other material
+that is not protectable remain outside this reservation. If a file combines
+licensed or inspectable code with protected original creative material,
+permission concerning the code does not grant permission to extract, adapt or
 reuse the protected creative material.
 
-2. ONLINE ARCANA ENGINE TERMS
+2. CULTURAL HERITAGE, HISTORY AND ACKNOWLEDGEMENTS
 
-2.1 Source inspection grant
+2.1 No ownership claim over cultures
+
+Kitty Crow and Online Arcana claim no ownership, authorship or exclusive right
+over any people, culture, language, religion, history, folklore, mythology,
+oral tradition, community knowledge, artistic form, musical tradition,
+traditional name, garment, instrument, symbol, ritual, belief, archaeological
+heritage or public-domain work from which the project draws inspiration.
+
+Copyright claims are limited to protectable original code and original
+expression created for Online Arcana. Nothing in this licence limits any
+community's right to practise, preserve, teach, develop, reclaim or represent
+its own heritage, nor anyone's lawful use of historical facts, public-domain
+material or independently created cultural expression.
+
+2.2 Attested inspirations and gratitude
+
+The author attests that the following histories, peoples and living traditions
+consciously informed the fictional reader designs and respectfully thanks them
+for their contribution to the beautiful and diverse world in which this work
+was created:
+
+- Celtic histories of continental Europe, especially the ancient Helvetii, in
+  the inspiration for Brennos;
+- Yoruba histories and living cultures in the inspiration for Yejide;
+- Māori history, language and living culture in the inspiration for Ngaru;
+- Yayoi-period Japanese history and archaeology, together with wider Japanese
+  artistic traditions, in the inspiration for Ame;
+- Inca history and living Quechua, Aymara and wider Andean cultures in the
+  inspiration for Amaru;
+- pre-Islamic Persian histories and the wider continuum of Persian cultural
+  traditions in the inspiration for Nahid;
+- Mexica history and living Nahua cultures in the inspiration for Mictli; and
+- Andalusian flamenco and cante jondo traditions, including the profound
+  contributions of Gitano and Romani communities, in the inspiration for
+  Selena.
+
+This acknowledgement is gratitude, not a claim that the characters reproduce,
+represent or speak for those cultures.
+
+2.3 Conquest, oppression, survival and continuity
+
+Online Arcana does not describe living peoples as vanished, extinct or
+eradicated.
+
+The Inca and Mexica states were destroyed through Spanish conquest, while
+their peoples and descendants endured colonial violence, dispossession, forced
+labour, forced conversion and cultural suppression. Quechua, Aymara, Nahua and
+other Indigenous communities survived and continue to preserve, renew and
+develop their cultures.
+
+Māori endured colonisation, warfare, land confiscation and alienation, and the
+suppression of te reo Māori and tikanga. Māori remain the living Indigenous
+people of Aotearoa New Zealand, and their struggles for land, language,
+sovereignty, justice and cultural flourishing continue.
+
+Yoruba peoples and cultures endured enslavement through the Atlantic slave
+trade and later colonial rule, while sustaining living traditions across
+Africa and the diaspora. Gitano and Romani communities have likewise endured
+centuries of persecution and marginalisation while making indispensable
+contributions to flamenco and many other cultural forms.
+
+These acknowledgements are not exhaustive. They are included to recognise that
+cultural beauty cannot be separated from the people who carried it through
+violence, exclusion and attempts at suppression.
+
+2.4 Fiction, responsibility and no endorsement
+
+The readers are fictional creations and are not historical reconstructions,
+religious authorities, cultural representatives or substitutes for learning
+from members and knowledge keepers of the cultures acknowledged above. No
+affiliation, approval or endorsement by any people, nation, iwi, community,
+institution or cultural authority is claimed or implied.
+
+Any error, simplification, stereotype or insensitive choice in the project is
+the responsibility of the author, not of the cultures that inspired it.
+
+3. ONLINE ARCANA ENGINE TERMS
+
+3.1 Source inspection grant
 
 Subject to these terms, you may:
 
-- access, read and study the engine source code;
-- make and retain exact, unmodified copies of the engine solely for inspection,
-  archival, backup and preservation purposes;
+- access, read and study the source code and documentation;
+- make and retain exact, unmodified copies solely for inspection, archival,
+  backup and preservation purposes;
 - run the original engine as distributed for personal evaluation, testing and
   security review; and
 - describe its externally observable behaviour and general ideas in your own
@@ -83,95 +152,77 @@ Subject to these terms, you may:
 Every permitted copy must retain this licence and all copyright, attribution
 and proprietary notices.
 
-2.2 Restrictions
+3.2 Restrictions
 
 Except with prior written permission from the copyright holder, you may not:
 
-- copy or reuse engine source code, in whole or in substantial part, in another
+- copy or reuse the source code, in whole or in substantial part, in another
   work;
 - modify, adapt, arrange, translate, transpile or create a derivative work from
-  the engine source code;
-- publish, distribute or maintain a modified version or fork of the engine;
-- incorporate engine source code or protected implementation structure into
+  the source code;
+- publish, distribute or maintain a modified version or fork;
+- incorporate the source code or protected implementation structure into
   another programme, library, service or product;
 - remove or alter copyright, attribution, licence or proprietary notices;
-- sublicense, sell, rent or commercially exploit the engine source code; or
-- use the engine source code as training data or input for a system intended to
+- sublicense, sell, rent or commercially exploit the source code; or
+- use the source code as training data or input for a system intended to
   reproduce, transform or generate the same or substantially similar protected
   implementation.
 
-An exact, unmodified archival or preservation copy permitted by section 2.1 is
-not a fork. A repository or distribution containing changes to the engine is a
-fork or derivative work and is not permitted.
+An exact, unmodified archival or preservation copy permitted by section 3.1 is
+not a modified fork. A repository or distribution containing changes is a fork
+or derivative work and is not permitted without written permission.
 
-2.3 Independent implementation is permitted
+3.3 Independent implementation is permitted
 
 You may independently implement the ideas, algorithms, interfaces, file
 formats and externally observable behaviour of the engine, provided that the
 new implementation is genuinely independently written and does not copy,
-adapt, translate or derive from protected expression in the engine source
-code.
+adapt, translate or derive from protected expression in this repository.
 
 Equivalent functionality or behaviour alone does not breach these terms.
-Permission under this section does not include permission to use the protected
-characters, personas, artwork, identity or other material described in section
-1.3.
+Nothing in this section restricts lawful use of the cultural, historical,
+folkloric or public-domain material expressly excluded from ownership claims
+in section 2.1.
 
-2.4 No implied rights
+3.4 No implied rights
 
-Possession of, access to, or visibility of the engine source code grants no
-rights beyond those expressly stated here. All other rights are reserved.
+Possession of, access to, or visibility of the source code grants no rights
+beyond those expressly stated here. All other rights are reserved.
 
-3. CREATIVE MATERIAL TERMS
+4. ORIGINAL CREATIVE MATERIAL TERMS
 
-The material described in section 1.3 may be included only when making or
-running an exact, unmodified copy of Online Arcana as permitted by this
-licence. It may not be extracted, republished, adapted, imitated, incorporated
-into another work, used to create derivative characters or personas, or used
-separately from the unmodified software without prior written permission.
+Protectable original creative material described in section 1.3 may be
+included only when making or running an exact, unmodified copy as permitted by
+this licence. It may not be extracted, republished, adapted, imitated,
+incorporated into another work or used to create derivative versions of Online
+Arcana's specific fictional characters, personas or original assets without
+prior written permission.
+
+This restriction does not apply to the cultures, histories, folklore,
+languages, traditions, public-domain material or community heritage excluded
+from ownership claims in section 2.
 
 No right is granted to use the Online Arcana name, logos, reader identities or
 other branding in a way that suggests affiliation, endorsement or authorship.
 
-4. TERMINATION
+5. TERMINATION
 
-Any permission granted under sections 2 or 3 terminates automatically upon a
+Any permission granted under sections 3 or 4 terminates automatically upon a
 breach of these terms. On termination, all unauthorised copies and derivative
 materials must be destroyed, without limiting any other rights or remedies of
 the copyright holder.
 
-5. DISCLAIMER
+6. DISCLAIMER
 
-TO THE MAXIMUM EXTENT PERMITTED BY LAW, MATERIAL PROVIDED UNDER SECTIONS 2 AND
-3 IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, MATERIAL PROVIDED UNDER SECTIONS 3 AND
+4 IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
 TITLE AND NON-INFRINGEMENT. THE COPYRIGHT HOLDER SHALL NOT BE LIABLE FOR ANY
 CLAIM, LOSS OR OTHER LIABILITY ARISING FROM ITS USE OR INABILITY TO BE USED.
 
-6. COMMERCIAL OR ALTERNATIVE LICENSING
+7. COMMERCIAL OR ALTERNATIVE LICENSING
 
-Commercial use, engine modification, redistribution, derivative works, asset
+Commercial use, source modification, redistribution, derivative works, asset
 licensing or other rights not granted here require a separate written licence
 from the copyright holder.
-
-APPENDIX A: MIT LICENCE
-
-Copyright (c) 2026 Kitty Crow
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of the software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
