@@ -10,19 +10,19 @@ npm test
 
 - `check` runs strict TypeScript validation with `noEmit`.
 - `build` emits ESM JavaScript and declaration files into `dist/`.
-- `test` builds first and then runs every `test/*.test.mjs` file with Node's test runner.
+- `test` builds first and then runs every `test/*.test.mts` file with Node's test runner and native type stripping.
 
 ## Test coverage
 
 | File | Coverage |
 | --- | --- |
-| `boundary.test.mjs` | source and dependency boundaries |
-| `cards.test.mjs` | explicit card lists, generated recipes and 78-card validation |
-| `cli.test.mjs` | input parsing, pack loading, successful output, errors and sessions |
-| `deck.test.mjs` | deck size, unique IDs, spread draws and card orientation |
-| `model.test.mjs` | schema shape, prompts, validation, correction and conversation IDs |
-| `request.test.mjs` | task-specific transport parsing and rejection cases |
-| `stages.test.mjs` | rituals, reveal ordering, stage generation and future-card leakage |
+| `boundary.test.mts` | source and dependency boundaries |
+| `cards.test.mts` | explicit card lists, generated recipes and 78-card validation |
+| `cli.test.mts` | input parsing, pack loading, successful output, errors and sessions |
+| `deck.test.mts` | deck size, unique IDs, spread draws and card orientation |
+| `model.test.mts` | schema shape, prompts, validation, correction and conversation IDs |
+| `request.test.mts` | task-specific transport parsing and rejection cases |
+| `stages.test.mts` | rituals, reveal ordering, stage generation and future-card leakage |
 
 ## Change rules
 
