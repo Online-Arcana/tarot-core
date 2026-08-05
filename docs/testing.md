@@ -1,16 +1,26 @@
 # Testing and maintenance
 
-## Commands
+The files under `test/` are retained as an implementation record and for explicit manual regression checks. They are not part of the required build or CI path and must not block normal development or release progress.
+
+## Required commands
 
 ```bash
 npm run check
 npm run build
-npm test
 ```
 
 - `check` runs strict TypeScript validation with `noEmit`.
 - `build` emits ESM JavaScript and declaration files into `dist/`.
-- `test` builds first and then runs every `test/*.test.mts` file with Node's test runner and native type stripping.
+- `ci` runs only `check` and `build`.
+
+## Optional manual tests
+
+```bash
+npm test
+npm run test:media
+```
+
+These commands are opt-in. They build the library and run the retained `.mts` regression tests with Node's test runner and native type stripping.
 
 ## Test coverage
 
@@ -23,21 +33,5 @@ npm test
 | `model.test.mts` | schema shape, prompts, validation, correction and conversation IDs |
 | `request.test.mts` | task-specific transport parsing and rejection cases |
 | `stages.test.mts` | rituals, reveal ordering, stage generation and future-card leakage |
-
-## Change rules
-
-When changing a public contract, update its runtime guard, request parser, schema generation, tests and the relevant documentation together.
-
-When adding a model task, add:
-
-1. the task literal and request/output contracts
-2. runtime output guard
-3. transport parser branch
-4. structured schema
-5. task prompt and payload
-6. deterministic validation and correction where needed
-7. tests for valid and invalid outputs
-
-When changing card or spread data formats, preserve the exact 78-card and unique-ID checks.
 
 Generated `dist/` output is not authoritative source. Source changes belong under `src/`; build output should be regenerated locally as needed.

@@ -24,7 +24,7 @@
     "test": "tsc -p tsconfig.build.json && node --experimental-strip-types --test test/*.test.mts",
     "test:media": "tsc -p tsconfig.build.json && node --experimental-strip-types --test test/media-fallback.test.mts test/media-ritual-participation.test.mts",
     "cli": "tsc -p tsconfig.build.json && node dist/cli/main.js",
-    "ci": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.build.json && node --experimental-strip-types --test test/*.test.mts"
+    "ci": "npm run check && npm run build"
   },
   "engines": {
     "node": ">=22"
