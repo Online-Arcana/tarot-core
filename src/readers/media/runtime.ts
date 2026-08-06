@@ -5,6 +5,7 @@ import mictliRaw from "./maps/mictli.json" with { type: "json" };
 import nahidRaw from "./maps/nahid.json" with { type: "json" };
 import ngaruRaw from "./maps/ngaru.json" with { type: "json" };
 import yejideRaw from "./maps/yejide.json" with { type: "json" };
+import { narrativeRitualFor, type NarrativeList, type NarrativeRitual, type NarrativeText } from "./narrative-rituals.js";
 import { presentMappedReading, presentMappedRitual } from "./output.js";
 import { publicMediaMeta } from "./public-meta.js";
 import type {
@@ -25,19 +26,10 @@ import type {
 type Lang = "en" | "es";
 type Suit = "wands" | "cups" | "swords" | "pentacles";
 type MappedReader = Exclude<ReaderId, "selena">;
-type LocalText = Readonly<Record<Lang, string>>;
-type LocalList = Readonly<Record<Lang, readonly string[]>>;
+type LocalText = NarrativeText;
+type LocalList = NarrativeList;
 type FamilyDef = Readonly<Record<Suit, LocalText>>;
 export type RitualMode = "per-result" | "single-cast";
-
-interface RitualDef {
-  readonly concealment: LocalText;
-  readonly chance: LocalText;
-  readonly continuation?: LocalText;
-  readonly upright: LocalText;
-  readonly reversed: LocalText;
-  readonly beats: LocalList;
-}
 
 interface ElementDef {
   readonly id: string;
@@ -56,11 +48,9 @@ interface PresentationDef {
 }
 
 interface PackDef {
-  readonly sourceVersion: number;
   readonly reader: MappedReader;
   readonly culture: LocalText;
   readonly medium: LocalText;
-  readonly ritual: RitualDef;
   readonly presentation: PresentationDef;
   readonly elements: ReadonlyMap<string, ElementDef>;
   readonly major: readonly EntryDef[];
@@ -112,54 +102,7 @@ const RAW: Readonly<Record<MappedReader, unknown>> = {
 };
 
 const ARCHIVE = /(?:online arcana|tarot|fiction|fictici|documented|documentad|attested|atestiguad|historical|históric|archaeolog|arqueolog|source|fuente|museum|museo)/iu;
-const RITUAL_CONTROL = /(?:\bpredetermined\b|\brecords? the state\b|\bstate is recorded\b|\binspection after\b|\bcanonical\b|\bvalidation\b|\bimplementation\b|\bapplication state\b|\bspread positions?\b|\bmarked areas? correspond\b|\bnothing is shown early\b|\bhidden sign\b|\bpreserves? (?:its )?exact (?:state|direction)\b|\bpredeterminad[oa]s?\b|\bregistra(?:r| el estado)?\b|\bestado (?:queda )?registrado\b|\binspección después\b|\bcanónic[oa]\b|\bvalidación\b|\bimplementación\b|\bposiciones? de la tirada\b|\bnada se muestra antes\b|\bsigno oculto\b)/iu;
-
-const RITUAL_OVERRIDES: Partial<Record<MappedReader, Partial<RitualDef>>> = {
-  yejide: {
-    reversed: {
-      en: "The chosen seed settles with its carving hidden against the surface. After the cast, Yejide turns it and the carving comes into view.",
-      es: "La semilla elegida queda con la talla oculta contra la superficie. Después del lanzamiento, Yejide la gira y la talla queda a la vista.",
-    },
-    beats: {
-      en: ["opaque woven bag", "concealed handful", "seeds striking the desk", "one seed separating", "brief stillness before the seed is turned"],
-      es: ["bolsa tejida opaca", "puñado oculto", "semillas golpeando la mesa", "una semilla que se separa", "breve quietud antes de girar la semilla"],
-    },
-  },
-  ngaru: {
-    chance: {
-      en: "Ngaru reaches into the bag without looking and withdraws one shell by touch alone.",
-      es: "Ngaru introduce la mano en la bolsa sin mirar y extrae una concha guiándose únicamente por el tacto.",
-    },
-    beats: {
-      en: ["sea-worn opaque bag", "blind reach", "shell texture", "one shell withdrawn", "shell held without being turned"],
-      es: ["bolsa opaca desgastada por el mar", "búsqueda a ciegas", "textura de las conchas", "extracción de una concha", "concha sostenida sin girarla"],
-    },
-  },
-  ame: {
-    chance: {
-      en: "Ame casts the full handful once across the shallow basin, where the mixed petals settle into separate areas.",
-      es: "Ame lanza una sola vez el puñado completo sobre la cuenca poco profunda, donde los pétalos mezclados se posan en zonas separadas.",
-    },
-    continuation: {
-      en: "Ame studies the next area of the same basin while the petals from the first cast continue to rest or drift.",
-      es: "Ame observa la siguiente zona de la misma cuenca mientras los pétalos del primer lanzamiento continúan reposando o derivando.",
-    },
-    beats: {
-      en: ["shallow basin", "one cast of mixed petals", "petals settling across the basin", "quiet movement in the current area", "attention shifting from one area to the next"],
-      es: ["cuenca poco profunda", "un lanzamiento de pétalos mezclados", "pétalos posándose por la cuenca", "movimiento leve en la zona actual", "atención que pasa de una zona a la siguiente"],
-    },
-  },
-  nahid: {
-    chance: {
-      en: "Nahid lights the incense and waits without forcing the smoke until a recognisable shape gathers.",
-      es: "Nahid enciende el incienso y espera sin forzar el humo hasta que se reúne una forma reconocible.",
-    },
-    beats: {
-      en: ["lighting incense", "uncontrolled first curls", "features gathering", "one shape becoming recognisable", "formation or dispersal"],
-      es: ["encendido del incienso", "primeras volutas incontroladas", "reunión de rasgos", "una forma que se vuelve reconocible", "formación o dispersión"],
-    },
-  },
-};
+const RITUAL_CONTROL = /(?:\bpredetermined\b|\brecords? the state\b|\bstate is recorded\b|\binspection after\b|\bcanonical\b|\bvalidation\b|\bimplementation\b|\bapplication state\b|\bspread positions?\b|\bmarked areas? correspond\b|\bnothing is shown early\b|\bhidden sign\b|\bpreserves? (?:its )?exact (?:state|direction)\b|\bresult count\b|\bdraw order\b|\bpredeterminad[oa]s?\b|\bregistra(?:r| el estado)?\b|\bestado (?:queda )?registrado\b|\binspección después\b|\bcanónic[oa]\b|\bvalidación\b|\bimplementación\b|\bposiciones? de la tirada\b|\bnada se muestra antes\b|\bsigno oculto\b|\bnúmero de resultados?\b|\borden de extracción\b)/iu;
 
 function obj(value: unknown, path: string): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -171,11 +114,6 @@ function obj(value: unknown, path: string): Record<string, unknown> {
 function text(value: unknown, path: string): string {
   if (typeof value !== "string" || !value.trim()) throw new Error(`${path} must be non-empty text`);
   return value.trim();
-}
-
-function positive(value: unknown, path: string): number {
-  if (!Number.isInteger(value) || Number(value) < 1) throw new Error(`${path} must be a positive integer`);
-  return Number(value);
 }
 
 function list(value: unknown, path: string): readonly unknown[] {
@@ -192,14 +130,6 @@ function local(value: unknown, path: string): LocalText {
   return { en: text(source.en, `${path}.en`), es: text(source.es, `${path}.es`) };
 }
 
-function localList(value: unknown, path: string): LocalList {
-  const source = obj(value, path);
-  return {
-    en: textList(source.en, `${path}.en`),
-    es: textList(source.es, `${path}.es`),
-  };
-}
-
 function isMapped(value: unknown): value is MappedReader {
   return typeof value === "string" && (MAPPED as readonly string[]).includes(value);
 }
@@ -212,22 +142,7 @@ export function isMappedReader(value: ReaderId): value is MappedReader {
   return isMapped(value);
 }
 
-function parseRitual(value: unknown, path: string): RitualDef {
-  const source = obj(value, path);
-  const continuation = source.continuation === undefined
-    ? {}
-    : { continuation: local(source.continuation, `${path}.continuation`) };
-  return {
-    concealment: local(source.concealment, `${path}.concealment`),
-    chance: local(source.chance, `${path}.chance`),
-    ...continuation,
-    upright: local(source.upright, `${path}.upright`),
-    reversed: local(source.reversed, `${path}.reversed`),
-    beats: localList(source.beats, `${path}.beats`),
-  };
-}
-
-function assertNarrativeRitual(reader: MappedReader, ritual: RitualDef): RitualDef {
+function assertNarrativeRitual(reader: MappedReader, ritual: NarrativeRitual): NarrativeRitual {
   const values = [
     ritual.concealment.en,
     ritual.concealment.es,
@@ -244,19 +159,6 @@ function assertNarrativeRitual(reader: MappedReader, ritual: RitualDef): RitualD
   const invalid = values.find(value => RITUAL_CONTROL.test(value));
   if (invalid) throw new Error(`Reader media ${reader} exposes operational ritual language: ${invalid}`);
   return ritual;
-}
-
-function publicRitual(reader: MappedReader, ritual: RitualDef): RitualDef {
-  const override = RITUAL_OVERRIDES[reader];
-  const continuation = override?.continuation ?? ritual.continuation;
-  return assertNarrativeRitual(reader, {
-    concealment: override?.concealment ?? ritual.concealment,
-    chance: override?.chance ?? ritual.chance,
-    ...(continuation ? { continuation } : {}),
-    upright: override?.upright ?? ritual.upright,
-    reversed: override?.reversed ?? ritual.reversed,
-    beats: override?.beats ?? ritual.beats,
-  });
 }
 
 function parseSources(value: unknown, path: string): ReadonlySet<string> {
@@ -333,6 +235,7 @@ function parsePack(expected: MappedReader, value: unknown): PackDef {
   const reader = source.reader;
   if (reader !== expected || !isMapped(reader)) throw new Error(`${path}.reader must equal ${expected}`);
   if (source.version !== 2) throw new Error(`${path}.version must equal 2`);
+  assertNarrativeRitual(reader, narrativeRitualFor(reader));
 
   const sources = parseSources(source.sourceRegistry, `${path}.sourceRegistry`);
   const elements = new Map<string, ElementDef>();
@@ -349,11 +252,9 @@ function parsePack(expected: MappedReader, value: unknown): PackDef {
   ])) as Readonly<Record<Suit, readonly EntryDef[]>>;
 
   return {
-    sourceVersion: positive(source.version, `${path}.version`),
     reader,
     culture: local(source.culture, `${path}.culture`),
     medium: local(source.medium, `${path}.medium`),
-    ritual: publicRitual(reader, parseRitual(source.ritual, `${path}.ritual`)),
     presentation: parsePresentation(source.presentation, `${path}.presentation`),
     elements,
     major: parseEntries(source.major, `${path}.major`, MAJORS.length, elements),
@@ -459,24 +360,25 @@ function chanceFor(context: MediumRitualContext, req: Extract<ApiReq, { task: "r
 
 export function mediumRitualFor(reader: ReaderId, code: LangCode): MediumRitualContext | null {
   if (!isMapped(reader)) return null;
-  const pack = PACKS[reader];
-  const continuation = pack.ritual.continuation
-    ? { continuation: scene(tr(pack.ritual.continuation, code)) }
+  const ritual = narrativeRitualFor(reader);
+  const continuation = ritual.continuation
+    ? { continuation: scene(tr(ritual.continuation, code)) }
     : {};
   return {
     reader,
     mode: ritualMode(reader),
-    medium: scene(tr(pack.medium, code)).replace(/[.]$/u, ""),
-    concealment: scene(tr(pack.ritual.concealment, code)),
-    chance: scene(tr(pack.ritual.chance, code)),
+    medium: scene(tr(PACKS[reader].medium, code)).replace(/[.]$/u, ""),
+    concealment: scene(tr(ritual.concealment, code)),
+    chance: scene(tr(ritual.chance, code)),
     ...continuation,
-    beats: trs(pack.ritual.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
+    beats: trs(ritual.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
   };
 }
 
 export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): MediumPresentation | null {
   if (!isMapped(reader)) return null;
   const pack = PACKS[reader];
+  const ritualDef = narrativeRitualFor(reader);
   const entry = entryFor(pack, card);
   const kind = arcana(card);
   const familyLabel = family(pack, card, code);
@@ -484,17 +386,17 @@ export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): Med
   const mappedName = scene(tr(entry.itemName, code)).replace(/[.]$/u, "");
   const publicMeta = publicMediaMeta(reader, card, kind, mappedName, familyLabel, state, code);
   const itemName = publicMeta.publicName;
-  const observation = scene(tr(pack.ritual[card.side], code));
+  const observation = scene(tr(ritualDef[card.side], code));
   const culturalElements: MediumElement[] = entry.elementIds.map(id => {
     const element = pack.elements.get(id);
     if (!element) throw new Error(`Reader media ${reader} lost cultural element ${id}`);
     return { id, name: scene(tr(element.name, code)).replace(/[.]$/u, "") };
   });
   const ritual: MediumRitual = {
-    concealment: scene(tr(pack.ritual.concealment, code)),
-    chance: scene(tr(pack.ritual.chance, code)),
+    concealment: scene(tr(ritualDef.concealment, code)),
+    chance: scene(tr(ritualDef.chance, code)),
     orientation: observation,
-    beats: trs(pack.ritual.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
+    beats: trs(ritualDef.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
   };
 
   return {
@@ -547,8 +449,6 @@ function ritualData(context: MediumRitualContext, req: Extract<ApiReq, { task: "
     reading: {
       spreadName: req.draw?.name ?? req.spread,
       spreadPurpose: req.draw?.purpose ?? null,
-      resultCount: req.draw?.cards.length ?? null,
-      ordinal: req.card + 1,
       positionName: current?.posName ?? null,
       positionPurpose: current?.posMeaning ?? null,
       placement: current?.place ?? null,
@@ -584,14 +484,14 @@ export function mediaPrompt(req: ApiReq): string {
         ? "Los datos narrativos del medio están en input_data.mediumTranslation.scene; úsalos como material sensorial, no como texto que debas citar."
         : "Narrative medium data is in input_data.mediumTranslation.scene; use it as sensory material, not text to quote.",
       spanish
-        ? "No conviertas los nombres de propiedades, el modo, la fase, el orden, el conteo ni la continuidad en prosa de la escena."
-        : "Do not turn property names, mode, phase, order, counts or continuity controls into scene prose.",
+        ? "Los datos de reading dan el propósito humano de este momento. Deja que orienten la acción sin explicarlos como reglas."
+        : "The reading data gives the human purpose of this moment. Let it shape the action without explaining it as a rule.",
+      spanish
+        ? "No conviertas los nombres de propiedades, el modo, la fase, el orden ni la continuidad en prosa de la escena."
+        : "Do not turn property names, mode, phase, order or continuity controls into scene prose.",
       spanish
         ? "No nombres, describas, interpretes ni insinúes el resultado oculto, sus rasgos o su estado antes de la revelación."
         : "Do not name, describe, interpret or imply the hidden result, its features or its state before the reveal.",
-      spanish
-        ? "Usa el propósito de la posición para dar intención al movimiento, pero no lo expliques como una regla."
-        : "Use the position purpose to give the movement intention, but do not explain it as a rule.",
       phase === "continuation"
         ? (spanish
           ? "Continúa naturalmente desde priorTheatre sin repetir sus frases, su estructura ni la preparación inicial."
