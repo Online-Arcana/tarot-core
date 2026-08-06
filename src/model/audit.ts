@@ -216,6 +216,24 @@ function currentCard(req: Extract<ApiReq, { task: "ritual" }>) {
   return req.draw?.cards[req.card] ?? req.drawn;
 }
 
+function ritualText(out: RitualOut): string {
+  return clean([out.gesture, out.opening, out.ritual].join(" "));
+}
+
+function auditRitualContinuity(
+  req: Extract<ApiReq, { task: "ritual" }>,
+  out: RitualOut,
+  issues: AuditIssue[],
+): void {
+  const value = ritualText(out);
+  for (const [index, previous] of (req.priorRituals ?? []).entries()) {
+    if (canonical(previous) === canonical(value) || overlap(previous, value) >= 0.72) {
+      add(issues, "ritual_reuse", "ritual.theatre", `must continue the scene without substantially repeating prior ritual ${index + 1}`);
+      break;
+    }
+  }
+}
+
 function auditMappedRitual(
   req: Extract<ApiReq, { task: "ritual" }>,
   out: RitualOut,
@@ -225,7 +243,7 @@ function auditMappedRitual(
   const context = mediumRitualFor(req.reader, req.lang);
   const current = currentCard(req);
   const medium = current ? mediaFor(req.reader, current, req.lang) : null;
-  const value = clean([out.gesture, out.opening, out.ritual].join(" "));
+  const value = ritualText(out);
   const lower = value.toLocaleLowerCase(req.lang);
   const name = profileFor(req.reader).public.name;
   if (!lower.includes(name.toLocaleLowerCase(req.lang))) {
@@ -263,24 +281,16 @@ function auditMappedRitual(
       (spanish(req) ? repeatedCastEs : repeatedCastEn).test(value)) {
     add(issues, "repeated_cast", "ritual.theatre", "Ame must continue observing the original cast rather than cast the petals again");
   }
-  for (const [index, previous] of (req.priorRituals ?? []).entries()) {
-    if (canonical(previous) === canonical(value) || overlap(previous, value) >= 0.72) {
-      add(issues, "ritual_reuse", "ritual.theatre", `must continue the scene without substantially repeating prior ritual ${index + 1}`);
-      break;
-    }
-  }
-};
+}
 
 const auditRead = (
   req: Extract<ApiReq, { task: "read" }>,
   out: ReadingOut,
   issues: AuditIssue[],
 ): void => {
-  // Per-result ritual calls own the visible pre-reveal theatre. These fields are
-  // retained for schema compatibility but must not force a reading escalation.
-  auditNarratorVoice(issues, "read.gesture", out.gesture);
-  auditNarratorVoice(issues, "read.opening", out.opening);
-  auditNarratorVoice(issues, "read.link", out.link);
+  if ([out.gesture, out.opening, out.link].some(value => clean(value))) {
+    add(issues, "read_theatre_placeholder", "read.theatre", "gesture, opening and link must be empty because ritual requests own the visible theatre");
+  }
   if (out.cardText.length !== req.draw.cards.length) {
     add(issues, "card_count", "read.cardText", `must contain exactly ${req.draw.cards.length} card interpretations`);
   }
@@ -309,13 +319,13 @@ const auditRead = (
   ]);
 
   if (isMappedReader(req.reader)) {
-    const body = [out.gesture, out.opening, out.link, ...out.cardText, out.synthesis, out.reading, out.closing, out.note].join(" ");
+    const body = [...out.cardText, out.synthesis, out.reading, out.closing, out.note].join(" ");
     if (mappedTerms.test(body)) {
       add(issues, "canonical_medium", "read", "must interpret the mapped medium without tarot terminology");
     }
     req.draw.cards.forEach((card, index) => {
-      const text = out.cardText[index]?.toLocaleLowerCase(req.lang) ?? "";
-      if (text.includes(card.name.toLocaleLowerCase(req.lang)) || text.includes(card.suit.toLocaleLowerCase(req.lang))) {
+      const value = out.cardText[index]?.toLocaleLowerCase(req.lang) ?? "";
+      if (value.includes(card.name.toLocaleLowerCase(req.lang)) || value.includes(card.suit.toLocaleLowerCase(req.lang))) {
         add(issues, "canonical_result", `read.cardText[${index}]`, "must not expose the canonical card or suit behind the mapped result");
       }
     });
@@ -360,6 +370,7 @@ export const auditModelOut = <T extends ApiOut>(req: ApiReq, out: T): ModelAudit
       auditNarratorVoice(issues, "ritual.gesture", value.gesture);
       auditNarratorVoice(issues, "ritual.opening", value.opening);
       auditNarratorVoice(issues, "ritual.ritual", value.ritual);
+      auditRitualContinuity(req, value, issues);
       auditMappedRitual(req, value, issues);
       break;
     }
