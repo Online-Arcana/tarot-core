@@ -265,7 +265,13 @@ export type ApiReq =
       /** Earlier generated ritual paragraphs in reveal order. */
       priorRituals?: string[];
     })
-  | (ReqBase & { task: "read"; question: string; draw: Draw })
+  | (ReqBase & {
+      task: "read";
+      question: string;
+      draw: Draw;
+      /** Completed narrator theatre, one paragraph per result, in reveal order. */
+      ritualTheatre?: string[];
+    })
   | (ReqBase & { task: "chat"; question: string })
   | (ReqBase & { task: "suggest"; turn: ReadTurn })
   | (ReqBase & { task: "continue"; turn: ReadTurn })
