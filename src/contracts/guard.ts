@@ -29,9 +29,19 @@ function topic(value: unknown): value is Topic {
 function isMedium(value: unknown): value is MediumPresentation {
   if (!rec(value) || !Number.isInteger(value.version) || Number(value.version) < 1) return false;
   if (!isReader(value.reader) || !str(value.cardId) || (value.side !== "upright" && value.side !== "reversed")) return false;
-  if (!str(value.culture) || !str(value.medium) || !str(value.itemId) || !str(value.itemName) ||
+  if (value.arcana !== "major" && value.arcana !== "minor") return false;
+  if (value.family !== null && !str(value.family)) return false;
+  if (!str(value.stateLabel) || !str(value.culture) || !str(value.medium) || !str(value.itemId) || !str(value.itemName) ||
       !str(value.itemDescription) || !str(value.observation) || !str(value.interpretation) ||
       !str(value.ritualDirection)) return false;
+  if (Number(value.version) >= 3 && (!str(value.publicName) || !value.publicName.trim() ||
+      !str(value.publicCategory) || !value.publicCategory.trim() ||
+      !str(value.publicNumber) || !value.publicNumber.trim() ||
+      !str(value.publicState) || !value.publicState.trim())) return false;
+  if (value.publicName !== undefined && !str(value.publicName)) return false;
+  if (value.publicCategory !== undefined && !str(value.publicCategory)) return false;
+  if (value.publicNumber !== undefined && !str(value.publicNumber)) return false;
+  if (value.publicState !== undefined && !str(value.publicState)) return false;
   if (!Array.isArray(value.culturalElements) || !value.culturalElements.every(element =>
     rec(element) && str(element.id) && str(element.name))) return false;
   return rec(value.ritual) && str(value.ritual.concealment) && str(value.ritual.chance) &&
