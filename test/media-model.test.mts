@@ -34,7 +34,8 @@ test("mapped reading prompts hide research provenance and the canonical naipe", 
   });
 
   assertNoResearchContext(prompt);
-  assert.match(prompt, /Khipu rolled in a spiral cord/iu);
+  assert.match(prompt, /"itemName":"Viracocha"/u);
+  assert.match(prompt, /compound buff and indigo cord/iu);
   assert.doesNotMatch(prompt, /"name":"The Fool"/u);
   assert.doesNotMatch(prompt, /"suit":"major"/u);
 });
@@ -61,7 +62,7 @@ test("mapped follow-up prompts keep using the visible medium", () => {
       gesture: "Amaru lifts the selected cord and lets the knots settle between his hands.",
       opening: "The room grows quiet around the cord.",
       link: "Its sequence now leads into the answer.",
-      cardText: ["The Khipu rolled in a spiral cord asks you to trust a beginning without becoming careless."],
+      cardText: ["Viracocha asks you to trust a beginning without becoming careless."],
       synthesis: "The cord points toward a beginning that needs both openness and attention.",
       reading: "You can move forward before every detail is known.",
       closing: "Begin with awareness.",
@@ -74,7 +75,8 @@ test("mapped follow-up prompts keep using the visible medium", () => {
   });
 
   assertNoResearchContext(prompt);
-  assert.match(prompt, /Khipu rolled in a spiral cord/iu);
+  assert.match(prompt, /"itemName":"Viracocha"/u);
+  assert.match(prompt, /Viracocha asks you to trust a beginning/iu);
   assert.doesNotMatch(prompt, /"name":"The Fool"/u);
   assert.doesNotMatch(prompt, /"suit":"major"/u);
 });
