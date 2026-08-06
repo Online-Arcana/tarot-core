@@ -131,7 +131,11 @@ function ensureDirect(value: string, req: ApiReq, maxWords: number): string {
 }
 
 function ritual(req: Extract<ApiReq, { task: "ritual" }>, out: RitualOut): RitualOut {
-  const parts = [out.gesture, out.opening, out.ritual].map(value => audience(value, req));
+  const parts: [string, string, string] = [
+    audience(out.gesture, req),
+    audience(out.opening, req),
+    audience(out.ritual, req),
+  ];
   const combined = parts.join(" ").replace(/\s+/gu, " ").trim();
   if (!direct.test(combined)) {
     const suffix = spanish(req)
@@ -140,10 +144,10 @@ function ritual(req: Extract<ApiReq, { task: "ritual" }>, out: RitualOut): Ritua
     if (count(combined) + count(suffix) <= 110) {
       parts[2] = `${parts[2].trim()} ${suffix}`.trim();
     } else {
-      parts[0] = ensureDirect(parts[0], req, 110 - count(parts[1] ?? "") - count(parts[2] ?? ""));
+      parts[0] = ensureDirect(parts[0], req, 110 - count(parts[1]) - count(parts[2]));
     }
   }
-  return { ...out, gesture: parts[0]!, opening: parts[1]!, ritual: parts[2]! };
+  return { ...out, gesture: parts[0], opening: parts[1], ritual: parts[2] };
 }
 
 function reading(req: Extract<ApiReq, { task: "read" }>, out: ReadingOut): ReadingOut {
