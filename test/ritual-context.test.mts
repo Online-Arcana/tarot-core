@@ -36,7 +36,7 @@ const valid = {
   cardText: ["Epona shows you an opening that rewards trust, provided you keep enough awareness to choose the first step deliberately."],
   synthesis: "You are meeting a beginning whose freedom becomes useful when it remains joined to attention and practical judgement." ,
   reading: "You do not need every detail before moving. Begin with a choice small enough to revise, and use what happens next as evidence rather than treating uncertainty as either permission or prohibition.",
-  closing: "Take the step that preserves both movement and choice.",
+  closing: "Take the step that preserves both your movement and your freedom to choose.",
   note: "Brennos leaves the carved bone where it settled while the room grows quiet.",
 };
 
