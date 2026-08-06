@@ -283,6 +283,41 @@ function auditMappedRitual(
   }
 }
 
+function auditRitualAwareDialogue(
+  req: Extract<ApiReq, { task: "read" }>,
+  out: ReadingOut,
+  issues: AuditIssue[],
+): void {
+  const theatre = req.ritualTheatre ?? [];
+  if (theatre.length && theatre.length !== req.draw.cards.length) {
+    add(issues, "ritual_context_count", "read.ritualTheatre", "must contain one narrator paragraph per result");
+    return;
+  }
+  out.cardText.forEach((value, index) => {
+    const ritual = theatre[index];
+    if (!ritual) return;
+    if (canonical(value) === canonical(ritual) || overlap(value, ritual) >= 0.72) {
+      add(
+        issues,
+        "ritual_voice_leak",
+        `read.cardText[${index}]`,
+        "reader dialogue must be aware of the ritual without repeating or paraphrasing narrator prose",
+      );
+    }
+  });
+  const combinedDialogue = [out.synthesis, out.reading, out.closing].join(" ");
+  theatre.forEach((ritual, index) => {
+    if (overlap(combinedDialogue, ritual) >= 0.8) {
+      add(
+        issues,
+        "ritual_voice_leak",
+        "read.dialogue",
+        `later reader dialogue must not reenact or summarise ritual ${index + 1}`,
+      );
+    }
+  });
+}
+
 const auditRead = (
   req: Extract<ApiReq, { task: "read" }>,
   out: ReadingOut,
@@ -311,6 +346,7 @@ const auditRead = (
   auditReaderVoice(issues, "read.closing", out.closing, req);
   auditText(issues, "read.note", out.note, { maxWords: 100 });
   auditNarratorVoice(issues, "read.note", out.note);
+  auditRitualAwareDialogue(req, out, issues);
   auditDuplicates(issues, [
     ...out.cardText.map((value, index) => ({ path: `read.cardText[${index}]`, value })),
     { path: "read.synthesis", value: out.synthesis },
