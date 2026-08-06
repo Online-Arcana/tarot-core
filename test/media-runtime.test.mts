@@ -103,7 +103,7 @@ test("Selena remains vanilla and receives no medium translation", () => {
   assert.equal(mediaPayload(req), null);
 });
 
-test("final public families, titles and states come from the archives", async () => {
+test("final public families, titles and states come from the approved mappings", async () => {
   const cards = await canonical();
   const byId = new Map(cards.map(def => [def.id, def]));
 
@@ -115,17 +115,25 @@ test("final public families, titles and states come from the archives", async ()
     const reversed = mediaFor(reader, mappedCard(def, "reversed", "en-GB"), "en-GB");
     assert.ok(upright);
     assert.ok(reversed);
+    assert.equal(upright.version, 3);
     assert.equal(upright.arcana, "minor");
     assert.equal(upright.itemName, title);
+    assert.equal(upright.publicName, title);
     assert.equal(upright.family, family);
+    assert.equal(upright.publicCategory, family);
     assert.equal(upright.stateLabel, states[reader][0]);
+    assert.equal(upright.publicState, states[reader][0]);
     assert.equal(reversed.stateLabel, states[reader][1]);
+    assert.equal(reversed.publicState, states[reader][1]);
 
     const major = mediaFor(reader, card, "en-GB");
     assert.ok(major);
     assert.equal(major.arcana, "major");
     assert.equal(major.itemName, majors[reader]);
+    assert.equal(major.publicName, majors[reader]);
     assert.equal(major.family, null);
+    assert.ok(major.publicCategory);
+    assert.equal(major.publicNumber, "0");
   }
 });
 
@@ -140,6 +148,7 @@ test("every one of the 546 mappings stays clean in both languages and states", a
           const drawn = mappedCard(def, side, lang);
           const medium = mediaFor(reader, drawn, lang);
           assert.ok(medium, `${reader} ${lang} ${def.id} ${side}`);
+          assert.equal(medium.version, 3);
           assert.equal(medium.reader, reader);
           assert.equal(medium.cardId, def.id);
           assert.equal(medium.side, side);
@@ -151,6 +160,10 @@ test("every one of the 546 mappings stays clean in both languages and states", a
           assert.ok(medium.itemDescription);
           assert.ok(medium.observation);
           assert.ok(medium.ritualDirection);
+          assert.ok(medium.publicName);
+          assert.ok(medium.publicCategory);
+          assert.ok(medium.publicNumber);
+          assert.ok(medium.publicState);
           assert.ok(medium.culturalElements.length > 0);
           assert.ok(medium.culturalElements.every(element => Object.keys(element).sort().join(",") === "id,name"));
           assert.equal("fictionalCorrespondence" in medium, false);
@@ -162,34 +175,56 @@ test("every one of the 546 mappings stays clean in both languages and states", a
   }
 });
 
-test("Ngaru uses paired outer and inner painted shells", () => {
+test("Ngaru exposes painted shells without archival pairing mechanics", () => {
   const outer = mediaFor("ngaru", card, "en-GB");
   const inner = mediaFor("ngaru", { ...card, side: "reversed" }, "en-GB");
   assert.ok(outer);
   assert.ok(inner);
   assert.equal(outer.stateLabel, "outer");
   assert.equal(inner.stateLabel, "inner");
-  assert.match(outer.medium, /paired painted seashells/iu);
-  assert.match(outer.ritual.concealment, /156 physical shells/iu);
-  assert.match(outer.observation, /outer convex surface/iu);
-  assert.match(inner.observation, /inner concave surface/iu);
+  assert.equal(outer.medium, "painted seashells");
+  assert.match(outer.ritual.concealment, /opaque sea-worn bag/iu);
+  assert.match(outer.observation, /outer curved surface/iu);
+  assert.match(inner.observation, /inner hollow surface/iu);
+  assert.doesNotMatch(JSON.stringify(outer), /156|paired|logical result/iu);
 });
 
-test("Ame casts all petals once and later positions inspect the same cast", () => {
-  const first = { ...base("ritual", "ame"), question: "What now?", spread: "three", card: 0, drawn: card };
-  const next = { ...base("ritual", "ame"), question: "What now?", spread: "three", card: 1, drawn: { ...card, pos: 2 } };
+test("Ame casts one handful and later positions observe the same basin", () => {
+  const fullDraw = {
+    id: "three",
+    name: "Three",
+    purpose: "See the movement",
+    cards: [card, { ...card, pos: 2, posName: "The challenge" }],
+  };
+  const first = {
+    ...base("ritual", "ame"),
+    question: "What now?",
+    spread: "three",
+    card: 0,
+    drawn: fullDraw.cards[0],
+    draw: fullDraw,
+    priorRituals: [],
+  };
+  const next = {
+    ...base("ritual", "ame"),
+    question: "What now?",
+    spread: "three",
+    card: 1,
+    drawn: fullDraw.cards[1],
+    draw: fullDraw,
+    priorRituals: ["Ame cast the mixed petals once over the basin and watched the first area settle."],
+  };
   const firstPrompt = mediaPrompt(first);
   const nextPrompt = mediaPrompt(next);
   const firstPayload = mediaPayload(first);
   const nextPayload = mediaPayload(next);
 
-  assert.match(firstPrompt, /releases the entire handful once/iu);
-  assert.match(firstPrompt, /no second cast/iu);
-  assert.match(JSON.stringify(firstPayload), /single release for the whole spread/iu);
-  assert.match(nextPrompt, /Without casting again/iu);
-  assert.match(nextPrompt, /next marked spread area/iu);
-  assert.doesNotMatch(nextPrompt, /releases the entire handful once/iu);
-  assert.match(JSON.stringify(nextPayload), /Without casting again/iu);
+  assert.match(firstPrompt, /Open the scene and establish the ritual/iu);
+  assert.match(JSON.stringify(firstPayload), /casts the full handful once/iu);
+  assert.match(nextPrompt, /fresh observation or shift of attention/iu);
+  assert.match(nextPrompt, /never another cast/iu);
+  assert.match(JSON.stringify(nextPayload), /studies another area of the same basin/iu);
+  assert.doesNotMatch(JSON.stringify(nextPayload), /casts the full handful once/iu);
 
   const minor = mediaFor("ame", {
     ...card,
@@ -203,9 +238,7 @@ test("Ame casts all petals once and later positions inspect the same cast", () =
   assert.equal(minor.itemName, "5 Sakura Petals");
   assert.equal(minor.family, "Sakura");
   assert.equal(major.itemName, "Amaterasu");
-  assert.match(major.itemDescription, /Sakura/iu);
-  assert.match(major.itemDescription, /Hasu/iu);
-  assert.match(major.itemDescription, /Fuji/iu);
+  assert.ok(["Kami", "Yōkai"].includes(major.publicCategory));
 });
 
 test("model-facing mapped input uses public state and never canonical orientation", () => {
@@ -247,27 +280,30 @@ test("ritual prompts and payloads cannot receive archival provenance", () => {
   }
 });
 
-test("reading outputs carry optional media without archival fields", () => {
+test("reading outputs carry v3 media without archival fields", () => {
   const req = {
     ...base("read"),
     question: "What now?",
     draw: { id: "one", name: "One", purpose: "Answer", cards: [card] },
+    ritualTheatre: ["Amaru mixes the cords inside the opaque vessel and lets one emerge by touch."],
   };
   const out = {
-    gesture: "The reader settles into the moment with deliberate attention and lets the room grow quiet around the question before beginning.",
-    opening: "A measured breath steadies the space while the chosen medium waits between you.",
-    link: "The reading can now unfold without haste or interruption.",
+    gesture: "",
+    opening: "",
+    link: "",
     cardText: ["The Fool asks you to enter a beginning with trust, movement and awareness."],
     synthesis: "The Fool asks you to move with openness while keeping enough awareness to avoid careless choices.",
     reading: "You can begin before every detail is certain, provided that your freedom remains joined to attention and responsibility.",
     closing: "Carry this beginning gently and deliberately.",
-    note: "Reflect before acting.",
+    note: "Amaru leaves the cord resting beside the vessel.",
   };
   const attached = attachMedia(req, out);
   assert.ok(Array.isArray(attached.media));
   assert.equal(attached.media.length, 1);
+  assert.equal(attached.media[0].version, 3);
   assert.equal(attached.media[0].family, null);
   assert.equal(attached.media[0].stateLabel, "front");
+  assert.equal(attached.media[0].publicCategory, "Wakas");
   assert.doesNotMatch(attached.cardText[0], /The Fool/u);
   assert.doesNotMatch(attached.synthesis, /The Fool/u);
   assertNoArchiveMetadata(attached);
