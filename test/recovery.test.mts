@@ -146,6 +146,6 @@ test("keeps an XML fallback entry for every customer-facing field class", async 
     "handover.summary",
     "return.text",
   ]) {
-    assert.match(xml, new RegExp(`id=\\"${id.replace(".", "\\.")}\\"`, "u"));
+    assert.ok(xml.includes(`id="${id}"`), `missing fallback entry ${id}`);
   }
 });

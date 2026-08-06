@@ -4,6 +4,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 const forbiddenFiles = new Set(["portraits.ts", "ui-text.d.ts", "copy.ts"]);
+const ignoredDirectories = new Set([".git", "dist", "node_modules"]);
 const forbidden = [
   /\.\/assets\//u,
   /\b(?:window|document|localStorage|sessionStorage|navigator)\s*\./u,
@@ -15,6 +16,7 @@ const forbidden = [
 async function files(dir) {
   const out = [];
   for (const item of await readdir(dir, { withFileTypes: true })) {
+    if (item.isDirectory() && ignoredDirectories.has(item.name)) continue;
     const path = join(dir, item.name);
     if (item.isDirectory()) out.push(...await files(path));
     else if (item.name.endsWith(".ts")) out.push(path);

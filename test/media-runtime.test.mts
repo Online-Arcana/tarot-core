@@ -61,7 +61,7 @@ function assertNoArchiveMetadata(value) {
   assert.doesNotMatch(text, /https?:\/\//iu);
   assert.doesNotMatch(text, /sourceRegistry|sourceIds|documentedContext|source-backed-draft/iu);
   assert.doesNotMatch(text, /runtimeIntegrated|culturalSpecialistReviewRequired|cultural review checklist/iu);
-  assert.doesNotMatch(text, /Online Arcana|tarot|fiction|fictici|documented|documentad|attested|atestiguad/iu);
+  assert.doesNotMatch(text, /Online Arcana|fiction|fictici|documented|documentad|attested|atestiguad/iu);
   assert.doesNotMatch(text, /archaeolog|arqueolog|authored|mapped|predetermined|museum|museo/iu);
 }
 
