@@ -43,9 +43,9 @@ function history(value: unknown): Hist[] | null {
   return out;
 }
 
-function priorRituals(value: unknown): string[] | null {
+function theatreList(value: unknown): string[] | null {
   if (value === undefined) return [];
-  if (!Array.isArray(value) || value.length > 9) return null;
+  if (!Array.isArray(value) || value.length > 10) return null;
   const out: string[] = [];
   for (const item of value) {
     const parsed = text(item, 1600);
@@ -129,7 +129,7 @@ export function parseReq(value: unknown, allowedLangs: ReadonlySet<string>): Api
       const drawn = value.drawn === undefined ? undefined : card(value.drawn);
       const parsedDraw = value.draw === undefined ? undefined : draw(value.draw);
       const hasPrior = value.priorRituals !== undefined;
-      const previous = priorRituals(value.priorRituals);
+      const previous = theatreList(value.priorRituals);
       const validCard = Number.isInteger(cardNo) && Number(cardNo) >= 0 && Number(cardNo) < 10;
       if (!question || !SPREADS.has(spread as SpreadId) || !validCard || drawn === null || parsedDraw === null || previous === null) return null;
       const index = Number(cardNo);
@@ -157,7 +157,17 @@ export function parseReq(value: unknown, allowedLangs: ReadonlySet<string>): Api
     case "read": {
       const question = text(value.question, 2000);
       const parsedDraw = draw(value.draw);
-      return question && parsedDraw ? { task, ...base, question, draw: parsedDraw } : null;
+      const hasTheatre = value.ritualTheatre !== undefined;
+      const ritualTheatre = theatreList(value.ritualTheatre);
+      if (!question || !parsedDraw || ritualTheatre === null) return null;
+      if (hasTheatre && ritualTheatre.length !== parsedDraw.cards.length) return null;
+      return {
+        task,
+        ...base,
+        question,
+        draw: parsedDraw,
+        ...(hasTheatre ? { ritualTheatre } : {}),
+      };
     }
     case "chat": {
       const question = text(value.question, 1200);
