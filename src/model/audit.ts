@@ -1,5 +1,7 @@
-import type { ApiOut, ApiReq, ReadingOut } from "../contracts/types.js";
+import type { ApiOut, ApiReq, ReadingOut, RitualOut } from "../contracts/types.js";
 import { profileFor } from "../readers/profiles.js";
+import { isMappedReader, mediaFor, mediumRitualFor, ritualPhase } from "../readers/media/runtime.js";
+import { ritualParticipation, type RitualAction } from "../readers/media/participation.js";
 
 export interface AuditIssue {
   readonly code: string;
@@ -29,7 +31,17 @@ const terminal = /[.!?]["'’”)]*$/u;
 const hanging = /(?:…|\.\.\.|[,;:\-–—])\s*$/u;
 const ref = /#\/[A-Za-z0-9_~./-]+/u;
 const narratorFirstPerson = /\b(?:I|me|my|mine|we|us|our|ours|yo|mí|mío|mía|nosotros|nosotras|nuestro|nuestra)\b/iu;
-const operationalNarration = /\b(?:hidden application state|implementation details?|deterministic validation|records? the state|state is recorded|inspection after|reveal order|canonical mapping|JSON schema|application behaviour)\b/iu;
+const operationalNarration = /\b(?:hidden application state|implementation details?|deterministic validation|records? the state|state is recorded|inspection after|reveal order|canonical mapping|JSON schema|application behaviour|spread positions?|marked areas? correspond|nothing is shown early|hidden sign|preserves? (?:its )?exact (?:state|direction)|no second cast|without another cast|counting each area|result number|draw number|phase|continuity control|estado oculto de la aplicación|detalles? de implementación|validación determinista|registra(?:r| el estado)?|estado (?:queda )?registrado|inspección después|orden de revelación|mapeo canónico|comportamiento de la aplicación|posiciones? de la tirada|zonas? marcadas? corresponden?|nada se muestra antes|signo oculto|conserva (?:su )?(?:estado|dirección) exact[oa]|sin otro lanzamiento|contando cada zona|número de resultado|número de extracción|control de continuidad)\b/iu;
+const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?)\b/iu;
+const genericReader = /\b(?:the reader|el lector|la lectora|la persona lectora)\b/iu;
+const userActionEn = /\b(?:you|the querent)\s+(?:lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw|sit|stand|rest)\b/iu;
+const userActionEs = /\b(?:tú|usted|la persona consultante)\s+(?:levantas?|levanta|elevas?|eleva|tomas?|toma|alcanzas?|alcanza|tocas?|toca|sostienes?|sostiene|sacas?|saca|agitas?|agita|lanzas?|lanza|colocas?|coloca|eliges?|elige|jalas?|jala|tiras?|tira|sueltas?|suelta|giras?|gira|mueves?|mueve|mezclas?|mezcla|retiras?|retira|llevas?|lleva|abres?|abre|cierras?|cierra|manipulas?|manipula|agarras?|agarra|dejas?|deja|te sientas?|se sienta|te pones de pie|se pone de pie)\b/iu;
+const ngaruActionEn = /\byou\s+(?:(?:reach|slide|put)\b[\s\S]{0,70}\b(?:bag|shells?)\b|(?:draw|withdraw|take|pull|pick)\b[\s\S]{0,50}\bshell\b)/iu;
+const amaruActionEn = /\byou\s+(?:(?:reach|slide|put)\b[\s\S]{0,70}\b(?:vessel|cords?)\b|(?:draw|withdraw|take|pull|pick)\b[\s\S]{0,50}\bcord\b)/iu;
+const ngaruActionEs = /\b(?:tú|usted)\s+(?:(?:introduces?|introduce|metes?|mete)\b[\s\S]{0,70}\bbolsa\b|(?:sacas?|saca|extraes?|extrae|tomas?|toma|eliges?|elige)\b[\s\S]{0,50}\bconcha\b)/iu;
+const amaruActionEs = /\b(?:tú|usted)\s+(?:(?:introduces?|introduce|metes?|mete)\b[\s\S]{0,70}\brecipiente\b|(?:sacas?|saca|extraes?|extrae|tomas?|toma|eliges?|elige)\b[\s\S]{0,50}\bcordón\b)/iu;
+const repeatedCastEn = /\b(?:casts?|throws?|releases?|scatters?)\b[\s\S]{0,55}\bpetals?\b/iu;
+const repeatedCastEs = /\b(?:lanza|lanzas|arroja|arrojas|suelta|sueltas|esparce|esparces)\b[\s\S]{0,55}\bpétalos?\b/iu;
 
 export const words = (value: string): number =>
   value.trim().split(/\s+/u).filter(Boolean).length;
@@ -127,7 +139,7 @@ const auditNarratorVoice = (
     add(issues, "narrator_first_person", path, "narrator prose must remain in third person");
   }
   if (operationalNarration.test(text)) {
-    add(issues, "operational_narration", path, "must not dramatise implementation or state-machine controls");
+    add(issues, "operational_narration", path, "must not dramatise implementation, sequencing or state-machine controls");
   }
 };
 
@@ -157,6 +169,19 @@ const canonical = (value: string): string => clean(value)
   .replace(/[^\p{L}\p{N}\s]/gu, "")
   .replace(/\s+/gu, " ");
 
+const tokenSet = (value: string): ReadonlySet<string> => new Set(
+  canonical(value).split(" ").filter(token => token.length >= 3),
+);
+
+const overlap = (left: string, right: string): number => {
+  const a = tokenSet(left);
+  const b = tokenSet(right);
+  if (!a.size || !b.size) return 0;
+  let shared = 0;
+  for (const token of a) if (b.has(token)) shared += 1;
+  return shared / Math.min(a.size, b.size);
+};
+
 const auditDuplicates = (
   issues: AuditIssue[],
   entries: readonly { path: string; value: string }[],
@@ -174,12 +199,85 @@ const auditDuplicates = (
   }
 };
 
+function spanish(req: ApiReq): boolean {
+  return req.lang.toLocaleLowerCase().startsWith("es");
+}
+
+function hasUserAction(value: string, req: ApiReq): boolean {
+  return (spanish(req) ? userActionEs : userActionEn).test(value);
+}
+
+function hasRequiredUserAction(value: string, req: ApiReq, action: RitualAction): boolean {
+  if (action === "draw-shell") return (spanish(req) ? ngaruActionEs : ngaruActionEn).test(value);
+  return (spanish(req) ? amaruActionEs : amaruActionEn).test(value);
+}
+
+function currentCard(req: Extract<ApiReq, { task: "ritual" }>) {
+  return req.draw?.cards[req.card] ?? req.drawn;
+}
+
+function auditMappedRitual(
+  req: Extract<ApiReq, { task: "ritual" }>,
+  out: RitualOut,
+  issues: AuditIssue[],
+): void {
+  if (!isMappedReader(req.reader)) return;
+  const context = mediumRitualFor(req.reader, req.lang);
+  const current = currentCard(req);
+  const medium = current ? mediaFor(req.reader, current, req.lang) : null;
+  const value = clean([out.gesture, out.opening, out.ritual].join(" "));
+  const lower = value.toLocaleLowerCase(req.lang);
+  const name = profileFor(req.reader).public.name;
+  if (!lower.includes(name.toLocaleLowerCase(req.lang))) {
+    add(issues, "reader_name", "ritual.theatre", `must identify ${name} as the person performing the ritual`);
+  }
+  if (genericReader.test(value)) {
+    add(issues, "generic_reader", "ritual.theatre", "must use the reader's public name rather than a generic role label");
+  }
+  if (mappedTerms.test(value)) {
+    add(issues, "canonical_medium", "ritual.theatre", "must remain inside the mapped physical medium rather than tarot terminology");
+  }
+  if (current && lower.includes(current.name.toLocaleLowerCase(req.lang))) {
+    add(issues, "hidden_canonical", "ritual.theatre", "must not name the hidden canonical result");
+  }
+  if (medium && lower.includes(medium.itemName.toLocaleLowerCase(req.lang))) {
+    add(issues, "hidden_item", "ritual.theatre", "must not name the hidden mapped result");
+  }
+  const participation = ritualParticipation(req.reader);
+  if (participation.actor === "querent") {
+    if (!participation.action || !hasRequiredUserAction(value, req, participation.action)) {
+      add(issues, "missing_participation", "ritual.theatre", "must narrate the querent's required physical action");
+    }
+  } else if (hasUserAction(value, req)) {
+    add(issues, "invented_participation", "ritual.theatre", "must not assign the reader-operated ritual to the querent");
+  }
+  if (context) {
+    const cues = [context.medium, ...context.beats]
+      .flatMap(item => item.toLocaleLowerCase(req.lang).match(/[\p{L}\p{N}]+/gu) ?? [])
+      .filter(item => item.length >= 5);
+    if (![...new Set(cues)].some(cue => lower.includes(cue))) {
+      add(issues, "medium_grounding", "ritual.theatre", "must contain at least one concrete sensory detail from this reader's medium");
+    }
+  }
+  if (req.reader === "ame" && ritualPhase(req) === "continuation" &&
+      (spanish(req) ? repeatedCastEs : repeatedCastEn).test(value)) {
+    add(issues, "repeated_cast", "ritual.theatre", "Ame must continue observing the original cast rather than cast the petals again");
+  }
+  for (const [index, previous] of (req.priorRituals ?? []).entries()) {
+    if (canonical(previous) === canonical(value) || overlap(previous, value) >= 0.72) {
+      add(issues, "ritual_reuse", "ritual.theatre", `must continue the scene without substantially repeating prior ritual ${index + 1}`);
+      break;
+    }
+  }
+};
+
 const auditRead = (
   req: Extract<ApiReq, { task: "read" }>,
   out: ReadingOut,
   issues: AuditIssue[],
 ): void => {
-  auditTheatre(issues, "read.theatre", [out.gesture, out.opening, out.link]);
+  // Per-result ritual calls own the visible pre-reveal theatre. These fields are
+  // retained for schema compatibility but must not force a reading escalation.
   auditNarratorVoice(issues, "read.gesture", out.gesture);
   auditNarratorVoice(issues, "read.opening", out.opening);
   auditNarratorVoice(issues, "read.link", out.link);
@@ -209,6 +307,19 @@ const auditRead = (
     { path: "read.reading", value: out.reading },
     { path: "read.closing", value: out.closing },
   ]);
+
+  if (isMappedReader(req.reader)) {
+    const body = [out.gesture, out.opening, out.link, ...out.cardText, out.synthesis, out.reading, out.closing, out.note].join(" ");
+    if (mappedTerms.test(body)) {
+      add(issues, "canonical_medium", "read", "must interpret the mapped medium without tarot terminology");
+    }
+    req.draw.cards.forEach((card, index) => {
+      const text = out.cardText[index]?.toLocaleLowerCase(req.lang) ?? "";
+      if (text.includes(card.name.toLocaleLowerCase(req.lang)) || text.includes(card.suit.toLocaleLowerCase(req.lang))) {
+        add(issues, "canonical_result", `read.cardText[${index}]`, "must not expose the canonical card or suit behind the mapped result");
+      }
+    });
+  }
 };
 
 const suppliedCards = (req: Extract<ApiReq, { task: "handover" }>): Set<string> => {
@@ -244,11 +355,12 @@ export const auditModelOut = <T extends ApiOut>(req: ApiReq, out: T): ModelAudit
       break;
     }
     case "ritual": {
-      const value = out as Extract<ApiOut, { ritual: string }>;
+      const value = out as RitualOut;
       auditTheatre(issues, "ritual.theatre", [value.gesture, value.opening, value.ritual]);
       auditNarratorVoice(issues, "ritual.gesture", value.gesture);
       auditNarratorVoice(issues, "ritual.opening", value.opening);
       auditNarratorVoice(issues, "ritual.ritual", value.ritual);
+      auditMappedRitual(req, value, issues);
       break;
     }
     case "read": auditRead(req, out as ReadingOut, issues); break;
