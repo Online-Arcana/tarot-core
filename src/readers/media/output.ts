@@ -1,7 +1,5 @@
 import { profileFor } from "../profiles.js";
-import { ritualParticipation, type RitualAction } from "./participation.js";
 import type {
-  ApiOut,
   ApiReq,
   MediumPresentation,
   ReadingOut,
@@ -15,35 +13,13 @@ export interface RitualPresentationContext {
   readonly beats: readonly string[];
   readonly hiddenItem?: string;
   readonly canonicalName?: string;
+  readonly mediumPresentation?: MediumPresentation;
 }
 
 const genericReader = /\b(?:the reader|el lector|la lectora|la persona lectora)\b/giu;
-const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?)\b/iu;
-const userActionEn = /\b(?:you|the querent)\s+(?:lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw|sit|stand|rest)\b/iu;
-const userActionEs = /\b(?:tú|usted|la persona consultante)\s+(?:levantas?|levanta|elevas?|eleva|tomas?|toma|alcanzas?|alcanza|tocas?|toca|sostienes?|sostiene|sacas?|saca|agitas?|agita|lanzas?|lanza|colocas?|coloca|eliges?|elige|jalas?|jala|tiras?|tira|sueltas?|suelta|giras?|gira|mueves?|mueve|mezclas?|mezcla|retiras?|retira|llevas?|lleva|abres?|abre|cierras?|cierra|manipulas?|manipula|agarras?|agarra|dejas?|deja|te sientas?|se sienta|te pones de pie|se pone de pie)\b/iu;
-const ngaruActionEn = /\byou\s+(?:(?:reach|slide|put)\b[\s\S]{0,70}\b(?:bag|shells?)\b|(?:draw|withdraw|take|pull|pick)\b[\s\S]{0,50}\bshell\b)/iu;
-const amaruActionEn = /\byou\s+(?:(?:reach|slide|put)\b[\s\S]{0,70}\b(?:vessel|cords?)\b|(?:draw|withdraw|take|pull|pick)\b[\s\S]{0,50}\bcord\b)/iu;
-const ngaruActionEs = /\b(?:tú|usted)\s+(?:(?:introduces?|introduce|metes?|mete)\b[\s\S]{0,70}\bbolsa\b|(?:sacas?|saca|extraes?|extrae|tomas?|toma|eliges?|elige)\b[\s\S]{0,50}\bconcha\b)/iu;
-const amaruActionEs = /\b(?:tú|usted)\s+(?:(?:introduces?|introduce|metes?|mete)\b[\s\S]{0,70}\brecipiente\b|(?:sacas?|saca|extraes?|extrae|tomas?|toma|eliges?|elige)\b[\s\S]{0,50}\bcordón\b)/iu;
-
-function spanish(req: ApiReq): boolean {
-  return req.lang.toLocaleLowerCase().startsWith("es");
-}
 
 function readerName(req: ApiReq): string {
   return profileFor(req.reader).public.name;
-}
-
-function address(req: ApiReq): string {
-  const name = req.name.trim();
-  if (name) return name;
-  return spanish(req) ? "Tú" : "You";
-}
-
-function sentence(value: string): string {
-  const clean = value.replace(/\s+/gu, " ").trim();
-  if (!clean || /[.!?]$/u.test(clean)) return clean;
-  return `${clean}.`;
 }
 
 function escaped(value: string): string {
@@ -51,181 +27,24 @@ function escaped(value: string): string {
 }
 
 function normaliseReader(value: string, req: ApiReq): string {
-  return value.replace(genericReader, readerName(req));
+  return value.replace(genericReader, readerName(req)).replace(/\s+/gu, " ").trim();
 }
 
-function textValues(out: ApiOut): string[] {
-  const source = out as unknown as Record<string, unknown>;
-  const values: string[] = [];
-  for (const value of Object.values(source)) {
-    if (typeof value === "string") values.push(value);
-    if (Array.isArray(value)) {
-      values.push(...value.filter((item): item is string => typeof item === "string"));
-    }
-  }
-  return values;
-}
-
-function combined(out: ApiOut): string {
-  return textValues(out).join(" ");
-}
-
-function hasMappedTerms(out: ApiOut): boolean {
-  return textValues(out).some(value => mappedTerms.test(value));
-}
-
-function includes(value: string, term: string | undefined, locale: string): boolean {
-  if (!term?.trim()) return false;
-  return value.toLocaleLowerCase(locale).includes(term.toLocaleLowerCase(locale));
-}
-
-function hasUserAction(value: string, req: ApiReq): boolean {
-  return (spanish(req) ? userActionEs : userActionEn).test(value);
-}
-
-function hasRequiredUserAction(value: string, req: ApiReq, action: RitualAction): boolean {
-  if (action === "draw-shell") return (spanish(req) ? ngaruActionEs : ngaruActionEn).test(value);
-  return (spanish(req) ? amaruActionEs : amaruActionEn).test(value);
-}
-
-function ritualFallback(
-  req: Extract<ApiReq, { task: "ritual" }>,
-  context: RitualPresentationContext,
-): RitualOut {
-  const reader = readerName(req);
-  const participation = ritualParticipation(req.reader);
-
-  if (spanish(req)) {
-    if (participation.action === "draw-shell") {
-      return {
-        gesture: `${reader} sostiene la bolsa opaca desgastada por el mar y la acerca sin abrirla.`,
-        opening: `Tú introduces la mano sin mirar, reconoces la textura de las conchas y extraes una sola.`,
-        ritual: `${reader} recibe la concha sin alterar cómo fue elegida y mantiene oculta la pintura hasta la revelación.`,
-      };
-    }
-    if (participation.action === "draw-cord") {
-      return {
-        gesture: `${reader} mezcla los cordones ocultos al tacto y acerca el recipiente opaco.`,
-        opening: `Tú introduces la mano sin mirar y extraes un solo cordón por el extremo que encuentras primero.`,
-        ritual: `${reader} lo recibe sin invertirlo, conserva su dirección exacta y deja los nudos ocultos hasta la revelación.`,
-      };
-    }
-    return {
-      gesture: `${reader} acerca ${context.medium} y deja que tu pregunta se asiente antes de comenzar la selección oculta.`,
-      opening: `${context.concealment} La escena conserva ${context.beats.at(-1) ?? context.medium}; nada se muestra antes de tiempo.`,
-      ritual: `${context.chance} ${reader} sigue el sonido y el movimiento hasta que el medio queda inmóvil, y conserva el signo oculto intacto para la revelación.`,
-    };
-  }
-
-  if (participation.action === "draw-shell") {
-    return {
-      gesture: `${reader} steadies the opaque sea-worn bag and brings it close without opening it.`,
-      opening: `You reach in without looking, feel the shells and withdraw exactly one.`,
-      ritual: `${reader} receives the shell without changing how it was chosen and keeps its painting concealed until the reveal.`,
-    };
-  }
-  if (participation.action === "draw-cord") {
-    return {
-      gesture: `${reader} mixes the hidden cords by touch and brings the opaque vessel close.`,
-      opening: `You reach in without looking and draw one cord by whichever end comes first.`,
-      ritual: `${reader} receives it without reversing it, preserves its exact direction and keeps the knots concealed until the reveal.`,
-    };
-  }
-  return {
-    gesture: `${reader} draws the ${context.medium} close and lets your question settle before the concealed selection begins.`,
-    opening: `${context.concealment} The scene retains ${context.beats.at(-1) ?? context.medium}; nothing is shown early.`,
-    ritual: `${context.chance} ${reader} follows the sound and movement until the medium becomes still, then leaves the hidden sign untouched for the reveal.`,
-  };
-}
-
-function ritualHasMediumCue(out: RitualOut, context: RitualPresentationContext, locale: string): boolean {
-  const value = combined(out).toLocaleLowerCase(locale);
-  const words = [context.medium, ...context.beats]
-    .flatMap(item => item.toLocaleLowerCase(locale).match(/[\p{L}\p{N}]+/gu) ?? [])
-    .filter(item => item.length >= 5);
-  return [...new Set(words)].filter(item => value.includes(item)).length >= 2;
-}
-
+/**
+ * Presentation is deliberately non-generative. It may normalise the reader's
+ * public name and attach deterministic metadata, but it must never replace LLM
+ * prose with a canned scene.
+ */
 export function presentMappedRitual(
   req: Extract<ApiReq, { task: "ritual" }>,
   out: RitualOut,
   context: RitualPresentationContext,
 ): RitualOut {
-  const presented: RitualOut = {
+  return {
     gesture: normaliseReader(out.gesture, req),
     opening: normaliseReader(out.opening, req),
     ritual: normaliseReader(out.ritual, req),
-  };
-  const value = combined(presented);
-  const locale = req.lang;
-  const participation = ritualParticipation(req.reader);
-  const userRoleValid = participation.actor === "querent"
-    ? participation.action !== undefined && hasRequiredUserAction(value, req, participation.action)
-    : !hasUserAction(value, req);
-  const valid = includes(value, readerName(req), locale)
-    && !includes(value, req.name, locale)
-    && userRoleValid
-    && !hasMappedTerms(presented)
-    && !includes(value, context.hiddenItem, locale)
-    && !includes(value, context.canonicalName, locale)
-    && ritualHasMediumCue(presented, context, locale);
-  return valid ? presented : ritualFallback(req, context);
-}
-
-function list(items: readonly string[], req: ApiReq): string {
-  if (items.length === 1) return items[0] ?? "";
-  const last = items.at(-1) ?? "";
-  const head = items.slice(0, -1).join(", ");
-  return spanish(req) ? `${head} y ${last}` : `${head} and ${last}`;
-}
-
-function cardFallback(
-  req: Extract<ApiReq, { task: "read" }>,
-  medium: MediumPresentation,
-  index: number,
-): string {
-  const card = req.draw.cards[index];
-  if (!card) return "";
-
-  if (spanish(req)) {
-    return sentence(`${medium.itemName} ocupa la posición ${card.posName}. ${medium.observation} ${medium.interpretation} Para ti, esta posición pide reconocer cómo actúa este patrón antes de decidir tu respuesta`);
-  }
-
-  return sentence(`${medium.itemName} settles into ${card.posName}. ${medium.observation} ${medium.interpretation} For you, this position asks you to recognise how that pattern is active before choosing your response`);
-}
-
-function readingFallback(
-  req: Extract<ApiReq, { task: "read" }>,
-  media: readonly MediumPresentation[],
-  mediumName: string,
-): ReadingOut {
-  const reader = readerName(req);
-  const named = list(media.map(item => item.itemName), req);
-
-  if (spanish(req)) {
-    return {
-      gesture: `${reader} ordena ${mediumName} con atención deliberada y mantiene cada signo visible en el lugar donde llegó.`,
-      opening: `Tu pregunta permanece en el centro mientras ${reader} observa las formas, marcas y posiciones sin alterar ninguna de ellas.`,
-      link: `La lectura avanza desde cada objeto hacia el patrón que forman juntos, conservando tu libertad para decidir qué resulta verdadero y útil.`,
-      cardText: media.map((item, index) => cardFallback(req, item, index)),
-      synthesis: `En conjunto, ${named} te piden comparar lo que ya reconoces con aquello que todavía necesita tiempo, evidencia o una decisión más consciente.`,
-      reading: `${address(req)}, los objetos visibles no eliminan tu capacidad de elegir. Te muestran un patrón que puedes contrastar con tu experiencia y convertir en una respuesta práctica sin forzar una certeza que aún no existe.`,
-      closing: `Conserva lo que te ayude a ver con mayor claridad y deja que tu siguiente decisión siga siendo tuya.`,
-      note: `La interpretación se basa únicamente en los objetos visibles, sus posiciones y las señales presentes en la escena.`,
-      media: [...media],
-    };
-  }
-
-  return {
-    gesture: `${reader} arranges the ${mediumName} with deliberate attention and keeps every visible sign in the place where it arrived.`,
-    opening: `Your question remains at the centre while ${reader} studies the forms, marks and positions without changing any of them.`,
-    link: `The reading moves from each object towards the pattern they form together, while preserving your freedom to decide what is true and useful.`,
-    cardText: media.map((item, index) => cardFallback(req, item, index)),
-    synthesis: `Taken together, ${named} ask you to compare what you already recognise with what still needs time, evidence or a more conscious decision.`,
-    reading: `${address(req)}, the visible objects do not remove your ability to choose. They show you a pattern that you can test against your experience and turn into a practical response without forcing certainty where none yet exists.`,
-    closing: `Keep what helps you see more clearly, and let your next decision remain your own.`,
-    note: `This interpretation rests only on the visible objects, their positions and the signs present in the scene.`,
-    media: [...media],
+    ...(context.mediumPresentation ? { medium: context.mediumPresentation } : {}),
   };
 }
 
@@ -257,28 +76,17 @@ function replaceCanonical(
   };
 }
 
-function hasCanonicalTerms(
-  req: Extract<ApiReq, { task: "read" }>,
-  out: ReadingOut,
-): boolean {
-  const value = combined(out).toLocaleLowerCase(req.lang);
-  return req.draw.cards.some(card =>
-    value.includes(card.name.toLocaleLowerCase(req.lang))
-    || value.includes(card.suit.toLocaleLowerCase(req.lang)));
-}
-
+/**
+ * Canonical names are converted to the mapped public names before audit. Any
+ * remaining canonical or medium-contract violation is rejected by the model
+ * audit and therefore receives the normal escalation path rather than a silent
+ * deterministic rewrite.
+ */
 export function presentMappedReading(
   req: Extract<ApiReq, { task: "read" }>,
   out: ReadingOut,
   media: readonly MediumPresentation[],
-  mediumName: string,
+  _mediumName: string,
 ): ReadingOut {
-  const presented = replaceCanonical(req, out, media);
-  const namesPresent = media.every((item, index) => presented.cardText[index]
-    ?.toLocaleLowerCase(req.lang)
-    .includes(item.itemName.toLocaleLowerCase(req.lang)) === true);
-  if (namesPresent && !hasCanonicalTerms(req, presented) && !hasMappedTerms(presented)) {
-    return presented;
-  }
-  return readingFallback(req, media, mediumName);
+  return replaceCanonical(req, out, media);
 }
