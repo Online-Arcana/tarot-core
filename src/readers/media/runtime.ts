@@ -50,7 +50,6 @@ interface PresentationDef {
 interface PackDef {
   readonly reader: MappedReader;
   readonly culture: LocalText;
-  readonly medium: LocalText;
   readonly presentation: PresentationDef;
   readonly elements: ReadonlyMap<string, ElementDef>;
   readonly major: readonly EntryDef[];
@@ -144,6 +143,8 @@ export function isMappedReader(value: ReaderId): value is MappedReader {
 
 function assertNarrativeRitual(reader: MappedReader, ritual: NarrativeRitual): NarrativeRitual {
   const values = [
+    ritual.medium.en,
+    ritual.medium.es,
     ritual.concealment.en,
     ritual.concealment.es,
     ritual.chance.en,
@@ -254,7 +255,6 @@ function parsePack(expected: MappedReader, value: unknown): PackDef {
   return {
     reader,
     culture: local(source.culture, `${path}.culture`),
-    medium: local(source.medium, `${path}.medium`),
     presentation: parsePresentation(source.presentation, `${path}.presentation`),
     elements,
     major: parseEntries(source.major, `${path}.major`, MAJORS.length, elements),
@@ -367,7 +367,7 @@ export function mediumRitualFor(reader: ReaderId, code: LangCode): MediumRitualC
   return {
     reader,
     mode: ritualMode(reader),
-    medium: scene(tr(PACKS[reader].medium, code)).replace(/[.]$/u, ""),
+    medium: scene(tr(ritual.medium, code)).replace(/[.]$/u, ""),
     concealment: scene(tr(ritual.concealment, code)),
     chance: scene(tr(ritual.chance, code)),
     ...continuation,
@@ -409,7 +409,7 @@ export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): Med
     stateLabel: state,
     ...publicMeta,
     culture: scene(tr(pack.culture, code)).replace(/[.]$/u, ""),
-    medium: scene(tr(pack.medium, code)).replace(/[.]$/u, ""),
+    medium: scene(tr(ritualDef.medium, code)).replace(/[.]$/u, ""),
     itemId: `${reader}-${card.id}`,
     itemName,
     itemDescription: description(entry.itemDescription ? tr(entry.itemDescription, code) : null, itemName),
