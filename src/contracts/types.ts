@@ -6,6 +6,7 @@ export type SpreadId = "one" | "three" | "decision" | "advice" | "celtic";
 export type Side = "upright" | "reversed";
 export type ArcanaKind = "minor" | "major";
 export type ReqKind = "reading" | "chat";
+export type RitualPhase = "opening" | "continuation";
 export type Task = "invite" | "fit" | "ritual" | "read" | "chat" | "suggest" | "continue" | "title" | "handover" | "return";
 export type Topic =
   | "love" | "intimacy" | "family" | "grief" | "death" | "change"
@@ -104,7 +105,7 @@ export interface MediumPresentation {
   arcana: ArcanaKind;
   family: string | null;
   stateLabel: string;
-  /** Present on all newly generated mapped results; optional only for legacy saved readings. */
+  /** Required from media contract v3; optional only on legacy saved v2 readings. */
   publicName?: string;
   publicCategory?: string;
   publicNumber?: string;
@@ -253,7 +254,17 @@ interface ReqBase {
 export type ApiReq =
   | (ReqBase & { task: "invite" })
   | (ReqBase & { task: "fit"; question: string })
-  | (ReqBase & { task: "ritual"; question: string; spread: SpreadId; card: number; drawn?: DrawnCard })
+  | (ReqBase & {
+      task: "ritual";
+      question: string;
+      spread: SpreadId;
+      card: number;
+      drawn?: DrawnCard;
+      /** Full reading context for v3 clients. Optional only for v2 compatibility. */
+      draw?: Draw;
+      /** Earlier generated ritual paragraphs in reveal order. */
+      priorRituals?: string[];
+    })
   | (ReqBase & { task: "read"; question: string; draw: Draw })
   | (ReqBase & { task: "chat"; question: string })
   | (ReqBase & { task: "suggest"; turn: ReadTurn })
