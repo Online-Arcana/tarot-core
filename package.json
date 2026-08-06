@@ -21,8 +21,9 @@
   "scripts": {
     "check": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.build.json",
+    "test": "node --experimental-strip-types --test test/*.test.mts",
     "cli": "tsc -p tsconfig.build.json && node dist/cli/main.js",
-    "ci": "npm run check && npm run build"
+    "ci": "npm run check && npm run build && npm run test"
   },
   "engines": {
     "node": ">=22"
