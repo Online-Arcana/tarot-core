@@ -18,6 +18,7 @@ import type {
   MediumRitual,
   ReaderId,
   ReadTurn,
+  RitualPhase,
   Side,
 } from "../../contracts/types.js";
 
@@ -27,6 +28,7 @@ type MappedReader = Exclude<ReaderId, "selena">;
 type LocalText = Readonly<Record<Lang, string>>;
 type LocalList = Readonly<Record<Lang, readonly string[]>>;
 type FamilyDef = Readonly<Record<Suit, LocalText>>;
+export type RitualMode = "per-result" | "single-cast";
 
 interface RitualDef {
   readonly concealment: LocalText;
@@ -54,7 +56,7 @@ interface PresentationDef {
 }
 
 interface PackDef {
-  readonly version: number;
+  readonly sourceVersion: number;
   readonly reader: MappedReader;
   readonly culture: LocalText;
   readonly medium: LocalText;
@@ -67,6 +69,7 @@ interface PackDef {
 
 export interface MediumRitualContext {
   readonly reader: ReaderId;
+  readonly mode: RitualMode;
   readonly medium: string;
   readonly concealment: string;
   readonly chance: string;
@@ -109,7 +112,7 @@ const RAW: Readonly<Record<MappedReader, unknown>> = {
 };
 
 const ARCHIVE = /(?:online arcana|tarot|fiction|fictici|documented|documentad|attested|atestiguad|historical|históric|archaeolog|arqueolog|source|fuente|museum|museo)/iu;
-const RITUAL_CONTROL = /(?:\bpredetermined\b|\brecords? the state\b|\bstate is recorded\b|\binspection after\b|\bcanonical\b|\bvalidation\b|\bimplementation\b|\bapplication state\b|\bpredeterminad[oa]s?\b|\bregistra(?:r| el estado)?\b|\bestado (?:queda )?registrado\b|\binspección después\b|\bcanónic[oa]\b|\bvalidación\b|\bimplementación\b)/iu;
+const RITUAL_CONTROL = /(?:\bpredetermined\b|\brecords? the state\b|\bstate is recorded\b|\binspection after\b|\bcanonical\b|\bvalidation\b|\bimplementation\b|\bapplication state\b|\bspread positions?\b|\bmarked areas? correspond\b|\bnothing is shown early\b|\bhidden sign\b|\bpreserves? (?:its )?exact (?:state|direction)\b|\bpredeterminad[oa]s?\b|\bregistra(?:r| el estado)?\b|\bestado (?:queda )?registrado\b|\binspección después\b|\bcanónic[oa]\b|\bvalidación\b|\bimplementación\b|\bposiciones? de la tirada\b|\bnada se muestra antes\b|\bsigno oculto\b)/iu;
 
 const RITUAL_OVERRIDES: Partial<Record<MappedReader, Partial<RitualDef>>> = {
   yejide: {
@@ -133,9 +136,17 @@ const RITUAL_OVERRIDES: Partial<Record<MappedReader, Partial<RitualDef>>> = {
     },
   },
   ame: {
+    chance: {
+      en: "Ame casts the full handful once across the shallow basin, where the mixed petals settle into separate areas.",
+      es: "Ame lanza una sola vez el puñado completo sobre la cuenca poco profunda, donde los pétalos mezclados se posan en zonas separadas.",
+    },
     continuation: {
-      en: "Without casting again, Ame turns her attention to the next marked spread area, where the petals already rest or drift.",
-      es: "Sin volver a lanzar, Ame dirige su atención a la siguiente zona marcada de la tirada, donde los pétalos ya reposan o derivan.",
+      en: "Ame studies the next area of the same basin while the petals from the first cast continue to rest or drift.",
+      es: "Ame observa la siguiente zona de la misma cuenca mientras los pétalos del primer lanzamiento continúan reposando o derivando.",
+    },
+    beats: {
+      en: ["shallow basin", "one cast of mixed petals", "petals settling across the basin", "quiet movement in the current area", "attention shifting from one area to the next"],
+      es: ["cuenca poco profunda", "un lanzamiento de pétalos mezclados", "pétalos posándose por la cuenca", "movimiento leve en la zona actual", "atención que pasa de una zona a la siguiente"],
     },
   },
   nahid: {
@@ -338,7 +349,7 @@ function parsePack(expected: MappedReader, value: unknown): PackDef {
   ])) as Readonly<Record<Suit, readonly EntryDef[]>>;
 
   return {
-    version: positive(source.version, `${path}.version`),
+    sourceVersion: positive(source.version, `${path}.version`),
     reader,
     culture: local(source.culture, `${path}.culture`),
     medium: local(source.medium, `${path}.medium`),
@@ -433,8 +444,16 @@ function stateLabel(pack: PackDef, card: DrawnCard, code: LangCode): string {
   return scene(tr(pack.presentation.states[card.side], code)).replace(/[.]$/u, "");
 }
 
+function ritualMode(reader: ReaderId): RitualMode {
+  return reader === "ame" ? "single-cast" : "per-result";
+}
+
+export function ritualPhase(req: Extract<ApiReq, { task: "ritual" }>): RitualPhase {
+  return req.card === 0 ? "opening" : "continuation";
+}
+
 function chanceFor(context: MediumRitualContext, req: Extract<ApiReq, { task: "ritual" }>): string {
-  if (req.card > 0 && context.continuation) return context.continuation;
+  if (ritualPhase(req) === "continuation" && context.continuation) return context.continuation;
   return context.chance;
 }
 
@@ -446,6 +465,7 @@ export function mediumRitualFor(reader: ReaderId, code: LangCode): MediumRitualC
     : {};
   return {
     reader,
+    mode: ritualMode(reader),
     medium: scene(tr(pack.medium, code)).replace(/[.]$/u, ""),
     concealment: scene(tr(pack.ritual.concealment, code)),
     chance: scene(tr(pack.ritual.chance, code)),
@@ -478,7 +498,7 @@ export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): Med
   };
 
   return {
-    version: pack.version,
+    version: 3,
     reader,
     cardId: card.id,
     side: card.side,
@@ -509,12 +529,31 @@ function marks(medium: MediumPresentation): string[] {
   return medium.culturalElements.map(element => element.name);
 }
 
-function ritualData(context: MediumRitualContext, chance: string): unknown {
+function currentCard(req: Extract<ApiReq, { task: "ritual" }>): DrawnCard | undefined {
+  return req.draw?.cards[req.card] ?? req.drawn;
+}
+
+function ritualData(context: MediumRitualContext, req: Extract<ApiReq, { task: "ritual" }>): unknown {
+  const current = currentCard(req);
   return {
-    medium: context.medium,
-    concealment: context.concealment,
-    chance,
-    sensoryBeats: context.beats,
+    phase: ritualPhase(req),
+    mode: context.mode,
+    scene: {
+      medium: context.medium,
+      concealment: context.concealment,
+      action: chanceFor(context, req),
+      sensoryPalette: context.beats,
+    },
+    reading: {
+      spreadName: req.draw?.name ?? req.spread,
+      spreadPurpose: req.draw?.purpose ?? null,
+      resultCount: req.draw?.cards.length ?? null,
+      ordinal: req.card + 1,
+      positionName: current?.posName ?? null,
+      positionPurpose: current?.posMeaning ?? null,
+      placement: current?.place ?? null,
+    },
+    priorTheatre: req.priorRituals ?? [],
   };
 }
 
@@ -522,10 +561,11 @@ function readingData(medium: MediumPresentation, position: number): unknown {
   return {
     position,
     arcana: medium.arcana,
-    ...(medium.family ? { family: medium.family } : {}),
-    state: medium.stateLabel,
+    category: medium.publicCategory,
+    number: medium.publicNumber,
+    state: medium.publicState,
     medium: medium.medium,
-    itemName: medium.itemName,
+    itemName: medium.publicName,
     itemDescription: medium.itemDescription,
     visibleMarks: marks(medium),
     observation: medium.observation,
@@ -538,26 +578,36 @@ export function mediaPrompt(req: ApiReq): string {
     const context = mediumRitualFor(req.reader, req.lang);
     if (!context) return "";
     const spanish = language(req.lang) === "es";
-    const chance = chanceFor(context, req);
+    const phase = ritualPhase(req);
     return [
-      spanish ? "Permanece por completo dentro de la escena ritual." : "Remain entirely inside the ritual scene.",
       spanish
-        ? "Describe únicamente el medio, la ocultación y el movimiento aleatorio de la selección."
-        : "Describe only the medium, concealment and chance movement of the selection.",
+        ? "Los datos narrativos del medio están en input_data.mediumTranslation.scene; úsalos como material sensorial, no como texto que debas citar."
+        : "Narrative medium data is in input_data.mediumTranslation.scene; use it as sensory material, not text to quote.",
       spanish
-        ? "No nombres, describas, interpretes ni insinúes el objeto oculto, sus rasgos o su estado final antes de la revelación."
-        : "Do not name, describe, interpret or imply the hidden item, its features or its final state before the reveal.",
+        ? "No conviertas los nombres de propiedades, el modo, la fase, el orden, el conteo ni la continuidad en prosa de la escena."
+        : "Do not turn property names, mode, phase, order, counts or continuity controls into scene prose.",
       spanish
-        ? "Toda acción atribuida a la persona es narrativa; no solicites clic, confirmación, elección ni respuesta."
-        : "Any action attributed to the user is narrative; do not request a click, confirmation, choice or reply.",
-      `${spanish ? "Medio" : "Medium"}: ${context.medium}.`,
-      `${spanish ? "Ocultación" : "Concealment"}: ${context.concealment}`,
-      `${spanish ? "Movimiento de azar" : "Chance movement"}: ${chance}`,
-      `${spanish ? "Secuencia sensorial" : "Sensory sequence"}: ${context.beats.join(", ")}.`,
+        ? "No nombres, describas, interpretes ni insinúes el resultado oculto, sus rasgos o su estado antes de la revelación."
+        : "Do not name, describe, interpret or imply the hidden result, its features or its state before the reveal.",
+      spanish
+        ? "Usa el propósito de la posición para dar intención al movimiento, pero no lo expliques como una regla."
+        : "Use the position purpose to give the movement intention, but do not explain it as a rule.",
+      phase === "continuation"
+        ? (spanish
+          ? "Continúa naturalmente desde priorTheatre sin repetir sus frases, su estructura ni la preparación inicial."
+          : "Continue naturally from priorTheatre without repeating its wording, structure or initial preparation.")
+        : (spanish
+          ? "Abre la escena y establece el ritual sin anticipar ningún resultado."
+          : "Open the scene and establish the ritual without anticipating any result."),
+      context.mode === "single-cast" && phase === "continuation"
+        ? (spanish
+          ? "La acción inicial ya ocurrió; describe una nueva observación o cambio de atención, nunca otro lanzamiento."
+          : "The initial action has already happened; describe a fresh observation or shift of attention, never another cast.")
+        : "",
       spanish
         ? "Usa el nombre público de la persona lectora. No uses «el lector», baraja, carta, naipes ni tarot."
         : "Use the reader's public name. Do not use 'the reader', deck, card, cards or tarot.",
-    ].join("\n");
+    ].filter(Boolean).join("\n");
   }
 
   if (req.task !== "read" || !allMedia(req)) return "";
@@ -581,7 +631,7 @@ export function mediaPrompt(req: ApiReq): string {
 export function mediaPayload(req: ApiReq): unknown | null {
   if (req.task === "ritual") {
     const context = mediumRitualFor(req.reader, req.lang);
-    return context ? ritualData(context, chanceFor(context, req)) : null;
+    return context ? ritualData(context, req) : null;
   }
   if (req.task !== "read") return null;
   return allMedia(req)?.map((medium, index) => readingData(medium, index + 1)) ?? null;
@@ -599,7 +649,7 @@ export function mediaReadingInput(req: Extract<ApiReq, { task: "read" }>): unkno
       positionName: card.posName,
       positionMeaning: card.posMeaning,
       ...(card.place ? { place: card.place } : {}),
-      state: media[index]!.stateLabel,
+      state: media[index]!.publicState,
       meaning: card.meaning,
       item: readingData(media[index]!, index + 1),
     })),
@@ -625,7 +675,7 @@ export function mediaTurnInput(
       results: turn.draw.cards.map((card, index) => ({
         position: card.pos,
         positionName: card.posName,
-        state: media[index]!.stateLabel,
+        state: media[index]!.publicState,
         meaning: card.meaning,
         item: readingData(media[index]!, index + 1),
       })),
@@ -645,14 +695,16 @@ export function attachMedia(req: ApiReq, out: ApiOut): ApiOut {
     if (!isMappedReader(req.reader)) return out;
     const context = mediumRitualFor(req.reader, req.lang);
     if (!context) return out;
-    const medium = req.drawn ? mediaFor(req.reader, req.drawn, req.lang) : null;
+    const drawn = currentCard(req);
+    const medium = drawn ? mediaFor(req.reader, drawn, req.lang) : null;
     return presentMappedRitual(req, out as import("../../contracts/types.js").RitualOut, {
       medium: context.medium,
       concealment: context.concealment,
       chance: chanceFor(context, req),
       beats: context.beats,
       ...(medium ? { hiddenItem: medium.itemName } : {}),
-      ...(req.drawn ? { canonicalName: req.drawn.name } : {}),
+      ...(drawn ? { canonicalName: drawn.name } : {}),
+      ...(medium ? { mediumPresentation: medium } : {}),
     });
   }
   if (req.task !== "read") return out;
