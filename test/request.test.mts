@@ -60,6 +60,23 @@ test("parses a contextual continuation ritual", () => {
   assert.deepEqual(parseReq(value, allowed), value);
 });
 
+test("parses continuation context with an unavailable earlier ritual slot", () => {
+  const value = {
+    task: "ritual",
+    lang: "en-GB",
+    reader: "brennos",
+    name: "Kitty",
+    history: [],
+    question: "What now?",
+    spread: "three",
+    card: 1,
+    drawn: cards[1],
+    draw,
+    priorRituals: [""],
+  };
+  assert.deepEqual(parseReq(value, allowed), value);
+});
+
 test("parses a reading with one completed ritual paragraph per result", () => {
   const value = {
     task: "read",
@@ -73,6 +90,20 @@ test("parses a reading with one completed ritual paragraph per result", () => {
       "Brennos set the shield beside the flame and let one bone settle among the burnt cracks.",
       "His attention crossed the table as another bone struck iron and came to rest near the first.",
     ],
+  };
+  assert.deepEqual(parseReq(value, allowed), value);
+});
+
+test("parses a reading with an unavailable ritual placeholder", () => {
+  const value = {
+    task: "read",
+    lang: "en-GB",
+    reader: "brennos",
+    name: "Kitty",
+    history: [],
+    question: "What now?",
+    draw,
+    ritualTheatre: ["", "A later ritual remains available."],
   };
   assert.deepEqual(parseReq(value, allowed), value);
 });
