@@ -43,6 +43,18 @@ function history(value: unknown): Hist[] | null {
   return out;
 }
 
+function priorRituals(value: unknown): string[] | null {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.length > 9) return null;
+  const out: string[] = [];
+  for (const item of value) {
+    const parsed = text(item, 1600);
+    if (!parsed) return null;
+    out.push(parsed);
+  }
+  return out;
+}
+
 function card(value: unknown): DrawnCard | null {
   if (!rec(value)) return null;
   const pos = value.pos;
@@ -115,16 +127,30 @@ export function parseReq(value: unknown, allowedLangs: ReadonlySet<string>): Api
       const spread = value.spread;
       const cardNo = value.card;
       const drawn = value.drawn === undefined ? undefined : card(value.drawn);
+      const parsedDraw = value.draw === undefined ? undefined : draw(value.draw);
+      const previous = priorRituals(value.priorRituals);
       const validCard = Number.isInteger(cardNo) && Number(cardNo) >= 0 && Number(cardNo) < 10;
-      if (!question || !SPREADS.has(spread as SpreadId) || !validCard || drawn === null) return null;
-      if (drawn !== undefined && drawn.pos !== Number(cardNo) + 1) return null;
+      if (!question || !SPREADS.has(spread as SpreadId) || !validCard || drawn === null || parsedDraw === null || previous === null) return null;
+      const index = Number(cardNo);
+      if (drawn !== undefined && drawn.pos !== index + 1) return null;
+      if (parsedDraw !== undefined) {
+        if (parsedDraw.id !== spread || index >= parsedDraw.cards.length) return null;
+        const current = parsedDraw.cards[index];
+        if (!current || current.pos !== index + 1) return null;
+        if (drawn !== undefined && current.id !== drawn.id) return null;
+        if (previous.length !== index) return null;
+      } else if (previous.length > index) {
+        return null;
+      }
       return {
         task,
         ...base,
         question,
         spread: spread as SpreadId,
-        card: Number(cardNo),
+        card: index,
         ...(drawn === undefined ? {} : { drawn }),
+        ...(parsedDraw === undefined ? {} : { draw: parsedDraw }),
+        ...(previous.length ? { priorRituals: previous } : {}),
       };
     }
     case "read": {
