@@ -60,8 +60,8 @@ function majorCategory(reader: MappedReader, cardId: string, code: LangCode): st
     case "yejide": return "Òrìṣà";
     case "ngaru": return "Atua";
     case "ame": return AME_YOKAI.has(cardId) ? "Yōkai" : "Kami";
-    case "amaru": return "Waka";
-    case "nahid": return cardId === "major-fool" ? "Ahura" : "Yazata";
+    case "amaru": return "Wakas";
+    case "nahid": return cardId === "major-fool" ? "Ahura" : "Uazata";
     case "mictli": return "Teōtl";
   }
 }
