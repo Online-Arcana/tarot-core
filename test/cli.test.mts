@@ -23,9 +23,9 @@ function pack() {
 }
 
 const reading = {
-  gesture: "The reader settles the complete deck carefully upon the cloth and lets the room become quiet before beginning the interpretation.",
-  opening: "The question is held without haste while the selected card is allowed to take its proper place in the reading.",
-  link: "The card now opens the path towards a clear and grounded answer.",
+  gesture: "",
+  opening: "",
+  link: "",
   cardText: ["Card 0 in the Message position asks you to give careful attention to what is beginning."],
   synthesis: "Together, this beginning asks you to move with deliberate attention.",
   reading: "You can move carefully while still taking the next practical step before certainty is complete.",
