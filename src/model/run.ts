@@ -21,6 +21,7 @@ import {
   mediaReadingInput,
   mediaTurnInput,
 } from "../readers/media/runtime.js";
+import { revealedReadingContext } from "./reading-context.js";
 import { auditModelOut, correctionFromAudit, type ModelAudit } from "./audit.js";
 import { reconstructModelOut } from "./recover.js";
 import type { ApiOut, ApiReq, Task } from "../contracts/types.js";
@@ -154,13 +155,14 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
       return [
         "Generate one complete atmospheric paragraph of non-interpretive theatre before the current result is revealed.",
         "Use the question, spread purpose and current position purpose to give this moment intention without explaining them as rules.",
+        "revealedSoFar contains only results already visible at this point. Let their established themes shape the present movement without reinterpreting them or anticipating the hidden result.",
         "When prior theatre is supplied, continue the same scene without repeating its wording, structure or initial preparation.",
         "The narrator is a separate voice from the reader. Write gesture, opening and ritual only as third-person narration about the reader and the scene.",
         "The narrator must not use first-person language, speak as the reader, explain rules, report compliance or describe hidden application state.",
         "The combined gesture, opening and ritual fields must contain 36 to 110 words, read continuously as one paragraph and end with a complete sentence.",
         "Never truncate the paragraph and never end it with an ellipsis.",
         "Do not name, imply, interpret or predict the hidden result.",
-        "Do not pretend the result has already been identified, interpreted or placed."
+        "Do not pretend the hidden result has already been identified, interpreted or placed."
       ].join("\n");
     case "read": {
       const reading = isMappedReader(req.reader)
@@ -169,6 +171,9 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
       return [
         reading,
         "Separate ritual requests own all visible pre-reveal theatre. Return gesture, opening and link as empty strings.",
+        "ritualTheatre contains the narrator's completed scene for each reveal. Use it as atmospheric and emotional context so the interpretation belongs to the same lived moment.",
+        "Do not repeat, paraphrase or summarise ritual actions in reader dialogue. Do not turn the reader's speech into stage directions or third-person narration.",
+        "A subtle reference to an established sensory image is allowed only when it clarifies the interpretation and remains natural direct speech.",
         "The browser will reveal the results one at a time.",
         "cardText must contain exactly one interpretation per result in draw order.",
         "Each cardText item may mention that result and earlier revealed results only. It must never name or imply a later result.",
@@ -248,6 +253,7 @@ function payload(req: ApiReq): unknown {
       querent: req.name || null,
       question: req.question,
       reading: ritualReading(req),
+      revealedSoFar: revealedReadingContext(req),
       priorTheatre: req.priorRituals ?? [],
       history: req.history,
     }, req);
@@ -255,6 +261,7 @@ function payload(req: ApiReq): unknown {
       querent: req.name || null,
       question: req.question,
       spread: mediaReadingInput(req),
+      ritualTheatre: req.ritualTheatre ?? [],
       history: req.history,
     };
     case "chat": return { querent: req.name || null, question: req.question, history: req.history };
@@ -355,17 +362,19 @@ function stageContract(req: ApiReq): string {
     case "ritual":
       return [
         "CURRENT PERFORMANCE STAGE: ritual before reveal.",
-        "Known now: the user's question, the spread and current position purpose, the prior theatre, the reader, the physical medium and its sensory movement.",
-        "Unknown now: the selected item's identity, visible marks, final state, orientation, meaning and interpretation.",
+        "Known now: the user's question, the spread and current position purpose, prior theatre, all earlier revealed results, the reader, the physical medium and its sensory movement.",
+        "Unknown now: the current hidden item's identity, visible marks, final state, orientation, meaning and interpretation, plus every later result.",
+        "Use earlier revealed themes only to deepen continuity and intention. Never move their interpretation into the current hidden result.",
         "Describe observable preparation, movement and attention only.",
-        "Do not narrate inspecting, identifying, recording, validating or preserving a result. Those actions require unavailable information or belong only to private implementation."
+        "Do not narrate inspecting, identifying, recording, validating or preserving a hidden result. Those actions require unavailable information or belong only to private implementation."
       ].join("\n");
     case "read":
       return [
         "CURRENT PERFORMANCE: staged interpretation after separate ritual generation.",
         "gesture, opening and link are compatibility placeholders and must be empty strings.",
-        "cardText[i] occurs after result i is visible. It is direct reader speech and may know result i and earlier results only.",
-        "synthesis, reading and closing occur after every result has been revealed. They are direct reader speech.",
+        "ritualTheatre is narrator context already shown to the user. Reader dialogue is aware of it but must not reenact, recite or narrate it.",
+        "cardText[i] occurs after result i is visible. It is direct reader speech and may know result i, its ritual theatre and earlier revealed results only.",
+        "synthesis, reading and closing occur after every result has been revealed. They are direct reader speech and may integrate the whole reading and its atmosphere without changing voice.",
         "note occurs after completion and is third-person narration.",
         "Never move knowledge or conclusions backwards into an earlier result."
       ].join("\n");
