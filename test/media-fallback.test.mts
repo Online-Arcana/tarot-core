@@ -52,7 +52,7 @@ const mappedRead = {
   cardText: ["Epona asks you to meet this beginning with trust while keeping enough awareness to choose your first step deliberately."],
   synthesis: "You are being shown an opening that rewards movement, but it also asks you to notice where freedom needs a practical boundary.",
   reading: "You can begin before every detail is settled. Test the opportunity against your lived circumstances, keep responsibility for the pace, and let the first decision remain small enough to revise.",
-  closing: "Take the step that preserves both movement and choice.",
+  closing: "You can take the step that preserves both movement and choice.",
   note: "Brennos leaves the carved bone between the burnt cracks as the room settles.",
 };
 
