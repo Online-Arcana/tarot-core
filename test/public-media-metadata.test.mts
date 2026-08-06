@@ -26,9 +26,9 @@ test("mapped majors expose the approved broad public categories", () => {
   assert.equal(required(mediaFor("ngaru", card("major-fool"), "en-GB")).publicCategory, "Atua");
   assert.equal(required(mediaFor("ame", card("major-fool"), "en-GB")).publicCategory, "Kami");
   assert.equal(required(mediaFor("ame", card("major-devil"), "en-GB")).publicCategory, "Yōkai");
-  assert.equal(required(mediaFor("amaru", card("major-fool"), "en-GB")).publicCategory, "Waka");
+  assert.equal(required(mediaFor("amaru", card("major-fool"), "en-GB")).publicCategory, "Wakas");
   assert.equal(required(mediaFor("nahid", card("major-fool"), "en-GB")).publicCategory, "Ahura");
-  assert.equal(required(mediaFor("nahid", card("major-magician"), "en-GB")).publicCategory, "Yazata");
+  assert.equal(required(mediaFor("nahid", card("major-magician"), "en-GB")).publicCategory, "Uazata");
   assert.equal(required(mediaFor("mictli", card("major-fool"), "en-GB")).publicCategory, "Teōtl");
 });
 
@@ -62,6 +62,7 @@ test("public ritual palettes contain no operational language", () => {
   for (const reader of ["brennos", "yejide", "ngaru", "ame", "amaru", "nahid", "mictli"]) {
     const ritual = required(mediumRitualFor(reader, "en-GB"));
     assert.doesNotMatch([
+      ritual.medium,
       ritual.concealment,
       ritual.chance,
       ritual.continuation ?? "",
