@@ -77,10 +77,10 @@ function replaceCanonical(
 }
 
 /**
- * Canonical names are converted to the mapped public names before audit. Any
- * remaining canonical or medium-contract violation is rejected by the model
- * audit and therefore receives the normal escalation path rather than a silent
- * deterministic rewrite.
+ * Deterministic audit runs on the model output first. After it passes, this
+ * presentation step converts any harmless canonical name mention to the mapped
+ * public name and attaches the media contract. It never repairs a failed audit
+ * or substitutes generated prose.
  */
 export function presentMappedReading(
   req: Extract<ApiReq, { task: "read" }>,
