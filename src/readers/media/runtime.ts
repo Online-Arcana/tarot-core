@@ -6,6 +6,7 @@ import nahidRaw from "./maps/nahid.json" with { type: "json" };
 import ngaruRaw from "./maps/ngaru.json" with { type: "json" };
 import yejideRaw from "./maps/yejide.json" with { type: "json" };
 import { presentMappedReading, presentMappedRitual } from "./output.js";
+import { publicMediaMeta } from "./public-meta.js";
 import type {
   ApiOut,
   ApiReq,
@@ -108,6 +109,46 @@ const RAW: Readonly<Record<MappedReader, unknown>> = {
 };
 
 const ARCHIVE = /(?:online arcana|tarot|fiction|fictici|documented|documentad|attested|atestiguad|historical|históric|archaeolog|arqueolog|source|fuente|museum|museo)/iu;
+const RITUAL_CONTROL = /(?:\bpredetermined\b|\brecords? the state\b|\bstate is recorded\b|\binspection after\b|\bcanonical\b|\bvalidation\b|\bimplementation\b|\bapplication state\b|\bpredeterminad[oa]s?\b|\bregistra(?:r| el estado)?\b|\bestado (?:queda )?registrado\b|\binspección después\b|\bcanónic[oa]\b|\bvalidación\b|\bimplementación\b)/iu;
+
+const RITUAL_OVERRIDES: Partial<Record<MappedReader, Partial<RitualDef>>> = {
+  yejide: {
+    reversed: {
+      en: "The chosen seed settles with its carving hidden against the surface. After the cast, Yejide turns it and the carving comes into view.",
+      es: "La semilla elegida queda con la talla oculta contra la superficie. Después del lanzamiento, Yejide la gira y la talla queda a la vista.",
+    },
+    beats: {
+      en: ["opaque woven bag", "concealed handful", "seeds striking the desk", "one seed separating", "brief stillness before the seed is turned"],
+      es: ["bolsa tejida opaca", "puñado oculto", "semillas golpeando la mesa", "una semilla que se separa", "breve quietud antes de girar la semilla"],
+    },
+  },
+  ngaru: {
+    chance: {
+      en: "Ngaru reaches into the bag without looking and withdraws one shell by touch alone.",
+      es: "Ngaru introduce la mano en la bolsa sin mirar y extrae una concha guiándose únicamente por el tacto.",
+    },
+    beats: {
+      en: ["sea-worn opaque bag", "blind reach", "shell texture", "one shell withdrawn", "shell held without being turned"],
+      es: ["bolsa opaca desgastada por el mar", "búsqueda a ciegas", "textura de las conchas", "extracción de una concha", "concha sostenida sin girarla"],
+    },
+  },
+  ame: {
+    continuation: {
+      en: "Without casting again, Ame turns her attention to the next marked spread area, where the petals already rest or drift.",
+      es: "Sin volver a lanzar, Ame dirige su atención a la siguiente zona marcada de la tirada, donde los pétalos ya reposan o derivan.",
+    },
+  },
+  nahid: {
+    chance: {
+      en: "Nahid lights the incense and waits without forcing the smoke until a recognisable shape gathers.",
+      es: "Nahid enciende el incienso y espera sin forzar el humo hasta que se reúne una forma reconocible.",
+    },
+    beats: {
+      en: ["lighting incense", "uncontrolled first curls", "features gathering", "one shape becoming recognisable", "formation or dispersal"],
+      es: ["encendido del incienso", "primeras volutas incontroladas", "reunión de rasgos", "una forma que se vuelve reconocible", "formación o dispersión"],
+    },
+  },
+};
 
 function obj(value: unknown, path: string): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -173,6 +214,38 @@ function parseRitual(value: unknown, path: string): RitualDef {
     reversed: local(source.reversed, `${path}.reversed`),
     beats: localList(source.beats, `${path}.beats`),
   };
+}
+
+function assertNarrativeRitual(reader: MappedReader, ritual: RitualDef): RitualDef {
+  const values = [
+    ritual.concealment.en,
+    ritual.concealment.es,
+    ritual.chance.en,
+    ritual.chance.es,
+    ...(ritual.continuation ? [ritual.continuation.en, ritual.continuation.es] : []),
+    ritual.upright.en,
+    ritual.upright.es,
+    ritual.reversed.en,
+    ritual.reversed.es,
+    ...ritual.beats.en,
+    ...ritual.beats.es,
+  ];
+  const invalid = values.find(value => RITUAL_CONTROL.test(value));
+  if (invalid) throw new Error(`Reader media ${reader} exposes operational ritual language: ${invalid}`);
+  return ritual;
+}
+
+function publicRitual(reader: MappedReader, ritual: RitualDef): RitualDef {
+  const override = RITUAL_OVERRIDES[reader];
+  const continuation = override?.continuation ?? ritual.continuation;
+  return assertNarrativeRitual(reader, {
+    concealment: override?.concealment ?? ritual.concealment,
+    chance: override?.chance ?? ritual.chance,
+    ...(continuation ? { continuation } : {}),
+    upright: override?.upright ?? ritual.upright,
+    reversed: override?.reversed ?? ritual.reversed,
+    beats: override?.beats ?? ritual.beats,
+  });
 }
 
 function parseSources(value: unknown, path: string): ReadonlySet<string> {
@@ -269,7 +342,7 @@ function parsePack(expected: MappedReader, value: unknown): PackDef {
     reader,
     culture: local(source.culture, `${path}.culture`),
     medium: local(source.medium, `${path}.medium`),
-    ritual: parseRitual(source.ritual, `${path}.ritual`),
+    ritual: publicRitual(reader, parseRitual(source.ritual, `${path}.ritual`)),
     presentation: parsePresentation(source.presentation, `${path}.presentation`),
     elements,
     major: parseEntries(source.major, `${path}.major`, MAJORS.length, elements),
@@ -385,7 +458,12 @@ export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): Med
   if (!isMapped(reader)) return null;
   const pack = PACKS[reader];
   const entry = entryFor(pack, card);
-  const itemName = scene(tr(entry.itemName, code)).replace(/[.]$/u, "");
+  const kind = arcana(card);
+  const familyLabel = family(pack, card, code);
+  const state = stateLabel(pack, card, code);
+  const mappedName = scene(tr(entry.itemName, code)).replace(/[.]$/u, "");
+  const publicMeta = publicMediaMeta(reader, card, kind, mappedName, familyLabel, state, code);
+  const itemName = publicMeta.publicName;
   const observation = scene(tr(pack.ritual[card.side], code));
   const culturalElements: MediumElement[] = entry.elementIds.map(id => {
     const element = pack.elements.get(id);
@@ -404,9 +482,10 @@ export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): Med
     reader,
     cardId: card.id,
     side: card.side,
-    arcana: arcana(card),
-    family: family(pack, card, code),
-    stateLabel: stateLabel(pack, card, code),
+    arcana: kind,
+    family: familyLabel,
+    stateLabel: state,
+    ...publicMeta,
     culture: scene(tr(pack.culture, code)).replace(/[.]$/u, ""),
     medium: scene(tr(pack.medium, code)).replace(/[.]$/u, ""),
     itemId: `${reader}-${card.id}`,

@@ -104,6 +104,11 @@ export interface MediumPresentation {
   arcana: ArcanaKind;
   family: string | null;
   stateLabel: string;
+  /** Present on all newly generated mapped results; optional only for legacy saved readings. */
+  publicName?: string;
+  publicCategory?: string;
+  publicNumber?: string;
+  publicState?: string;
   culture: string;
   medium: string;
   itemId: string;

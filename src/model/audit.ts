@@ -1,4 +1,5 @@
 import type { ApiOut, ApiReq, ReadingOut } from "../contracts/types.js";
+import { profileFor } from "../readers/profiles.js";
 
 export interface AuditIssue {
   readonly code: string;
@@ -27,6 +28,8 @@ const direct = /\b(?:you|your|yours|yourself|tú|tu|tus|te|ti|contigo|usted|uste
 const terminal = /[.!?]["'’”)]*$/u;
 const hanging = /(?:…|\.\.\.|[,;:\-–—])\s*$/u;
 const ref = /#\/[A-Za-z0-9_~./-]+/u;
+const narratorFirstPerson = /\b(?:I|me|my|mine|we|us|our|ours|yo|mí|mío|mía|nosotros|nosotras|nuestro|nuestra)\b/iu;
+const operationalNarration = /\b(?:hidden application state|implementation details?|deterministic validation|records? the state|state is recorded|inspection after|reveal order|canonical mapping|JSON schema|application behaviour)\b/iu;
 
 export const words = (value: string): number =>
   value.trim().split(/\s+/u).filter(Boolean).length;
@@ -111,6 +114,44 @@ const auditTheatre = (
   if (repetitive(text)) add(issues, "theatre_repetitive", path, "combined theatre must contain natural, non-repetitive wording");
 };
 
+const regexEscape = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+
+const auditNarratorVoice = (
+  issues: AuditIssue[],
+  path: string,
+  value: string,
+): void => {
+  const text = clean(value);
+  if (narratorFirstPerson.test(text)) {
+    add(issues, "narrator_first_person", path, "narrator prose must remain in third person");
+  }
+  if (operationalNarration.test(text)) {
+    add(issues, "operational_narration", path, "must not dramatise implementation or state-machine controls");
+  }
+};
+
+const auditReaderVoice = (
+  issues: AuditIssue[],
+  path: string,
+  value: string,
+  req: ApiReq,
+): void => {
+  const name = profileFor(req.reader).public.name;
+  const source = req.reader === "amaru"
+    ? clean(value).replace(/\b(?:The|El)\s+Amaru\b/giu, "")
+    : clean(value);
+  const selfName = new RegExp(`\\b${regexEscape(name)}(?:['’]s)?\\b`, "iu");
+  if (selfName.test(source)) {
+    add(
+      issues,
+      "reader_third_person",
+      path,
+      `reader dialogue must not refer to ${name} as an outside third-person character`,
+    );
+  }
+};
+
 const canonical = (value: string): string => clean(value)
   .toLocaleLowerCase()
   .replace(/[^\p{L}\p{N}\s]/gu, "")
@@ -139,6 +180,9 @@ const auditRead = (
   issues: AuditIssue[],
 ): void => {
   auditTheatre(issues, "read.theatre", [out.gesture, out.opening, out.link]);
+  auditNarratorVoice(issues, "read.gesture", out.gesture);
+  auditNarratorVoice(issues, "read.opening", out.opening);
+  auditNarratorVoice(issues, "read.link", out.link);
   if (out.cardText.length !== req.draw.cards.length) {
     add(issues, "card_count", "read.cardText", `must contain exactly ${req.draw.cards.length} card interpretations`);
   }
@@ -146,14 +190,19 @@ const auditRead = (
   out.cardText.forEach((value, index) => {
     const path = `read.cardText[${index}]`;
     auditText(issues, path, value, { minWords: 5, maxWords: 260, complete: true, direct: true });
+    auditReaderVoice(issues, path, value, req);
     const lower = value.toLocaleLowerCase(req.lang);
     const later = names.slice(index + 1).find((name) => lower.includes(name));
     if (later !== undefined) add(issues, "reveal_order", path, `must not reveal later card ${later}`);
   });
   auditText(issues, "read.synthesis", out.synthesis, { minWords: 8, maxWords: 320, complete: true, direct: true });
+  auditReaderVoice(issues, "read.synthesis", out.synthesis, req);
   auditText(issues, "read.reading", out.reading, { minWords: 12, maxWords: 700, complete: true, direct: true });
+  auditReaderVoice(issues, "read.reading", out.reading, req);
   auditText(issues, "read.closing", out.closing, { minWords: 3, maxWords: 120, complete: true, direct: true });
+  auditReaderVoice(issues, "read.closing", out.closing, req);
   auditText(issues, "read.note", out.note, { maxWords: 100 });
+  auditNarratorVoice(issues, "read.note", out.note);
   auditDuplicates(issues, [
     ...out.cardText.map((value, index) => ({ path: `read.cardText[${index}]`, value })),
     { path: "read.synthesis", value: out.synthesis },
@@ -183,24 +232,32 @@ export const auditModelOut = <T extends ApiOut>(req: ApiReq, out: T): ModelAudit
     case "invite": {
       const value = out as Extract<ApiOut, { text: string }>;
       auditText(issues, "invite.text", value.text, { minWords: 3, maxWords: 24, complete: true, oneLine: true, oneSentence: true });
+      auditReaderVoice(issues, "invite.text", value.text, req);
       break;
     }
     case "fit": {
       const value = out as Extract<ApiOut, { level: string }>;
       auditText(issues, "fit.reason", value.reason, { minWords: 2, maxWords: 32, complete: true, oneLine: true, direct: true });
+      auditReaderVoice(issues, "fit.reason", value.reason, req);
       auditText(issues, "fit.offer", value.offer, { minWords: 2, maxWords: 32, complete: true, oneLine: true, direct: true });
+      auditReaderVoice(issues, "fit.offer", value.offer, req);
       break;
     }
     case "ritual": {
       const value = out as Extract<ApiOut, { ritual: string }>;
       auditTheatre(issues, "ritual.theatre", [value.gesture, value.opening, value.ritual]);
+      auditNarratorVoice(issues, "ritual.gesture", value.gesture);
+      auditNarratorVoice(issues, "ritual.opening", value.opening);
+      auditNarratorVoice(issues, "ritual.ritual", value.ritual);
       break;
     }
     case "read": auditRead(req, out as ReadingOut, issues); break;
     case "chat": {
       const value = out as Extract<ApiOut, { response: string }>;
       auditTheatre(issues, "chat.gesture", [value.gesture]);
+      auditNarratorVoice(issues, "chat.gesture", value.gesture);
       auditText(issues, "chat.response", value.response, { minWords: 8, maxWords: 600, complete: true, direct: true });
+      auditReaderVoice(issues, "chat.response", value.response, req);
       break;
     }
     case "suggest": {
@@ -215,6 +272,7 @@ export const auditModelOut = <T extends ApiOut>(req: ApiReq, out: T): ModelAudit
     case "continue": {
       const value = out as Extract<ApiOut, { text: string }>;
       auditText(issues, "continue.text", value.text, { minWords: 8, maxWords: 24, complete: true, oneLine: true, oneSentence: true, direct: true });
+      auditReaderVoice(issues, "continue.text", value.text, req);
       break;
     }
     case "title": {
@@ -246,6 +304,7 @@ export const auditModelOut = <T extends ApiOut>(req: ApiReq, out: T): ModelAudit
     case "return": {
       const value = out as Extract<ApiOut, { text: string }>;
       auditText(issues, "return.text", value.text, { minWords: 3, maxWords: 80, complete: true, oneLine: true, direct: true });
+      auditReaderVoice(issues, "return.text", value.text, req);
       break;
     }
   }

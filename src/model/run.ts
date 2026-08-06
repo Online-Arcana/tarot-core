@@ -30,6 +30,8 @@ export interface ModelPack { readonly prompt: { readonly reading: string; readon
 export interface ModelOverrides {
   readonly shortPrimary?: string;
   readonly shortEscalation?: string;
+  readonly ritualPrimary?: string;
+  readonly ritualEscalation?: string;
   readonly longPrimary?: string;
   readonly longEscalation?: string;
 }
@@ -37,6 +39,8 @@ export interface ModelOverrides {
 export interface ModelTiers {
   readonly shortPrimary: string;
   readonly shortEscalation: string;
+  readonly ritualPrimary: string;
+  readonly ritualEscalation: string;
   readonly longPrimary: string;
   readonly longEscalation: string;
 }
@@ -44,6 +48,8 @@ export interface ModelTiers {
 export const DEFAULT_MODEL_TIERS: ModelTiers = {
   shortPrimary: "gpt-5-nano",
   shortEscalation: "gpt-5.6-luna",
+  ritualPrimary: "gpt-5-mini",
+  ritualEscalation: "gpt-5.6-luna",
   longPrimary: "gpt-5.6-luna",
   longEscalation: "gpt-5.6-luna",
 };
@@ -328,9 +334,44 @@ function voiceContract(req: ApiReq): string {
   return [
     "There are two distinct voices and they must never merge.",
     `NARRATOR: a separate third-person voice describing ${name}, physical movement, setting and ritual. The narrator never says I, me, my, we or our; never speaks as ${name}; and never explains instructions, validation, hidden state, sequencing, inspection, recording, selection mechanics or application behaviour.`,
-    `READER: ${name} speaking directly to the user. Reader dialogue uses first-person perspective whenever ${name} refers to themself and never describes ${name} from an outside third-person viewpoint.`,
+    `READER: ${name} speaking directly to the user. Reader dialogue must never use ${name}'s name or third-person pronouns to refer to ${name}. When self-reference is needed, use I, me or my.`,
     "Narrator fields contain only scene prose. Reader fields contain only spoken dialogue. Do not put quotation marks, speaker labels, headings or stage directions inside either voice.",
   ].join("\n");
+}
+
+function stageContract(req: ApiReq): string {
+  switch (req.task) {
+    case "ritual":
+      return [
+        "CURRENT PERFORMANCE STAGE: ritual before reveal.",
+        "Known now: the user's question, reader, physical medium, concealment method, chance movement and sensory palette.",
+        "Unknown now: the selected item's identity, visible marks, final state, orientation, meaning and interpretation.",
+        "Describe observable preparation and chance movement only.",
+        "Do not narrate inspecting, identifying, recording, validating or preserving a result. Those actions require unavailable information or belong only to private implementation."
+      ].join("\n");
+    case "read":
+      return [
+        "CURRENT PERFORMANCE: staged reveal and reading.",
+        "gesture, opening and link occur before the first reveal. They are third-person narration and know no result identity, state or meaning.",
+        "cardText[i] occurs after result i is visible. It is direct reader speech and may know result i and earlier results only.",
+        "synthesis, reading and closing occur after every result has been revealed. They are direct reader speech.",
+        "note occurs after completion and is third-person narration.",
+        "Never move knowledge, actions or conclusions backwards into an earlier stage."
+      ].join("\n");
+    case "chat":
+      return [
+        "CURRENT PERFORMANCE: follow-up conversation.",
+        "gesture is third-person narrator prose describing only visible movement or setting.",
+        "response is the reader speaking directly to the user and never narrating the reader from outside."
+      ].join("\n");
+    case "invite":
+    case "fit":
+    case "continue":
+    case "return":
+      return "CURRENT PERFORMANCE: direct reader speech. The reader speaks to the user and never refers to themself by name or as an outside character.";
+    default:
+      return "";
+  }
 }
 
 function section(name: string, value: string): string {
@@ -344,6 +385,7 @@ export function modelPrompt(p: ModelPack, req: ApiReq, correction = ""): string 
     "Operational rules describe how to generate the answer, not events occurring inside the fictional scene.",
     privateProfile(req),
     voiceContract(req),
+    stageContract(req),
     taskPrompt(p, req),
     mediaPrompt(req),
     correction,
@@ -402,6 +444,12 @@ export class ModelOutputError extends Error {
 const longTask = (task: Task): boolean => task === "read" || task === "chat";
 
 export const modelRoute = (req: ApiReq, cfg: ModelCfg): readonly [string, string] => {
+  if (req.task === "ritual") {
+    return [
+      cfg.models?.ritualPrimary ?? DEFAULT_MODEL_TIERS.ritualPrimary,
+      cfg.models?.ritualEscalation ?? cfg.escalationModel ?? DEFAULT_MODEL_TIERS.ritualEscalation,
+    ];
+  }
   if (longTask(req.task)) {
     return [
       cfg.models?.longPrimary ?? cfg.body.model ?? DEFAULT_MODEL_TIERS.longPrimary,
