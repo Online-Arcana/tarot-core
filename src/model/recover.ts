@@ -184,15 +184,22 @@ const cardFallback = (
     : `${name} in ${card.posName}: ${text}`;
 };
 
+const futureNames = (
+  req: Extract<ApiReq, { task: "read" }>,
+  index: number,
+): string[] => req.draw.cards.slice(index + 1).flatMap(card => {
+  const publicName = mediaFor(req.reader, card, req.lang)?.publicName;
+  return [card.name, ...(publicName ? [publicName] : [])]
+    .map(name => name.toLocaleLowerCase(req.lang));
+});
+
 const cardTextFrom = (
   req: Extract<ApiReq, { task: "read" }>,
   candidates: readonly (ApiOut | undefined)[],
   index: number,
   fallback: string,
 ): string => {
-  const laterNames = req.draw.cards
-    .slice(index + 1)
-    .map((card) => card.name.toLocaleLowerCase(req.lang));
+  const laterNames = futureNames(req, index);
   for (const array of arrays(candidates, "cardText")) {
     const value = repairedProse(array[index], { minWords: 5, maxWords: 260, direct: true });
     if (value === null) continue;
@@ -209,15 +216,11 @@ const read = (
   candidates: readonly (ApiOut | undefined)[],
 ): ReadingOut => {
   const fallback = fallbackFor(req.lang);
-  const theatre = theatreFrom(
-    candidates,
-    ["gesture", "opening", "link"],
-    [fallback.readGesture, fallback.readOpening, fallback.readLink],
-  );
   return {
-    gesture: theatre[0],
-    opening: theatre[1],
-    link: theatre[2],
+    // Pre-reveal theatre is owned by the separately generated ritual sequence.
+    gesture: "",
+    opening: "",
+    link: "",
     cardText: req.draw.cards.map((_card, index) => cardTextFrom(req, candidates, index, fallback.cardText)),
     synthesis: proseFrom(candidates, "synthesis", fallback.synthesis, {
       minWords: 8, maxWords: 320, direct: true,
