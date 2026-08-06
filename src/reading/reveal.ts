@@ -20,11 +20,16 @@ function has(text: string, phrase: string): boolean {
 
 export function leaksFuture(draw: Draw, out: ReadingOut, lang: string, question = ""): boolean {
   const known = norm(question, lang);
-  const names = draw.cards.map(card => norm(card.name, lang));
+  const canonicalNames = draw.cards.map(card => norm(card.name, lang));
+  const publicNames = out.media?.map(item => norm(item.publicName?.trim() || item.itemName, lang)) ?? [];
 
   return out.cardText.some((text, index) => {
     const body = norm(text, lang);
-    return names.slice(index + 1).some(name => !has(known, name) && has(body, name));
+    const future = [
+      ...canonicalNames.slice(index + 1),
+      ...publicNames.slice(index + 1),
+    ];
+    return future.some(name => !has(known, name) && has(body, name));
   });
 }
 
