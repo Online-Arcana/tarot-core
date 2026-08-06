@@ -6,6 +6,7 @@ export type NarrativeText = Readonly<Record<Lang, string>>;
 export type NarrativeList = Readonly<Record<Lang, readonly string[]>>;
 
 export interface NarrativeRitual {
+  readonly medium: NarrativeText;
   readonly concealment: NarrativeText;
   readonly chance: NarrativeText;
   readonly continuation?: NarrativeText;
@@ -22,6 +23,10 @@ export interface NarrativeRitual {
  */
 const RITUALS: Readonly<Record<MappedReader, NarrativeRitual>> = {
   brennos: {
+    medium: {
+      en: "individually carved bones",
+      es: "huesos tallados individualmente",
+    },
     concealment: {
       en: "The carved bones remain hidden inside a shallow iron shield.",
       es: "Los huesos tallados permanecen ocultos dentro de un escudo de hierro poco profundo.",
@@ -44,6 +49,10 @@ const RITUALS: Readonly<Record<MappedReader, NarrativeRitual>> = {
     },
   },
   yejide: {
+    medium: {
+      en: "large individually carved seeds",
+      es: "semillas grandes talladas individualmente",
+    },
     concealment: {
       en: "The carved seeds remain hidden in an opaque woven bag.",
       es: "Las semillas talladas permanecen ocultas en una bolsa tejida opaca.",
@@ -66,6 +75,10 @@ const RITUALS: Readonly<Record<MappedReader, NarrativeRitual>> = {
     },
   },
   ngaru: {
+    medium: {
+      en: "painted seashells",
+      es: "conchas marinas pintadas",
+    },
     concealment: {
       en: "Painted shells remain hidden inside an opaque sea-worn bag.",
       es: "Las conchas pintadas permanecen ocultas dentro de una bolsa opaca desgastada por el mar.",
@@ -88,6 +101,10 @@ const RITUALS: Readonly<Record<MappedReader, NarrativeRitual>> = {
     },
   },
   ame: {
+    medium: {
+      en: "sakura, hasu, fuji and ajisai petals on collected rainwater",
+      es: "pétalos de sakura, hasu, fuji y ajisai sobre agua de lluvia recogida",
+    },
     concealment: {
       en: "Ame holds one gathered handful of sakura, hasu, fuji and ajisai petals above a shallow basin of collected rainwater.",
       es: "Ame sostiene un puñado de pétalos de sakura, hasu, fuji y ajisai sobre una cuenca poco profunda de agua de lluvia recogida.",
@@ -114,6 +131,10 @@ const RITUALS: Readonly<Record<MappedReader, NarrativeRitual>> = {
     },
   },
   amaru: {
+    medium: {
+      en: "knotted cords drawn from an opaque vessel",
+      es: "cordones anudados extraídos de un recipiente opaco",
+    },
     concealment: {
       en: "The knotted cords remain hidden inside a tall opaque vessel while Amaru mixes them by touch.",
       es: "Los cordones anudados permanecen ocultos dentro de un recipiente alto y opaco mientras Amaru los mezcla al tacto.",
@@ -136,6 +157,10 @@ const RITUALS: Readonly<Record<MappedReader, NarrativeRitual>> = {
     },
   },
   nahid: {
+    medium: {
+      en: "incense-smoke patterns",
+      es: "patrones de humo de incienso",
+    },
     concealment: {
       en: "Heat, air currents and the changing ember keep the next smoke shape indistinct until it gathers.",
       es: "El calor, las corrientes de aire y la brasa cambiante mantienen indistinta la siguiente forma de humo hasta que se reúne.",
@@ -158,6 +183,10 @@ const RITUALS: Readonly<Record<MappedReader, NarrativeRitual>> = {
     },
   },
   mictli: {
+    medium: {
+      en: "carved stone disks",
+      es: "discos de piedra tallados",
+    },
     concealment: {
       en: "The carved stone disks remain hidden in a dark covered vessel.",
       es: "Los discos de piedra tallados permanecen ocultos dentro de un recipiente oscuro y cubierto.",
