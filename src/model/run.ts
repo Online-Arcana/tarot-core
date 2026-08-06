@@ -152,28 +152,28 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
       ].join("\n");
     case "ritual":
       return [
-        "Generate one complete atmospheric paragraph of non-interpretive theatre before the next draw.",
+        "Generate one complete atmospheric paragraph of non-interpretive theatre before the current result is revealed.",
+        "Use the question, spread purpose and current position purpose to give this moment intention without explaining them as rules.",
+        "When prior theatre is supplied, continue the same scene without repeating its wording, structure or initial preparation.",
         "The narrator is a separate voice from the reader. Write gesture, opening and ritual only as third-person narration about the reader and the scene.",
         "The narrator must not use first-person language, speak as the reader, explain rules, report compliance or describe hidden application state.",
         "The combined gesture, opening and ritual fields must contain 36 to 110 words, read continuously as one paragraph and end with a complete sentence.",
         "Never truncate the paragraph and never end it with an ellipsis.",
         "Do not name, imply, interpret or predict the hidden result.",
-        "Do not pretend the result has already been interpreted or placed.",
-        `This is draw ${req.card + 1} in the ${req.spread} spread.`
+        "Do not pretend the result has already been identified, interpreted or placed."
       ].join("\n");
     case "read": {
       const reading = isMappedReader(req.reader)
-        ? "Interpret the supplied visible objects directly, preserving every supplied position, orientation and meaning without naming an underlying canonical result."
+        ? "Interpret the supplied visible objects directly, preserving every supplied position, state and meaning without naming an underlying canonical result."
         : p.prompt.reading;
       return [
         reading,
+        "Separate ritual requests own all visible pre-reveal theatre. Return gesture, opening and link as empty strings.",
         "The browser will reveal the results one at a time.",
         "cardText must contain exactly one interpretation per result in draw order.",
         "Each cardText item may mention that result and earlier revealed results only. It must never name or imply a later result.",
-        "The gesture, opening, link and note fields belong to the separate narrator and must use third-person scene narration, never the reader's first-person voice.",
         "The cardText, synthesis, reading and closing fields belong to the reader speaking directly in first-person perspective, never narration about the reader.",
-        "The gesture, opening and link fields must combine into one complete atmospheric theatre paragraph of 36 to 110 words.",
-        "That theatre paragraph must end naturally, never with an ellipsis or an abruptly cut sentence.",
+        "The note field occurs after completion and belongs to the separate third-person narrator.",
         "Use complete sentences with natural sentence boundaries so long dialogue can be split into readable animated passages.",
         "Do not place every result into one giant paragraph. Keep the final answer detailed but easy to divide into short passages."
       ].join("\n");
@@ -229,6 +229,17 @@ function withTranslation(base: Record<string, unknown>, req: ApiReq): unknown {
   return translation === null ? base : { ...base, mediumTranslation: translation };
 }
 
+function ritualReading(req: Extract<ApiReq, { task: "ritual" }>): unknown {
+  const current = req.draw?.cards[req.card] ?? req.drawn;
+  return {
+    spreadName: req.draw?.name ?? req.spread,
+    spreadPurpose: req.draw?.purpose ?? null,
+    positionName: current?.posName ?? null,
+    positionPurpose: current?.posMeaning ?? null,
+    placement: current?.place ?? null,
+  };
+}
+
 function payload(req: ApiReq): unknown {
   switch (req.task) {
     case "invite": return { querent: req.name || null };
@@ -236,8 +247,8 @@ function payload(req: ApiReq): unknown {
     case "ritual": return withTranslation({
       querent: req.name || null,
       question: req.question,
-      spread: req.spread,
-      draw: req.card + 1,
+      reading: ritualReading(req),
+      priorTheatre: req.priorRituals ?? [],
       history: req.history,
     }, req);
     case "read": return {
@@ -344,19 +355,19 @@ function stageContract(req: ApiReq): string {
     case "ritual":
       return [
         "CURRENT PERFORMANCE STAGE: ritual before reveal.",
-        "Known now: the user's question, reader, physical medium, concealment method, chance movement and sensory palette.",
+        "Known now: the user's question, the spread and current position purpose, the prior theatre, the reader, the physical medium and its sensory movement.",
         "Unknown now: the selected item's identity, visible marks, final state, orientation, meaning and interpretation.",
-        "Describe observable preparation and chance movement only.",
+        "Describe observable preparation, movement and attention only.",
         "Do not narrate inspecting, identifying, recording, validating or preserving a result. Those actions require unavailable information or belong only to private implementation."
       ].join("\n");
     case "read":
       return [
-        "CURRENT PERFORMANCE: staged reveal and reading.",
-        "gesture, opening and link occur before the first reveal. They are third-person narration and know no result identity, state or meaning.",
+        "CURRENT PERFORMANCE: staged interpretation after separate ritual generation.",
+        "gesture, opening and link are compatibility placeholders and must be empty strings.",
         "cardText[i] occurs after result i is visible. It is direct reader speech and may know result i and earlier results only.",
         "synthesis, reading and closing occur after every result has been revealed. They are direct reader speech.",
         "note occurs after completion and is third-person narration.",
-        "Never move knowledge, actions or conclusions backwards into an earlier stage."
+        "Never move knowledge or conclusions backwards into an earlier result."
       ].join("\n");
     case "chat":
       return [
