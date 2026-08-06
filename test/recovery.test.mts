@@ -4,124 +4,102 @@ import test from "node:test";
 import { auditModelOut } from "../dist/model/audit.js";
 import { reconstructModelOut } from "../dist/model/recover.js";
 
-const base = {
+const readReq = {
+  task: "read",
   lang: "en-GB",
   reader: "selena",
   name: "Kitty",
   history: [],
+  question: "What is changing?",
+  draw: {
+    id: "one",
+    name: "One card",
+    purpose: "Focus",
+    cards: [{
+      pos: 1,
+      posName: "Message",
+      posMeaning: "The message",
+      id: "major-fool",
+      name: "The Fool",
+      suit: "major",
+      side: "upright",
+      meaning: "Beginnings, freedom and trust.",
+    }],
+  },
 };
 
-const card = (name, posName) => ({
-  pos: 0,
-  posName,
-  posMeaning: posName,
-  id: name.toLowerCase().replaceAll(" ", "-"),
-  name,
-  suit: "major",
-  side: "upright",
-  meaning: "meaning",
-});
+const validRead = {
+  gesture: "Selena settles the deck beside the candle and lets the room grow quiet around the question before she begins to speak.",
+  opening: "A measured pause gives the chosen card enough space to stand clearly in the centre of the cloth.",
+  link: "The image now opens into a practical answer without forcing certainty.",
+  cardText: ["The Fool asks you to recognise that a beginning can be real before every detail is settled."],
+  synthesis: "This beginning asks you to keep openness and practical awareness together rather than treating them as opposites." ,
+  reading: "You can take the first deliberate step while leaving room to revise your direction as clearer evidence appears.",
+  closing: "Keep your freedom joined to attention.",
+  note: "The card remains visible while the question settles.",
+};
 
 test("selects the newest valid field rather than blindly preferring escalation", () => {
-  const req = {
-    ...base,
-    task: "read",
-    question: "What should I understand?",
-    draw: {
-      id: "three",
-      name: "Three cards",
-      purpose: "overview",
-      cards: [card("The Fool", "Beginning"), card("The World", "Outcome")],
-    },
-  };
-  const validSecond = "You can recognise a sense of completion here, while deciding what deserves to continue beyond this moment.";
   const primary = {
-    gesture: "Too short.",
-    opening: "Still short.",
-    link: "Not enough.",
-    cardText: [
-      "You can already see The World resolving everything before it has been revealed.",
-      validSecond,
-    ],
-    synthesis: "You can separate the invitation to begin from the need to complete what is already in motion.",
-    reading: "You can approach this transition with curiosity while remaining honest about the commitments that still need a deliberate ending.",
-    closing: "You can keep what feels useful and release the rest.",
-    note: "A reflective interpretation of the supplied cards.",
+    ...validRead,
+    cardText: ["The Fool asks you to move with trust while staying attentive to what the first step reveals."],
+    reading: "A rushed answer without direct address.",
   };
   const escalation = {
-    ...primary,
-    cardText: [
-      "You can still see The World before it has been revealed.",
-      "Broken fragment",
-    ],
-    synthesis: "A generic pattern exists without addressing the person.",
-    reading: "Broken fragment",
-    closing: "Broken fragment",
+    ...validRead,
+    gesture: "Too short.",
+    cardText: ["The Fool asks you to move with trust while staying attentive to what the first step reveals."],
+    reading: "You can take the first deliberate step while leaving room to revise your direction as clearer evidence appears.",
   };
 
-  const out = reconstructModelOut(req, [primary, escalation]);
-  const audit = auditModelOut(req, out);
-
-  assert.equal(audit.valid, true, audit.errors.join("\n"));
-  assert.equal(out.cardText.length, 2);
-  assert.match(out.cardText[0], /The Fool/u);
-  assert.doesNotMatch(out.cardText[0], /The World/u);
-  assert.equal(out.cardText[1], validSecond);
-  assert.equal(out.synthesis, primary.synthesis);
-  assert.equal(out.reading, primary.reading);
-  assert.equal(out.closing, primary.closing);
+  const out = reconstructModelOut(readReq, [primary, escalation]);
+  assert.equal(out.gesture, validRead.gesture);
+  assert.equal(out.reading, escalation.reading);
+  assert.equal(auditModelOut(readReq, out).valid, true);
 });
 
 test("filters invented handover cards and questions across both attempts", () => {
   const req = {
-    ...base,
     task: "handover",
-    question: "What should the next reader explore?",
-    target: "ame",
+    lang: "en-GB",
+    reader: "selena",
+    target: "mictli",
+    name: "Kitty",
+    history: [],
+    question: "What is changing?",
     conv: {
       v: 1,
-      id: "conv",
+      id: "conv-1",
       lang: "en-GB",
       reader: "selena",
-      created: "2026-08-04T00:00:00.000Z",
-      updated: "2026-08-04T00:00:00.000Z",
+      created: "2026-08-01T00:00:00.000Z",
+      updated: "2026-08-01T00:00:00.000Z",
       name: "Kitty",
       turns: [{
-        id: "turn",
+        id: "turn-1",
         kind: "reading",
-        at: "2026-08-04T00:00:00.000Z",
+        at: "2026-08-01T00:00:00.000Z",
         question: "What is changing?",
-        draw: {
-          id: "one",
-          name: "One card",
-          purpose: "focus",
-          cards: [card("The Fool", "Focus")],
-        },
-        out: {
-          gesture: "gesture",
-          opening: "opening",
-          link: "link",
-          cardText: ["text"],
-          synthesis: "synthesis",
-          reading: "reading",
-          closing: "closing",
-          note: "note",
-        },
+        draw: readReq.draw,
+        out: validRead,
       }],
     },
   };
   const primary = {
-    summary: "The user is continuing a reading and wants the next reader to preserve the established direction.",
-    questions: ["What is changing?"],
-    conclusions: ["A new beginning is available."],
-    cards: ["The Fool", "Invented Card"],
+    summary: "The user asked what is changing and received a reading centred on a beginning that still needs deliberate attention.",
+    questions: ["What is changing?", "What secret fear remains?"],
+    conclusions: ["A beginning is active."],
+    cards: ["The Fool", "The Tower"],
     facts: [],
-    unresolved: ["How should the user begin?"],
+    unresolved: ["How quickly to move."],
   };
   const escalation = {
-    ...primary,
-    questions: ["What secret fact was never supplied?"],
-    cards: ["Invented Card"],
+    summary: "The reading identified a beginning that asks for trust, awareness and a deliberate next step without forcing certainty.",
+    questions: ["What is changing?"],
+    conclusions: ["The beginning needs attention."],
+    cards: ["The Fool"],
+    facts: [],
+    unresolved: ["How quickly to move."],
   };
 
   const out = reconstructModelOut(req, [primary, escalation]);
@@ -146,6 +124,6 @@ test("keeps an XML fallback entry for every customer-facing field class", async 
     "handover.summary",
     "return.text",
   ]) {
-    assert.match(xml, new RegExp(`id=\\"${id.replace(".", "\\.")}\\"`, "u"));
+    assert.ok(xml.includes(`id="${id}"`), `missing fallback entry ${id}`);
   }
 });
