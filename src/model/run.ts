@@ -482,16 +482,52 @@ export const modelRoute = (req: ApiReq, cfg: ModelCfg): readonly [string, string
   ];
 };
 
+const legacyGpt5 = /^gpt-5(?:-(?:mini|nano))?(?:-\d{4}-\d{2}-\d{2})?$/u;
+const gpt56 = /^gpt-5\.6(?:-(?:sol|terra|luna))?(?:-\d{4}-\d{2}-\d{2})?$/u;
+
+function dict(value: unknown): value is Dict {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function modelRequestBody(model: string, body: Dict): Dict & { model: string } {
+  if (!dict(body.reasoning) || typeof body.reasoning.effort !== "string") {
+    return { ...body, model };
+  }
+
+  const requested = body.reasoning.effort;
+  let effort = requested;
+  if (legacyGpt5.test(model)) {
+    if (requested === "none") effort = "minimal";
+    else if (requested === "xhigh" || requested === "max") effort = "high";
+  } else if (gpt56.test(model) && requested === "minimal") {
+    effort = "none";
+  }
+
+  return {
+    ...body,
+    reasoning: { ...body.reasoning, effort },
+    model,
+  };
+}
+
 function sendOpts(cfg: ModelCfg, model: string) {
   return {
-    body: { ...cfg.body, model },
+    body: modelRequestBody(model, cfg.body),
     ...(cfg.retries === undefined ? {} : { retries: cfg.retries }),
     ...(cfg.retryDelayMs === undefined ? {} : { retryDelayMs: cfg.retryDelayMs }),
   };
 }
 
-const message = (cause: unknown): string =>
-  cause instanceof Error ? cause.message : String(cause);
+function errorBody(cause: unknown): string {
+  if (!dict(cause) || typeof cause.body !== "string") return "";
+  return cause.body.replace(/\s+/gu, " ").trim().slice(0, 4_000);
+}
+
+const message = (cause: unknown): string => {
+  const base = cause instanceof Error ? cause.message : String(cause);
+  const body = errorBody(cause);
+  return body ? `${base}: ${body}` : base;
+};
 
 const accepted = (
   req: ApiReq,
