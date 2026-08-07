@@ -8,8 +8,50 @@ type RitualReq = Extract<ApiReq, { task: "ritual" }>;
 
 const spanish = (req: RitualReq): boolean => req.lang.toLocaleLowerCase().startsWith("es");
 
+const AMBIENT_EN = [
+  "A narrow band of lamplight drifts across the floor and fades beneath the table.",
+  "Cool air brushes the room once, leaving the surrounding shadows unusually sharp.",
+  "A muted scrape from the surface briefly interrupts the stillness, then disappears.",
+  "The distant hush deepens as a little warmth gathers close to the working space.",
+  "Soft reflected light catches a rough edge nearby before sliding back into darkness.",
+  "A dry whisper of movement passes through the space and leaves no echo behind.",
+  "The tabletop holds a faint vibration for a heartbeat before becoming completely still.",
+  "A small change in the air makes the quiet feel closer and more concentrated.",
+  "Dim light gathers along the working space while the corners of the room recede.",
+  "A nearly inaudible rustle crosses the silence and vanishes before it can repeat.",
+  "The cooler edge of the room contrasts with the slight warmth held near the centre.",
+  "One soft shadow shifts across the surface, then settles into an unfamiliar angle.",
+  "The surrounding stillness sharpens every tiny sound without giving any one of them importance.",
+  "The air remains motionless long enough for the smallest remaining sound to become distinct.",
+  "A dull glimmer appears briefly on the surface and disappears as the angle changes.",
+  "The pause lengthens just enough for the room's ordinary noises to fall away.",
+] as const;
+
+const AMBIENT_ES = [
+  "Una franja estrecha de luz cruza el suelo y se apaga bajo la mesa.",
+  "El aire fresco roza la estancia una vez y deja las sombras alrededor más definidas.",
+  "Un roce apagado sobre la superficie interrumpe brevemente la quietud y luego desaparece.",
+  "El silencio lejano se hace más profundo mientras un poco de calor se reúne cerca del espacio de trabajo.",
+  "La luz reflejada atrapa un borde áspero cercano antes de retirarse otra vez hacia la oscuridad.",
+  "Un susurro seco de movimiento atraviesa el espacio y no deja ningún eco detrás.",
+  "La mesa conserva una vibración tenue durante un instante antes de quedar completamente inmóvil.",
+  "Un pequeño cambio en el aire hace que la quietud parezca más cercana y concentrada.",
+  "La luz tenue se reúne sobre el espacio de trabajo mientras los rincones de la estancia retroceden.",
+  "Un roce casi inaudible cruza el silencio y desaparece antes de poder repetirse.",
+  "El borde más fresco de la estancia contrasta con el leve calor que permanece cerca del centro.",
+  "Una sombra suave se desplaza sobre la superficie y luego se asienta en un ángulo distinto.",
+  "La quietud alrededor vuelve nítido cada sonido pequeño sin dar importancia especial a ninguno.",
+  "El aire permanece inmóvil el tiempo suficiente para que el sonido más leve se vuelva claro.",
+  "Un brillo apagado aparece un instante sobre la superficie y desaparece cuando cambia el ángulo.",
+  "La pausa se alarga lo suficiente para que los ruidos habituales de la estancia se desvanezcan.",
+] as const;
+
 function pick(values: readonly string[], seed: number): string {
   return values[Math.abs(seed) % values.length] ?? values[0] ?? "";
+}
+
+function ambient(req: RitualReq, seed: number): string {
+  return pick(spanish(req) ? AMBIENT_ES : AMBIENT_EN, seed);
 }
 
 function querentAction(req: RitualReq, seed: number): string {
@@ -79,7 +121,7 @@ function selena(req: RitualReq, seed: number): RitualOut {
   return {
     gesture: pick(gestures, seed),
     opening: pick(openings, Math.floor(seed / 4)),
-    ritual: pick(rituals, Math.floor(seed / 16)),
+    ritual: `${pick(rituals, Math.floor(seed / 16))} ${ambient(req, seed)}`,
   };
 }
 
@@ -96,22 +138,18 @@ function mapped(req: RitualReq, seed: number): RitualOut | null {
   const participation = ritualParticipation(req.reader);
 
   const gestures = es ? [
-    `${name} acerca ${context.medium} al centro silencioso del espacio y deja que el movimiento encuentre un ritmo pausado.`,
-    `En la quietud de la estancia, ${name} vuelve su atención hacia ${context.medium} y espera antes de continuar.`,
-    `${name} dispone ${context.medium} junto a la mesa, con ${beat} como único movimiento perceptible durante unos instantes.`,
-    `Sin apresurarse, ${name} atiende a ${context.medium} mientras ${beat} mantiene la escena anclada en lo físico.`,
+    `${name} acerca ${context.medium} y deja que ${beat} ocupe el centro de la atención.`,
+    `${name} vuelve hacia ${context.medium}; durante un instante, sólo ${beat} rompe la quietud.`,
+    `Junto a la mesa, ${name} atiende a ${context.medium} mientras ${beat} marca el movimiento.`,
+    `${name} dispone ${context.medium} sin prisa, con ${beat} sosteniendo la escena física.`,
   ] : [
-    `${name} brings the ${context.medium} into the quiet centre of the space and lets the movement find an unhurried rhythm.`,
-    `In the still room, ${name} returns attention to the ${context.medium} and waits before continuing.`,
-    `${name} settles the ${context.medium} beside the table, with ${beat} providing the only noticeable movement for a moment.`,
-    `Without hurry, ${name} attends to the ${context.medium} while ${beat} keeps the scene grounded in the physical moment.`,
+    `${name} brings the ${context.medium} close and lets ${beat} take the centre of attention.`,
+    `${name} turns back to the ${context.medium}; for a moment, only ${beat} breaks the stillness.`,
+    `Beside the table, ${name} attends to the ${context.medium} while ${beat} marks the movement.`,
+    `${name} settles the ${context.medium} without hurry, with ${beat} grounding the physical scene.`,
   ];
 
-  const opening = phase === "opening"
-    ? context.concealment
-    : (es
-      ? `El movimiento anterior ya se ha calmado; ahora ${beat} sostiene la atención sin alterar lo que permanece alrededor.`
-      : `The earlier movement has settled; now ${beat} holds the attention without disturbing what remains around it.`);
+  const opening = phase === "opening" ? context.concealment : ambient(req, seed);
 
   let action: string;
   if (participation.actor === "querent") {
@@ -123,15 +161,23 @@ function mapped(req: RitualReq, seed: number): RitualOut | null {
   }
 
   const tails = es ? [
-    `${name} espera mientras ${secondBeat} pierde movimiento y deja que la escena termine en silencio antes de hablar.`,
-    `El sonido se apaga alrededor de ${secondBeat}, y ${name} permite que el gesto concluya sin forzar todavía un significado.`,
-    `Cuando ${secondBeat} vuelve a la calma, ${name} mantiene la atención en la escena física y no añade ninguna interpretación.`,
-    `${name} deja que ${secondBeat} se asiente por completo, sosteniendo unos instantes más la quietud del lugar.`,
+    `${name} espera hasta que ${secondBeat} queda en calma.`,
+    `Al apagarse ${secondBeat}, ${name} deja que vuelva el silencio.`,
+    `${name} observa cómo ${secondBeat} pierde su último movimiento.`,
+    `Cuando ${secondBeat} se aquieta, ${name} no fuerza ningún significado.`,
+    `${name} deja que ${secondBeat} termine de asentarse en silencio.`,
+    `La atención de ${name} permanece con ${secondBeat} hasta que todo se calma.`,
+    `${name} mantiene la pausa mientras ${secondBeat} deja de moverse.`,
+    `Sin interpretar todavía, ${name} espera junto a ${secondBeat}.`,
   ] : [
-    `${name} waits while ${secondBeat} loses its motion, letting the scene end in silence before any words are offered.`,
-    `The sound fades around ${secondBeat}, and ${name} allows the movement to finish without forcing a meaning yet.`,
-    `As ${secondBeat} grows still, ${name} keeps attention on the physical scene and adds no interpretation.`,
-    `${name} lets ${secondBeat} settle completely, holding the quiet of the place for a few moments longer.`,
+    `${name} waits until ${secondBeat} becomes still.`,
+    `As ${secondBeat} fades, ${name} lets silence return.`,
+    `${name} watches ${secondBeat} lose its final movement.`,
+    `When ${secondBeat} settles, ${name} forces no meaning onto it.`,
+    `${name} lets ${secondBeat} finish settling in silence.`,
+    `${name}'s attention remains with ${secondBeat} until everything grows quiet.`,
+    `${name} holds the pause while ${secondBeat} stops moving.`,
+    `Without interpreting yet, ${name} waits beside ${secondBeat}.`,
   ];
 
   return {
@@ -145,7 +191,7 @@ export function recoverRitual(
   req: RitualReq,
   fallback: RitualOut,
 ): RitualOut {
-  for (let attempt = 0; attempt < 96; attempt += 1) {
+  for (let attempt = 0; attempt < 192; attempt += 1) {
     const seed = req.card + attempt;
     const candidate = isMappedReader(req.reader)
       ? mapped(req, seed)
