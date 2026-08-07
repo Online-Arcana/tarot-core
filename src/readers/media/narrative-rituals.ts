@@ -84,8 +84,8 @@ const RITUALS: Readonly<Record<MappedReader, NarrativeRitual>> = {
       es: "Las conchas pintadas permanecen ocultas dentro de una bolsa opaca desgastada por el mar.",
     },
     chance: {
-      en: "The bag is brought close so one shell can be withdrawn by touch alone without seeing its painted surface.",
-      es: "La bolsa se acerca para que se extraiga una concha solo mediante el tacto, sin ver su superficie pintada.",
+      en: "Ngaru steadies and offers the opaque sea-worn bag. You reach in without looking and withdraw one shell by touch alone.",
+      es: "Ngaru sostiene y ofrece la bolsa opaca desgastada por el mar. Tú introduces la mano sin mirar y extraes una concha únicamente por el tacto.",
     },
     upright: {
       en: "The shell carries its painting on the outer curved surface.",
@@ -140,8 +140,8 @@ const RITUALS: Readonly<Record<MappedReader, NarrativeRitual>> = {
       es: "Los cordones anudados permanecen ocultos dentro de un recipiente alto y opaco mientras Amaru los mezcla al tacto.",
     },
     chance: {
-      en: "The vessel is brought close so one cord can be drawn without seeing its colour, knots or emerging end.",
-      es: "El recipiente se acerca para que se extraiga un cordón sin ver su color, sus nudos ni el extremo que emerge.",
+      en: "Amaru mixes the hidden cords by touch and offers the opaque vessel. You reach in without looking and draw one cord by the first end encountered.",
+      es: "Amaru mezcla los cordones ocultos al tacto y ofrece el recipiente opaco. Tú introduces la mano sin mirar y extraes un cordón por el primer extremo que encuentras.",
     },
     upright: {
       en: "The cord emerges from its marked front end.",

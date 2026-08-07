@@ -8,6 +8,7 @@ import type {
 import { attachMedia, mediaFor } from "../readers/media/runtime.js";
 import { auditModelOut, words } from "./audit.js";
 import { fallbackFor } from "./fallback.js";
+import { recoverRitual } from "./ritual-recovery.js";
 
 const direct = /\b(?:you|your|yours|yourself|tú|tu|tus|te|ti|contigo|usted|ustedes|vos|vosotros|vuestro|vuestra|sus)\b/iu;
 const terminal = /[.!?]["'’”)]*$/u;
@@ -376,7 +377,15 @@ const reconstruct = (
       }),
     }; break;
   }
-  return auditModelOut(req, output).valid ? output : bareFallbackModelOut(req);
+  if (auditModelOut(req, output).valid) return output;
+  if (req.task === "ritual") {
+    return recoverRitual(req, {
+      gesture: fallback.ritualGesture,
+      opening: fallback.ritualOpening,
+      ritual: fallback.ritual,
+    });
+  }
+  return bareFallbackModelOut(req);
 };
 
 export const reconstructModelOut = (
