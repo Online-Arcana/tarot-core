@@ -352,9 +352,6 @@ function voiceContract(req: ApiReq): string {
   return [
     "There are two distinct voices and they must never merge.",
     `NARRATOR: a separate third-person voice describing ${name}, physical movement, setting and ritual. The narrator never says I, me, my, we or our; never speaks as ${name}; and never explains instructions, validation, hidden state, sequencing, inspection, recording, selection mechanics or application behaviour.`,
-    ...(req.lang.toLocaleLowerCase().startsWith("es") ? [
-      `En español, en los campos del NARRADOR, toda cláusula que describa una acción realizada por ${name} debe expresar explícitamente el sujeto mediante ${name} o su pronombre registrado de tercera persona. No uses sujeto tácito en esas cláusulas: formas como «inclina», «calienta», «sostiene» o «se acerca» sin sujeto explícito pueden leerse como imperativos dirigidos a la persona consultante. La persona consultante es el destinatario en segunda persona del narrador; usa la forma correcta según su función gramatical (tú, te, ti, contigo, tu/tus) y no la conviertas en quien realiza las acciones de ${name}.`,
-    ] : []),
     `READER: ${name} speaking directly to the user. Reader dialogue must never use ${name}'s name or third-person pronouns to refer to ${name}. When self-reference is needed, use I, me or my.`,
     "Narrator fields contain only scene prose. Reader fields contain only spoken dialogue. Do not put quotation marks, speaker labels, headings or stage directions inside either voice.",
   ].join("\n");
