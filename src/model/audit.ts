@@ -32,6 +32,8 @@ const hanging = /(?:…|\.\.\.|[,;:\-–—])\s*$/u;
 const ref = /#\/[A-Za-z0-9_~./-]+/u;
 const narratorFirstPerson = /\b(?:I|me|my|mine|we|us|our|ours|yo|mí|mío|mía|nosotros|nosotras|nuestro|nuestra)\b/iu;
 const operationalNarration = /\b(?:hidden application state|implementation details?|deterministic validation|records? the state|state is recorded|inspection after|reveal order|canonical mapping|JSON schema|application behaviour|spread positions?|marked areas? correspond|nothing is shown early|hidden sign|preserves? (?:its )?exact (?:state|direction)|no second cast|without another cast|counting each area|result number|draw number|phase|continuity control|estado oculto de la aplicación|detalles? de implementación|validación determinista|registra(?:r| el estado)?|estado (?:queda )?registrado|inspección después|orden de revelación|mapeo canónico|comportamiento de la aplicación|posiciones? de la tirada|zonas? marcadas? corresponden?|nada se muestra antes|signo oculto|conserva (?:su )?(?:estado|dirección) exact[oa]|sin otro lanzamiento|contando cada zona|número de resultado|número de extracción|control de continuidad)\b/iu;
+const spanishNarratorProDrop = /(?:^|[.!?;:]\s+|\b(?:luego|después|entonces|mientras|cuando)\s+)(?:se\s+)?(?:inclina|endereza|calienta|sostiene|mira|observa|escucha|toma|deja|acerca|aleja|abre|cierra|levanta|baja|apoya|coloca|gira|desliza|extiende|retira|recoge|suelta|mueve|pasa|roza|toca|permanece|respira|sonríe|asiente|ofrece|entrega|da|dice|habla|pregunta|responde|corta|alisa|recuerda|mezcla|baraja|reúne|mantiene|vuelve|espera)\b/iu;
+const spanishPronounCase = /\b(?:a|ante|bajo|contra|de|desde|en|hacia|hasta|para|por|sin|sobre|tras)\s+tú\b|\bcon\s+(?:tú|ti)\b|\b(?:mira|observa|escucha|toca|abraza|sigue|ayuda|saluda)\s+a ti\b|\b(?:entrega|da|ofrece)\b[^.!?;:]{0,50}\ba ti\b/iu;
 const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?)\b/iu;
 const genericReader = /\b(?:the reader|el lector|la lectora|la persona lectora)\b/iu;
 const userActionEn = /\b(?:you|the querent)\s+(?:lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw|sit|stand|rest)\b/iu;
@@ -141,6 +143,8 @@ const auditNarratorVoice = (
   if (operationalNarration.test(text)) {
     add(issues, "operational_narration", path, "must not dramatise implementation, sequencing or state-machine controls");
   }
+  if (spanishNarratorProDrop.test(text)) add(issues, "spanish_reader_pro_drop", path, "En español, expresa el nombre o pronombre de tercera persona de la persona lectora; no uses pro-drop para sus acciones.");
+  if (spanishPronounCase.test(text)) add(issues, "spanish_pronoun_case", path, "En español, usa el caso correcto de segunda persona: tú, te, ti, contigo, tu/tus.");
 };
 
 const auditReaderVoice = (
