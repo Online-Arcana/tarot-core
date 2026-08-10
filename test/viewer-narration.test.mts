@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addressViewer } from "../src/model/viewer-narration.ts";
+import { addressViewer } from "../dist/model/viewer-narration.js";
 
 test("ritual narration addresses the viewer as you without changing reader pronouns", () => {
   const req = {
