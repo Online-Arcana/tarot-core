@@ -96,9 +96,13 @@ function sentenceAudience(sentence: string, name: string, es: boolean): string {
   const before = sentence.slice(0, match.index);
   const after = sentence.slice(match.index + match[0].length);
   const possessive = /['’]s$/iu.test(match[0]);
-  const replacement = possessive ? (es ? "tu" : "your") : (es ? "tú" : "you");
+  const owner = es ? new RegExp(`\\b(?:el|la|los|las)\\s+(${userNounEs})\\s+de\\s*$`, "iu").exec(before) : null;
+  if (owner?.index !== undefined) return `${before.slice(0, owner.index)}${/^[A-ZÁÉÍÓÚÜÑ]/u.test(owner[0] ?? "") ? "T" : "t"}u${/s$/iu.test(owner[1] ?? "") ? "s" : ""} ${owner[1]}${viewerReferences(after, es)}`;
+  const prep = es ? /\b(con|a|ante|bajo|contra|de|desde|en|hacia|hasta|para|por|sin|sobre|tras)\s*$/iu.exec(before) : null;
+  const stem = prep?.[1]?.toLocaleLowerCase() === "con" && prep.index !== undefined ? before.slice(0, prep.index) : before;
+  const replacement = possessive ? (es ? "tu" : "your") : es && prep ? (prep[1].toLocaleLowerCase() === "con" ? "contigo" : "ti") : (es ? "tú" : "you");
   const referred = viewerReferences(after, es);
-  return `${before}${replacement}${possessive ? referred : agreement(referred, es)}`;
+  return `${stem}${replacement}${possessive ? referred : agreement(referred, es)}`;
 }
 
 function audience(value: string, req: ApiReq): string {
