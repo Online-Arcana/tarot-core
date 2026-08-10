@@ -24,6 +24,7 @@ import {
 import { revealedReadingContext } from "./reading-context.js";
 import { auditModelOut, correctionFromAudit, type ModelAudit } from "./audit.js";
 import { reconstructModelOut } from "./recover.js";
+import { addressViewer } from "./viewer-narration.js";
 import type { ApiOut, ApiReq, Task } from "../contracts/types.js";
 
 export interface ModelPack { readonly prompt: { readonly reading: string; readonly chat: string } }
@@ -352,6 +353,7 @@ function voiceContract(req: ApiReq): string {
   return [
     "There are two distinct voices and they must never merge.",
     `NARRATOR: a separate third-person voice describing ${name}, physical movement, setting and ritual. The narrator never says I, me, my, we or our; never speaks as ${name}; and never explains instructions, validation, hidden state, sequencing, inspection, recording, selection mechanics or application behaviour.`,
+    ...(req.lang.toLocaleLowerCase().startsWith("es") ? [`En español, el NARRADOR debe expresar a ${name} o su pronombre de tercera persona siempre que ${name} sea sujeto; no uses pro-drop. Para la persona consultante, respeta el caso gramatical de segunda persona: tú, te, ti, contigo, tu/tus.`] : []),
     `READER: ${name} speaking directly to the user. Reader dialogue must never use ${name}'s name or third-person pronouns to refer to ${name}. When self-reference is needed, use I, me or my.`,
     "Narrator fields contain only scene prose. Reader fields contain only spoken dialogue. Do not put quotation marks, speaker labels, headings or stage directions inside either voice.",
   ].join("\n");
@@ -581,7 +583,7 @@ export async function runModelSession(
   let primaryAudit: ModelAudit | undefined;
   let primaryFailure: string | undefined;
   try {
-    primary = await send(primaryModel);
+    primary = addressViewer(req, await send(primaryModel));
     primaryAudit = auditModelOut(req, primary);
   } catch (cause: unknown) {
     primaryFailure = message(cause);
@@ -595,7 +597,7 @@ export async function runModelSession(
   let escalationFailure: string | undefined;
   const correction = correctionFromAudit(primary, primaryAudit, primaryFailure);
   try {
-    escalation = await send(escalationModel, correction);
+    escalation = addressViewer(req, await send(escalationModel, correction));
     escalationAudit = auditModelOut(req, escalation);
   } catch (cause: unknown) {
     escalationFailure = message(cause);
