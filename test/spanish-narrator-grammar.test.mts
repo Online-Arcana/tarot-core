@@ -102,3 +102,16 @@ test("Spanish subject replacement preserves second-person agreement", () => {
   assert.equal("gesture" in value, true);
   assert.equal(value.gesture, "Tú te inclinas hacia Selena.");
 });
+
+test("Spanish narrator keeps reader identity when reader and querent share a name", () => {
+  const value = addressViewer(ritualReq("selena", "Selena"), {
+    gesture: "Inclina el cuerpo hacia ti.",
+    opening: "La luz permanece quieta sobre la mesa.",
+    ritual: "Calienta el objeto entre ambas palmas y lo deja frente a ti.",
+  });
+
+  assert.equal("ritual" in value, true);
+  assert.equal(value.gesture, "Selena inclina el cuerpo hacia ti.");
+  assert.equal(value.ritual, "Selena calienta el objeto entre ambas palmas y lo deja frente a ti.");
+  assert.doesNotMatch(`${value.gesture} ${value.ritual}`, /Tú inclina|tú calienta/iu);
+});
