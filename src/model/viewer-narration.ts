@@ -263,9 +263,13 @@ function sentenceAudience(sentence: string, name: string, es: boolean): string {
 }
 
 function audience(value: string, req: ApiReq): string {
-  const name = req.name.trim();
-  if (!name || !value.trim()) return explicitSpanishReaderSubjects(value, req);
   const source = explicitSpanishReaderSubjects(value, req);
+  const name = req.name.trim();
+  if (!name || !source.trim()) return source;
+  if (spanish(req) &&
+      name.toLocaleLowerCase(req.lang) === profileFor(req.reader).public.name.toLocaleLowerCase(req.lang)) {
+    return source;
+  }
   return source.replace(/[^.!?]+(?:[.!?]+|$)/gu, sentence =>
     sentenceAudience(sentence, name, spanish(req))
   );
