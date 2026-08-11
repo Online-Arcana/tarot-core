@@ -14,6 +14,11 @@ const NARRATOR_PATHS = new Set([
   "chat.gesture",
 ]);
 
+const NARROW_GRAMMAR_CODES = new Set([
+  "querent_name_narrator",
+  "spanish_pronoun_case",
+]);
+
 const FIELD_BY_PATH: Readonly<Record<string, string>> = {
   "ritual.gesture": "gesture",
   "ritual.opening": "opening",
@@ -33,7 +38,7 @@ export function spanishNarratorCorrection(
   audit: ModelAudit | undefined,
 ): NarrowCorrection | null {
   if (!req.lang.toLowerCase().startsWith("es") || audit === undefined || audit.valid || audit.issues.length === 0) return null;
-  if (!audit.issues.every(issue => issue.code === "querent_name_narrator" && NARRATOR_PATHS.has(issue.path))) return null;
+  if (!audit.issues.every(issue => NARROW_GRAMMAR_CODES.has(issue.code) && NARRATOR_PATHS.has(issue.path))) return null;
   return { paths: [...new Set(audit.issues.map(issue => issue.path))] };
 }
 
