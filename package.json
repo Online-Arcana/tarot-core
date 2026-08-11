@@ -20,9 +20,11 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "generate:personas": "node scripts/generate-personas.mjs",
-    "precheck": "npm run generate:personas",
+    "generate:fallbacks": "node scripts/generate-fallbacks.mjs",
+    "generate:data": "npm run generate:personas && npm run generate:fallbacks",
+    "precheck": "npm run generate:data",
     "check": "tsc -p tsconfig.json --noEmit",
-    "prebuild": "npm run generate:personas",
+    "prebuild": "npm run generate:data",
     "build": "tsc -p tsconfig.build.json",
     "test": "node --experimental-strip-types --test test/*.test.mts",
     "cli": "npm run build && node dist/cli/main.js",
