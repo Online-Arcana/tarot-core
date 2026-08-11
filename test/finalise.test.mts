@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { auditModelOut } from "../dist/model/audit.js";
 import {
   finaliseModelOutDetailed,
   prepareModelOutDetailed,
@@ -73,7 +74,7 @@ const mappedReadOut = {
   ],
   synthesis: "Los dos resultados te invitan a comenzar con apertura y a usar tu capacidad de forma deliberada.",
   reading: "Puedes avanzar sin exigir certeza total, pero te conviene unir la libertad del comienzo con una intención concreta y comprobable.",
-  closing: "Quédate con el paso que puedas sostener con atención.",
+  closing: "Puedes quedarte con el paso que sostenga mejor tu atención.",
   note: "Amaru deja ambos cordones sobre la piedra frente a Javier y guarda silencio.",
 };
 
@@ -101,6 +102,8 @@ test("pre-audit preparation repairs prose without retaining presentation metadat
   assert.doesNotMatch(prepared.out.cardText[0], new RegExp(laterPublicName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "iu"));
   assert.doesNotMatch(prepared.out.note, /Javier/u);
   assert.ok(prepared.diagnostics.some(value => value.startsWith("future_leak_repaired:")));
+  const audit = auditModelOut(mappedReadReq, prepared.out);
+  assert.equal(audit.valid, true, audit.errors.join(" | "));
 });
 
 test("public finalisation repairs mapped public future-result leaks and attaches media", () => {
