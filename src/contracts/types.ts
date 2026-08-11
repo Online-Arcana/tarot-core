@@ -39,22 +39,39 @@ export interface DrawPack {
   spreads: readonly SpreadDef[];
 }
 
+export interface ReaderPronouns {
+  subject: string;
+  object: string;
+  possessiveDeterminer: string;
+  possessive: string;
+  reflexive: string;
+}
+
+export interface ReaderIdentity {
+  name: string;
+  gender: "woman" | "man";
+  pronouns: Local<ReaderPronouns>;
+}
+
 export interface ReaderProfile {
   id: ReaderId;
+  review: "human-cultural-and-prose-review-required";
+  identity: ReaderIdentity;
   public: {
     name: string;
     role: Local<string>;
     blurb: Local<string>;
+    waiting: Local<string>;
   };
   fit: { strong: Topic[]; capable: Topic[]; weak: Topic[] };
   persona: {
-    voice: string[];
-    outlook: string[];
-    manner: string[];
-    ritual: string[];
-    scene: string[];
-    limits: string[];
-    avoid: string[];
+    voice: Local<string[]>;
+    outlook: Local<string[]>;
+    manner: Local<string[]>;
+    ritual: Local<string[]>;
+    scene: Local<string[]>;
+    limits: Local<string[]>;
+    avoid: Local<string[]>;
     intro: Local<string>;
     portrait: Local<string>;
     invite: Local<string[]>;
@@ -169,11 +186,13 @@ export type Stage =
   | { kind: "question" }
   | { kind: "ritual"; card: number; text?: string }
   | { kind: "reveal"; card: number }
-  | { kind: "speech"; card: number; text?: string }
+  | { kind: "speech"; card: number }
   | { kind: "place"; card: number }
-  | { kind: "synthesis"; text?: string }
-  | { kind: "answer"; text?: string }
-  | { kind: "closing"; text?: string };
+  | { kind: "synthesis" }
+  | { kind: "answer" }
+  | { kind: "closing" };
+
+export type StageKind = Stage["kind"];
 
 export interface ReadTurn {
   id: string;
@@ -196,7 +215,7 @@ export interface ChatTurn {
 
 export type Turn = ReadTurn | ChatTurn;
 
-export interface Visit {
+export interface TrailVisit {
   reader: ReaderId;
   conv: string;
   at: string;
@@ -204,21 +223,10 @@ export interface Visit {
   note: string;
 }
 
-export interface Trail { id: string; visits: Visit[]; summary: string }
-
-export interface Hand {
-  from: ReaderId;
-  to: ReaderId;
-  at: string;
-  question: string;
-  reason: string;
-  summary: string;
-  prevQs: string[];
-  conclusions: string[];
-  cards: string[];
-  facts: string[];
-  unresolved: string[];
-  ack?: string;
+export interface ReaderTrail {
+  id: string;
+  root: string;
+  visits: TrailVisit[];
 }
 
 export interface Conv {
@@ -229,52 +237,20 @@ export interface Conv {
   created: string;
   updated: string;
   name: string;
-  title?: string;
-  trail?: Trail;
-  handover?: Hand;
+  trail?: ReaderTrail;
+  handover?: HandoverOut;
   turns: Turn[];
 }
 
-export interface Hist {
-  kind: ReqKind;
-  question: string;
-  response: string;
-}
+export interface Hist { kind: ReqKind; question: string; response: string }
 
-interface ReqBase {
-  task: Task;
-  lang: LangCode;
-  reader: ReaderId;
-  name: string;
-  history: Hist[];
-  trail?: Trail;
-  handover?: Hand;
-}
-
+interface ReqBase { lang: LangCode; reader: ReaderId; name: string; history: Hist[] }
 export type ApiReq =
   | (ReqBase & { task: "invite" })
   | (ReqBase & { task: "fit"; question: string })
-  | (ReqBase & {
-      task: "ritual";
-      question: string;
-      spread: SpreadId;
-      card: number;
-      drawn?: DrawnCard;
-      /** Full reading context for v3 clients. Optional only for v2 compatibility. */
-      draw?: Draw;
-      /** Earlier generated ritual paragraphs in reveal order. */
-      priorRituals?: string[];
-    })
-  | (ReqBase & {
-      task: "read";
-      question: string;
-      draw: Draw;
-      /** Completed narrator theatre, one paragraph per result, in reveal order. */
-      ritualTheatre?: string[];
-    })
+  | (ReqBase & { task: "ritual"; question: string; spread: SpreadId; card: number; drawn?: DrawnCard; draw?: Draw; priorRituals?: string[] })
+  | (ReqBase & { task: "read"; question: string; draw: Draw; ritualTheatre?: string[] })
   | (ReqBase & { task: "chat"; question: string })
-  | (ReqBase & { task: "suggest"; turn: ReadTurn })
-  | (ReqBase & { task: "continue"; turn: ReadTurn })
-  | (ReqBase & { task: "title"; turn: ReadTurn })
+  | (ReqBase & { task: "suggest" | "continue" | "title"; turn: ReadTurn })
   | (ReqBase & { task: "handover"; question: string; target: ReaderId; conv: Conv })
-  | (ReqBase & { task: "return"; trail: Trail; handover?: Hand });
+  | (ReqBase & { task: "return"; trail: ReaderTrail; handover?: HandoverOut });
