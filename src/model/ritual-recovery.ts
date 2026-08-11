@@ -10,12 +10,16 @@ function pick(values: readonly string[], seed: number): string {
 }
 
 function atmosphere(req: RitualReq, seed: number): string {
-  return pick(fallbackFor(req.lang, req.reader).ritualAtmosphere, seed);
+  const values = fallbackFor(req.lang, req.reader).ritualAtmosphere;
+  if (!values.length) return "";
+  const first = pick(values, seed);
+  const second = pick(values, seed + Math.ceil(values.length / 2));
+  return first === second ? first : `${first} ${second}`;
 }
 
 /**
  * Mapped recovery uses only complete sentences authored in canonical ritual data
- * plus one complete shared emergency-atmosphere sentence from fallbacks.xml.
+ * plus complete shared emergency-atmosphere sentences from fallbacks.xml.
  * TypeScript selects and validates those sentences; it does not author reader
  * choreography or interpolate sensory fragments into grammar slots.
  */
@@ -34,9 +38,9 @@ function mapped(req: RitualReq, seed: number): RitualOut | null {
 }
 
 /**
- * The vanilla reader uses the canonical fallback XML directly. Variation is a
- * complete additional sentence from the same XML source, keeping sequential
- * emergency rituals distinct without embedding persona prose in TypeScript.
+ * The vanilla reader uses the canonical fallback XML directly. Variation is
+ * supplied by complete additional sentences from the same XML source, keeping
+ * sequential emergency rituals distinct without embedding persona prose in TS.
  */
 function vanilla(req: RitualReq, seed: number): RitualOut {
   const fallback = fallbackFor(req.lang, req.reader);
