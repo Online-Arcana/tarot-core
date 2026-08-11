@@ -51,8 +51,8 @@ const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?)\b/iu;
 const genericReader = /\b(?:the reader|the tarot reader|el lector|la lectora|la persona lectora)\b/iu;
 const explicitQuerentActionEn = /\b(?:you|the querent)\s+(?:lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw|sit|stand|rest)\b/iu;
 const explicitQuerentActionEs = /\b(?:tú|la persona consultante)\s+(?:levantas?|elevas?|tomas?|alcanzas?|tocas?|sostienes?|sacas?|agitas?|lanzas?|colocas?|eliges?|tiras?|sueltas?|giras?|mueves?|mezclas?|retiras?|llevas?|abres?|cierras?|manipulas?|agarras?|dejas?|introduces?|metes?|extraes?)\b/iu;
-const invalidSpanishPronounCase = /\b(?:a|ante|contra|desde|hacia|para|por|sin|sobre|tras)\s+(?:tú|te)\b|\bcon\s+(?:tú|ti|te)\b/iu;
-const validTuATu = /\bde\s+tú\s+a\s+tú\b/giu;
+const invalidSpanishPronounCase = /(?<![\p{L}\p{N}])(?:(?:a|ante|contra|desde|hacia|para|por|sin|sobre|tras)\s+(?:tú|te)|con\s+(?:tú|ti|te))(?![\p{L}\p{N}])/iu;
+const validTuATu = /(?<![\p{L}\p{N}])de\s+tú\s+a\s+tú(?![\p{L}\p{N}])/giu;
 
 export const words = (value: string): number => value.trim().split(/\s+/u).filter(Boolean).length;
 const clean = (value: string): string => value.replace(/\s+/gu, " ").trim();
