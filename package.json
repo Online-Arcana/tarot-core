@@ -28,7 +28,11 @@
     "build": "tsc -p tsconfig.build.json",
     "test": "node --experimental-strip-types --test test/*.test.mts",
     "cli": "npm run build && node dist/cli/main.js",
-    "ci": "npm run check && npm run build && npm run test"
+    "ci": "npm run check && npm run build && npm run test",
+    "test:live": "npm run build && node scripts/run-live-prose-matrix.mjs",
+    "test:live:cell": "npm run build && node scripts/live-prose-matrix.mjs",
+    "test:live:aggregate": "node scripts/aggregate-live-prose.mjs",
+    "test:live:review": "node scripts/render-live-prose-review.mjs"
   },
   "engines": {
     "node": ">=22"
