@@ -1,5 +1,5 @@
 import { mkdir, rm } from "node:fs/promises";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 
 const apiKey = process.env.OPENAI_API_KEY?.trim();
 if (!apiKey) throw new Error("OPENAI_API_KEY is required for the paid live prose matrix");
@@ -9,6 +9,12 @@ const languages = ["en-GB", "es-ES"];
 const jobs = readers.flatMap(reader => languages.map(lang => ({ reader, lang })));
 const parallel = Math.max(1, Number.parseInt(process.env.MATRIX_PARALLEL ?? "2", 10) || 2);
 const outDir = process.env.MATRIX_OUT_DIR?.trim() || "reports/live-prose";
+const commit = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { encoding: "utf8" }).trim().length > 0;
+
+if (dirty) {
+  console.warn(`WARNING: live prose matrix is running from dirty working tree at ${commit}; commit provenance will not describe uncommitted changes.`);
+}
 
 await rm(outDir, { recursive: true, force: true });
 await mkdir(outDir, { recursive: true });
@@ -21,6 +27,11 @@ function run(command, args, env = process.env) {
   });
 }
 
+const matrixEnv = {
+  ...process.env,
+  GITHUB_SHA: commit,
+};
+
 let next = 0;
 let failed = false;
 async function worker() {
@@ -30,7 +41,7 @@ async function worker() {
     const job = jobs[index];
     console.log(`\n=== LIVE MATRIX ${index + 1}/${jobs.length}: ${job.reader} ${job.lang} ===\n`);
     const code = await run(process.execPath, ["scripts/live-prose-matrix.mjs"], {
-      ...process.env,
+      ...matrixEnv,
       MATRIX_READER: job.reader,
       MATRIX_LANG: job.lang,
       MATRIX_OUT_DIR: outDir,
@@ -42,11 +53,11 @@ async function worker() {
 await Promise.all(Array.from({ length: Math.min(parallel, jobs.length) }, () => worker()));
 
 const aggregate = await run(process.execPath, ["scripts/aggregate-live-prose.mjs"], {
-  ...process.env,
+  ...matrixEnv,
   MATRIX_INPUT_DIR: outDir,
 });
 const review = await run(process.execPath, ["scripts/render-live-prose-review.mjs"], {
-  ...process.env,
+  ...matrixEnv,
   MATRIX_INPUT_DIR: outDir,
 });
 
