@@ -11,13 +11,13 @@ const STOPWORDS: Readonly<Record<AuditLanguage, ReadonlySet<string>>> = {
   ]),
 };
 
-const DIRECT_ES = /\b(?:tú|te|ti|contigo|tu|tus)\b/iu;
+const DIRECT_ES = /(?<![\p{L}\p{N}])(?:tú|te|ti|contigo|tu|tus)(?![\p{L}\p{N}])/iu;
 const DIRECT_ES_VERB = /\b(?:eres|estás|tienes|puedes|debes|quieres|necesitas|sientes|ves|miras|escuchas|haces|vas|vienes|llevas|sigues|encuentras|buscas|dejas|tomas|introduces|metes|sacas|extraes|eliges|retiras|mantienes|recibes|reconoces|aceptas|temes|esperas|piensas|crees|notas|preguntas|decides|avanzas|vuelves|regresas|permites|sostienes)\b/iu;
 const DIRECT_EN = /\b(?:you|your|yours|yourself|yourselves)\b/iu;
 
 const NARRATOR_FIRST: Readonly<Record<AuditLanguage, RegExp>> = {
   en: /\b(?:I|me|my|mine|myself|we|us|our|ours|ourselves)\b/iu,
-  es: /\b(?:yo|me|mí|mi|mis|mío|mía|míos|mías|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras)\b/iu,
+  es: /(?<![\p{L}\p{N}])(?:yo|me|mí|mi|mis|mío|mía|míos|mías|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras)(?![\p{L}\p{N}])/iu,
 };
 
 export function auditLanguage(code: LangCode): AuditLanguage {
