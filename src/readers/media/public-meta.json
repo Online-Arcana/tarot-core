@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "readers": {
+    "brennos": {
+      "culture": {
+        "en": "Iron Age Helvetii and Central European La Tène material culture, with broader Celtic folklore where relevant",
+        "es": "Cultura material de los helvecios de la Edad del Hierro y de La Tène centroeuropea, con folclore celta más amplio cuando corresponde"
+      },
+      "majorCategories": {
+        "default": { "en": "Deities", "es": "Deidades" },
+        "overrides": {}
+      },
+      "publicNameOverrides": {}
+    },
+    "yejide": {
+      "culture": {
+        "en": "Yorùbá religion, folklore and ritual material culture",
+        "es": "Religión, folclore y cultura material ritual yorùbá"
+      },
+      "majorCategories": {
+        "default": { "en": "Òrìṣà", "es": "Òrìṣà" },
+        "overrides": {}
+      },
+      "publicNameOverrides": {}
+    },
+    "ngaru": {
+      "culture": {
+        "en": "Māori customary art, oral tradition and named atua or legendary figures",
+        "es": "Arte consuetudinario māori, tradición oral y atua o figuras legendarias nombradas"
+      },
+      "majorCategories": {
+        "default": { "en": "Atua", "es": "Atua" },
+        "overrides": {}
+      },
+      "publicNameOverrides": {}
+    },
+    "ame": {
+      "culture": {
+        "en": "Japanese seasonal flowers, Shinto mythology and yōkai folklore",
+        "es": "Flores estacionales japonesas, mitología sintoísta y folclore yōkai"
+      },
+      "majorCategories": {
+        "default": { "en": "Kami", "es": "Kami" },
+        "overrides": {
+          "major-devil": { "en": "Yōkai", "es": "Yōkai" },
+          "major-tower": { "en": "Yōkai", "es": "Yōkai" },
+          "major-star": { "en": "Yōkai", "es": "Yōkai" },
+          "major-moon": { "en": "Yōkai", "es": "Yōkai" },
+          "major-sun": { "en": "Yōkai", "es": "Yōkai" },
+          "major-judgement": { "en": "Yōkai", "es": "Yōkai" },
+          "major-world": { "en": "Yōkai", "es": "Yōkai" }
+        }
+      },
+      "publicNameOverrides": {}
+    },
+    "amaru": {
+      "culture": {
+        "en": "Inka khipu structures and Andean religious traditions",
+        "es": "Estructuras khipu y tradiciones religiosas andinas"
+      },
+      "majorCategories": {
+        "default": { "en": "Wakas", "es": "Wakas" },
+        "overrides": {}
+      },
+      "publicNameOverrides": {
+        "major-justice": { "en": "The Amaru", "es": "El Amaru" }
+      }
+    },
+    "nahid": {
+      "culture": {
+        "en": "Pre-Islamic Iranian and Zoroastrian elemental cosmology and divine traditions",
+        "es": "Cosmología elemental y tradiciones divinas iranias preislámicas y zoroastrianas"
+      },
+      "majorCategories": {
+        "default": { "en": "Uazata", "es": "Uazata" },
+        "overrides": {
+          "major-fool": { "en": "Ahura", "es": "Ahura" }
+        }
+      },
+      "publicNameOverrides": {}
+    },
+    "mictli": {
+      "culture": {
+        "en": "Pre-Hispanic Mexica ritual, economic and divine iconography",
+        "es": "Iconografía ritual, económica y divina mexica prehispánica"
+      },
+      "majorCategories": {
+        "default": { "en": "Teōtl", "es": "Teōtl" },
+        "overrides": {}
+      },
+      "publicNameOverrides": {}
+    }
+  }
+}
