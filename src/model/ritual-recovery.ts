@@ -27,9 +27,10 @@ function combinations(values: readonly string[], size: number): readonly (readon
 
 /**
  * Mapped recovery uses only complete sentences authored in canonical ritual data
- * plus complete shared emergency-atmosphere sentences from fallbacks.xml.
- * TypeScript selects and validates those sentences; it does not author reader
- * choreography or interpolate sensory fragments into grammar slots.
+ * plus three complete shared emergency-atmosphere sentences from fallbacks.xml.
+ * The extra lexical space prevents fixed medium choreography from dominating the
+ * continuity-overlap score across long spreads. TypeScript only selects and
+ * validates authored sentences.
  */
 function mapped(req: RitualReq, atmosphere: readonly string[]): RitualOut | null {
   if (!isMappedReader(req.reader)) return null;
@@ -66,7 +67,7 @@ export function recoverRitual(
 ): RitualOut {
   const catalogue = fallbackFor(req.lang, req.reader);
   const mappedReader = isMappedReader(req.reader);
-  const options = combinations(catalogue.ritualAtmosphere, mappedReader ? 2 : 3);
+  const options = combinations(catalogue.ritualAtmosphere, 3);
   if (!options.length) return fallback;
 
   for (let attempt = 0; attempt < options.length; attempt += 1) {
