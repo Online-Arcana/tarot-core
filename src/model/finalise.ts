@@ -60,8 +60,10 @@ function readingWithCanonicalMedia(
  * Prepare generated prose for deterministic audit without attaching public
  * presentation metadata. Spanish narrator audience normalisation and reveal
  * repair happen here so the full audit sees the exact prose that will be
- * returned. Mapped reveal repair uses a temporary canonical media view, which
- * is stripped again before the audit boundary.
+ * returned. Handover card state is rebuilt from the canonical conversation for
+ * every reader, so the model never owns that deterministic field. Mapped reveal
+ * repair uses a temporary canonical media view, which is stripped again before
+ * the audit boundary.
  */
 export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): FinalisationResult {
   const diagnostics: string[] = [];
@@ -73,10 +75,10 @@ export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): Finalisatio
     if (serial(out) !== before) diagnostics.push("spanish_audience_normalised");
   }
 
-  if (req.task === "handover" && isMappedReader(req.reader)) {
+  if (req.task === "handover") {
     const handover = out as HandoverOut;
     const cards = canonicalHandoverCards(req);
-    if (JSON.stringify(handover.cards) !== JSON.stringify(cards)) diagnostics.push("mapped_handover_cards_canonicalised");
+    if (JSON.stringify(handover.cards) !== JSON.stringify(cards)) diagnostics.push("handover_cards_canonicalised");
     out = { ...handover, cards };
   }
 
