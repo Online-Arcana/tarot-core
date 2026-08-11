@@ -9,6 +9,7 @@ import {
   runModel,
   runModelSession,
 } from "../dist/model/run.js";
+import { auditModelOut } from "../dist/model/audit.js";
 
 const pack = {
   meta: { code: "en-GB", name: "English", flag: "gb", dir: "ltr" },
@@ -94,7 +95,7 @@ test("audits GPT-5 nano output and escalates short tasks to Luna", async () => {
   assert.match(calls[1].body.input[0].content, /previous attempt did not pass deterministic validation/iu);
 });
 
-test("reconstructs a valid final output when both model stages fail audit", async () => {
+test("reconstructs a valid reader-specific final output when both model stages fail audit", async () => {
   const calls = [];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
@@ -112,7 +113,9 @@ test("reconstructs a valid final output when both model stages fail audit", asyn
   });
 
   assert.equal(result.source, "reconstructed");
-  assert.equal(result.out.text, "Tell me what you would like the cards to explore.");
+  assert.equal(auditModelOut(req, result.out).valid, true);
+  assert.match(result.out.text, /desire|heart|want|feel|longing/iu);
+  assert.doesNotMatch(result.out.text, /the reader|generic/iu);
   assert.equal(calls.length, 2);
 });
 
