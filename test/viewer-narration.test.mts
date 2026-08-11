@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addressViewer } from "../src/model/viewer-narration.ts";
+import { addressViewer } from "../dist/model/viewer-narration.js";
 
 function spanishRitual(gesture, opening = "La estancia permanece en silencio.", ritual = "Selena deja el siguiente resultado cubierto sobre la mesa.") {
   return {
