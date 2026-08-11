@@ -41,6 +41,7 @@ interface TextRules {
   readonly oneSentence?: boolean;
   readonly direct?: boolean;
   readonly question?: boolean;
+  readonly spanishGrammar?: boolean;
 }
 
 const terminal = /[.!?]["'’”)]*$/u;
@@ -95,7 +96,7 @@ const auditText = (
   if (rules.direct === true && !hasDirectAddress(text, req.lang)) add(issues, "direct_address", path, "must address the person directly");
   if (rules.question === true && !/\?["'’”)]*$/u.test(text)) add(issues, "question", path, "must be phrased as a question");
   if (ref.test(text)) add(issues, "internal_reference", path, "must not expose an internal JSON reference");
-  auditSpanishPronounCase(issues, path, text, req);
+  if (rules.spanishGrammar !== false) auditSpanishPronounCase(issues, path, text, req);
   if (repetitiveProse(text, req.lang)) add(issues, "repetitive", path, "must contain natural, non-repetitive wording");
 };
 
@@ -333,10 +334,16 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
     case "handover": {
       const value = out as Extract<ApiOut, { summary: string }>;
       auditText(issues, "handover.summary", value.summary, req, { minWords: 8, maxWords: 160, complete: true });
-      const groups = [value.questions, value.conclusions, value.cards, value.facts, value.unresolved];
-      groups.forEach((items, group) => {
-        if (items.length > 12) add(issues, "list_length", `handover.list[${group}]`, "must contain no more than 12 items");
-        items.forEach((item, index) => auditText(issues, `handover.list[${group}][${index}]`, item, req, { maxWords: 80, oneLine: true }));
+      const groups = [
+        { name: "questions", items: value.questions, spanishGrammar: false },
+        { name: "conclusions", items: value.conclusions, spanishGrammar: true },
+        { name: "cards", items: value.cards, spanishGrammar: true },
+        { name: "facts", items: value.facts, spanishGrammar: true },
+        { name: "unresolved", items: value.unresolved, spanishGrammar: true },
+      ] as const;
+      groups.forEach(({ name, items, spanishGrammar }) => {
+        if (items.length > 12) add(issues, "list_length", `handover.${name}`, "must contain no more than 12 items");
+        items.forEach((item, index) => auditText(issues, `handover.${name}[${index}]`, item, req, { maxWords: 80, oneLine: true, spanishGrammar }));
       });
       const allowedCards = suppliedCards(req);
       value.cards.forEach((card, index) => { if (!allowedCards.has(card)) add(issues, "invented_card", `handover.cards[${index}]`, "must be an exact card name from the supplied conversation"); });
