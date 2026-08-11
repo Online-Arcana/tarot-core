@@ -35,10 +35,10 @@ function audit(reader, out) {
   return auditModelOut(request(reader), out);
 }
 
-test("ritual participation is loaded from the JSON archive", () => {
-  assert.deepEqual(ritualParticipation("brennos"), { actor: "reader" });
-  assert.deepEqual(ritualParticipation("ngaru"), { actor: "querent", action: "draw-shell" });
-  assert.deepEqual(ritualParticipation("amaru"), { actor: "querent", action: "draw-cord" });
+test("ritual participation is loaded from the canonical ritual data", () => {
+  assert.deepEqual(ritualParticipation("brennos"), { actor: "reader", action: "reader-shake-release" });
+  assert.deepEqual(ritualParticipation("ngaru"), { actor: "querent", action: "draw-from-container" });
+  assert.deepEqual(ritualParticipation("amaru"), { actor: "querent", action: "draw-from-container" });
 });
 
 test("reader-operated rituals reject the querent as physical actor", () => {
