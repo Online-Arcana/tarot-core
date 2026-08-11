@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 
 const sourceUrl = new URL("../src/model/fallbacks.xml", import.meta.url);
 const outputUrl = new URL("../src/model/fallbacks.generated.json", import.meta.url);
+const ATMOSPHERE_COUNT = 16;
 const REQUIRED = [
   "invite.text",
   "fit.reason",
@@ -10,6 +11,7 @@ const REQUIRED = [
   "ritual.gesture",
   "ritual.opening",
   "ritual.ritual",
+  ...Array.from({ length: ATMOSPHERE_COUNT }, (_, index) => `ritual.atmosphere.${index}`),
   "read.gesture",
   "read.opening",
   "read.link",
