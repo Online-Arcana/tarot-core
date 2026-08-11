@@ -51,6 +51,39 @@ test("Spanish audit rejects tú/te after ordinary prepositions but preserves val
   assert.equal(pronounIssues("Puedes hablar de tú a tú sobre lo que ya tienes delante.").length, 0);
 });
 
+test("exact user-authored handover questions are opaque to Spanish grammar correction", () => {
+  const question = "¿Por qué alguien escribiría para tú en una frase así?";
+  const req = {
+    task: "handover",
+    lang: "es-ES",
+    reader: "selena",
+    name: "Javier",
+    history: [],
+    question,
+    target: "brennos",
+    conv: {
+      v: 1,
+      id: "conv-source",
+      lang: "es-ES",
+      reader: "selena",
+      created: "2026-08-11T18:00:00.000Z",
+      updated: "2026-08-11T18:00:00.000Z",
+      name: "Javier",
+      turns: [],
+    },
+  };
+  const out = {
+    summary: "La conversación plantea una duda concreta sobre una frase escrita por otra persona.",
+    questions: [question],
+    conclusions: [],
+    cards: [],
+    facts: [],
+    unresolved: ["Queda por decidir qué interpretación de esa frase resulta más útil."],
+  };
+  const audit = auditModelOut(req, out);
+  assert.equal(audit.valid, true, audit.errors.join(" | "));
+});
+
 test("Death named by the user is not treated as an English future-result leak", () => {
   assert.equal(
     futureNameInText(
