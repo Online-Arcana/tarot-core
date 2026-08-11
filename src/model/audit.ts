@@ -212,7 +212,7 @@ function auditRitualAwareDialogue(req: Extract<ApiReq, { task: "read" }>, out: R
   out.cardText.forEach((value, index) => {
     const ritual = theatre[index];
     if (!ritual) return;
-    if (meaningfulOverlap(ritual, value, req.lang) >= 0.56) add(issues, "ritual_reenactment", `read.cardText[${index}]`, "reader dialogue must not repeat or reenact the narrator ritual prose");
+    if (meaningfulOverlap(ritual, value, req.lang) >= 0.56) add(issues, "ritual_voice_leak", `read.cardText[${index}]`, "reader dialogue must not repeat or reenact the narrator ritual prose");
   });
 }
 
@@ -223,9 +223,15 @@ function suppliedQuestions(req: Extract<ApiReq, { task: "handover" }>): Set<stri
   return new Set([req.question, ...req.conv.turns.map(turn => turn.question)].map(clean));
 }
 function auditRead(req: Extract<ApiReq, { task: "read" }>, out: ReadingOut, issues: AuditIssue[]): void {
-  auditText(issues, "read.gesture", out.gesture, req, { maxWords: 0 });
-  auditText(issues, "read.opening", out.opening, req, { maxWords: 0 });
-  auditText(issues, "read.link", out.link, req, { maxWords: 0 });
+  for (const [field, value] of [
+    ["gesture", out.gesture],
+    ["opening", out.opening],
+    ["link", out.link],
+  ] as const) {
+    if (clean(value)) {
+      add(issues, "read_theatre_placeholder", `read.${field}`, "must remain empty because pre-reveal theatre is generated separately");
+    }
+  }
   if (out.cardText.length !== req.draw.cards.length) add(issues, "card_count", "read.cardText", "must contain exactly one interpretation per supplied result");
   out.cardText.forEach((item, index) => {
     auditText(issues, `read.cardText[${index}]`, item, req, { minWords: 5, maxWords: 260, complete: true, direct: true });
