@@ -93,7 +93,9 @@ For mapped readers, model-facing result identity uses public mapped entities rat
 
 `outputShape` builds one strict schema per normal task. Read schemas require exactly one `cardText` entry per drawn result, suggestions require exactly three strings, and fit/handover fields are structurally constrained before prose auditing begins.
 
-Spanish narrator grammar correction has a separate minimal schema. If the only failure is a querent proper name in a narrator-owned Spanish field, Luna receives only the affected narrator string or strings and may return only those exact keys. Unaffected reader dialogue and other valid fields are not sent for regeneration and remain byte-for-byte unchanged. The merged candidate then passes normal finalisation and the ordinary audit again.
+Spanish narrator grammar correction has a separate minimal schema. If the only failures are narrator-owned Spanish grammar issues that can be isolated safely, currently a leaked querent proper name or an invalid tuteo pronoun case such as `para tú` or `con ti`, Luna receives only the affected narrator string or strings and may return only those exact keys. Unaffected reader dialogue and other valid fields are not sent for regeneration and remain byte-for-byte unchanged. The merged candidate then passes normal finalisation and the ordinary audit again.
+
+The deterministic audience transform handles grammatical roles it can establish safely, including subject conjugation, `te` for recognised object roles, `ti` after recognised prepositions, `contigo` after `con`, and `tu`/`tus` for recognised possession. It never performs a blind proper-name-to-`tú` replacement. Uncertain roles remain unchanged for audit and constrained correction.
 
 ## Deterministic audit
 
@@ -105,6 +107,7 @@ Checks include:
 - complete sentence endings
 - direct-address evidence where required
 - Spanish narrator first-person and querent-name leakage
+- Spanish tuteo pronoun case, including `ti` after ordinary prepositions and `contigo` after `con`, while preserving legitimate phrases such as `de tú a tú`
 - narrator/reader voice ownership
 - exact suggestion and interpretation counts
 - theatre paragraph bounds and continuity overlap
@@ -117,6 +120,8 @@ Checks include:
 - later unrevealed result names in earlier interpretations, with user-question exemptions
 - exact supplied handover cards and questions
 - title, summary and list limits
+
+Spanish pronoun token checks use Unicode-aware boundaries so accented forms such as standalone `tú` and `mí` are recognised correctly without matching longer words such as `túnel`.
 
 Approved mapped entity names are distinguished from reader self-reference. For example, a public result whose proper name contains the reader's name is not rejected merely because the strings overlap.
 
@@ -149,6 +154,6 @@ type ModelResult = {
 
 ## Release gates
 
-A green unit suite is not enough for a prose release. The deterministic release matrix covers all 8 readers, both languages, all 5 spreads and all applicable tasks. After that gate is green, the paid live matrix runs 80 complete reader/language/spread combinations and preserves generated strings and provenance for human review.
+A green unit suite is not enough for a prose release. The deterministic release matrix covers all 8 readers, both languages, all 5 spreads and all applicable tasks. After that gate is green, the paid live matrix is run locally across 80 complete reader/language/spread combinations and preserves generated strings and provenance for human review.
 
 Automated validation does not constitute cultural-specialist or prose approval. Human review remains required before the audited core replaces the application pin.
