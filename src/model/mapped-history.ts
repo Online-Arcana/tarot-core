@@ -2,8 +2,15 @@ import { canonicalCardAt, canonicalCards } from "../domain/canonical.js";
 import { mediaFor } from "../readers/media/runtime.js";
 import type { ApiReq, Hand, Hist, LangCode, ReaderId, Trail, Visit } from "../contracts/types.js";
 
-const tarotTermsEn = /\b(?:tarot|cards?|deck)\b/giu;
-const tarotTermsEs = /\b(?:tarot|cartas?|naipes?|baraja)\b/giu;
+interface CanonicalAlias {
+  readonly id: string;
+  readonly name: string;
+}
+
+const FORBIDDEN_GENERATED_MEDIUM = {
+  en: /\b(?:tarot|cards?|deck)\b/iu,
+  es: /\b(?:tarot|cartas?|naipes?|baraja)\b/iu,
+} as const;
 
 function spanish(lang: LangCode): boolean {
   return lang.toLowerCase().startsWith("es");
@@ -13,34 +20,22 @@ function escape(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 }
 
-function canonicalNames(): readonly string[] {
-  const values = new Set<string>();
+function canonicalAliases(): readonly CanonicalAlias[] {
+  const aliases = new Map<string, CanonicalAlias>();
   for (const lang of ["en-GB", "es-ES"] as const) {
-    for (const card of canonicalCards(lang)) values.add(card.name);
+    for (const card of canonicalCards(lang)) {
+      const key = card.name.toLocaleLowerCase();
+      aliases.set(key, { id: card.id, name: card.name });
+    }
   }
-  return [...values].sort((a, b) => b.length - a.length);
+  return [...aliases.values()].sort((a, b) => b.name.length - a.name.length);
 }
 
-const CANONICAL_NAMES = canonicalNames();
-
-function scrubGenerated(value: string, lang: LangCode): string {
-  let out = value;
-  const replacement = spanish(lang) ? "resultado anterior" : "earlier result";
-  for (const name of CANONICAL_NAMES) {
-    out = out.replace(new RegExp(`(?<![\\p{L}\\p{N}])${escape(name)}(?![\\p{L}\\p{N}])`, "giu"), replacement);
-  }
-  return spanish(lang)
-    ? out.replace(tarotTermsEs, match => /baraja/iu.test(match) ? "medio" : /tarot/iu.test(match) ? "lectura" : "resultados")
-    : out.replace(tarotTermsEn, match => /deck/iu.test(match) ? "medium" : /tarot/iu.test(match) ? "reading" : "results");
-}
+const CANONICAL_ALIASES = canonicalAliases();
 
 function cardIdFromStoredName(name: string): string | null {
   const target = name.trim().toLocaleLowerCase();
-  for (const lang of ["en-GB", "es-ES"] as const) {
-    const found = canonicalCards(lang).find(card => card.name.toLocaleLowerCase() === target);
-    if (found) return found.id;
-  }
-  return null;
+  return CANONICAL_ALIASES.find(alias => alias.name.toLocaleLowerCase() === target)?.id ?? null;
 }
 
 function publicName(reader: ReaderId, id: string, lang: LangCode): string | null {
@@ -48,51 +43,95 @@ function publicName(reader: ReaderId, id: string, lang: LangCode): string | null
   return mediaFor(reader, card, lang)?.publicName ?? null;
 }
 
+function translateCanonicalEntities(value: string, reader: ReaderId, lang: LangCode): string {
+  let out = value;
+  for (const alias of CANONICAL_ALIASES) {
+    const mapped = publicName(reader, alias.id, lang);
+    if (!mapped) continue;
+    out = out.replace(
+      new RegExp(`(?<![\\p{L}\\p{N}])${escape(alias.name)}(?![\\p{L}\\p{N}])`, "giu"),
+      mapped,
+    );
+  }
+  return out;
+}
+
+/**
+ * Historical generated prose is untrusted legacy presentation data. Exact
+ * canonical result names can be translated deterministically because their IDs
+ * are known. If generic tarot-medium vocabulary remains afterwards, omit the
+ * prose rather than guessing a grammatical rewrite. User-authored text never
+ * passes through this function.
+ */
+function publicGenerated(value: string, reader: ReaderId, lang: LangCode): string | null {
+  const translated = translateCanonicalEntities(value.trim(), reader, lang);
+  if (!translated) return null;
+  const forbidden = spanish(lang) ? FORBIDDEN_GENERATED_MEDIUM.es : FORBIDDEN_GENERATED_MEDIUM.en;
+  return forbidden.test(translated) ? null : translated;
+}
+
+function publicGeneratedList(values: readonly string[], reader: ReaderId, lang: LangCode): string[] {
+  return values.flatMap(value => {
+    const translated = publicGenerated(value, reader, lang);
+    return translated === null ? [] : [translated];
+  });
+}
+
 function publicHand(reader: ReaderId, hand: Hand | undefined, lang: LangCode): unknown {
   if (!hand) return null;
   const results = hand.cards.map(name => {
     const id = cardIdFromStoredName(name);
-    return id === null ? (spanish(lang) ? "resultado anterior" : "earlier result") : (publicName(reader, id, lang) ?? (spanish(lang) ? "resultado anterior" : "earlier result"));
+    return id === null
+      ? (spanish(lang) ? "resultado anterior" : "earlier result")
+      : (publicName(reader, id, lang) ?? (spanish(lang) ? "resultado anterior" : "earlier result"));
   });
+  const reason = publicGenerated(hand.reason, reader, lang);
+  const summary = publicGenerated(hand.summary, reader, lang);
+  const acknowledgement = hand.ack ? publicGenerated(hand.ack, reader, lang) : null;
   return {
     from: hand.from,
     to: hand.to,
     at: hand.at,
     question: hand.question,
-    reason: hand.reason,
-    summary: scrubGenerated(hand.summary, lang),
+    ...(reason === null ? {} : { reason }),
+    ...(summary === null ? {} : { summary }),
     previousQuestions: hand.prevQs,
-    conclusions: hand.conclusions.map(value => scrubGenerated(value, lang)),
+    conclusions: publicGeneratedList(hand.conclusions, reader, lang),
     results,
     facts: hand.facts,
-    unresolved: hand.unresolved.map(value => scrubGenerated(value, lang)),
-    ...(hand.ack ? { acknowledgement: scrubGenerated(hand.ack, lang) } : {}),
+    unresolved: publicGeneratedList(hand.unresolved, reader, lang),
+    ...(acknowledgement === null ? {} : { acknowledgement }),
   };
 }
 
-function publicVisit(visit: Visit, lang: LangCode): unknown {
+function publicVisit(reader: ReaderId, visit: Visit, lang: LangCode): unknown {
+  const note = visit.note ? publicGenerated(visit.note, reader, lang) : null;
   return {
     reader: visit.reader,
     conversation: visit.conv,
     at: visit.at,
     question: visit.question,
-    ...(visit.note ? { note: scrubGenerated(visit.note, lang) } : {}),
+    ...(note === null ? {} : { note }),
   };
 }
 
-function publicTrail(trail: Trail, lang: LangCode): unknown {
+function publicTrail(reader: ReaderId, trail: Trail, lang: LangCode): unknown {
+  const summary = publicGenerated(trail.summary, reader, lang);
   return {
-    summary: scrubGenerated(trail.summary, lang),
-    visits: trail.visits.map(visit => publicVisit(visit, lang)),
+    ...(summary === null ? {} : { summary }),
+    visits: trail.visits.map(visit => publicVisit(reader, visit, lang)),
   };
 }
 
-function publicHistory(history: readonly Hist[], lang: LangCode): unknown[] {
-  return history.map(item => ({
-    kind: item.kind,
-    question: item.question,
-    response: scrubGenerated(item.response, lang),
-  }));
+function publicHistory(reader: ReaderId, history: readonly Hist[], lang: LangCode): unknown[] {
+  return history.map(item => {
+    const response = publicGenerated(item.response, reader, lang);
+    return {
+      kind: item.kind,
+      question: item.question,
+      ...(response === null ? {} : { response }),
+    };
+  });
 }
 
 export function mappedHandoverPayload(req: Extract<ApiReq, { task: "handover" }>): unknown {
@@ -103,15 +142,18 @@ export function mappedHandoverPayload(req: Extract<ApiReq, { task: "handover" }>
     referralQuestion: req.question,
     previousTitle: req.conv.title ?? null,
     previousHandover: publicHand(req.reader, req.conv.handover, req.lang),
-    trail: req.conv.trail ? publicTrail(req.conv.trail, req.lang) : null,
+    trail: req.conv.trail ? publicTrail(req.reader, req.conv.trail, req.lang) : null,
     turns: req.conv.turns.map(turn => {
       if (turn.kind !== "reading") {
+        const answer = publicGenerated(turn.out.response, req.reader, req.lang);
         return {
           kind: turn.kind,
           question: turn.question,
-          answer: scrubGenerated(turn.out.response, req.lang),
+          ...(answer === null ? {} : { answer }),
         };
       }
+      const synthesis = publicGenerated(turn.out.synthesis, req.reader, req.lang);
+      const answer = publicGenerated(turn.out.reading, req.reader, req.lang);
       return {
         kind: turn.kind,
         question: turn.question,
@@ -128,8 +170,8 @@ export function mappedHandoverPayload(req: Extract<ApiReq, { task: "handover" }>
             meaning: card.meaning,
           };
         }),
-        synthesis: scrubGenerated(turn.out.synthesis, req.lang),
-        answer: scrubGenerated(turn.out.reading, req.lang),
+        ...(synthesis === null ? {} : { synthesis }),
+        ...(answer === null ? {} : { answer }),
       };
     }),
   };
@@ -139,8 +181,8 @@ export function mappedReturnPayload(req: Extract<ApiReq, { task: "return" }>): u
   return {
     querent: req.name || null,
     reader: req.reader,
-    trail: publicTrail(req.trail, req.lang),
+    trail: publicTrail(req.reader, req.trail, req.lang),
     handover: publicHand(req.reader, req.handover, req.lang),
-    history: publicHistory(req.history, req.lang),
+    history: publicHistory(req.reader, req.history, req.lang),
   };
 }
