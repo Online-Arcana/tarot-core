@@ -10,10 +10,10 @@ const jobs = readers.flatMap(reader => languages.map(lang => ({ reader, lang }))
 const parallel = Math.max(1, Number.parseInt(process.env.MATRIX_PARALLEL ?? "2", 10) || 2);
 const outDir = process.env.MATRIX_OUT_DIR?.trim() || "reports/live-prose";
 const commit = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
-const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { encoding: "utf8" }).trim().length > 0;
+const dirty = execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" }).trim().length > 0;
 
 if (dirty) {
-  console.warn(`WARNING: live prose matrix is running from dirty working tree at ${commit}; commit provenance will not describe uncommitted changes.`);
+  throw new Error(`Paid live prose matrix requires a clean working tree. Commit or remove local changes before testing ${commit}.`);
 }
 
 await rm(outDir, { recursive: true, force: true });
