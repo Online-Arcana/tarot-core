@@ -7,8 +7,9 @@ import { auditModelOut, type ModelAudit } from "./audit.js";
 import { finaliseModelOutDetailed } from "./finalise.js";
 import {
   mergeNarratorCorrection,
+  narrowCorrectionPrompt,
+  narrowCorrectionShape,
   spanishNarratorCorrection,
-  type NarrowCorrection,
 } from "./narrow-correction.js";
 import { reconstructModelOutDetailed } from "./recover.js";
 import { genericCorrection, modelPrompt, type PromptPackLike } from "./prompt.js";
@@ -161,19 +162,8 @@ function localAuditCorrection(
   candidate: ApiOut | undefined,
   audit: ModelAudit | undefined,
   failure: string | undefined,
-  narrow: NarrowCorrection | null,
 ): string {
   const findings = audit?.errors ?? (failure === undefined ? [] : [failure]);
-  if (narrow !== null) {
-    return [
-      "El intento anterior solo necesita una corrección localizada de gramática o tratamiento en prosa del narrador.",
-      `Corrige únicamente estos campos: ${narrow.paths.join(", ")}.`,
-      "Aunque el esquema estricto exija devolver el objeto completo, cualquier cambio propuesto en otros campos será descartado por el motor.",
-      "No reformules diálogo, conclusiones, interpretaciones ni ningún campo no indicado.",
-      ...findings.map(finding => `- ${finding}`),
-      ...(candidate === undefined ? [] : [`Candidato anterior: ${JSON.stringify(candidate)}`]),
-    ].join("\n");
-  }
   if (req.lang.toLowerCase().startsWith("es")) {
     return [
       "El intento anterior no superó la validación determinista.",
@@ -264,20 +254,25 @@ export async function runModelSession(
   let escalationAudit: ModelAudit | undefined;
   let escalationFailure: string | undefined;
   let escalationDiagnostics: readonly string[] = [];
-  const correction = localAuditCorrection(req, primary, primaryAudit, primaryFailure, narrow);
   try {
-    const generated = await send(escalationModel, correction);
-    const proposed = finaliseModelOutDetailed(req, generated);
     if (narrow !== null && primary !== undefined) {
-      const merged = mergeNarratorCorrection(req, primary, proposed.out, narrow.paths);
+      const patch = await ai.run(
+        narrowCorrectionShape(narrow.paths),
+        [{ role: "system", content: narrowCorrectionPrompt(req, primary, narrow.paths) }],
+        sendOpts(cfg, escalationModel),
+        "arcana_spanish_narrator_patch",
+      );
+      const merged = mergeNarratorCorrection(req, primary, patch, narrow.paths);
       const finalised = finaliseModelOutDetailed(req, merged);
       escalation = finalised.out;
       escalationDiagnostics = [...new Set([
-        ...proposed.diagnostics,
         ...finalised.diagnostics,
         `narrow_spanish_narrator_correction:${narrow.paths.join(",")}`,
       ])];
     } else {
+      const correction = localAuditCorrection(req, primary, primaryAudit, primaryFailure);
+      const generated = await send(escalationModel, correction);
+      const proposed = finaliseModelOutDetailed(req, generated);
       escalation = proposed.out;
       escalationDiagnostics = proposed.diagnostics;
     }
