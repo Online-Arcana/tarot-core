@@ -14,6 +14,14 @@ function localHead() {
   }
 }
 
+function cleanCheckout() {
+  try {
+    return execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" }).trim().length === 0;
+  } catch {
+    return false;
+  }
+}
+
 const files = (await readdir(inputDir)).filter(name => name.endsWith(".json")).sort();
 const reports = [];
 for (const name of files) {
@@ -37,11 +45,13 @@ const commits = [...new Set(reports.map(report => typeof report.commit === "stri
 const commit = commits.length === 1 ? commits[0] : null;
 const everyReportHasCommit = reports.every(report => typeof report.commit === "string" && report.commit.trim().length > 0);
 const expectedCommit = process.env.GITHUB_SHA?.trim() || localHead();
+const checkoutClean = cleanCheckout();
 const expectedReports = 16;
 const expectedReadings = 80;
 const expectedTasks = 1040;
 const hardGates = {
   reportCount: reports.length === expectedReports,
+  cleanCheckout: checkoutClean,
   oneTestedCommit: everyReportHasCommit && commits.length === 1,
   expectedCommit: expectedCommit !== null && commit === expectedCommit,
   completeReadings: totals.completeReadings === expectedReadings,
@@ -65,6 +75,7 @@ const summary = {
   commit,
   commits,
   expectedCommit,
+  checkoutClean,
   expectedReports,
   expectedReadings,
   expectedTasks,
@@ -87,7 +98,7 @@ const rows = reports.map(report =>
 ).join("\n");
 const gates = Object.entries(hardGates).map(([name, ok]) => `- ${ok ? "PASS" : "FAIL"}: ${name}`).join("\n");
 const commitLine = commit ?? (commits.length ? `MIXED: ${commits.join(", ")}` : "MISSING");
-const markdown = `# Live prose matrix summary\n\nOverall gate: **${passed ? "PASS" : "FAIL"}**\n\n- Tested commit: ${commitLine}\n- Expected checkout commit: ${expectedCommit ?? "UNAVAILABLE"}\n- Reports: ${reports.length}/${expectedReports}\n- Complete readings: ${totals.completeReadings}/${expectedReadings}\n- Tasks: ${totals.tasks}/${expectedTasks}\n- Primary: ${totals.primary}\n- Escalation: ${totals.escalation}\n- Reconstructed: ${totals.reconstructed}\n- Emergency fallback: ${totals.emergencyFallback}\n- Retry requests: ${totals.retryRequests}\n- Narrow Spanish narrator corrections: ${totals.narrowCorrections}\n\n## Per reader/language\n\n| Reader | Language | Readings | Primary | Escalation | Reconstructed | Emergency fallback | Failures |\n|---|---:|---:|---:|---:|---:|---:|---:|\n${rows}\n\n## Hard gates\n\n${gates}\n\n## Human review\n\nThe JSON artifacts preserve final outputs and raw model attempts for prose review. Automated success does not certify cultural accuracy, reader voice quality or naturalness. Human review remains required before release.\n`;
+const markdown = `# Live prose matrix summary\n\nOverall gate: **${passed ? "PASS" : "FAIL"}**\n\n- Tested commit: ${commitLine}\n- Expected checkout commit: ${expectedCommit ?? "UNAVAILABLE"}\n- Clean checkout: ${checkoutClean ? "yes" : "no"}\n- Reports: ${reports.length}/${expectedReports}\n- Complete readings: ${totals.completeReadings}/${expectedReadings}\n- Tasks: ${totals.tasks}/${expectedTasks}\n- Primary: ${totals.primary}\n- Escalation: ${totals.escalation}\n- Reconstructed: ${totals.reconstructed}\n- Emergency fallback: ${totals.emergencyFallback}\n- Retry requests: ${totals.retryRequests}\n- Narrow Spanish narrator corrections: ${totals.narrowCorrections}\n\n## Per reader/language\n\n| Reader | Language | Readings | Primary | Escalation | Reconstructed | Emergency fallback | Failures |\n|---|---:|---:|---:|---:|---:|---:|---:|\n${rows}\n\n## Hard gates\n\n${gates}\n\n## Human review\n\nThe JSON artifacts preserve final outputs and raw model attempts for prose review. Automated success does not certify cultural accuracy, reader voice quality or naturalness. Human review remains required before release.\n`;
 await writeFile(outputMarkdown, markdown, "utf8");
 console.log(markdown);
 
