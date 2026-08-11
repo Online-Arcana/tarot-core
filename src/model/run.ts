@@ -12,7 +12,7 @@ import {
 import { systemPrompt } from "./system.js";
 import { isApiOut } from "../contracts/guard.js";
 import { localText, profileFor, profiles } from "../readers/profiles.js";
-import { readerIdentity } from "../readers/meta.js";
+import { readerIdentity, spanishReaderPronoun } from "../readers/meta.js";
 import {
   attachMedia,
   isMappedReader,
@@ -572,15 +572,19 @@ const failures = (
 ])];
 
 function correction(
+  req: ApiReq,
   candidate: ApiOut | undefined,
   auditResult: ModelAudit | undefined,
   failure: string | undefined,
 ): string {
   if (candidate !== undefined && spanishNarratorGrammarOnly(auditResult)) {
+    const reader = profileFor(req.reader).public.name;
+    const pronoun = spanishReaderPronoun(req.reader);
     return [
-      "Corrige únicamente los errores de gramática española indicados en la salida anterior.",
-      "No vuelvas a generar ni reformules el texto. Conserva exactamente todas las palabras y todos los campos que no necesiten una corrección gramatical.",
-      "Usa la forma correcta de segunda persona según su función gramatical (tú, te, ti, contigo, tu/tus), no uses el nombre de la persona consultante y mantén explícito el sujeto de tercera persona de la persona lectora.",
+      "Corrige únicamente los errores de gramática o referencia del narrador español indicados en la salida anterior.",
+      "No vuelvas a generar ni reformules el texto. Conserva exactamente todas las palabras y todos los campos que no necesiten una corrección.",
+      `La persona lectora configurada es ${reader}; su pronombre español registrado es ${pronoun}. Usa ${reader} o ${pronoun} para establecer el sujeto cuando sea necesario y permite el pro-drop natural mientras el sujeto siga inequívoco. No repitas el nombre ni el pronombre en cada oración.`,
+      `Nunca uses «el lector», «la lectora» ni «la persona lectora» en lugar de ${reader}. Usa la forma correcta de segunda persona para la persona consultante (tú, te, ti, contigo, tu/tus) y nunca uses su nombre.`,
       "No cambies ningún campo que no aparezca en los errores indicados. Devuelve el mismo objeto JSON con la corrección mínima.",
       ...(auditResult?.errors ?? []).map(error => `- ${error}`),
       `Salida anterior: ${JSON.stringify(candidate)}`,
@@ -626,7 +630,7 @@ export async function runModelSession(
   let escalation: ApiOut | undefined;
   let escalationAudit: ModelAudit | undefined;
   let escalationFailure: string | undefined;
-  const correctionText = correction(primary, primaryAudit, primaryFailure);
+  const correctionText = correction(req, primary, primaryAudit, primaryFailure);
   const escalationPrompt = grammarOnly ? correctionText : modelPrompt(pack, req, correctionText);
   try {
     escalation = addressViewer(req, await send(escalationModel, escalationPrompt));
