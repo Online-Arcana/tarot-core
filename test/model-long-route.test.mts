@@ -47,5 +47,5 @@ test("long tasks audit Luna then ask Luna once for a constrained correction", as
   assert.equal(calls[0].model, "gpt-5.6-luna");
   assert.equal(calls[1].model, "gpt-5.6-luna");
   assert.match(calls[1].input[0].content, /chat\.gesture/u);
-  assert.match(calls[1].input[0].content, /deterministic NLP validation/u);
+  assert.match(calls[1].input[0].content, /previous attempt did not pass deterministic validation/iu);
 });
