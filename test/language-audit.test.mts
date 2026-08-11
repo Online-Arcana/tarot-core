@@ -9,7 +9,7 @@ import { futureNameInText } from "../dist/reading/reveal.js";
 test("Spanish sus is not treated as direct address", () => {
   assert.equal(hasDirectAddress("Selena gira sus anillos despacio.", "es-ES"), false);
   assert.equal(hasDirectAddress("Selena deja sus anillos junto a ti.", "es-ES"), true);
-  assert.equal(hasDirectAddress("Observas cómo Selena gira sus anillos.", "es-ES"), true);
+  assert.equal(hasDirectAddress("Puedes observar cómo Selena gira sus anillos.", "es-ES"), true);
 });
 
 test("Spanish narrator first-person audit covers object, possessive and prepositional forms", () => {
