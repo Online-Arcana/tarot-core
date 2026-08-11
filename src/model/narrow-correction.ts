@@ -48,6 +48,12 @@ function currentField(req: ApiReq, primary: ApiOut, field: string): string {
   throw new Error(`Unsupported narrator correction field ${req.task}.${field}`);
 }
 
+function patchField(correction: NarratorPatch, field: string): string {
+  const value = correction[field];
+  if (typeof value !== "string") throw new Error(`Narrator correction is missing ${field}`);
+  return value;
+}
+
 export function narrowCorrectionShape(paths: readonly string[]) {
   const fields = fieldsFor(paths);
   if (!fields.length) throw new Error("Narrow correction requires at least one narrator field");
@@ -97,18 +103,18 @@ export function mergeNarratorCorrection(
       const base = primary as RitualOut;
       return {
         ...base,
-        ...(wanted.has("ritual.gesture") ? { gesture: correction.gesture } : {}),
-        ...(wanted.has("ritual.opening") ? { opening: correction.opening } : {}),
-        ...(wanted.has("ritual.ritual") ? { ritual: correction.ritual } : {}),
+        ...(wanted.has("ritual.gesture") ? { gesture: patchField(correction, "gesture") } : {}),
+        ...(wanted.has("ritual.opening") ? { opening: patchField(correction, "opening") } : {}),
+        ...(wanted.has("ritual.ritual") ? { ritual: patchField(correction, "ritual") } : {}),
       };
     }
     case "read": {
       const base = primary as ReadingOut;
-      return wanted.has("read.note") ? { ...base, note: correction.note } : base;
+      return wanted.has("read.note") ? { ...base, note: patchField(correction, "note") } : base;
     }
     case "chat": {
       const base = primary as ChatOut;
-      return wanted.has("chat.gesture") ? { ...base, gesture: correction.gesture } : base;
+      return wanted.has("chat.gesture") ? { ...base, gesture: patchField(correction, "gesture") } : base;
     }
     default:
       return primary;
