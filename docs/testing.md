@@ -35,16 +35,16 @@ The deterministic matrix is a required engineering gate, but it is not a substit
 
 The paid live matrix is intentionally a **local** test. It is not a GitHub Actions job and expects the API key only in the local environment where the test is being run.
 
-Run it only after `npm run ci` is green, preferably from a clean checkout of the exact commit being considered for release:
+Run it only after `npm run ci` is green, from a clean checkout of the exact commit being considered for release:
 
 ```bash
 export OPENAI_API_KEY='...'
 npm run test:live
 ```
 
-`npm run test:live` records the local Git `HEAD` in every per-cell report, builds the audited core, runs all 16 reader/language cells locally with two cells in parallel by default, aggregates their results and writes a human-review pack. If tracked files are dirty it prints a provenance warning because the recorded commit cannot describe those uncommitted changes.
+`npm run test:live` refuses to make paid model calls from a dirty working tree, including when there are untracked non-ignored files. It records the local Git `HEAD` in every per-cell report, builds the audited core, runs all 16 reader/language cells locally with two cells in parallel by default, aggregates their results and writes a human-review pack.
 
-Aggregation is commit-bound. A release summary passes only when all 16 reports contain one identical commit and that commit matches the checkout being aggregated. This prevents a complete-looking summary from mixing stale cells produced by different code revisions.
+Aggregation is also checkout-bound. A release summary passes only when the current working tree is clean, all 16 reports contain one identical commit and that commit matches the checkout being aggregated. This prevents a complete-looking summary from mixing stale cells, testing uncommitted code under a misleading SHA, or approving reports produced by another revision.
 
 Override local parallelism with `MATRIX_PARALLEL`, for example:
 
@@ -57,9 +57,9 @@ The complete matrix covers 8 readers × 2 languages × 5 spreads, for 80 complet
 Outputs are written under `reports/`:
 
 - `reports/live-prose/<reader>-<language>.json`: per-cell final prose, diagnostics, raw attempts and tested commit
-- `reports/live-prose-summary.json`: aggregate counters, tested commit and hard gates
+- `reports/live-prose-summary.json`: aggregate counters, tested commit, checkout provenance and hard gates
 - `reports/live-prose-summary.md`: compact aggregate summary
-- `reports/live-prose-review.md`: accepted prose laid out for manual reading
+- `reports/live-prose-review.md`: accepted prose laid out for manual reading, including tested commit and orchestration diagnostics
 
 The release expectations are:
 
@@ -83,7 +83,7 @@ For a single reader/language cell while investigating a failure:
 MATRIX_READER=selena MATRIX_LANG=es-ES npm run test:live:cell
 ```
 
-The single-cell command also resolves and records the local Git `HEAD` and warns on tracked dirty changes, so its JSON can later participate safely in commit-bound aggregation.
+The single-cell command uses the same clean-checkout requirement and records the local Git `HEAD`, so its JSON can later participate safely in commit-bound aggregation.
 
 Existing reports can be re-aggregated or re-rendered without making model calls:
 
@@ -92,7 +92,7 @@ npm run test:live:aggregate
 npm run test:live:review
 ```
 
-`test:live:aggregate` compares the reports with the current local `HEAD`; reports from another commit deliberately fail the aggregate gate rather than being mistaken for current evidence.
+`test:live:aggregate` compares the reports with the current local `HEAD` and requires a clean checkout. Reports from another commit deliberately fail the aggregate gate rather than being mistaken for current evidence.
 
 ## Human review gate
 
