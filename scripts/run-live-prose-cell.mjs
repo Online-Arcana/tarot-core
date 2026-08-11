@@ -4,9 +4,9 @@ const apiKey = process.env.OPENAI_API_KEY?.trim();
 if (!apiKey) throw new Error("OPENAI_API_KEY is required for the paid live prose matrix");
 
 const commit = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
-const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { encoding: "utf8" }).trim().length > 0;
+const dirty = execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" }).trim().length > 0;
 if (dirty) {
-  console.warn(`WARNING: live prose cell is running from dirty working tree at ${commit}; commit provenance will not describe uncommitted changes.`);
+  throw new Error(`Paid live prose cell requires a clean working tree. Commit or remove local changes before testing ${commit}.`);
 }
 
 const child = spawn(process.execPath, ["scripts/live-prose-matrix.mjs"], {
