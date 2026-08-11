@@ -14,7 +14,7 @@ npm run ci
 - `check` regenerates canonical derived data and type-checks the maintained TypeScript source without emitting files.
 - `build` regenerates canonical derived data and emits the library into `dist/`.
 - `test` runs the Node test suite against the built package surface.
-- `ci` runs typecheck, build and the complete deterministic test suite.
+- `ci` runs typecheck, the zero-network live-harness syntax gate, build and the complete deterministic test suite.
 
 Generated `dist/`, `src/readers/personas.generated.json` and `src/model/fallbacks.generated.json` are not authoritative source. Persona prose belongs in `src/readers/personas/*.xml`; emergency fallback and shared recovery-atmosphere prose belongs in `src/model/fallbacks.xml`.
 
@@ -44,6 +44,8 @@ npm run test:live
 
 `npm run test:live` records the local Git `HEAD` in every per-cell report, builds the audited core, runs all 16 reader/language cells locally with two cells in parallel by default, aggregates their results and writes a human-review pack. If tracked files are dirty it prints a provenance warning because the recorded commit cannot describe those uncommitted changes.
 
+Aggregation is commit-bound. A release summary passes only when all 16 reports contain one identical commit and that commit matches the checkout being aggregated. This prevents a complete-looking summary from mixing stale cells produced by different code revisions.
+
 Override local parallelism with `MATRIX_PARALLEL`, for example:
 
 ```bash
@@ -55,7 +57,7 @@ The complete matrix covers 8 readers × 2 languages × 5 spreads, for 80 complet
 Outputs are written under `reports/`:
 
 - `reports/live-prose/<reader>-<language>.json`: per-cell final prose, diagnostics, raw attempts and tested commit
-- `reports/live-prose-summary.json`: aggregate counters and hard gates
+- `reports/live-prose-summary.json`: aggregate counters, tested commit and hard gates
 - `reports/live-prose-summary.md`: compact aggregate summary
 - `reports/live-prose-review.md`: accepted prose laid out for manual reading
 
@@ -81,12 +83,16 @@ For a single reader/language cell while investigating a failure:
 MATRIX_READER=selena MATRIX_LANG=es-ES npm run test:live:cell
 ```
 
+The single-cell command also resolves and records the local Git `HEAD` and warns on tracked dirty changes, so its JSON can later participate safely in commit-bound aggregation.
+
 Existing reports can be re-aggregated or re-rendered without making model calls:
 
 ```bash
 npm run test:live:aggregate
 npm run test:live:review
 ```
+
+`test:live:aggregate` compares the reports with the current local `HEAD`; reports from another commit deliberately fail the aggregate gate rather than being mistaken for current evidence.
 
 ## Human review gate
 
