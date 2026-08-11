@@ -1,9 +1,8 @@
 import { presentMappedReading, presentMappedRitual } from "./output.js";
-import { publicMediaMeta } from "./public-meta.js";
+import { publicCulture, publicMediaMeta } from "./public-meta.js";
 import {
   isMappedReader,
   mappedArcana,
-  mappedCulture,
   mappedElements,
   mappedEntry,
   mappedFamily,
@@ -81,7 +80,7 @@ export function mediaFor(reader: import("../../contracts/types.js").ReaderId, ca
     family,
     stateLabel,
     ...publicMeta,
-    culture: sentence(mappedCulture(reader, code)).replace(/[.]$/u, ""),
+    culture: publicCulture(reader, code),
     medium: context.medium,
     itemId: `${reader}-${card.id}`,
     itemName,
