@@ -57,7 +57,7 @@ test("mapped reading prompts hide research provenance and canonical naipes", () 
   assert.match(prompt, /knotted cords drawn from an opaque vessel/iu);
   assert.match(prompt, /ritualTheatre/u);
   assert.match(prompt, /Amaru mixes the cords by touch/u);
-  assert.match(prompt, /aware of it but must not reenact, recite or narrate it/iu);
+  assert.match(prompt, /aware of their atmosphere but must not repeat, summarise or reenact their actions/iu);
   assert.doesNotMatch(prompt, /"name":"The Fool"/u);
   assert.doesNotMatch(prompt, /"suit":"major"/u);
 });
@@ -96,7 +96,7 @@ test("Selena keeps the existing naipes input while receiving ritual atmosphere",
   assert.match(prompt, /"name":"The Fool"/u);
   assert.match(prompt, /"suit":"major"/u);
   assert.match(prompt, /Selena holds the naipes/u);
-  assert.match(prompt, /Do not repeat, paraphrase or summarise ritual actions/iu);
+  assert.match(prompt, /ritualTheatre as atmospheric and emotional context without repeating or summarising ritual actions inside dialogue/iu);
 });
 
 test("mapped follow-up prompts keep using the visible medium", () => {
