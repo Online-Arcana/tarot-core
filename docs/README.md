@@ -2,20 +2,20 @@
 
 ## Start here
 
-- [Getting started](getting-started.md) — checkout, submodules, installation, builds and consumption modes
-- [Library API](library.md) — public exports and common integration patterns
-- [CLI](cli.md) — reduced JSON input/output interface and session handling
+- [Getting started](getting-started.md) — current repository checkout, nested submodules, deterministic validation and consumption modes
+- [Library API](library.md) — public exports, canonical data, model provenance and common integration patterns
+- [CLI](cli.md) — reduced JSON input/output interface, session handling and reconstruction diagnostics
 
 ## Domain reference
 
-- [Contracts](contracts.md) — request, output, conversation, draw and handover types
-- [Card and spread packs](packs.md) — manifest format, card recipes and validation rules
-- [Reading flow](reading-flow.md) — draw, ritual, reveal, interpretation, continuation and handover stages
-- [Reader profiles](readers.md) — IDs, topic fit, localisation and persona prompt generation
+- [Contracts](contracts.md) — stable request/output shapes, canonicalisation, conversation, draw and handover types
+- [Card and spread packs](packs.md) — legacy-compatible manifest shape, explicit canonical card IDs and semantic trust boundary
+- [Reading flow](reading-flow.md) — canonicalisation, ritual, reveal, interpretation, finalisation, continuation and handover stages
+- [Reader profiles](readers.md) — XML-owned personas, structured identity, topic fit and localisation
 
 ## Runtime and integration
 
-- [Model orchestration](model.md) — schemas, prompts, conversations, correction passes and configuration
-- [Online Arcana integration](integration.md) — recursive submodule topology and front-end adapters
-- [Testing and maintenance](testing.md) — checks, tests, generated output and change rules
-- [Security notes](security.md) — randomness, validation, credentials, model sessions and data handling
+- [Model orchestration](model.md) — bilingual prompt architecture, schemas, audit, narrow correction, recovery and provenance
+- [Online Arcana integration](integration.md) — current `src/core` recursive submodule topology and unchanged application boundary
+- [Testing and maintenance](testing.md) — deterministic CI plus the separate local paid/live and human-review gates
+- [Security notes](security.md) — randomness, semantic trust, credentials, local live artefacts, model sessions and data handling
