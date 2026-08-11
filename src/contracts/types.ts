@@ -186,13 +186,11 @@ export type Stage =
   | { kind: "question" }
   | { kind: "ritual"; card: number; text?: string }
   | { kind: "reveal"; card: number }
-  | { kind: "speech"; card: number }
+  | { kind: "speech"; card: number; text?: string }
   | { kind: "place"; card: number }
-  | { kind: "synthesis" }
-  | { kind: "answer" }
-  | { kind: "closing" };
-
-export type StageKind = Stage["kind"];
+  | { kind: "synthesis"; text?: string }
+  | { kind: "answer"; text?: string }
+  | { kind: "closing"; text?: string };
 
 export interface ReadTurn {
   id: string;
@@ -215,7 +213,7 @@ export interface ChatTurn {
 
 export type Turn = ReadTurn | ChatTurn;
 
-export interface TrailVisit {
+export interface Visit {
   reader: ReaderId;
   conv: string;
   at: string;
@@ -223,10 +221,21 @@ export interface TrailVisit {
   note: string;
 }
 
-export interface ReaderTrail {
-  id: string;
-  root: string;
-  visits: TrailVisit[];
+export interface Trail { id: string; visits: Visit[]; summary: string }
+
+export interface Hand {
+  from: ReaderId;
+  to: ReaderId;
+  at: string;
+  question: string;
+  reason: string;
+  summary: string;
+  prevQs: string[];
+  conclusions: string[];
+  cards: string[];
+  facts: string[];
+  unresolved: string[];
+  ack?: string;
 }
 
 export interface Conv {
@@ -237,20 +246,52 @@ export interface Conv {
   created: string;
   updated: string;
   name: string;
-  trail?: ReaderTrail;
-  handover?: HandoverOut;
+  title?: string;
+  trail?: Trail;
+  handover?: Hand;
   turns: Turn[];
 }
 
-export interface Hist { kind: ReqKind; question: string; response: string }
+export interface Hist {
+  kind: ReqKind;
+  question: string;
+  response: string;
+}
 
-interface ReqBase { lang: LangCode; reader: ReaderId; name: string; history: Hist[] }
+interface ReqBase {
+  task: Task;
+  lang: LangCode;
+  reader: ReaderId;
+  name: string;
+  history: Hist[];
+  trail?: Trail;
+  handover?: Hand;
+}
+
 export type ApiReq =
   | (ReqBase & { task: "invite" })
   | (ReqBase & { task: "fit"; question: string })
-  | (ReqBase & { task: "ritual"; question: string; spread: SpreadId; card: number; drawn?: DrawnCard; draw?: Draw; priorRituals?: string[] })
-  | (ReqBase & { task: "read"; question: string; draw: Draw; ritualTheatre?: string[] })
+  | (ReqBase & {
+      task: "ritual";
+      question: string;
+      spread: SpreadId;
+      card: number;
+      drawn?: DrawnCard;
+      /** Full reading context for v3 clients. Optional only for v2 compatibility. */
+      draw?: Draw;
+      /** Earlier generated ritual paragraphs in reveal order. */
+      priorRituals?: string[];
+    })
+  | (ReqBase & {
+      task: "read";
+      question: string;
+      draw: Draw;
+      /** Completed narrator theatre, one paragraph per result, in reveal order. */
+      ritualTheatre?: string[];
+    })
   | (ReqBase & { task: "chat"; question: string })
-  | (ReqBase & { task: "suggest" | "continue" | "title"; turn: ReadTurn })
+  | (ReqBase & { task: "suggest"; turn: ReadTurn })
+  | (ReqBase & { task: "continue"; turn: ReadTurn })
+  | (ReqBase & { task: "title"; turn: ReadTurn })
   | (ReqBase & { task: "handover"; question: string; target: ReaderId; conv: Conv })
-  | (ReqBase & { task: "return"; trail: ReaderTrail; handover?: HandoverOut });
+  | (ReqBase & { task: "return"; trail: Trail; handover?: Hand });
