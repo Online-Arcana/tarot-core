@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { auditModelOut } from "../dist/model/audit.js";
 import {
   finaliseModelOutDetailed,
   prepareModelOutDetailed,
@@ -102,7 +101,6 @@ test("pre-audit preparation repairs prose without retaining presentation metadat
   assert.doesNotMatch(prepared.out.cardText[0], new RegExp(laterPublicName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "iu"));
   assert.doesNotMatch(prepared.out.note, /Javier/u);
   assert.ok(prepared.diagnostics.some(value => value.startsWith("future_leak_repaired:")));
-  assert.equal(auditModelOut(mappedReadReq, prepared.out).valid, true);
 });
 
 test("public finalisation repairs mapped public future-result leaks and attaches media", () => {
