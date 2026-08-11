@@ -1,5 +1,5 @@
 import type { ApiOut, ApiReq, ReadingOut, RitualOut } from "../contracts/types.js";
-import { canonicalCards } from "../domain/canonical.js";
+import { canonicalCardAt, canonicalCardIds } from "../domain/canonical.js";
 import { profileFor, localText } from "../readers/profiles.js";
 import {
   isMappedReader,
@@ -109,10 +109,11 @@ function mappedEntityNames(req: ApiReq): readonly string[] {
   const cached = mappedEntityCache.get(key);
   if (cached) return cached;
   const names = new Set<string>();
-  for (const card of canonicalCards(req.lang)) {
+  for (const id of canonicalCardIds()) {
+    const card = canonicalCardAt(id, "upright", 1, "one", req.lang);
     const media = mediaFor(req.reader, card, req.lang);
     if (!media) continue;
-    if (media.publicName.trim()) names.add(media.publicName.trim());
+    if (media.publicName?.trim()) names.add(media.publicName.trim());
     if (media.itemName.trim()) names.add(media.itemName.trim());
   }
   const sorted = [...names].sort((a, b) => b.length - a.length);
