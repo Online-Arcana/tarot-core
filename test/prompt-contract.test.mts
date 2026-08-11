@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { modelPrompt } from "../dist/model/run.js";
+import { systemPrompt } from "../dist/model/system.js";
 
 const pack = { prompt: { reading: "legacy app reading prompt", chat: "legacy app chat prompt" } };
 
@@ -70,6 +71,16 @@ test("Spanish narrator contract forbids generic reader labels and permits natura
   assert.match(prompt, /sujeto omitido propio del español/iu);
   assert.match(prompt, /«el lector», «la lectora» o «la persona lectora»/u);
   assert.match(prompt, /No repitas Selena ni su pronombre en cada oración/iu);
+});
+
+test("legacy systemPrompt is only a neutral language compatibility hint", () => {
+  const en = systemPrompt("en-GB");
+  const es = systemPrompt("es-ES");
+  assert.match(en, /natural British English/iu);
+  assert.match(es, /español natural de España/iu);
+  assert.doesNotMatch(`${en} ${es}`, /tarot|naipes|cards?|deck|selected reader|tarotista seleccionado/iu);
+  assert.match(en, /core prompt builder/iu);
+  assert.match(es, /constructor de prompts del core/iu);
 });
 
 test("suggest structured schema is exactly three items", async () => {
