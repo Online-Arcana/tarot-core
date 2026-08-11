@@ -19,10 +19,13 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
+    "generate:personas": "node scripts/generate-personas.mjs",
+    "precheck": "npm run generate:personas",
     "check": "tsc -p tsconfig.json --noEmit",
+    "prebuild": "npm run generate:personas",
     "build": "tsc -p tsconfig.build.json",
     "test": "node --experimental-strip-types --test test/*.test.mts",
-    "cli": "tsc -p tsconfig.build.json && node dist/cli/main.js",
+    "cli": "npm run build && node dist/cli/main.js",
     "ci": "npm run check && npm run build && npm run test"
   },
   "engines": {
