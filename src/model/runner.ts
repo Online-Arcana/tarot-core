@@ -3,8 +3,9 @@ import {
   type Dict,
   type Fetch,
 } from "../vendor/openai-schema/src/openaiSchema.js";
+import { attachMedia } from "../readers/media/runtime.js";
 import { auditModelOut, type ModelAudit } from "./audit.js";
-import { finaliseModelOutDetailed } from "./finalise.js";
+import { prepareModelOutDetailed } from "./finalise.js";
 import {
   mergeNarratorCorrection,
   narrowCorrectionPrompt,
@@ -83,7 +84,7 @@ export class ModelOutputError extends Error {
 }
 
 export const validModelOut = (req: ApiReq, out: ApiOut): boolean =>
-  auditModelOut(req, finaliseModelOutDetailed(req, out).out).valid;
+  auditModelOut(req, prepareModelOutDetailed(req, out).out).valid;
 
 export function correctionFor(req: ApiReq): string {
   return genericCorrection(req);
@@ -185,6 +186,7 @@ function localAuditCorrection(
 }
 
 const accepted = (
+  req: ApiReq,
   audit: ModelAudit,
   diagnostics: readonly string[],
   source: ModelResult["source"],
@@ -192,7 +194,7 @@ const accepted = (
   escalationModel: string,
   sessionKey: string | undefined,
 ): ModelResult => ({
-  out: audit.value,
+  out: attachMedia(req, audit.value),
   source,
   primaryModel,
   escalationModel,
@@ -238,15 +240,15 @@ export async function runModelSession(
   let primaryDiagnostics: readonly string[] = [];
   try {
     const generated = await send(primaryModel);
-    const finalised = finaliseModelOutDetailed(req, generated);
-    primary = finalised.out;
-    primaryDiagnostics = finalised.diagnostics;
+    const prepared = prepareModelOutDetailed(req, generated);
+    primary = prepared.out;
+    primaryDiagnostics = prepared.diagnostics;
     primaryAudit = auditModelOut(req, primary);
   } catch (cause: unknown) {
     primaryFailure = message(cause);
   }
   if (primaryAudit?.valid === true) {
-    return accepted(primaryAudit, primaryDiagnostics, "primary", primaryModel, escalationModel, ai.id);
+    return accepted(req, primaryAudit, primaryDiagnostics, "primary", primaryModel, escalationModel, ai.id);
   }
 
   const narrow = spanishNarratorCorrection(req, primaryAudit);
@@ -263,25 +265,25 @@ export async function runModelSession(
         "arcana_spanish_narrator_patch",
       );
       const merged = mergeNarratorCorrection(req, primary, patch, narrow.paths);
-      const finalised = finaliseModelOutDetailed(req, merged);
-      escalation = finalised.out;
+      const prepared = prepareModelOutDetailed(req, merged);
+      escalation = prepared.out;
       escalationDiagnostics = [...new Set([
-        ...finalised.diagnostics,
+        ...prepared.diagnostics,
         `narrow_spanish_narrator_correction:${narrow.paths.join(",")}`,
       ])];
     } else {
       const correction = localAuditCorrection(req, primary, primaryAudit, primaryFailure);
       const generated = await send(escalationModel, correction);
-      const proposed = finaliseModelOutDetailed(req, generated);
-      escalation = proposed.out;
-      escalationDiagnostics = proposed.diagnostics;
+      const prepared = prepareModelOutDetailed(req, generated);
+      escalation = prepared.out;
+      escalationDiagnostics = prepared.diagnostics;
     }
     escalationAudit = auditModelOut(req, escalation);
   } catch (cause: unknown) {
     escalationFailure = message(cause);
   }
   if (escalationAudit?.valid === true) {
-    return accepted(escalationAudit, escalationDiagnostics, "escalation", primaryModel, escalationModel, ai.id);
+    return accepted(req, escalationAudit, escalationDiagnostics, "escalation", primaryModel, escalationModel, ai.id);
   }
 
   const errors = failures(primaryAudit, primaryFailure, escalationAudit, escalationFailure);
@@ -291,13 +293,13 @@ export async function runModelSession(
 
   try {
     const reconstructed = reconstructModelOutDetailed(req, [primary, escalation]);
-    const finalised = finaliseModelOutDetailed(req, reconstructed.out);
-    const finalAudit = auditModelOut(req, finalised.out);
+    const prepared = prepareModelOutDetailed(req, reconstructed.out);
+    const finalAudit = auditModelOut(req, prepared.out);
     if (!finalAudit.valid) {
       throw new Error(`reconstructed_output_invalid: ${finalAudit.errors.join(" | ")}`);
     }
     return {
-      out: finalised.out,
+      out: attachMedia(req, finalAudit.value),
       source: "reconstructed",
       primaryModel,
       escalationModel,
@@ -306,7 +308,7 @@ export async function runModelSession(
         ...primaryDiagnostics,
         ...escalationDiagnostics,
         ...reconstructed.auditErrors,
-        ...finalised.diagnostics,
+        ...prepared.diagnostics,
       ])],
       ...(ai.id === undefined ? {} : { sessionKey: ai.id }),
     };
