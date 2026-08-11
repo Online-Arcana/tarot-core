@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { canonicalCards } from "../dist/domain/canonical.js";
 import {
   attachMedia,
   mediaFor,
@@ -66,22 +66,17 @@ function assertNoArchiveMetadata(value) {
 }
 
 function mappedCard(def, side, lang) {
-  const local = lang === "es-ES" ? "es" : "en";
+  const spanish = lang === "es-ES";
   return {
     pos: 1,
-    posName: local === "es" ? "El presente" : "The present",
-    posMeaning: local === "es" ? "Lo activo ahora" : "What is active now",
+    posName: spanish ? "El presente" : "The present",
+    posMeaning: spanish ? "Lo activo ahora" : "What is active now",
     id: def.id,
-    name: def.name[local],
-    suit: def.arcana,
+    name: def.name,
+    suit: def.suit,
     side,
-    meaning: def[side][local],
+    meaning: side === "upright" ? def.upright : def.reversed,
   };
-}
-
-async function canonical() {
-  const raw = await readFile(new URL("../src/readers/media/canonical-card-index.json", import.meta.url), "utf8");
-  return JSON.parse(raw).cards;
 }
 
 test("all seven mapped readers expand to exactly 78 logical results", () => {
@@ -103,8 +98,8 @@ test("Selena remains vanilla and receives no medium translation", () => {
   assert.equal(mediaPayload(req), null);
 });
 
-test("final public families, titles and states come from the approved mappings", async () => {
-  const cards = await canonical();
+test("final public families, titles and states come from approved mapped data", () => {
+  const cards = canonicalCards("en-GB");
   const byId = new Map(cards.map(def => [def.id, def]));
 
   for (const reader of readers) {
@@ -137,12 +132,11 @@ test("final public families, titles and states come from the approved mappings",
   }
 });
 
-test("every one of the 546 mappings stays clean in both languages and states", async () => {
-  const cards = await canonical();
-  assert.equal(cards.length, 78);
-
+test("every explicit mapping stays clean in both languages and states", () => {
   for (const reader of readers) {
     for (const lang of ["en-GB", "es-ES"]) {
+      const cards = canonicalCards(lang);
+      assert.equal(cards.length, 78);
       for (const def of cards) {
         for (const side of ["upright", "reversed"]) {
           const drawn = mappedCard(def, side, lang);
@@ -152,7 +146,7 @@ test("every one of the 546 mappings stays clean in both languages and states", a
           assert.equal(medium.reader, reader);
           assert.equal(medium.cardId, def.id);
           assert.equal(medium.side, side);
-          assert.equal(medium.arcana, def.arcana === "major" ? "major" : "minor");
+          assert.equal(medium.arcana, def.arcana);
           assert.equal(medium.family === null, def.arcana === "major");
           assert.equal(medium.interpretation, drawn.meaning);
           assert.ok(medium.stateLabel);
