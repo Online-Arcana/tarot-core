@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "spreads": [
+    {
+      "id": "one",
+      "order": 0,
+      "en": {
+        "name": "One card",
+        "purpose": "Reveal the energy, advice or truth most relevant now."
+      },
+      "es": {
+        "name": "Una carta",
+        "purpose": "Revelar la energía, el consejo o la verdad más relevante ahora."
+      },
+      "positions": [
+        {
+          "number": 1,
+          "en": { "name": "The message", "meaning": "The central energy or guidance for the question." },
+          "es": { "name": "El mensaje", "meaning": "La energía o guía central para la pregunta." }
+        }
+      ]
+    },
+    {
+      "id": "three",
+      "order": 1,
+      "en": {
+        "name": "Past, present, future",
+        "purpose": "Trace the origin, current energy and likely direction."
+      },
+      "es": {
+        "name": "Pasado, presente y futuro",
+        "purpose": "Seguir el origen, la energía actual y la dirección probable."
+      },
+      "positions": [
+        {
+          "number": 1,
+          "en": { "name": "Past", "meaning": "What formed the situation." },
+          "es": { "name": "Pasado", "meaning": "Lo que dio forma a la situación." }
+        },
+        {
+          "number": 2,
+          "en": { "name": "Present", "meaning": "What is active now." },
+          "es": { "name": "Presente", "meaning": "Lo que está activo ahora." }
+        },
+        {
+          "number": 3,
+          "en": { "name": "Future", "meaning": "The likely direction if nothing changes." },
+          "es": { "name": "Futuro", "meaning": "La dirección probable si nada cambia." }
+        }
+      ]
+    },
+    {
+      "id": "decision",
+      "order": 2,
+      "en": {
+        "name": "Decision",
+        "purpose": "Clarify a choice without pretending to remove free will."
+      },
+      "es": {
+        "name": "Decisión",
+        "purpose": "Aclarar una elección sin pretender eliminar el libre albedrío."
+      },
+      "positions": [
+        {
+          "number": 1,
+          "en": { "name": "The answer", "meaning": "The dominant tendency around the choice." },
+          "es": { "name": "La respuesta", "meaning": "La tendencia dominante alrededor de la elección." }
+        },
+        {
+          "number": 2,
+          "en": { "name": "The obstacle", "meaning": "What complicates or blocks the decision." },
+          "es": { "name": "El obstáculo", "meaning": "Lo que complica o bloquea la decisión." }
+        },
+        {
+          "number": 3,
+          "en": { "name": "The advice", "meaning": "The most useful way forward." },
+          "es": { "name": "El consejo", "meaning": "La forma más útil de avanzar." }
+        }
+      ]
+    },
+    {
+      "id": "advice",
+      "order": 3,
+      "en": {
+        "name": "Advice",
+        "purpose": "Turn insight into a practical next step."
+      },
+      "es": {
+        "name": "Consejo",
+        "purpose": "Convertir la comprensión en un siguiente paso práctico."
+      },
+      "positions": [
+        {
+          "number": 1,
+          "en": { "name": "The problem", "meaning": "The true centre of the matter." },
+          "es": { "name": "El problema", "meaning": "El verdadero centro del asunto." }
+        },
+        {
+          "number": 2,
+          "en": { "name": "The attitude", "meaning": "The stance that best serves you." },
+          "es": { "name": "La actitud", "meaning": "La postura que mejor te sirve." }
+        },
+        {
+          "number": 3,
+          "en": { "name": "The outcome", "meaning": "What may follow if the advice is applied." },
+          "es": { "name": "El resultado", "meaning": "Lo que puede suceder si aplicas el consejo." }
+        }
+      ]
+    },
+    {
+      "id": "celtic",
+      "order": 4,
+      "en": {
+        "name": "Celtic Cross",
+        "purpose": "Explore the inner, outer, past and emerging forces around a complex question."
+      },
+      "es": {
+        "name": "Cruz Celta",
+        "purpose": "Explorar las fuerzas internas, externas, pasadas y emergentes alrededor de una pregunta compleja."
+      },
+      "positions": [
+        {
+          "number": 1,
+          "en": { "name": "Present situation", "meaning": "The energy at the centre of the question.", "placement": "Centre" },
+          "es": { "name": "Situación presente", "meaning": "La energía en el centro de la pregunta.", "placement": "Centro" }
+        },
+        {
+          "number": 2,
+          "en": { "name": "Crossing force", "meaning": "The obstacle, tension or aid crossing the matter.", "placement": "Across the centre" },
+          "es": { "name": "Fuerza que cruza", "meaning": "El obstáculo, la tensión o la ayuda que atraviesa el asunto.", "placement": "Cruzando el centro" }
+        },
+        {
+          "number": 3,
+          "en": { "name": "Conscious aim", "meaning": "What you seek, expect or hold in mind.", "placement": "Above" },
+          "es": { "name": "Objetivo consciente", "meaning": "Lo que buscas, esperas o mantienes en mente.", "placement": "Arriba" }
+        },
+        {
+          "number": 4,
+          "en": { "name": "Foundation", "meaning": "The root, past or deep cause.", "placement": "Below" },
+          "es": { "name": "Cimiento", "meaning": "La raíz, el pasado o la causa profunda.", "placement": "Abajo" }
+        },
+        {
+          "number": 5,
+          "en": { "name": "Recent past", "meaning": "What is passing out of influence.", "placement": "Left" },
+          "es": { "name": "Pasado reciente", "meaning": "Lo que está dejando de ejercer influencia.", "placement": "Izquierda" }
+        },
+        {
+          "number": 6,
+          "en": { "name": "Near future", "meaning": "What is moving into view.", "placement": "Right" },
+          "es": { "name": "Futuro próximo", "meaning": "Lo que empieza a entrar en escena.", "placement": "Derecha" }
+        },
+        {
+          "number": 7,
+          "en": { "name": "Your stance", "meaning": "How you meet the situation.", "placement": "Lower staff" },
+          "es": { "name": "Tu postura", "meaning": "Cómo afrontas la situación.", "placement": "Parte inferior de la columna" }
+        },
+        {
+          "number": 8,
+          "en": { "name": "Environment", "meaning": "People and conditions around you.", "placement": "Second staff" },
+          "es": { "name": "Entorno", "meaning": "Las personas y condiciones que te rodean.", "placement": "Segunda posición de la columna" }
+        },
+        {
+          "number": 9,
+          "en": { "name": "Hopes and fears", "meaning": "Desires and anxieties shaping perception.", "placement": "Third staff" },
+          "es": { "name": "Esperanzas y miedos", "meaning": "Deseos y ansiedades que moldean la percepción.", "placement": "Tercera posición de la columna" }
+        },
+        {
+          "number": 10,
+          "en": { "name": "Outcome", "meaning": "The likely synthesis and direction.", "placement": "Top staff" },
+          "es": { "name": "Resultado", "meaning": "La síntesis y dirección probables.", "placement": "Parte superior de la columna" }
+        }
+      ]
+    }
+  ]
+}
