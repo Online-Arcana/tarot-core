@@ -10,26 +10,33 @@ canonical request
     -> shared bilingual prompt builder
     -> strict structured-output parse/shape retry
     -> primary candidate
-    -> core finalisation
+    -> pre-audit core preparation
+       (Spanish narrator audience normalisation + reveal safety + mapped handover state)
     -> deterministic audit
-    -> constrained escalation or narrow Spanish narrator correction
-    -> core finalisation
+    -> attach public mapped-media presentation data
+    -> constrained escalation or narrow Spanish narrator correction when needed
+    -> pre-audit core preparation
     -> deterministic audit
+    -> attach public mapped-media presentation data
     -> deterministic reconstruction when guaranteed output is enabled
-    -> core finalisation + final audit
+    -> pre-audit core preparation
+    -> final deterministic audit
+    -> attach public mapped-media presentation data
     -> unchanged ApiOut
 ```
 
-Core finalisation is intentionally idempotent. It attaches public mapped-media metadata, performs the conservative Spanish narrator audience transform where applicable, repairs premature result-name leakage in staged readings and restores internal canonical handover card state. The existing application may still run its compatibility post-processing without changing the result again.
+The model runner never relies on presentation attachment to make generated prose valid. `prepareModelOutDetailed()` performs the prose-changing finalisation steps before the last audit and deliberately returns no mapped `media` or `medium` presentation metadata. Only after that candidate passes the ordinary audit does the runner call `attachMedia()`.
+
+`finaliseModelOutDetailed()` remains the compatibility helper for direct callers: it performs the same preparation and then attaches public presentation metadata. Both preparation and public finalisation are idempotent, so the existing application may still run its compatibility post-processing without changing an already-finalised result.
 
 ## Model lanes
 
 Tasks use three independently configurable lanes:
 
 ```text
-ordinary short tasks: gpt-5-nano   -> audit -> gpt-5.6-luna -> audit -> recovery
-ritual:              gpt-5-mini   -> audit -> gpt-5.6-luna -> audit -> recovery
-read / chat:          gpt-5.6-luna -> audit -> gpt-5.6-luna -> audit -> recovery
+ordinary short tasks: gpt-5-nano    -> audit -> gpt-5.6-luna -> audit -> recovery
+ritual:               gpt-5-mini    -> audit -> gpt-5.6-luna -> audit -> recovery
+read / chat:           gpt-5.6-luna -> audit -> gpt-5.6-luna -> audit -> recovery
 ```
 
 `DEFAULT_MODEL_TIERS` keeps primary and escalation assignments separate even when two roles currently use the same model. Callers may override the individual roles through `models` without changing task classification.
@@ -93,7 +100,7 @@ For mapped readers, model-facing result identity uses public mapped entities rat
 
 `outputShape` builds one strict schema per normal task. Read schemas require exactly one `cardText` entry per drawn result, suggestions require exactly three strings, and fit/handover fields are structurally constrained before prose auditing begins.
 
-Spanish narrator grammar correction has a separate minimal schema. If the only failures are narrator-owned Spanish grammar issues that can be isolated safely, currently a leaked querent proper name or an invalid tuteo pronoun case such as `para tú` or `con ti`, Luna receives only the affected narrator string or strings and may return only those exact keys. Unaffected reader dialogue and other valid fields are not sent for regeneration and remain byte-for-byte unchanged. The merged candidate then passes normal finalisation and the ordinary audit again.
+Spanish narrator grammar correction has a separate minimal schema. If the only failures are narrator-owned Spanish grammar issues that can be isolated safely, currently a leaked querent proper name or an invalid tuteo pronoun case such as `para tú` or `con ti`, Luna receives only the affected narrator string or strings and may return only those exact keys. Unaffected reader dialogue and other valid fields are not sent for regeneration and remain byte-for-byte unchanged. The merged candidate then passes normal preparation and the ordinary audit again before presentation metadata is attached.
 
 The deterministic audience transform handles grammatical roles it can establish safely, including subject conjugation, `te` for recognised object roles, `ti` after recognised prepositions, `contigo` after `con`, and `tu`/`tus` for recognised possession. It never performs a blind proper-name-to-`tú` replacement. Uncertain roles remain unchanged for audit and constrained correction.
 
@@ -150,7 +157,7 @@ type ModelResult = {
 };
 ```
 
-`auditErrors` also carries non-customer-facing finalisation and correction diagnostics. It is observability data and must never be rendered as reading prose.
+`auditErrors` also carries non-customer-facing preparation and correction diagnostics. It is observability data and must never be rendered as reading prose.
 
 ## Release gates
 
