@@ -1,0 +1,34 @@
+name: patch-mapped-history
+
+on:
+  push:
+    branches:
+      - agent/core-prose-audit-staging
+    paths:
+      - scripts/patch-mapped-history.mjs
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/core-prose-audit-staging
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/patch-mapped-history.mjs
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/model/prompt.ts
+          if git diff --cached --quiet; then
+            echo "No patch required"
+          else
+            git commit -m "Keep mapped historical prompts in public media"
+            git push origin HEAD:agent/core-prose-audit-staging
+          fi
