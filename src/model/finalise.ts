@@ -1,5 +1,11 @@
-import type { ApiOut, ApiReq, HandoverOut, ReadingOut } from "../contracts/types.js";
-import { attachMedia, isMappedReader } from "../readers/media/runtime.js";
+import type {
+  ApiOut,
+  ApiReq,
+  HandoverOut,
+  ReadingOut,
+  RitualOut,
+} from "../contracts/types.js";
+import { attachMedia, isMappedReader, mediaFor } from "../readers/media/runtime.js";
 import { futureLeaks, repairFutureLeaks } from "../reading/reveal.js";
 import { addressViewer } from "./viewer-narration.js";
 
@@ -25,14 +31,41 @@ function canonicalHandoverCards(req: Extract<ApiReq, { task: "handover" }>): str
   return cards;
 }
 
+function stripPresentation(req: ApiReq, value: ApiOut): ApiOut {
+  if (req.task === "read") {
+    const { media: _media, ...reading } = value as ReadingOut;
+    return reading as ReadingOut;
+  }
+  if (req.task === "ritual") {
+    const { medium: _medium, ...ritual } = value as RitualOut;
+    return ritual as RitualOut;
+  }
+  return value;
+}
+
+function readingWithCanonicalMedia(
+  req: Extract<ApiReq, { task: "read" }>,
+  reading: ReadingOut,
+): ReadingOut {
+  if (!isMappedReader(req.reader)) return reading;
+  const media = req.draw.cards.map(card => {
+    const item = mediaFor(req.reader, card, req.lang);
+    if (!item) throw new Error(`Mapped reader ${req.reader} has no public media for ${card.id}`);
+    return item;
+  });
+  return { ...reading, media };
+}
+
 /**
- * Finalises generated prose inside core while preserving the public ApiOut shape.
- * Spanish narrator audience normalisation is core-side only; English keeps its
- * pre-Spanish orchestration. Media attachment and reveal repair are idempotent.
+ * Prepare generated prose for deterministic audit without attaching public
+ * presentation metadata. Spanish narrator audience normalisation and reveal
+ * repair happen here so the full audit sees the exact prose that will be
+ * returned. Mapped reveal repair uses a temporary canonical media view, which
+ * is stripped again before the audit boundary.
  */
-export function finaliseModelOutDetailed(req: ApiReq, value: ApiOut): FinalisationResult {
+export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): FinalisationResult {
   const diagnostics: string[] = [];
-  let out = value;
+  let out = stripPresentation(req, value);
 
   if (spanish(req)) {
     const before = serial(out);
@@ -47,18 +80,28 @@ export function finaliseModelOutDetailed(req: ApiReq, value: ApiOut): Finalisati
     out = { ...handover, cards };
   }
 
-  out = attachMedia(req, out);
-
   if (req.task === "read") {
     const reading = out as ReadingOut;
-    const leaks = futureLeaks(req.draw, reading, req.lang, req.question);
-    if (leaks.length) {
-      out = repairFutureLeaks(req.draw, reading, req.lang, req.question);
-      diagnostics.push(...leaks.map(leak => `future_leak_repaired:${leak.card}:${leak.name}`));
-    }
+    const auditView = readingWithCanonicalMedia(req, reading);
+    const leaks = futureLeaks(req.draw, auditView, req.lang, req.question);
+    const repaired = leaks.length
+      ? repairFutureLeaks(req.draw, auditView, req.lang, req.question)
+      : auditView;
+    if (leaks.length) diagnostics.push(...leaks.map(leak => `future_leak_repaired:${leak.card}:${leak.name}`));
+    out = stripPresentation(req, repaired);
   }
 
   return { out, diagnostics: [...new Set(diagnostics)] };
+}
+
+/**
+ * Public finalisation helper. The model runner audits prepareModelOutDetailed()
+ * first and calls presentation attachment only after that audit succeeds. This
+ * wrapper preserves the existing public helper contract for direct callers.
+ */
+export function finaliseModelOutDetailed(req: ApiReq, value: ApiOut): FinalisationResult {
+  const prepared = prepareModelOutDetailed(req, value);
+  return { out: attachMedia(req, prepared.out), diagnostics: prepared.diagnostics };
 }
 
 export function finaliseModelOut(req: ApiReq, value: ApiOut): ApiOut {
