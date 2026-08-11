@@ -55,12 +55,21 @@ function rendered(value: string, reader: ReaderId): string {
 function field(fields: Fields, id: string, reader: ReaderId): string {
   return rendered(text(fields[id], `generated fallbacks.${id}`), reader);
 }
+function validInvite(value: string): boolean {
+  const clean = value.trim();
+  if (!clean || /[\r\n]/u.test(clean)) return false;
+  const words = clean.split(/\s+/u).filter(Boolean).length;
+  if (words < 3 || words > 24) return false;
+  const endings = clean.match(/[.!?]["'’”)]*(?=\s|$)/gu)?.length ?? 0;
+  return endings === 1 && /[.!?]["'’”)]*$/u.test(clean);
+}
 
 export function fallbackFor(lang: string, reader: ReaderId): FallbackCatalogue {
   const code: LangCode = lang.toLowerCase().startsWith("es") ? "es-ES" : "en-GB";
   const fields = source(code);
   const profile = profileFor(reader);
-  const invite = localText(profile.persona.invite, code)[0] ?? field(fields, "invite.text", reader);
+  const genericInvite = field(fields, "invite.text", reader);
+  const invite = localText(profile.persona.invite, code).find(validInvite) ?? genericInvite;
   const genericReturning = field(fields, "return.text", reader);
   const personaReturning = localText(profile.handover.returning, code)[0];
   const returning = personaReturning && hasDirectAddress(personaReturning, code)
