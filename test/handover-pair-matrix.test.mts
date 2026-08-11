@@ -35,40 +35,53 @@ function oneCardDraw(lang) {
   };
 }
 
+function readingFixture(reader, lang) {
+  const q = question(lang);
+  const draw = oneCardDraw(lang);
+  const base = { lang, reader, name: "Javier", history: [] };
+  const ritualReq = {
+    ...base,
+    task: "ritual",
+    question: q,
+    spread: "one",
+    card: 0,
+    drawn: draw.cards[0],
+    draw,
+    priorRituals: [],
+  };
+  const ritual = finalDeterministic(ritualReq, `${reader}/${lang}/fixture/ritual`);
+  const readReq = {
+    ...base,
+    task: "read",
+    question: q,
+    draw,
+    ritualTheatre: [[ritual.gesture, ritual.opening, ritual.ritual].join(" ")],
+  };
+  const reading = finalDeterministic(readReq, `${reader}/${lang}/fixture/read`);
+  return {
+    q,
+    draw,
+    turn: {
+      id: `${reader}-${lang}-reading`,
+      kind: "reading",
+      at: "2026-08-11T18:00:00.000Z",
+      question: q,
+      draw,
+      out: reading,
+    },
+  };
+}
+
 for (const lang of languages) {
   test(`every distinct reader handover and production-style return pair is deterministic in ${lang}`, () => {
+    const fixtures = new Map(readers.map(reader => [reader, readingFixture(reader, lang)]));
+
     for (const source of readers) {
-      const q = question(lang);
+      const sourceFixture = fixtures.get(source);
+      assert.ok(sourceFixture);
+      const { q, draw, turn } = sourceFixture;
       const name = "Javier";
-      const draw = oneCardDraw(lang);
       const base = { lang, reader: source, name, history: [] };
-      const ritualReq = {
-        ...base,
-        task: "ritual",
-        question: q,
-        spread: "one",
-        card: 0,
-        drawn: draw.cards[0],
-        draw,
-        priorRituals: [],
-      };
-      const ritual = finalDeterministic(ritualReq, `${source}/${lang}/ritual`);
-      const readReq = {
-        ...base,
-        task: "read",
-        question: q,
-        draw,
-        ritualTheatre: [[ritual.gesture, ritual.opening, ritual.ritual].join(" ")],
-      };
-      const reading = finalDeterministic(readReq, `${source}/${lang}/read`);
-      const turn = {
-        id: `${source}-${lang}-reading`,
-        kind: "reading",
-        at: "2026-08-11T18:00:00.000Z",
-        question: q,
-        draw,
-        out: reading,
-      };
       const trail = {
         id: `${source}-${lang}-trail`,
         summary: lang === "es-ES" ? "La lectura dejó una decisión abierta." : "The reading left one decision open.",
@@ -88,6 +101,8 @@ for (const lang of languages) {
 
       for (const target of readers) {
         if (target === source) continue;
+        const targetFixture = fixtures.get(target);
+        assert.ok(targetFixture);
         const label = `${source}->${target}/${lang}`;
         const reason = lang === "es-ES" ? "Continuar la reflexión." : "Continue the reflection.";
         const handoverReq = { ...base, task: "handover", question: q, target, conv };
@@ -107,15 +122,24 @@ for (const lang of languages) {
         const targetConv = handoverConv(
           conv,
           { target, question: q, reason },
-          `${target}-${lang}-conv`,
+          `${source}-${target}-${lang}-conv`,
           "2026-08-11T18:15:00.000Z",
           handover,
         );
         assert.equal(targetConv.reader, target, `${label}: first handover did not enter target reader`);
         assert.equal(targetConv.turns.length, 0, `${label}: receiving conversation must start empty`);
 
+        const targetReadConv = {
+          ...targetConv,
+          updated: "2026-08-11T18:18:00.000Z",
+          turns: [{
+            ...targetFixture.turn,
+            id: `${source}-${target}-${lang}-target-reading`,
+            at: "2026-08-11T18:18:00.000Z",
+          }],
+        };
         const returnedConv = handoverConv(
-          targetConv,
+          targetReadConv,
           { target: source, question: q, reason },
           `${source}-${target}-${lang}-return`,
           "2026-08-11T18:20:00.000Z",
@@ -124,6 +148,7 @@ for (const lang of languages) {
         assert.equal(returnedConv.turns.length, 0, `${label}: returned conversation must start empty`);
         assert.equal(returnedConv.handover?.from, target, `${label}: return handover source is wrong`);
         assert.equal(returnedConv.handover?.to, source, `${label}: return handover target is wrong`);
+        assert.deepEqual(returnedConv.handover?.cards, [targetFixture.draw.cards[0].name], `${label}: return handover lost target reading card state`);
         assert.deepEqual(
           returnedConv.trail?.visits.map(visit => visit.reader),
           [source, target, source],
@@ -142,8 +167,8 @@ for (const lang of languages) {
         const returnPayload = JSON.stringify(modelPayload(returnReq));
         assert.ok(returnPayload.includes(q), `${label}: return payload lost user-authored history`);
         if (source !== "selena") {
-          assert.equal(returnPayload.includes(draw.cards[0].id), false, `${label}: canonical card ID leaked to mapped return payload`);
-          assert.equal(returnPayload.includes(draw.cards[0].name), false, `${label}: canonical card name leaked to mapped return payload`);
+          assert.equal(returnPayload.includes(targetFixture.draw.cards[0].id), false, `${label}: canonical card ID leaked to mapped return payload`);
+          assert.equal(returnPayload.includes(targetFixture.draw.cards[0].name), false, `${label}: canonical card name leaked to mapped return payload`);
         }
         finalDeterministic(returnReq, `${label}/return`);
       }
