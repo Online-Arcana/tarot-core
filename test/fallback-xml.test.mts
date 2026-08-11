@@ -3,39 +3,37 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { fallbackFor } from "../dist/model/fallback.js";
 
-const escape = value => value
-  .replaceAll("&", "&amp;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;");
+const readers = ["selena", "brennos", "yejide", "ngaru", "ame", "amaru", "nahid", "mictli"];
+const mapped = new Set(readers.filter(reader => reader !== "selena"));
+const genericReader = /\b(?:the reader|the tarot reader|el lector|la lectora|la persona lectora|este lector|esta lectora)\b/iu;
+const canonicalMedium = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?)\b/iu;
 
-const fields = catalogue => new Map([
-  ["invite.text", catalogue.invite],
-  ["fit.reason", catalogue.fitReason],
-  ["fit.offer", catalogue.fitOffer],
-  ["ritual.gesture", catalogue.ritualGesture],
-  ["ritual.opening", catalogue.ritualOpening],
-  ["ritual.ritual", catalogue.ritual],
-  ["read.gesture", catalogue.readGesture],
-  ["read.opening", catalogue.readOpening],
-  ["read.link", catalogue.readLink],
-  ["read.cardText", catalogue.cardText],
-  ["read.synthesis", catalogue.synthesis],
-  ["read.reading", catalogue.reading],
-  ["read.closing", catalogue.closing],
-  ["read.note", catalogue.note],
-  ["chat.gesture", catalogue.chatGesture],
-  ["chat.response", catalogue.chatResponse],
-  ["suggest.0", catalogue.suggestions[0]],
-  ["suggest.1", catalogue.suggestions[1]],
-  ["suggest.2", catalogue.suggestions[2]],
-  ["continue.text", catalogue.continuation],
-  ["title.title", catalogue.title],
-  ["handover.summary", catalogue.handoverSummary],
-  ["handover.unresolved", catalogue.handoverUnresolved],
-  ["return.text", catalogue.returning],
-]);
+const fields = catalogue => [
+  catalogue.invite,
+  catalogue.fitReason,
+  catalogue.fitOffer,
+  catalogue.ritualGesture,
+  catalogue.ritualOpening,
+  catalogue.ritual,
+  catalogue.readGesture,
+  catalogue.readOpening,
+  catalogue.readLink,
+  catalogue.cardText,
+  catalogue.synthesis,
+  catalogue.reading,
+  catalogue.closing,
+  catalogue.note,
+  catalogue.chatGesture,
+  catalogue.chatResponse,
+  ...catalogue.suggestions,
+  catalogue.continuation,
+  catalogue.title,
+  catalogue.handoverSummary,
+  catalogue.handoverUnresolved,
+  catalogue.returning,
+];
 
-test("runtime fallback wording exactly mirrors the canonical XML", async () => {
+test("canonical fallback XML defines every required field in both languages", async () => {
   const xml = await readFile("src/model/fallbacks.xml", "utf8");
   for (const lang of ["en-GB", "es-ES"]) {
     const start = xml.indexOf(`<language code="${lang}">`);
@@ -43,11 +41,47 @@ test("runtime fallback wording exactly mirrors the canonical XML", async () => {
     assert.notEqual(start, -1, `${lang} language is missing`);
     assert.notEqual(end, -1, `${lang} language is not closed`);
     const section = xml.slice(start, end);
-    for (const [id, value] of fields(fallbackFor(lang))) {
-      assert.ok(
-        section.includes(`<field id="${id}">${escape(value)}</field>`),
-        `${lang} ${id} differs between TypeScript and XML`,
-      );
+    for (const id of [
+      "invite.text", "fit.reason", "fit.offer",
+      "ritual.gesture", "ritual.opening", "ritual.ritual",
+      "read.gesture", "read.opening", "read.link", "read.cardText",
+      "read.synthesis", "read.reading", "read.closing", "read.note",
+      "chat.gesture", "chat.response",
+      "suggest.0", "suggest.1", "suggest.2",
+      "continue.text", "title.title",
+      "handover.summary", "handover.unresolved", "return.text",
+    ]) {
+      assert.ok(section.includes(`<field id="${id}">`), `${lang} is missing ${id}`);
+    }
+  }
+});
+
+test("runtime fallbacks are generated, reader-aware and contain no generic identity labels", () => {
+  for (const lang of ["en-GB", "es-ES"]) {
+    for (const reader of readers) {
+      const catalogue = fallbackFor(lang, reader);
+      for (const value of fields(catalogue)) {
+        assert.ok(value.trim(), `${reader}/${lang} has an empty fallback`);
+        assert.doesNotMatch(value, /\{reader\}/u, `${reader}/${lang} leaked a template token`);
+        assert.doesNotMatch(value, genericReader, `${reader}/${lang} used a generic reader label`);
+      }
+      assert.match(catalogue.ritualGesture, new RegExp(`\\b${reader === "selena" ? "Selena" : reader[0].toUpperCase() + reader.slice(1)}\\b`, "iu"));
+      assert.match(catalogue.chatGesture, new RegExp(`\\b${reader === "selena" ? "Selena" : reader[0].toUpperCase() + reader.slice(1)}\\b`, "iu"));
+    }
+  }
+});
+
+test("mapped emergency suggestions and follow-up fallbacks are medium-neutral", () => {
+  for (const lang of ["en-GB", "es-ES"]) {
+    for (const reader of mapped) {
+      const catalogue = fallbackFor(lang, reader);
+      const publicFollowUp = [
+        ...catalogue.suggestions,
+        catalogue.continuation,
+        catalogue.chatResponse,
+        catalogue.returning,
+      ].join(" ");
+      assert.doesNotMatch(publicFollowUp, canonicalMedium, `${reader}/${lang} leaked canonical tarot terminology`);
     }
   }
 });
