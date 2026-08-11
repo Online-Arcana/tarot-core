@@ -13,6 +13,13 @@ test("Spanish sus is not treated as direct address", () => {
   assert.equal(hasDirectAddress("Puedes observar cómo Selena gira sus anillos.", "es-ES"), true);
 });
 
+test("Spanish accented pronouns use Unicode-aware token boundaries", () => {
+  assert.equal(hasDirectAddress("Tú.", "es-ES"), true);
+  assert.equal(hasDirectAddress("La palabra túnel no es tratamiento directo.", "es-ES"), false);
+  assert.equal(hasNarratorFirstPerson("La luz queda junto a mí.", "es-ES"), true);
+  assert.equal(hasNarratorFirstPerson("La mirada cae sobre mí mientras todo se aquieta.", "es-ES"), true);
+});
+
 test("Spanish narrator first-person audit covers object, possessive and prepositional forms", () => {
   for (const text of [
     "Selena se acerca y me observa en silencio.",
