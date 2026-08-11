@@ -1,10 +1,13 @@
 import type { ApiOut, ApiReq, ChatOut, ReadingOut, RitualOut } from "../contracts/types.js";
+import { spanishReaderPronoun } from "../readers/meta.js";
 import { profileFor } from "../readers/profiles.js";
 import type { AuditIssue, ModelAudit } from "./audit.js";
 
 const grammarCodes = new Set([
   "spanish_querent_name",
   "spanish_reader_subject",
+  "spanish_reader_identity",
+  "spanish_generic_reader",
   "spanish_second_person",
 ]);
 
@@ -35,6 +38,7 @@ const possessiveNouns = new Set([
 ]);
 const pluralArticles = new Set(["los", "las"]);
 const articles = new Set(["el", "la", "los", "las"]);
+const genericReader = /\b(?:el lector|la lectora|la persona lectora|persona lectora)\b/iu;
 
 const subjectAgreement = new Map<string, string>([
   ["está", "estás"], ["es", "eres"], ["espera", "esperas"], ["permanece", "permaneces"],
@@ -209,17 +213,6 @@ function wordValues(value: string): string[] {
   return tokens(value).map(token => token.value);
 }
 
-function missingReaderSubject(words: readonly string[]): boolean {
-  const actionAt = (index: number): boolean =>
-    readerActions.has(words[index] ?? "") ||
-    (words[index] === "se" && readerActions.has(words[index + 1] ?? ""));
-  if (actionAt(0)) return true;
-  for (let index = 0; index < words.length - 1; index += 1) {
-    if (clauseBreaks.has(words[index] ?? "") && actionAt(index + 1)) return true;
-  }
-  return false;
-}
-
 function missingClitic(words: readonly string[], aIndex: number): boolean {
   if (words[aIndex + 1] !== "ti") return false;
   if (aObliqueHeads.has(words[aIndex - 1] ?? "")) return false;
@@ -264,30 +257,55 @@ function narratorFields(req: ApiReq, out: ApiOut): readonly { path: string; valu
   return [];
 }
 
+function hasReaderAction(value: string): boolean {
+  const words = wordValues(value);
+  return words.some((word, index) =>
+    readerActions.has(word) || (word === "se" && readerActions.has(words[index + 1] ?? ""))
+  );
+}
+
+function hasReaderIdentity(value: string, reader: string, pronoun: string): boolean {
+  if (nameSpans(value, reader).length > 0) return true;
+  const expected = pronoun.toLocaleLowerCase("es-ES");
+  return wordValues(value).some(word => word === expected);
+}
+
 export function spanishNarratorInstruction(req: ApiReq, fields: string): string {
   if (!spanish(req)) return "";
   const reader = profileFor(req.reader).public.name;
-  return `Solo en ${fields}, que pertenece al NARRADOR: nunca uses el nombre de la persona consultante. Dirígete a ella con la forma correcta de segunda persona según su función gramatical (tú, te, ti, contigo, tu/tus). ${reader} es la persona lectora y es distinta de la persona consultante; cuando ${reader} realice una acción, escribe ${reader} explícitamente como sujeto de tercera persona y no omitas el sujeto.`;
+  const pronoun = spanishReaderPronoun(req.reader);
+  return `Solo en ${fields}, que pertenece al NARRADOR: ${reader} (${pronoun}) es la persona lectora y es distinta de la persona consultante. Establece quién actúa usando ${reader} o ${pronoun} al comenzar o cuando el sujeto pueda resultar ambiguo. Una vez establecido y mientras siga claro, usa el pro-drop natural del español; no repitas el nombre ni el pronombre en cada oración. Nunca sustituyas a ${reader} por «el lector», «la lectora» ni «la persona lectora». Nunca uses el nombre de la persona consultante; dirígete a ella con la forma correcta de segunda persona según su función gramatical (tú, te, ti, contigo, tu/tus).`;
 }
 
 export function auditSpanishNarrator<T extends ApiOut>(req: ApiReq, out: T, base: ModelAudit<T>): ModelAudit<T> {
   if (!spanish(req)) return base;
   const issues: AuditIssue[] = [...base.issues];
   const querent = req.name.trim();
-  for (const field of narratorFields(req, out)) {
+  const reader = profileFor(req.reader).public.name;
+  const pronoun = spanishReaderPronoun(req.reader);
+  const fields = narratorFields(req, out);
+  const combined = fields.map(field => field.value).join(" ");
+
+  for (const field of fields) {
     if (querent && nameSpans(field.value, querent).length > 0) {
       issues.push({ code: "spanish_querent_name", path: field.path, message: `${field.path}: el narrador no debe usar el nombre de la persona consultante` });
     }
+    if (genericReader.test(field.value)) {
+      issues.push({ code: "spanish_generic_reader", path: field.path, message: `${field.path}: usa ${reader} o ${pronoun}, nunca «el lector», «la lectora» ni «la persona lectora»` });
+    }
     for (const sentence of new Intl.Segmenter("es", { granularity: "sentence" }).segment(field.value)) {
       const words = wordValues(sentence.segment);
-      if (missingReaderSubject(words)) {
-        issues.push({ code: "spanish_reader_subject", path: field.path, message: `${field.path}: las acciones de la persona lectora deben llevar sujeto explícito de tercera persona` });
-      }
       if (wrongSecondPerson(words)) {
         issues.push({ code: "spanish_second_person", path: field.path, message: `${field.path}: usa la forma correcta de segunda persona según su función gramatical: tú, te, ti, contigo, tu/tus` });
       }
     }
   }
+
+  if (hasReaderAction(combined) && !hasReaderIdentity(combined, reader, pronoun)) {
+    const path = fields[0]?.path ?? `${req.task}.narrator`;
+    issues.push({ code: "spanish_reader_identity", path, message: `${path}: establece primero a ${reader} o ${pronoun} como sujeto; después puede omitirse mientras siga inequívoco` });
+  }
+
   const errors = [...new Set(issues.map(issue => issue.message))];
   return { valid: issues.length === 0, value: out, issues, errors };
 }
