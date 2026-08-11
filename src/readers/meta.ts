@@ -1,26 +1,39 @@
-import type { LangCode, ReaderId } from "../contracts/types.js";
+import type { LangCode, ReaderId, ReaderIdentity, ReaderPronouns } from "../contracts/types.js";
+import { localText, profileFor } from "./profiles.js";
 
-type Gender = "woman" | "man";
-
-interface ReaderMeta {
-  gender: Gender;
-  en: string;
-  es: string;
+function xml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
 }
 
-const META: Record<ReaderId, ReaderMeta> = {
-  selena: { gender: "woman", en: "she/her", es: "ella" },
-  brennos: { gender: "man", en: "he/him", es: "él" },
-  yejide: { gender: "woman", en: "she/her", es: "ella" },
-  ngaru: { gender: "man", en: "he/him", es: "él" },
-  ame: { gender: "woman", en: "she/her", es: "ella" },
-  amaru: { gender: "man", en: "he/him", es: "él" },
-  nahid: { gender: "woman", en: "she/her", es: "ella" },
-  mictli: { gender: "man", en: "he/him", es: "él" }
-};
+export function readerIdentityMeta(id: ReaderId): ReaderIdentity {
+  return profileFor(id).identity;
+}
 
-export function readerIdentity(id: ReaderId, lang?: LangCode): string {
-  const meta = META[id];
-  const active = lang?.toLowerCase().startsWith("es") ? meta.es : meta.en;
-  return `${meta.gender}; ${active}; English ${meta.en}; Spanish ${meta.es}`;
+export function readerPronouns(id: ReaderId, lang: LangCode): ReaderPronouns {
+  return localText(profileFor(id).identity.pronouns, lang);
+}
+
+/**
+ * Private structured model metadata. This is deliberately XML rather than prose notation
+ * such as "Mictli (él)", which models can mistake for text intended for the user.
+ */
+export function readerIdentity(id: ReaderId, lang: LangCode = "en-GB"): string {
+  const identity = readerIdentityMeta(id);
+  const pronouns = readerPronouns(id, lang);
+  return [
+    "<reader_identity>",
+    `  <name>${xml(identity.name)}</name>`,
+    `  <gender>${xml(identity.gender)}</gender>`,
+    `  <subject_pronoun>${xml(pronouns.subject)}</subject_pronoun>`,
+    `  <object_pronoun>${xml(pronouns.object)}</object_pronoun>`,
+    `  <possessive_determiner>${xml(pronouns.possessiveDeterminer)}</possessive_determiner>`,
+    `  <possessive_pronoun>${xml(pronouns.possessive)}</possessive_pronoun>`,
+    `  <reflexive_pronoun>${xml(pronouns.reflexive)}</reflexive_pronoun>`,
+    "</reader_identity>",
+  ].join("\n");
 }
