@@ -8,6 +8,7 @@ import {
   mediaTurnInput,
 } from "../readers/media/runtime.js";
 import { revealedReadingContext } from "./reading-context.js";
+import { mappedHandoverPayload, mappedReturnPayload } from "./mapped-history.js";
 import type { ApiReq, LangCode, ReaderId } from "../contracts/types.js";
 
 export interface PromptPackLike {
@@ -301,7 +302,9 @@ function taskContract(req: ApiReq): string {
         "Crea un traspaso interno estructurado y conciso para otro tarotista sin copiar la conversación completa.",
         "summary debe explicar la situación, lo establecido por las lecturas anteriores y por qué se deriva a otra persona. No es diálogo visible del tarotista.",
         "questions debe contener únicamente preguntas que la persona realmente haya formulado, incluida la pregunta de derivación.",
-        "cards debe conservar únicamente identificadores o nombres internos suministrados y nunca debe convertirse en diálogo visible.",
+        isMappedReader(req.reader)
+          ? "cards es estado canónico interno que completará el motor. Devuelve una lista vacía y no inventes ni nombres resultados canónicos."
+          : "cards debe conservar únicamente identificadores o nombres internos suministrados y nunca debe convertirse en diálogo visible.",
         "facts debe contener solo hechos concretos expresados por la persona. No conviertas una interpretación en un hecho.",
         "unresolved debe identificar tensiones o decisiones realmente abiertas.",
         "Mantén summary por debajo de 160 palabras y cada elemento de lista conciso.",
@@ -312,7 +315,9 @@ function taskContract(req: ApiReq): string {
         "Create a concise structured internal handover for another reader without copying the full conversation.",
         "summary must explain the situation, what earlier readings established and why the querent is being referred. It is not visible reader dialogue.",
         "questions must contain only questions the querent actually asked, including the referral question.",
-        "cards must preserve only supplied internal identifiers or names and must never become visible dialogue.",
+        isMappedReader(req.reader)
+          ? "cards is canonical internal state that the engine will complete. Return an empty list and do not invent or name canonical results."
+          : "cards must preserve only supplied internal identifiers or names and must never become visible dialogue.",
         "facts must contain only concrete facts explicitly supplied by the querent. Do not turn interpretation into fact.",
         "unresolved must identify genuine open tensions or decisions.",
         "Keep summary under 160 words and each list item concise.",
@@ -384,6 +389,7 @@ export function modelPayload(req: ApiReq): unknown {
     case "title":
       return { querent: req.name || null, reading: publicTurnHistory(req), history: req.history };
     case "handover":
+      if (isMappedReader(req.reader)) return mappedHandoverPayload(req);
       return {
         querent: req.name || null,
         sourceReader: req.reader,
@@ -410,6 +416,7 @@ export function modelPayload(req: ApiReq): unknown {
         }),
       };
     case "return":
+      if (isMappedReader(req.reader)) return mappedReturnPayload(req);
       return {
         querent: req.name || null,
         reader: req.reader,
