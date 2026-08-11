@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { finaliseModelOutDetailed } from "../dist/model/finalise.js";
+import { mediaFor } from "../dist/readers/media/runtime.js";
 import { futureLeaks } from "../dist/reading/reveal.js";
 
 const fool = {
@@ -74,13 +75,15 @@ test("core finalisation repairs mapped public future-result leaks after media at
       "Amaru vuelve la atención hacia el recipiente mientras tú extraes otro cordón y lo dejas cubierto por encima del primero.",
     ],
   };
+  const laterPublicName = mediaFor("amaru", magician, "es-ES")?.publicName;
+  assert.ok(laterPublicName);
   const out = {
     gesture: "",
     opening: "",
     link: "",
     cardText: [
-      "Pachacamac ya te muestra que el segundo resultado resolverá la tensión antes de que llegue su momento.",
-      "Inti te pide que enfoques tu voluntad y distingas entre capacidad real e impulso apresurado.",
+      `${laterPublicName} ya te muestra que el segundo resultado resolverá la tensión antes de que llegue su momento.`,
+      "Este segundo resultado te pide que enfoques tu voluntad y distingas entre capacidad real e impulso apresurado.",
     ],
     synthesis: "Los dos resultados te invitan a comenzar con apertura y a usar tu capacidad de forma deliberada.",
     reading: "Puedes avanzar sin exigir certeza total, pero te conviene unir la libertad del comienzo con una intención concreta y comprobable.",
@@ -91,7 +94,7 @@ test("core finalisation repairs mapped public future-result leaks after media at
   const finalised = finaliseModelOutDetailed(req, out);
   assert.ok(Array.isArray(finalised.out.media));
   assert.equal(futureLeaks(req.draw, finalised.out, req.lang, req.question).length, 0);
-  assert.doesNotMatch(finalised.out.cardText[0], /Pachacamac/u);
+  assert.doesNotMatch(finalised.out.cardText[0], new RegExp(laterPublicName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "iu"));
   assert.doesNotMatch(finalised.out.note, /Javier/u);
   assert.ok(finalised.diagnostics.some(value => value.startsWith("future_leak_repaired:")));
 });
