@@ -17,6 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: agent/core-prose-audit-staging
+          submodules: recursive
       - uses: actions/setup-node@v4
         with:
           node-version: 22
