@@ -45,7 +45,7 @@ Default lanes are independently configurable:
 - ritual: `gpt-5-mini` -> `gpt-5.6-luna`
 - read/chat: `gpt-5.6-luna` -> `gpt-5.6-luna`
 
-Every accepted generated candidate passes core finalisation and deterministic audit. Spanish narrator-name failures have a dedicated minimal correction schema that exposes only the affected narrator field or fields. Guaranteed recovery is available for customer-facing callers and remains diagnosable when reconstruction fails.
+Every accepted generated candidate passes core finalisation and deterministic audit. Spanish narrator grammar failures caused by a leaked querent name or invalid tuteo pronoun case have a dedicated minimal correction schema that exposes only the affected narrator field or fields. Guaranteed recovery is available for customer-facing callers and remains diagnosable when reconstruction fails.
 
 See [`docs/model.md`](docs/model.md) for the complete orchestration contract.
 
@@ -59,7 +59,7 @@ npm test
 npm run ci
 ```
 
-`npm run ci` regenerates derived persona/fallback data, type-checks the core, builds `dist/` and runs the full deterministic test suite.
+`npm run ci` regenerates derived persona/fallback data, type-checks the core, syntax-checks the local live-test harness, builds `dist/` and runs the full deterministic test suite. It does not make paid model calls.
 
 The active tests include canonical-data checks, request canonicalisation, bilingual prompt and voice checks, mapped-medium validation, sequential ritual recovery and an exhaustive deterministic release matrix across all eight readers, both languages and all five spreads.
 
