@@ -1,14 +1,14 @@
-import type { ApiReq, Conv, ReadTurn } from "../contracts/types.js";
+import type { ApiReq, Conv, LangCode, ReadTurn } from "../contracts/types.js";
 import { canonicalCardAt, canonicaliseDraw } from "./canonical.js";
 
-function canonicalReadTurn(turn: ReadTurn, lang: string): ReadTurn {
+function canonicalReadTurn(turn: ReadTurn, lang: LangCode): ReadTurn {
   return {
     ...turn,
     draw: canonicaliseDraw(turn.draw, lang),
   };
 }
 
-function canonicalConv(conv: Conv, lang: string): Conv {
+function canonicalConv(conv: Conv, lang: LangCode): Conv {
   return {
     ...conv,
     turns: conv.turns.map(turn => turn.kind === "reading" ? canonicalReadTurn(turn, lang) : { ...turn }),
