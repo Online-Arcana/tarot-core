@@ -49,6 +49,17 @@ const hand = {
   unresolved: ["How the meaning of The Fool applies next."],
 };
 
+function generatedHandover() {
+  return {
+    summary: "The person is continuing an established reading and may benefit from another perspective on what remains unresolved.",
+    questions: ["Should another reader take this?"],
+    conclusions: ["A beginning is already visible."],
+    cards: [],
+    facts: [],
+    unresolved: ["What action should follow next."],
+  };
+}
+
 test("mapped handover model input uses public results rather than canonical tarot identifiers", () => {
   const req = {
     task: "handover",
@@ -102,17 +113,35 @@ test("mapped handover keeps canonical card state internal after model generation
       turns: [turn],
     },
   };
-  const generated = {
-    summary: "The person is continuing an established reading and may benefit from another perspective on what remains unresolved.",
-    questions: ["Should another reader take this?"],
-    conclusions: ["A beginning is already visible."],
-    cards: [],
-    facts: [],
-    unresolved: ["What action should follow next."],
+  const finalised = finaliseModelOutDetailed(req, generatedHandover());
+  assert.deepEqual(finalised.out.cards, ["The Fool"]);
+  assert.ok(finalised.diagnostics.includes("handover_cards_canonicalised"));
+});
+
+test("vanilla handover card state is also rebuilt from the canonical conversation", () => {
+  const req = {
+    task: "handover",
+    lang: "en-GB",
+    reader: "selena",
+    name: "Javier",
+    history: [],
+    question: "Should another reader take this?",
+    target: "brennos",
+    conv: {
+      v: 1,
+      id: "conv-selena",
+      lang: "en-GB",
+      reader: "selena",
+      created: "2026-08-11T18:00:00.000Z",
+      updated: "2026-08-11T18:10:00.000Z",
+      name: "Javier",
+      turns: [turn],
+    },
   };
+  const generated = { ...generatedHandover(), cards: ["Death", "invented-card"] };
   const finalised = finaliseModelOutDetailed(req, generated);
   assert.deepEqual(finalised.out.cards, ["The Fool"]);
-  assert.ok(finalised.diagnostics.includes("mapped_handover_cards_canonicalised"));
+  assert.ok(finalised.diagnostics.includes("handover_cards_canonicalised"));
 });
 
 test("mapped return input translates exact generated entities, drops ambiguous legacy prose and preserves user text", () => {
