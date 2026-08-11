@@ -31,7 +31,13 @@ function drawFor(spreadId, lang) {
 }
 
 function finalDeterministic(req, label) {
-  const recovered = reconstructModelOutDetailed(req, []);
+  let recovered;
+  try {
+    recovered = reconstructModelOutDetailed(req, []);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`${label}: ${message}`, { cause: error });
+  }
   const finalised = finaliseModelOutDetailed(req, recovered.out).out;
   const audit = auditModelOut(req, finalised);
   assert.equal(audit.valid, true, `${label}:\n${audit.errors.join("\n")}`);
