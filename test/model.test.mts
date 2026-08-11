@@ -91,7 +91,7 @@ test("audits GPT-5 nano output and escalates short tasks to Luna", async () => {
   assert.equal(calls[0].body.reasoning.effort, "minimal");
   assert.equal(calls[1].body.model, "gpt-5.6-luna");
   assert.equal(calls[1].body.reasoning.effort, "none");
-  assert.match(calls[1].body.input[0].content, /deterministic NLP validation/u);
+  assert.match(calls[1].body.input[0].content, /previous attempt did not pass deterministic validation/iu);
 });
 
 test("reconstructs a valid final output when both model stages fail audit", async () => {
