@@ -279,7 +279,7 @@ export function spanishNarratorInstruction(req: ApiReq, fields: string): string 
 
 export function auditSpanishNarrator<T extends ApiOut>(req: ApiReq, out: T, base: ModelAudit<T>): ModelAudit<T> {
   if (!spanish(req)) return base;
-  const issues: AuditIssue[] = [...base.issues];
+  const issues: AuditIssue[] = base.issues.filter(issue => issue.code !== "reader_name" && issue.code !== "generic_reader");
   const querent = req.name.trim();
   const reader = profileFor(req.reader).public.name;
   const pronoun = spanishReaderPronoun(req.reader);
