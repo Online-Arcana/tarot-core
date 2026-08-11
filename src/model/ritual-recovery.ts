@@ -9,12 +9,12 @@ function pick(values: readonly string[], seed: number): string {
   return values[Math.abs(seed) % values.length] ?? values[0] ?? "";
 }
 
-function atmosphere(req: RitualReq, seed: number): string {
+function atmospherePair(req: RitualReq, seed: number): readonly [string, string] {
   const values = fallbackFor(req.lang, req.reader).ritualAtmosphere;
-  if (!values.length) return "";
+  if (!values.length) return ["", ""];
   const first = pick(values, seed);
   const second = pick(values, seed + Math.ceil(values.length / 2));
-  return first === second ? first : `${first} ${second}`;
+  return [first, second === first ? pick(values, seed + 1) : second];
 }
 
 /**
@@ -30,24 +30,26 @@ function mapped(req: RitualReq, seed: number): RitualOut | null {
   const action = ritualPhase(req) === "continuation" && context.continuation
     ? context.continuation
     : context.chance;
+  const [first, second] = atmospherePair(req, seed);
   return {
     gesture: context.concealment,
     opening: action,
-    ritual: atmosphere(req, seed),
+    ritual: `${first} ${second}`.trim(),
   };
 }
 
 /**
- * The vanilla reader uses the canonical fallback XML directly. Variation is
- * supplied by complete additional sentences from the same XML source, keeping
- * sequential emergency rituals distinct without embedding persona prose in TS.
+ * The vanilla reader also uses complete canonical XML sentences only. Keeping
+ * just the reader-aware gesture fixed and rotating both remaining sentences
+ * prevents emergency sequential rituals from becoming near-duplicates.
  */
 function vanilla(req: RitualReq, seed: number): RitualOut {
   const fallback = fallbackFor(req.lang, req.reader);
+  const [first, second] = atmospherePair(req, seed);
   return {
     gesture: fallback.ritualGesture,
-    opening: fallback.ritualOpening,
-    ritual: `${fallback.ritual} ${atmosphere(req, seed)}`,
+    opening: first,
+    ritual: second,
   };
 }
 
