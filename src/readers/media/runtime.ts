@@ -5,7 +5,7 @@ import mictliRaw from "./maps/mictli.json" with { type: "json" };
 import nahidRaw from "./maps/nahid.json" with { type: "json" };
 import ngaruRaw from "./maps/ngaru.json" with { type: "json" };
 import yejideRaw from "./maps/yejide.json" with { type: "json" };
-import { narrativeRitualFor, type NarrativeList, type NarrativeRitual, type NarrativeText } from "./narrative-rituals.js";
+import ritualsRaw from "./rituals.json" with { type: "json" };
 import { presentMappedReading, presentMappedRitual } from "./output.js";
 import { publicMediaMeta } from "./public-meta.js";
 import type {
@@ -26,10 +26,11 @@ import type {
 type Lang = "en" | "es";
 type Suit = "wands" | "cups" | "swords" | "pentacles";
 type MappedReader = Exclude<ReaderId, "selena">;
-type LocalText = NarrativeText;
-type LocalList = NarrativeList;
+type LocalText = Readonly<Record<Lang, string>>;
+type LocalList = Readonly<Record<Lang, readonly string[]>>;
 type FamilyDef = Readonly<Record<Suit, LocalText>>;
 export type RitualMode = "per-result" | "single-cast";
+export type ParticipationActor = "reader" | "querent";
 
 interface ElementDef {
   readonly id: string;
@@ -56,14 +57,42 @@ interface PackDef {
   readonly minor: Readonly<Record<Suit, readonly EntryDef[]>>;
 }
 
+interface ActionDef {
+  readonly actor: ParticipationActor;
+  readonly verbs: LocalList;
+}
+
+interface RitualDef {
+  readonly reader: MappedReader;
+  readonly ritualMode: RitualMode;
+  readonly medium: LocalText;
+  readonly concealment: LocalText;
+  readonly participation: Readonly<{ actor: ParticipationActor; action: string }>;
+  readonly openingAction: LocalText;
+  readonly continuationAction: LocalText;
+  readonly states: Readonly<Record<Side, LocalText>>;
+  readonly sensoryPalette: LocalList;
+  readonly grounding: LocalList;
+  readonly actionObjects: LocalList;
+}
+
 export interface MediumRitualContext {
   readonly reader: ReaderId;
   readonly mode: RitualMode;
   readonly medium: string;
   readonly concealment: string;
   readonly chance: string;
-  readonly continuation?: string;
+  readonly continuation: string;
   readonly beats: string[];
+}
+
+export interface MediumAuditContract {
+  readonly reader: MappedReader;
+  readonly actor: ParticipationActor;
+  readonly action: string;
+  readonly verbs: readonly string[];
+  readonly objects: readonly string[];
+  readonly grounding: readonly string[];
 }
 
 const MAPPED = [
@@ -101,7 +130,7 @@ const RAW: Readonly<Record<MappedReader, unknown>> = {
 };
 
 const ARCHIVE = /(?:online arcana|tarot|fiction|fictici|documented|documentad|attested|atestiguad|historical|históric|archaeolog|arqueolog|source|fuente|museum|museo)/iu;
-const RITUAL_CONTROL = /(?:\bpredetermined\b|\brecords? the state\b|\bstate is recorded\b|\binspection after\b|\bcanonical\b|\bvalidation\b|\bimplementation\b|\bapplication state\b|\bspread positions?\b|\bmarked areas? correspond\b|\bnothing is shown early\b|\bhidden sign\b|\bpreserves? (?:its )?exact (?:state|direction)\b|\bresult count\b|\bdraw order\b|\bpredeterminad[oa]s?\b|\bregistra(?:r| el estado)?\b|\bestado (?:queda )?registrado\b|\binspección después\b|\bcanónic[oa]\b|\bvalidación\b|\bimplementación\b|\bposiciones? de la tirada\b|\bnada se muestra antes\b|\bsigno oculto\b|\bnúmero de resultados?\b|\borden de extracción\b)/iu;
+const OPERATIONAL = /(?:\bpredetermined\b|\brecords? the state\b|\bstate is recorded\b|\binspection after\b|\bcanonical\b|\bvalidation\b|\bimplementation\b|\bapplication state\b|\bspread positions?\b|\bmarked areas? correspond\b|\bnothing is shown early\b|\bhidden sign\b|\bpreserves? (?:its )?exact (?:state|direction)\b|\bresult count\b|\bdraw order\b|\bpredeterminad[oa]s?\b|\bregistra(?:r| el estado)?\b|\bestado (?:queda )?registrado\b|\binspección después\b|\bcanónic[oa]\b|\bvalidación\b|\bimplementación\b|\bposiciones? de la tirada\b|\bnada se muestra antes\b|\bsigno oculto\b|\bnúmero de resultados?\b|\borden de extracción\b)/iu;
 
 function obj(value: unknown, path: string): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -129,6 +158,14 @@ function local(value: unknown, path: string): LocalText {
   return { en: text(source.en, `${path}.en`), es: text(source.es, `${path}.es`) };
 }
 
+function localList(value: unknown, path: string): LocalList {
+  const source = obj(value, path);
+  return {
+    en: textList(source.en, `${path}.en`),
+    es: textList(source.es, `${path}.es`),
+  };
+}
+
 function isMapped(value: unknown): value is MappedReader {
   return typeof value === "string" && (MAPPED as readonly string[]).includes(value);
 }
@@ -139,27 +176,6 @@ function isSuit(value: unknown): value is Suit {
 
 export function isMappedReader(value: ReaderId): value is MappedReader {
   return isMapped(value);
-}
-
-function assertNarrativeRitual(reader: MappedReader, ritual: NarrativeRitual): NarrativeRitual {
-  const values = [
-    ritual.medium.en,
-    ritual.medium.es,
-    ritual.concealment.en,
-    ritual.concealment.es,
-    ritual.chance.en,
-    ritual.chance.es,
-    ...(ritual.continuation ? [ritual.continuation.en, ritual.continuation.es] : []),
-    ritual.upright.en,
-    ritual.upright.es,
-    ritual.reversed.en,
-    ritual.reversed.es,
-    ...ritual.beats.en,
-    ...ritual.beats.es,
-  ];
-  const invalid = values.find(value => RITUAL_CONTROL.test(value));
-  if (invalid) throw new Error(`Reader media ${reader} exposes operational ritual language: ${invalid}`);
-  return ritual;
 }
 
 function parseSources(value: unknown, path: string): ReadonlySet<string> {
@@ -236,7 +252,6 @@ function parsePack(expected: MappedReader, value: unknown): PackDef {
   const reader = source.reader;
   if (reader !== expected || !isMapped(reader)) throw new Error(`${path}.reader must equal ${expected}`);
   if (source.version !== 2) throw new Error(`${path}.version must equal 2`);
-  assertNarrativeRitual(reader, narrativeRitualFor(reader));
 
   const sources = parseSources(source.sourceRegistry, `${path}.sourceRegistry`);
   const elements = new Map<string, ElementDef>();
@@ -262,8 +277,82 @@ function parsePack(expected: MappedReader, value: unknown): PackDef {
   };
 }
 
+function parseActor(value: unknown, path: string): ParticipationActor {
+  if (value !== "reader" && value !== "querent") throw new Error(`${path} must be reader or querent`);
+  return value;
+}
+
+function parseAction(value: unknown, path: string): ActionDef {
+  const source = obj(value, path);
+  return { actor: parseActor(source.actor, `${path}.actor`), verbs: localList(source.verbs, `${path}.verbs`) };
+}
+
+function parseRitual(expected: MappedReader, value: unknown, actions: ReadonlyMap<string, ActionDef>): RitualDef {
+  const path = `mapped rituals.${expected}`;
+  const source = obj(value, path);
+  const ritualMode = source.ritualMode;
+  if (ritualMode !== "per-result" && ritualMode !== "single-cast") throw new Error(`${path}.ritualMode is invalid`);
+  const participation = obj(source.participation, `${path}.participation`);
+  const actor = parseActor(participation.actor, `${path}.participation.actor`);
+  const action = text(participation.action, `${path}.participation.action`);
+  const actionDef = actions.get(action);
+  if (!actionDef) throw new Error(`${path}.participation.action references unknown action ${action}`);
+  if (actionDef.actor !== actor) throw new Error(`${path}.participation actor does not match action ${action}`);
+  const ritual: RitualDef = {
+    reader: expected,
+    ritualMode,
+    medium: local(source.medium, `${path}.medium`),
+    concealment: local(source.concealment, `${path}.concealment`),
+    participation: { actor, action },
+    openingAction: local(source.openingAction, `${path}.openingAction`),
+    continuationAction: local(source.continuationAction, `${path}.continuationAction`),
+    states: {
+      upright: local(obj(source.states, `${path}.states`).upright, `${path}.states.upright`),
+      reversed: local(obj(source.states, `${path}.states`).reversed, `${path}.states.reversed`),
+    },
+    sensoryPalette: localList(source.sensoryPalette, `${path}.sensoryPalette`),
+    grounding: localList(source.grounding, `${path}.grounding`),
+    actionObjects: localList(source.actionObjects, `${path}.actionObjects`),
+  };
+  const publicValues = [
+    ritual.medium.en, ritual.medium.es,
+    ritual.concealment.en, ritual.concealment.es,
+    ritual.openingAction.en, ritual.openingAction.es,
+    ritual.continuationAction.en, ritual.continuationAction.es,
+    ritual.states.upright.en, ritual.states.upright.es,
+    ritual.states.reversed.en, ritual.states.reversed.es,
+    ...ritual.sensoryPalette.en, ...ritual.sensoryPalette.es,
+    ...ritual.grounding.en, ...ritual.grounding.es,
+  ];
+  const invalid = publicValues.find(item => OPERATIONAL.test(item));
+  if (invalid) throw new Error(`${path} exposes operational language: ${invalid}`);
+  return ritual;
+}
+
+function parseRitualRegistry(value: unknown): {
+  actions: ReadonlyMap<string, ActionDef>;
+  rituals: Readonly<Record<MappedReader, RitualDef>>;
+} {
+  const source = obj(value, "mapped rituals");
+  if (source.version !== 1) throw new Error("mapped rituals.version must equal 1");
+  if (source.review !== "human-cultural-and-prose-review-required") {
+    throw new Error("mapped rituals must preserve the human review requirement");
+  }
+  const actionSource = obj(source.actions, "mapped rituals.actions");
+  const actions = new Map<string, ActionDef>();
+  for (const [id, raw] of Object.entries(actionSource)) actions.set(id, parseAction(raw, `mapped rituals.actions.${id}`));
+  const readerSource = obj(source.readers, "mapped rituals.readers");
+  const rituals = Object.fromEntries(MAPPED.map(reader => {
+    if (!(reader in readerSource)) throw new Error(`mapped rituals missing ${reader}`);
+    return [reader, parseRitual(reader, readerSource[reader], actions)];
+  })) as Readonly<Record<MappedReader, RitualDef>>;
+  if (Object.keys(readerSource).length !== MAPPED.length) throw new Error("mapped rituals contains an unknown or duplicate reader");
+  return { actions, rituals };
+}
+
 const PACKS = Object.fromEntries(MAPPED.map(reader => [reader, parsePack(reader, RAW[reader])])) as
   Readonly<Record<MappedReader, PackDef>>;
+const RITUAL_REGISTRY = parseRitualRegistry(ritualsRaw as unknown);
 
 function language(code: LangCode): Lang {
   return code.toLocaleLowerCase().startsWith("es") ? "es" : "en";
@@ -287,27 +376,17 @@ function sentence(value: string): string {
   return `${clean}.`;
 }
 
-function scene(value: string): string {
-  return sentence(value
-    .replace(/^In Online Arcana['’]s fiction,\s*/iu, "")
-    .replace(/^En la ficción de Online Arcana,\s*/iu, "")
-    .replace(/\b(?:documented|attested|authentic|authored|mapped|predetermined|fictional)\b/giu, "")
-    .replace(/\b(?:documentad[oa]s?|atestiguad[oa]s?|auténtic[oa]s?|diseñad[oa]s?|asignad[oa]s?|predeterminad[oa]s?|fictici[oa]s?)\b/giu, "")
-    .replace(/\balready determined\b/giu, "")
-    .replace(/\bya determinad[oa]\b/giu, ""));
+function publicScene(value: string, path = "public media prose"): string {
+  const clean = sentence(value);
+  if (OPERATIONAL.test(clean)) throw new Error(`${path} contains operational language: ${clean}`);
+  return clean;
 }
 
 function description(value: string | null, item: string): string {
   if (!value) return sentence(item);
   const first = value.split(/;|(?<=[.!?])\s+/u)[0]?.trim() ?? "";
-  const clean = scene(first);
-  return clean && !ARCHIVE.test(clean) ? clean : sentence(item);
-}
-
-function direction(item: string, observation: string, code: LangCode): string {
-  return language(code) === "es"
-    ? `Deja que ${item} emerja mediante el ritual oculto y conserva exactamente este estado final: ${observation}`
-    : `Let ${item} emerge through the concealed ritual and preserve this exact final state: ${observation}`;
+  const clean = sentence(first);
+  return clean && !ARCHIVE.test(clean) && !OPERATIONAL.test(clean) ? clean : sentence(item);
 }
 
 function arcana(card: DrawnCard): ArcanaKind {
@@ -338,65 +417,72 @@ function family(pack: PackDef, card: DrawnCard, code: LangCode): string | null {
   if (arcana(card) === "major") return null;
   const suit = cardSuit(card);
   if (!suit) throw new Error(`Mapped minor ${card.id} has no recognised suit`);
-  return scene(tr(pack.presentation.families[suit], code)).replace(/[.]$/u, "");
+  return sentence(tr(pack.presentation.families[suit], code)).replace(/[.]$/u, "");
 }
 
 function stateLabel(pack: PackDef, card: DrawnCard, code: LangCode): string {
-  return scene(tr(pack.presentation.states[card.side], code)).replace(/[.]$/u, "");
-}
-
-function ritualMode(reader: ReaderId): RitualMode {
-  return reader === "ame" ? "single-cast" : "per-result";
+  return sentence(tr(pack.presentation.states[card.side], code)).replace(/[.]$/u, "");
 }
 
 export function ritualPhase(req: Extract<ApiReq, { task: "ritual" }>): RitualPhase {
   return req.card === 0 ? "opening" : "continuation";
 }
 
-function chanceFor(context: MediumRitualContext, req: Extract<ApiReq, { task: "ritual" }>): string {
-  if (ritualPhase(req) === "continuation" && context.continuation) return context.continuation;
-  return context.chance;
+function ritualFor(reader: MappedReader): RitualDef {
+  return RITUAL_REGISTRY.rituals[reader];
+}
+
+export function mediumAuditContract(reader: ReaderId, code: LangCode): MediumAuditContract | null {
+  if (!isMapped(reader)) return null;
+  const ritual = ritualFor(reader);
+  const action = RITUAL_REGISTRY.actions.get(ritual.participation.action);
+  if (!action) throw new Error(`Mapped ritual ${reader} lost action ${ritual.participation.action}`);
+  return {
+    reader,
+    actor: ritual.participation.actor,
+    action: ritual.participation.action,
+    verbs: trs(action.verbs, code),
+    objects: trs(ritual.actionObjects, code),
+    grounding: trs(ritual.grounding, code),
+  };
 }
 
 export function mediumRitualFor(reader: ReaderId, code: LangCode): MediumRitualContext | null {
   if (!isMapped(reader)) return null;
-  const ritual = narrativeRitualFor(reader);
-  const continuation = ritual.continuation
-    ? { continuation: scene(tr(ritual.continuation, code)) }
-    : {};
+  const ritual = ritualFor(reader);
   return {
     reader,
-    mode: ritualMode(reader),
-    medium: scene(tr(ritual.medium, code)).replace(/[.]$/u, ""),
-    concealment: scene(tr(ritual.concealment, code)),
-    chance: scene(tr(ritual.chance, code)),
-    ...continuation,
-    beats: trs(ritual.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
+    mode: ritual.ritualMode,
+    medium: sentence(tr(ritual.medium, code)).replace(/[.]$/u, ""),
+    concealment: publicScene(tr(ritual.concealment, code), `${reader}.concealment`),
+    chance: publicScene(tr(ritual.openingAction, code), `${reader}.openingAction`),
+    continuation: publicScene(tr(ritual.continuationAction, code), `${reader}.continuationAction`),
+    beats: trs(ritual.sensoryPalette, code).map(value => sentence(value).replace(/[.]$/u, "")),
   };
 }
 
 export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): MediumPresentation | null {
   if (!isMapped(reader)) return null;
   const pack = PACKS[reader];
-  const ritualDef = narrativeRitualFor(reader);
+  const ritualDef = ritualFor(reader);
   const entry = entryFor(pack, card);
   const kind = arcana(card);
   const familyLabel = family(pack, card, code);
   const state = stateLabel(pack, card, code);
-  const mappedName = scene(tr(entry.itemName, code)).replace(/[.]$/u, "");
+  const mappedName = sentence(tr(entry.itemName, code)).replace(/[.]$/u, "");
   const publicMeta = publicMediaMeta(reader, card, kind, mappedName, familyLabel, state, code);
   const itemName = publicMeta.publicName;
-  const observation = scene(tr(ritualDef[card.side], code));
+  const observation = publicScene(tr(ritualDef.states[card.side], code), `${reader}.state.${card.side}`);
   const culturalElements: MediumElement[] = entry.elementIds.map(id => {
     const element = pack.elements.get(id);
     if (!element) throw new Error(`Reader media ${reader} lost cultural element ${id}`);
-    return { id, name: scene(tr(element.name, code)).replace(/[.]$/u, "") };
+    return { id, name: sentence(tr(element.name, code)).replace(/[.]$/u, "") };
   });
   const ritual: MediumRitual = {
-    concealment: scene(tr(ritualDef.concealment, code)),
-    chance: scene(tr(ritualDef.chance, code)),
+    concealment: publicScene(tr(ritualDef.concealment, code), `${reader}.concealment`),
+    chance: publicScene(tr(ritualDef.openingAction, code), `${reader}.openingAction`),
     orientation: observation,
-    beats: trs(ritualDef.beats, code).map(value => scene(value).replace(/[.]$/u, "")),
+    beats: trs(ritualDef.sensoryPalette, code).map(value => sentence(value).replace(/[.]$/u, "")),
   };
 
   return {
@@ -408,14 +494,14 @@ export function mediaFor(reader: ReaderId, card: DrawnCard, code: LangCode): Med
     family: familyLabel,
     stateLabel: state,
     ...publicMeta,
-    culture: scene(tr(pack.culture, code)).replace(/[.]$/u, ""),
-    medium: scene(tr(ritualDef.medium, code)).replace(/[.]$/u, ""),
+    culture: sentence(tr(pack.culture, code)).replace(/[.]$/u, ""),
+    medium: sentence(tr(ritualDef.medium, code)).replace(/[.]$/u, ""),
     itemId: `${reader}-${card.id}`,
     itemName,
     itemDescription: description(entry.itemDescription ? tr(entry.itemDescription, code) : null, itemName),
     observation,
     interpretation: sentence(card.meaning),
-    ritualDirection: direction(itemName, observation, code),
+    ritualDirection: observation,
     culturalElements,
     ritual,
   };
@@ -435,8 +521,13 @@ function currentCard(req: Extract<ApiReq, { task: "ritual" }>): DrawnCard | unde
   return req.draw?.cards[req.card] ?? req.drawn;
 }
 
+function chanceFor(context: MediumRitualContext, req: Extract<ApiReq, { task: "ritual" }>): string {
+  return ritualPhase(req) === "continuation" ? context.continuation : context.chance;
+}
+
 function ritualData(context: MediumRitualContext, req: Extract<ApiReq, { task: "ritual" }>): unknown {
   const current = currentCard(req);
+  const audit = mediumAuditContract(req.reader, req.lang);
   return {
     phase: ritualPhase(req),
     mode: context.mode,
@@ -446,6 +537,7 @@ function ritualData(context: MediumRitualContext, req: Extract<ApiReq, { task: "
       action: chanceFor(context, req),
       sensoryPalette: context.beats,
     },
+    participation: audit ? { actor: audit.actor, action: audit.action } : null,
     reading: {
       spreadName: req.draw?.name ?? req.spread,
       spreadPurpose: req.draw?.purpose ?? null,
@@ -479,6 +571,7 @@ export function mediaPrompt(req: ApiReq): string {
     if (!context) return "";
     const spanish = language(req.lang) === "es";
     const phase = ritualPhase(req);
+    const audit = mediumAuditContract(req.reader, req.lang);
     return [
       spanish
         ? "Los datos narrativos del medio están en input_data.mediumTranslation.scene; úsalos como material sensorial, no como texto que debas citar."
@@ -486,9 +579,16 @@ export function mediaPrompt(req: ApiReq): string {
       spanish
         ? "Los datos de reading dan el propósito humano de este momento. Deja que orienten la acción sin explicarlos como reglas."
         : "The reading data gives the human purpose of this moment. Let it shape the action without explaining it as a rule.",
+      audit?.actor === "querent"
+        ? (spanish
+          ? "La persona consultante realiza la acción física declarada. El español puede omitir «tú» cuando la conjugación ya deja claro el sujeto."
+          : "The querent performs the declared physical action. Address the querent naturally without adding a separate interface step.")
+        : (spanish
+          ? "El tarotista realiza la acción física; la persona consultante observa."
+          : "The reader performs the physical action; the querent observes."),
       spanish
-        ? "No conviertas los nombres de propiedades, el modo, la fase, el orden ni la continuidad en prosa de la escena."
-        : "Do not turn property names, mode, phase, order or continuity controls into scene prose.",
+        ? "No conviertas nombres de propiedades, modos, fases ni controles internos en prosa visible."
+        : "Do not turn property names, modes, phases or internal controls into visible prose.",
       spanish
         ? "No nombres, describas, interpretes ni insinúes el resultado oculto, sus rasgos o su estado antes de la revelación."
         : "Do not name, describe, interpret or imply the hidden result, its features or its state before the reveal.",
@@ -505,8 +605,8 @@ export function mediaPrompt(req: ApiReq): string {
           : "The initial action has already happened; describe a fresh observation or shift of attention, never another cast.")
         : "",
       spanish
-        ? "Usa el nombre público de la persona lectora. No uses «el lector», baraja, carta, naipes ni tarot."
-        : "Use the reader's public name. Do not use 'the reader', deck, card, cards or tarot.",
+        ? "Usa el nombre público del tarotista cuando haga falta nombrarlo. No uses «el lector», «la lectora», baraja, carta, naipes ni tarot."
+        : "Use the reader's public name when it is necessary to name them. Do not use 'the reader', deck, card, cards or tarot.",
     ].filter(Boolean).join("\n");
   }
 
@@ -515,16 +615,16 @@ export function mediaPrompt(req: ApiReq): string {
     ? [
       "Permanece por completo en personaje y dentro de la escena.",
       "Conserva exactamente el significado suministrado y exprésalo mediante el objeto visible asignado.",
-      "Nombra únicamente el objeto, sus rasgos, su estado y lo que la persona lectora entiende de ellos.",
+      "Nombra únicamente el objeto, sus rasgos, su estado y lo que el tarotista entiende de ellos.",
       "No sustituyas, combines ni vuelvas a sortear ningún objeto. No nombres el resultado canónico ni expliques cómo se eligió la equivalencia.",
-      "Usa el nombre público de la persona lectora cuando nombres a quien interpreta. No uses «el lector», baraja, carta, naipes ni tarot.",
+      "Usa el nombre público del tarotista cuando haga falta nombrarlo. No uses «el lector», «la lectora», baraja, carta, naipes ni tarot.",
     ].join("\n")
     : [
       "Remain fully in character and inside the scene.",
       "Preserve the supplied meaning exactly and express it through the assigned visible item.",
       "Name only the item, its features, its state and what the reader understands from them.",
       "Do not substitute, combine or reroll any item. Do not name the canonical result or explain how the equivalence was chosen.",
-      "Use the reader's public name when naming the interpreting person. Do not use 'the reader', deck, card, cards or tarot.",
+      "Use the reader's public name when it is necessary to name them. Do not use 'the reader', deck, card, cards or tarot.",
     ].join("\n");
 }
 
