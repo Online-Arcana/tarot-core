@@ -37,14 +37,12 @@ function sentence(value: string): string {
 }
 function publicScene(value: string, path = "public media prose"): string {
   const clean = sentence(value);
+  if (ARCHIVE.test(clean)) throw new Error(`${path} contains archival/provenance language: ${clean}`);
   if (OPERATIONAL.test(clean)) throw new Error(`${path} contains operational language: ${clean}`);
   return clean;
 }
-function description(value: string | null, item: string): string {
-  if (!value) return sentence(item);
-  const first = value.split(/;|(?<=[.!?])\s+/u)[0]?.trim() ?? "";
-  const clean = sentence(first);
-  return clean && !ARCHIVE.test(clean) && !OPERATIONAL.test(clean) ? clean : sentence(item);
+function description(value: string | null, item: string, path: string): string {
+  return publicScene(value ?? item, path);
 }
 
 export { isMappedReader, mediumAuditContract, mediumRitualFor, ritualPhase };
@@ -69,7 +67,7 @@ export function mediaFor(reader: import("../../contracts/types.js").ReaderId, ca
     concealment: publicScene(context.concealment, `${reader}.concealment`),
     chance: publicScene(context.chance, `${reader}.openingAction`),
     orientation: observation,
-    beats: context.beats.map(value => sentence(value).replace(/[.]$/u, "")),
+    beats: context.beats.map((value, index) => publicScene(value, `${reader}.sensoryPalette[${index}]`).replace(/[.]$/u, "")),
   };
   return {
     version: 3,
@@ -84,7 +82,11 @@ export function mediaFor(reader: import("../../contracts/types.js").ReaderId, ca
     medium: context.medium,
     itemId: `${reader}-${card.id}`,
     itemName,
-    itemDescription: description(entry.itemDescription ? mappedText(entry.itemDescription, code) : null, itemName),
+    itemDescription: description(
+      entry.itemDescription ? mappedText(entry.itemDescription, code) : null,
+      itemName,
+      `${reader}.${card.id}.itemDescription`,
+    ),
     observation,
     interpretation: sentence(card.meaning),
     // Kept only for ApiOut compatibility. It is deliberately public descriptive prose.
