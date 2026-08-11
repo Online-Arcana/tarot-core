@@ -2,6 +2,8 @@ import generated from "./fallbacks.generated.json" with { type: "json" };
 import { localText, profileFor } from "../readers/profiles.js";
 import type { ReaderId } from "../contracts/types.js";
 
+const ATMOSPHERE_COUNT = 16;
+
 export interface FallbackCatalogue {
   readonly invite: string;
   readonly fitReason: string;
@@ -9,6 +11,7 @@ export interface FallbackCatalogue {
   readonly ritualGesture: string;
   readonly ritualOpening: string;
   readonly ritual: string;
+  readonly ritualAtmosphere: readonly string[];
   readonly readGesture: string;
   readonly readOpening: string;
   readonly readLink: string;
@@ -66,6 +69,8 @@ export function fallbackFor(lang: string, reader: ReaderId): FallbackCatalogue {
     ritualGesture: field(fields, "ritual.gesture", reader),
     ritualOpening: field(fields, "ritual.opening", reader),
     ritual: field(fields, "ritual.ritual", reader),
+    ritualAtmosphere: Array.from({ length: ATMOSPHERE_COUNT }, (_, index) =>
+      field(fields, `ritual.atmosphere.${index}`, reader)),
     readGesture: field(fields, "read.gesture", reader),
     readOpening: field(fields, "read.opening", reader),
     readLink: field(fields, "read.link", reader),
