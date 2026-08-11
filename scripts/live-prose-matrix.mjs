@@ -7,6 +7,7 @@ import {
 } from "../dist/domain/canonical.js";
 import { auditModelOut } from "../dist/model/audit.js";
 import { runModelSession } from "../dist/model/run.js";
+import { handoverConv } from "../dist/reading/handover.js";
 
 const apiKey = process.env.OPENAI_API_KEY?.trim();
 const reader = process.env.MATRIX_READER?.trim();
@@ -326,35 +327,32 @@ for (let spreadIndex = 0; spreadIndex < spreads.length; spreadIndex += 1) {
       { id: `${prefix}-chat`, kind: "chat", at: "2026-08-11T18:05:00.000Z", question: followUp, out: chatOut },
     ],
   };
+  const referralReason = lang === "es-ES" ? "Continuar la reflexión." : "Continue the reflection.";
   const handoverReq = { ...baseWithHistory, task: "handover", question: baseQuestion, target, conv };
   entry.tasks.handover = await runTask(`${prefix}/handover`, handoverReq);
 
   if (entry.tasks.handover.failed !== true) {
-    const handover = entry.tasks.handover.out;
-    const hand = {
-      from: target,
-      to: reader,
-      at: "2026-08-11T18:20:00.000Z",
-      question: baseQuestion,
-      reason: lang === "es-ES" ? "Continuar la reflexión." : "Continue the reflection.",
-      summary: handover.summary,
-      prevQs: handover.questions,
-      conclusions: handover.conclusions,
-      cards: handover.cards,
-      facts: handover.facts,
-      unresolved: handover.unresolved,
-    };
+    const targetConv = handoverConv(
+      conv,
+      { target, question: baseQuestion, reason: referralReason },
+      `${prefix}-target`,
+      "2026-08-11T18:15:00.000Z",
+      entry.tasks.handover.out,
+    );
+    const returnedConv = handoverConv(
+      targetConv,
+      { target: reader, question: baseQuestion, reason: referralReason },
+      `${prefix}-return`,
+      "2026-08-11T18:20:00.000Z",
+    );
     const returnReq = {
-      ...baseWithHistory,
       task: "return",
-      trail: {
-        ...trail,
-        visits: [
-          ...trail.visits,
-          { reader: target, conv: `${prefix}-other`, at: "2026-08-11T18:15:00.000Z", question: baseQuestion, note: "" },
-        ],
-      },
-      handover: hand,
+      lang: returnedConv.lang,
+      reader: returnedConv.reader,
+      name: returnedConv.name,
+      history: [],
+      trail: returnedConv.trail,
+      handover: returnedConv.handover,
     };
     entry.tasks.return = await runTask(`${prefix}/return`, returnReq);
   }
