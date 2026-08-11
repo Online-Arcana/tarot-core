@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { fallbackFor } from "../dist/model/fallback.js";
+import { hasDirectAddress } from "../dist/model/language.js";
 
 const readers = ["selena", "brennos", "yejide", "ngaru", "ame", "amaru", "nahid", "mictli"];
 const mapped = new Set(readers.filter(reader => reader !== "selena"));
@@ -15,6 +16,7 @@ const fields = catalogue => [
   catalogue.ritualGesture,
   catalogue.ritualOpening,
   catalogue.ritual,
+  ...catalogue.ritualAtmosphere,
   catalogue.readGesture,
   catalogue.readOpening,
   catalogue.readLink,
@@ -33,6 +35,13 @@ const fields = catalogue => [
   catalogue.returning,
 ];
 
+function validInvite(value) {
+  const clean = value.trim();
+  const words = clean.split(/\s+/u).filter(Boolean).length;
+  const endings = clean.match(/[.!?]["'’”)]*(?=\s|$)/gu)?.length ?? 0;
+  return words >= 3 && words <= 24 && !/[\r\n]/u.test(clean) && endings === 1 && /[.!?]["'’”)]*$/u.test(clean);
+}
+
 test("canonical fallback XML defines every required field in both languages", async () => {
   const xml = await readFile("src/model/fallbacks.xml", "utf8");
   for (const lang of ["en-GB", "es-ES"]) {
@@ -44,6 +53,7 @@ test("canonical fallback XML defines every required field in both languages", as
     for (const id of [
       "invite.text", "fit.reason", "fit.offer",
       "ritual.gesture", "ritual.opening", "ritual.ritual",
+      ...Array.from({ length: 16 }, (_, index) => `ritual.atmosphere.${index}`),
       "read.gesture", "read.opening", "read.link", "read.cardText",
       "read.synthesis", "read.reading", "read.closing", "read.note",
       "chat.gesture", "chat.response",
@@ -67,6 +77,27 @@ test("runtime fallbacks are generated, reader-aware and contain no generic ident
       }
       assert.match(catalogue.ritualGesture, new RegExp(`\\b${reader === "selena" ? "Selena" : reader[0].toUpperCase() + reader.slice(1)}\\b`, "iu"));
       assert.match(catalogue.chatGesture, new RegExp(`\\b${reader === "selena" ? "Selena" : reader[0].toUpperCase() + reader.slice(1)}\\b`, "iu"));
+    }
+  }
+});
+
+test("every reader fallback invite satisfies the strict one-sentence contract", () => {
+  for (const lang of ["en-GB", "es-ES"]) {
+    for (const reader of readers) {
+      const invite = fallbackFor(lang, reader).invite;
+      assert.equal(validInvite(invite), true, `${reader}/${lang} invalid invite fallback: ${invite}`);
+    }
+  }
+});
+
+test("recovery atmosphere is directly immersive before compatibility normalisation", () => {
+  for (const lang of ["en-GB", "es-ES"]) {
+    for (const reader of readers) {
+      const catalogue = fallbackFor(lang, reader);
+      assert.equal(catalogue.ritualAtmosphere.length, 16);
+      for (const [index, value] of catalogue.ritualAtmosphere.entries()) {
+        assert.equal(hasDirectAddress(value, lang), true, `${reader}/${lang}/atmosphere/${index} lacks direct address`);
+      }
     }
   }
 });
