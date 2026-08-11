@@ -86,7 +86,13 @@ for (const lang of ["en-GB", "es-ES"]) {
       const priorRituals = [];
       for (let card = 0; card < cards.length; card += 1) {
         const req = request(reader, lang, card, priorRituals);
-        const out = reconstructModelOut(req, [broken, broken]);
+        let out;
+        try {
+          out = reconstructModelOut(req, [broken, broken]);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new Error(`${reader}/${lang}/ritual/${card + 1}: ${message}`, { cause: error });
+        }
         const audit = auditModelOut(req, out);
         assert.equal(
           audit.valid,
