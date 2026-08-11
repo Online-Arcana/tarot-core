@@ -41,3 +41,10 @@ test("deleted v2 ritual/card-index sources cannot reappear as parallel authoriti
     await assert.rejects(access(resolve(root, path)), error => error?.code === "ENOENT", path);
   }
 });
+
+test("mapped presentation is append-only and contains no regex prose repair path", async () => {
+  const source = await readFile(resolve(root, "output.ts"), "utf8");
+  assert.doesNotMatch(source, /replaceCanonical|normaliseReader|genericReader/u);
+  assert.doesNotMatch(source, /new\s+RegExp/u);
+  assert.match(source, /media:\s*\[\.\.\.media\]/u);
+});
