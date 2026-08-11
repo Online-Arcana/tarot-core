@@ -126,7 +126,7 @@ test("successful mapped ritual preserves LLM prose and attaches v3 metadata", as
   assert.doesNotMatch(prompt, /Epona|The Fool/u);
 });
 
-test("generic mapped ritual is rejected rather than silently replaced", () => {
+test("generic mapped ritual is rejected without presentation rewriting it", () => {
   const req = ritualReq();
   const context = mediumRitualFor("brennos", "en-GB");
   assert.ok(context);
@@ -137,11 +137,10 @@ test("generic mapped ritual is rejected rather than silently replaced", () => {
     beats: context.beats,
   });
 
-  assert.equal(presented.gesture, genericRitual.gesture.replace("The reader", "Brennos"));
-  assert.equal(presented.opening, genericRitual.opening);
-  assert.equal(presented.ritual, genericRitual.ritual.replace("The reader", "Brennos"));
+  assert.deepEqual(presented, genericRitual, "presentation must not hide invalid generated prose");
   const audit = auditModelOut(req, presented);
   assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "generic_reader"));
   assert.ok(audit.issues.some(issue => issue.code === "canonical_medium"));
 });
 
