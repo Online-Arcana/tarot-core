@@ -4,8 +4,10 @@ import type {
   FitOut,
   HandoverOut,
   ReadingOut,
+  RitualOut,
 } from "../contracts/types.js";
 import { attachMedia, mediaFor } from "../readers/media/runtime.js";
+import { profileFor } from "../readers/profiles.js";
 import { auditModelOut, words } from "./audit.js";
 import { fallbackFor } from "./fallback.js";
 import { recoverRitual } from "./ritual-recovery.js";
@@ -131,18 +133,6 @@ const theatreCandidate = (
     return null;
   }
   return parts;
-};
-
-const theatreFrom = (
-  candidates: readonly (ApiOut | undefined)[],
-  keys: readonly [string, string, string],
-  fallback: readonly [string, string, string],
-): readonly [string, string, string] => {
-  for (let index = candidates.length - 1; index >= 0; index -= 1) {
-    const candidate = theatreCandidate(candidates[index], keys);
-    if (candidate !== null) return candidate;
-  }
-  return fallback;
 };
 
 const singleTheatreFrom = (
@@ -279,6 +269,24 @@ const handover = (
   };
 };
 
+const ritualEmergencyFallback = (
+  req: Extract<ApiReq, { task: "ritual" }>,
+): RitualOut => {
+  const name = profileFor(req.reader).public.name;
+  if (req.lang.toLocaleLowerCase().startsWith("es")) {
+    return {
+      gesture: `${name} hace una pausa y vuelve a centrar la atención en el ritual.`,
+      opening: "La pregunta permanece presente mientras la escena recupera un ritmo tranquilo.",
+      ritual: `${name} prepara con calma el siguiente movimiento y deja que el silencio se asiente.`,
+    };
+  }
+  return {
+    gesture: `${name} pauses and brings attention back to the ritual.`,
+    opening: "The question remains present while the scene settles into a quieter rhythm.",
+    ritual: `${name} calmly prepares the next movement and lets the silence settle.`,
+  };
+};
+
 const bareFallbackModelOut = (req: ApiReq): ApiOut => {
   const fallback = fallbackFor(req.lang);
   switch (req.task) {
@@ -287,9 +295,7 @@ const bareFallbackModelOut = (req: ApiReq): ApiOut => {
       level: "acceptable", topic: "identity", recommend: null,
       reason: fallback.fitReason, offer: fallback.fitOffer,
     };
-    case "ritual": return {
-      gesture: fallback.ritualGesture, opening: fallback.ritualOpening, ritual: fallback.ritual,
-    };
+    case "ritual": return ritualEmergencyFallback(req);
     case "read": return read(req, []);
     case "chat": return { gesture: fallback.chatGesture, response: fallback.chatResponse };
     case "suggest": return { suggestions: [...fallback.suggestions] };
@@ -348,13 +354,17 @@ const reconstruct = (
     }; break;
     case "fit": output = fit(req, candidates); break;
     case "ritual": {
-      const theatre = theatreFrom(
-        candidates,
-        ["gesture", "opening", "ritual"],
-        [fallback.ritualGesture, fallback.ritualOpening, fallback.ritual],
-      );
-      output = { gesture: theatre[0], opening: theatre[1], ritual: theatre[2] };
-      break;
+      for (let index = candidates.length - 1; index >= 0; index -= 1) {
+        const theatre = theatreCandidate(candidates[index], ["gesture", "opening", "ritual"]);
+        if (theatre === null) continue;
+        const candidate: RitualOut = {
+          gesture: theatre[0],
+          opening: theatre[1],
+          ritual: theatre[2],
+        };
+        if (auditModelOut(req, candidate).valid) return candidate;
+      }
+      return recoverRitual(req, ritualEmergencyFallback(req));
     }
     case "read": output = read(req, candidates); break;
     case "chat": output = {
@@ -378,13 +388,6 @@ const reconstruct = (
     }; break;
   }
   if (auditModelOut(req, output).valid) return output;
-  if (req.task === "ritual") {
-    return recoverRitual(req, {
-      gesture: fallback.ritualGesture,
-      opening: fallback.ritualOpening,
-      ritual: fallback.ritual,
-    });
-  }
   return bareFallbackModelOut(req);
 };
 
@@ -392,6 +395,7 @@ export const reconstructModelOut = (
   req: ApiReq,
   candidates: readonly (ApiOut | undefined)[],
 ): ApiOut => {
+  if (req.task === "ritual") return attachMedia(req, reconstruct(req, candidates));
   try {
     return attachMedia(req, reconstruct(req, candidates));
   } catch {
