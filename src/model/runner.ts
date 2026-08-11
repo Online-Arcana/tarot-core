@@ -5,7 +5,7 @@ import {
 } from "../vendor/openai-schema/src/openaiSchema.js";
 import { attachMedia } from "../readers/media/runtime.js";
 import { auditModelOut, type ModelAudit } from "./audit.js";
-import { reconstructModelOut } from "./recover.js";
+import { reconstructModelOutDetailed } from "./recover.js";
 import { genericCorrection, modelPrompt, type PromptPackLike } from "./prompt.js";
 import { outputShape } from "./schema.js";
 import type { ApiOut, ApiReq, Task } from "../contracts/types.js";
@@ -257,22 +257,24 @@ export async function runModelSession(
     throw new ModelOutputError(primaryModel, escalationModel, errors);
   }
 
-  let out: ApiOut;
   try {
-    out = reconstructModelOut(req, [primary, escalation]);
+    const reconstructed = reconstructModelOutDetailed(req, [primary, escalation]);
+    const finalAudit = auditModelOut(req, reconstructed.out);
+    if (!finalAudit.valid) {
+      throw new Error(`reconstructed_output_invalid: ${finalAudit.errors.join(" | ")}`);
+    }
+    return {
+      out: reconstructed.out,
+      source: "reconstructed",
+      primaryModel,
+      escalationModel,
+      auditErrors: [...new Set([...errors, ...reconstructed.auditErrors])],
+      ...(ai.id === undefined ? {} : { sessionKey: ai.id }),
+    };
   } catch (cause: unknown) {
     const diagnostic = `reconstruction_exception: ${message(cause)}`;
     throw new ModelOutputError(primaryModel, escalationModel, [...errors, diagnostic]);
   }
-  const finalAudit = auditModelOut(req, out);
-  return {
-    out: attachMedia(req, out),
-    source: "reconstructed",
-    primaryModel,
-    escalationModel,
-    auditErrors: [...new Set([...errors, ...finalAudit.errors])],
-    ...(ai.id === undefined ? {} : { sessionKey: ai.id }),
-  };
 }
 
 export async function runModel(pack: ModelPack, req: ApiReq, cfg: ModelCfg): Promise<ApiOut> {
