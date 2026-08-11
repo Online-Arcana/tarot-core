@@ -66,6 +66,25 @@ test("Spanish narrator accepts natural pro-drop after Selena has been establishe
   assert.equal(audit.valid, true, audit.errors.join("\n"));
 });
 
+test("Spanish narrator accepts a registered pronoun as mapped reader identity", () => {
+  const req = ritualReq("brennos");
+  const out = {
+    gesture: "Él acerca el cuenco hacia ti y sostiene el movimiento con calma mientras el sonido del metal se apaga alrededor de la mesa.",
+    opening: "Mantiene la atención en el centro, espera un instante y deja que la pregunta permanezca presente sin apresurar ninguna respuesta.",
+    ritual: "Continúa en silencio, ajusta la posición de sus manos y deja que el último movimiento termine antes de seguir.",
+  };
+  const base = {
+    valid: false,
+    value: out,
+    issues: [
+      { code: "reader_name", path: "ritual.theatre", message: "ritual.theatre: must identify Brennos" },
+    ],
+    errors: ["ritual.theatre: must identify Brennos"],
+  };
+  const audit = auditSpanishNarrator(req, out, base);
+  assert.equal(audit.valid, true, audit.errors.join("\n"));
+});
+
 test("Spanish narrator rejects generic reader labels", () => {
   const req = ritualReq("selena");
   const base = auditModelOut(req, genericReader);
