@@ -35,14 +35,16 @@ The deterministic matrix is a required engineering gate, but it is not a substit
 
 The paid live matrix is intentionally a **local** test. It is not a GitHub Actions job and expects the API key only in the local environment where the test is being run.
 
-Run it only after `npm run ci` is green:
+Run it only after `npm run ci` is green, preferably from a clean checkout of the exact commit being considered for release:
 
 ```bash
 export OPENAI_API_KEY='...'
 npm run test:live
 ```
 
-`npm run test:live` builds the audited core, runs all 16 reader/language cells locally with two cells in parallel by default, aggregates their results and writes a human-review pack. Override local parallelism with `MATRIX_PARALLEL`, for example:
+`npm run test:live` records the local Git `HEAD` in every per-cell report, builds the audited core, runs all 16 reader/language cells locally with two cells in parallel by default, aggregates their results and writes a human-review pack. If tracked files are dirty it prints a provenance warning because the recorded commit cannot describe those uncommitted changes.
+
+Override local parallelism with `MATRIX_PARALLEL`, for example:
 
 ```bash
 MATRIX_PARALLEL=1 npm run test:live
@@ -52,7 +54,7 @@ The complete matrix covers 8 readers × 2 languages × 5 spreads, for 80 complet
 
 Outputs are written under `reports/`:
 
-- `reports/live-prose/<reader>-<language>.json`: per-cell final prose, diagnostics and raw attempts
+- `reports/live-prose/<reader>-<language>.json`: per-cell final prose, diagnostics, raw attempts and tested commit
 - `reports/live-prose-summary.json`: aggregate counters and hard gates
 - `reports/live-prose-summary.md`: compact aggregate summary
 - `reports/live-prose-review.md`: accepted prose laid out for manual reading
