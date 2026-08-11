@@ -45,7 +45,7 @@ const hand = {
   prevQs: ["How do I cope with my fear of death?"],
   conclusions: ["The Fool was treated as permission to begin."],
   cards: ["The Fool"],
-  facts: ["The person explicitly said they are afraid of death."],
+  facts: ["The person explicitly said they are afraid of death and collect tarot cards."],
   unresolved: ["How the meaning of The Fool applies next."],
 };
 
@@ -115,7 +115,8 @@ test("mapped handover keeps canonical card state internal after model generation
   assert.ok(finalised.diagnostics.includes("mapped_handover_cards_canonicalised"));
 });
 
-test("mapped return input sanitises generated canonical references but preserves user-authored questions and facts", () => {
+test("mapped return input translates exact generated entities, drops ambiguous legacy prose and preserves user text", () => {
+  const userQuestion = "Can we return to the card and the Death image?";
   const req = {
     task: "return",
     lang: "en-GB",
@@ -123,7 +124,7 @@ test("mapped return input sanitises generated canonical references but preserves
     name: "Javier",
     history: [{
       kind: "chat",
-      question: "Can we return to the card?",
+      question: userQuestion,
       response: "The Fool card was the centre of that tarot answer.",
     }],
     trail,
@@ -132,11 +133,14 @@ test("mapped return input sanitises generated canonical references but preserves
   const payload = modelPayload(req);
   const text = JSON.stringify(payload);
 
+  assert.match(payload.handover.summary, /Viracocha/u);
   assert.doesNotMatch(payload.handover.summary, /The Fool|\bDeath\b|\btarot\b|\bcards?\b/iu);
-  assert.doesNotMatch(payload.trail.summary, /The Fool|\btarot\b|\bcards?\b/iu);
-  assert.doesNotMatch(payload.history[0].response, /The Fool|\btarot\b|\bcards?\b/iu);
+  assert.equal("summary" in payload.trail, false, "ambiguous generated trail prose should be omitted, not rewritten");
+  assert.equal("note" in payload.trail.visits[0], false, "ambiguous generated visit prose should be omitted");
+  assert.equal("response" in payload.history[0], false, "ambiguous generated history response should be omitted");
+  assert.equal(payload.history[0].question, userQuestion, "user-authored vocabulary must remain untouched");
   assert.equal(payload.handover.previousQuestions[0], "How do I cope with my fear of death?");
-  assert.equal(payload.handover.facts[0], "The person explicitly said they are afraid of death.");
+  assert.equal(payload.handover.facts[0], "The person explicitly said they are afraid of death and collect tarot cards.");
   assert.match(text, /Viracocha/u);
   assert.doesNotMatch(text, /major-fool|"orientation"|"cardId"|"upright"/u);
 });
