@@ -31,7 +31,8 @@ interface PresentationDef {
 
 interface MappingPack {
   readonly reader: MappedReader;
-  readonly culture: LocalText;
+  /** Private archival context retained for source review. Never exposed through ApiOut. */
+  readonly archiveCulture: LocalText;
   readonly presentation: PresentationDef;
   readonly elements: ReadonlyMap<string, ElementDef>;
   readonly cards: ReadonlyMap<string, MappingEntry>;
@@ -151,7 +152,7 @@ function parsePack(expected: MappedReader, value: unknown): MappingPack {
 
   return {
     reader: expected,
-    culture: local(source.culture, `${path}.culture`),
+    archiveCulture: local(source.culture, `${path}.culture`),
     presentation,
     elements,
     cards,
@@ -168,10 +169,6 @@ export function mappedEntry(reader: MappedReader, cardId: string): MappingEntry 
   const entry = PACKS[reader].cards.get(cardId);
   if (!entry) throw new Error(`Mapped reader ${reader} has no entry for canonical card ${cardId}`);
   return entry;
-}
-
-export function mappedCulture(reader: MappedReader, code: LangCode): string {
-  return tr(PACKS[reader].culture, code);
 }
 
 export function mappedState(reader: MappedReader, side: Side, code: LangCode): string {
