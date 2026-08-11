@@ -22,7 +22,9 @@ import {
   mediaTurnInput,
 } from "../readers/media/runtime.js";
 import { revealedReadingContext } from "./reading-context.js";
-import { auditModelOut, correctionFromAudit, type ModelAudit } from "./audit.js";
+import { auditModelOut as baseAuditModelOut, correctionFromAudit, type ModelAudit } from "./audit.js";
+import { addressViewer } from "./viewer-narration.js";
+import { auditSpanishNarrator, spanishNarratorGrammarOnly, spanishNarratorInstruction } from "./spanish-narrator.js";
 import { reconstructModelOut } from "./recover.js";
 import type { ApiOut, ApiReq, Task } from "../contracts/types.js";
 
@@ -131,6 +133,11 @@ function registry(): string {
   return profiles().map(p => `${p.id} (${readerIdentity(p.id)}): strong ${p.fit.strong.join(", ")}; capable ${p.fit.capable.join(", ")}; weak ${p.fit.weak.join(", ")}`).join("\n");
 }
 
+function spanishNarratorRule(req: ApiReq, fields: string): string[] {
+  const rule = spanishNarratorInstruction(req, fields);
+  return rule ? [rule] : [];
+}
+
 function taskPrompt(p: ModelPack, req: ApiReq): string {
   switch (req.task) {
     case "invite":
@@ -159,6 +166,7 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
         "When prior theatre is supplied, continue the same scene without repeating its wording, structure or initial preparation.",
         "The narrator is a separate voice from the reader. Write gesture, opening and ritual only as third-person narration about the reader and the scene.",
         "The narrator must not use first-person language, speak as the reader, explain rules, report compliance or describe hidden application state.",
+        ...spanishNarratorRule(req, "gesture, opening y ritual"),
         "The combined gesture, opening and ritual fields must contain 36 to 110 words, read continuously as one paragraph and end with a complete sentence.",
         "Never truncate the paragraph and never end it with an ellipsis.",
         "Do not name, imply, interpret or predict the hidden result.",
@@ -179,6 +187,7 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
         "Each cardText item may mention that result and earlier revealed results only. It must never name or imply a later result.",
         "The cardText, synthesis, reading and closing fields belong to the reader speaking directly in first-person perspective, never narration about the reader.",
         "The note field occurs after completion and belongs to the separate third-person narrator.",
+        ...spanishNarratorRule(req, "note"),
         "Use complete sentences with natural sentence boundaries so long dialogue can be split into readable animated passages.",
         "Do not place every result into one giant paragraph. Keep the final answer detailed but easy to divide into short passages."
       ].join("\n");
@@ -187,6 +196,7 @@ function taskPrompt(p: ModelPack, req: ApiReq): string {
       return [
         p.prompt.chat,
         "The gesture field belongs to a separate narrator and must be one complete third-person atmospheric paragraph of 36 to 110 words.",
+        ...spanishNarratorRule(req, "gesture"),
         "The response field belongs to the reader speaking directly in first-person perspective and must not narrate the reader from outside.",
         "The gesture must end naturally, never with an ellipsis or an abruptly cut sentence.",
         "Use complete sentences and sensible paragraph boundaries for the staged scrolling presentation."
@@ -431,8 +441,12 @@ export function modelPrompt(p: ModelPack, req: ApiReq, correction = ""): string 
   ].join("\n\n");
 }
 
+function audit<T extends ApiOut>(req: ApiReq, out: T): ModelAudit<T> {
+  return auditSpanishNarrator(req, out, baseAuditModelOut(req, out));
+}
+
 export const validModelOut = (req: ApiReq, out: ApiOut): boolean =>
-  auditModelOut(req, out).valid;
+  audit(req, out).valid;
 
 export function correctionFor(req: ApiReq): string {
   return `The previous attempt violated deterministic validation for ${req.task}. Return a complete corrected object without mentioning the correction.`;
@@ -531,17 +545,17 @@ const message = (cause: unknown): string => {
 
 const accepted = (
   req: ApiReq,
-  audit: ModelAudit,
+  auditResult: ModelAudit,
   source: ModelResult["source"],
   primaryModel: string,
   escalationModel: string,
   sessionKey: string | undefined,
 ): ModelResult => ({
-  out: attachMedia(req, audit.value),
+  out: attachMedia(req, auditResult.value),
   source,
   primaryModel,
   escalationModel,
-  auditErrors: audit.errors,
+  auditErrors: auditResult.errors,
   ...(sessionKey === undefined ? {} : { sessionKey }),
 });
 
@@ -556,6 +570,24 @@ const failures = (
   ...(escalationAudit?.errors ?? []),
   ...(escalationFailure === undefined ? [] : [escalationFailure]),
 ])];
+
+function correction(
+  candidate: ApiOut | undefined,
+  auditResult: ModelAudit | undefined,
+  failure: string | undefined,
+): string {
+  if (candidate !== undefined && spanishNarratorGrammarOnly(auditResult)) {
+    return [
+      "Corrige únicamente los errores de gramática española indicados en la salida anterior.",
+      "No vuelvas a generar ni reformules el texto. Conserva exactamente todas las palabras y todos los campos que no necesiten una corrección gramatical.",
+      "Usa la forma correcta de segunda persona según su función gramatical (tú, te, ti, contigo, tu/tus), no uses el nombre de la persona consultante y mantén explícito el sujeto de tercera persona de la persona lectora.",
+      "No cambies ningún campo que no aparezca en los errores indicados. Devuelve el mismo objeto JSON con la corrección mínima.",
+      ...(auditResult?.errors ?? []).map(error => `- ${error}`),
+      `Salida anterior: ${JSON.stringify(candidate)}`,
+    ].join("\n");
+  }
+  return correctionFromAudit(candidate, auditResult, failure);
+}
 
 export async function runModelSession(
   pack: ModelPack,
@@ -572,8 +604,8 @@ export async function runModelSession(
     },
   );
   const [primaryModel, escalationModel] = modelRoute(req, cfg);
-  const send = (model: string, correction = "") => ai.send(
-    [{ role: "system", content: modelPrompt(pack, req, correction) }],
+  const send = (model: string, prompt: string) => ai.send(
+    [{ role: "system", content: prompt }],
     sendOpts(cfg, model),
   );
 
@@ -581,8 +613,8 @@ export async function runModelSession(
   let primaryAudit: ModelAudit | undefined;
   let primaryFailure: string | undefined;
   try {
-    primary = await send(primaryModel);
-    primaryAudit = auditModelOut(req, primary);
+    primary = addressViewer(req, await send(primaryModel, modelPrompt(pack, req)));
+    primaryAudit = audit(req, primary);
   } catch (cause: unknown) {
     primaryFailure = message(cause);
   }
@@ -590,13 +622,25 @@ export async function runModelSession(
     return accepted(req, primaryAudit, "primary", primaryModel, escalationModel, ai.id);
   }
 
+  const grammarOnly = spanishNarratorGrammarOnly(primaryAudit);
   let escalation: ApiOut | undefined;
   let escalationAudit: ModelAudit | undefined;
   let escalationFailure: string | undefined;
-  const correction = correctionFromAudit(primary, primaryAudit, primaryFailure);
+  const correctionText = correction(primary, primaryAudit, primaryFailure);
+  const escalationPrompt = grammarOnly ? correctionText : modelPrompt(pack, req, correctionText);
   try {
-    escalation = await send(escalationModel, correction);
-    escalationAudit = auditModelOut(req, escalation);
+    escalation = addressViewer(req, await send(escalationModel, escalationPrompt));
+    if (grammarOnly) {
+      return {
+        out: attachMedia(req, escalation),
+        source: "escalation",
+        primaryModel,
+        escalationModel,
+        auditErrors: [],
+        ...(ai.id === undefined ? {} : { sessionKey: ai.id }),
+      };
+    }
+    escalationAudit = audit(req, escalation);
   } catch (cause: unknown) {
     escalationFailure = message(cause);
   }
@@ -610,7 +654,7 @@ export async function runModelSession(
   }
 
   const out = reconstructModelOut(req, [primary, escalation]);
-  const finalAudit = auditModelOut(req, out);
+  const finalAudit = audit(req, out);
   return {
     out: attachMedia(req, out),
     source: "reconstructed",

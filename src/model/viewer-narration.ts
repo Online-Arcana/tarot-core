@@ -5,6 +5,7 @@ import type {
   ReadingOut,
   RitualOut,
 } from "../contracts/types.js";
+import { immerseSpanishNarrator } from "./spanish-narrator.js";
 
 const direct = /\b(?:you|your|yours|yourself|tú|tu|tus|te|ti|contigo|usted|ustedes|vos|vosotros|vuestro|vuestra|sus)\b/iu;
 const userNounEn = "life|question|path|choice|voice|body|breath|hands?|face|future|past|situation|world|thoughts?|feelings?|heart|mind|attention|experience|home|work|relationship|decision|grief|hope|fear";
@@ -89,6 +90,8 @@ function viewerReferences(value: string, es: boolean): string {
 
 function sentenceAudience(sentence: string, name: string, es: boolean): string {
   if (!name) return sentence;
+  if (es) return immerseSpanishNarrator(sentence, name);
+
   const namePattern = new RegExp(`\\b${escape(name)}(?:['’]s)?\\b`, "iu");
   const match = namePattern.exec(sentence);
   if (!match || match.index === undefined) return sentence;
@@ -96,16 +99,17 @@ function sentenceAudience(sentence: string, name: string, es: boolean): string {
   const before = sentence.slice(0, match.index);
   const after = sentence.slice(match.index + match[0].length);
   const possessive = /['’]s$/iu.test(match[0]);
-  const replacement = possessive ? (es ? "tu" : "your") : (es ? "tú" : "you");
-  const referred = viewerReferences(after, es);
-  return `${before}${replacement}${possessive ? referred : agreement(referred, es)}`;
+  const replacement = possessive ? "your" : "you";
+  const referred = viewerReferences(after, false);
+  return `${before}${replacement}${possessive ? referred : agreement(referred, false)}`;
 }
 
 function audience(value: string, req: ApiReq): string {
   const name = req.name.trim();
   if (!name || !value.trim()) return value;
+  if (spanish(req)) return immerseSpanishNarrator(value, name);
   return value.replace(/[^.!?]+(?:[.!?]+|$)/gu, sentence =>
-    sentenceAudience(sentence, name, spanish(req))
+    sentenceAudience(sentence, name, false)
   );
 }
 
