@@ -13,7 +13,8 @@ const child = spawn(process.execPath, ["scripts/live-prose-matrix.mjs"], {
   stdio: "inherit",
   env: {
     ...process.env,
-    MATRIX_COMMIT: commit,
+    // Internal compatibility carrier only: the value is the local checkout's git HEAD.
+    GITHUB_SHA: commit,
   },
 });
 child.on("exit", code => { process.exitCode = code ?? 1; });
