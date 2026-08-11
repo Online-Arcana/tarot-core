@@ -1,6 +1,7 @@
 import generated from "./fallbacks.generated.json" with { type: "json" };
 import { localText, profileFor } from "../readers/profiles.js";
-import type { ReaderId } from "../contracts/types.js";
+import type { LangCode, ReaderId } from "../contracts/types.js";
+import { hasDirectAddress } from "./language.js";
 
 const ATMOSPHERE_COUNT = 16;
 
@@ -56,11 +57,15 @@ function field(fields: Fields, id: string, reader: ReaderId): string {
 }
 
 export function fallbackFor(lang: string, reader: ReaderId): FallbackCatalogue {
-  const code = lang.toLowerCase().startsWith("es") ? "es-ES" : "en-GB";
+  const code: LangCode = lang.toLowerCase().startsWith("es") ? "es-ES" : "en-GB";
   const fields = source(code);
   const profile = profileFor(reader);
   const invite = localText(profile.persona.invite, code)[0] ?? field(fields, "invite.text", reader);
-  const returning = localText(profile.handover.returning, code)[0] ?? field(fields, "return.text", reader);
+  const genericReturning = field(fields, "return.text", reader);
+  const personaReturning = localText(profile.handover.returning, code)[0];
+  const returning = personaReturning && hasDirectAddress(personaReturning, code)
+    ? personaReturning
+    : genericReturning;
 
   return {
     invite,
