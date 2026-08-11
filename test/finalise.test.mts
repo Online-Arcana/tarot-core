@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { finaliseModelOutDetailed } from "../dist/model/finalise.js";
+import { auditModelOut } from "../dist/model/audit.js";
+import {
+  finaliseModelOutDetailed,
+  prepareModelOutDetailed,
+} from "../dist/model/finalise.js";
 import { mediaFor } from "../dist/readers/media/runtime.js";
 import { futureLeaks } from "../dist/reading/reveal.js";
 
@@ -43,6 +47,37 @@ const ritualOut = {
   ritual: "Por último, deja el siguiente resultado cubierto frente a Javier y mantiene las manos quietas hasta que todo vuelve a quedar en calma.",
 };
 
+const mappedReadReq = {
+  task: "read",
+  lang: "es-ES",
+  reader: "amaru",
+  name: "Javier",
+  history: [],
+  question: "¿Qué debería comprender ahora?",
+  draw: { id: "three", name: "Tres", purpose: "Comprender el movimiento", cards: [fool, magician] },
+  ritualTheatre: [
+    "Amaru mezcla los cordones dentro del recipiente opaco mientras tú extraes uno sin mirar y los nudos se asientan sobre la piedra.",
+    "Amaru vuelve la atención hacia el recipiente mientras tú extraes otro cordón y lo dejas cubierto por encima del primero.",
+  ],
+};
+
+const laterPublicName = mediaFor("amaru", magician, "es-ES")?.publicName;
+assert.ok(laterPublicName);
+
+const mappedReadOut = {
+  gesture: "",
+  opening: "",
+  link: "",
+  cardText: [
+    `${laterPublicName} ya te muestra que el segundo resultado resolverá la tensión antes de que llegue su momento.`,
+    "Este segundo resultado te pide que enfoques tu voluntad y distingas entre capacidad real e impulso apresurado.",
+  ],
+  synthesis: "Los dos resultados te invitan a comenzar con apertura y a usar tu capacidad de forma deliberada.",
+  reading: "Puedes avanzar sin exigir certeza total, pero te conviene unir la libertad del comienzo con una intención concreta y comprobable.",
+  closing: "Quédate con el paso que puedas sostener con atención.",
+  note: "Amaru deja ambos cordones sobre la piedra frente a Javier y guarda silencio.",
+};
+
 test("core finalisation applies audience immersion only to Spanish narrator fields", () => {
   const spanish = finaliseModelOutDetailed(spanishRitualReq, ritualOut);
   const theatre = `${spanish.out.gesture} ${spanish.out.opening} ${spanish.out.ritual}`;
@@ -61,39 +96,19 @@ test("core finalisation applies audience immersion only to Spanish narrator fiel
   assert.doesNotMatch(english.diagnostics.join(" "), /audience/iu);
 });
 
-test("core finalisation repairs mapped public future-result leaks after media attachment", () => {
-  const req = {
-    task: "read",
-    lang: "es-ES",
-    reader: "amaru",
-    name: "Javier",
-    history: [],
-    question: "¿Qué debería comprender ahora?",
-    draw: { id: "three", name: "Tres", purpose: "Comprender el movimiento", cards: [fool, magician] },
-    ritualTheatre: [
-      "Amaru mezcla los cordones dentro del recipiente opaco mientras tú extraes uno sin mirar y los nudos se asientan sobre la piedra.",
-      "Amaru vuelve la atención hacia el recipiente mientras tú extraes otro cordón y lo dejas cubierto por encima del primero.",
-    ],
-  };
-  const laterPublicName = mediaFor("amaru", magician, "es-ES")?.publicName;
-  assert.ok(laterPublicName);
-  const out = {
-    gesture: "",
-    opening: "",
-    link: "",
-    cardText: [
-      `${laterPublicName} ya te muestra que el segundo resultado resolverá la tensión antes de que llegue su momento.`,
-      "Este segundo resultado te pide que enfoques tu voluntad y distingas entre capacidad real e impulso apresurado.",
-    ],
-    synthesis: "Los dos resultados te invitan a comenzar con apertura y a usar tu capacidad de forma deliberada.",
-    reading: "Puedes avanzar sin exigir certeza total, pero te conviene unir la libertad del comienzo con una intención concreta y comprobable.",
-    closing: "Quédate con el paso que puedas sostener con atención.",
-    note: "Amaru deja ambos cordones sobre la piedra frente a Javier y guarda silencio.",
-  };
+test("pre-audit preparation repairs prose without retaining presentation metadata", () => {
+  const prepared = prepareModelOutDetailed(mappedReadReq, mappedReadOut);
+  assert.equal(prepared.out.media, undefined);
+  assert.doesNotMatch(prepared.out.cardText[0], new RegExp(laterPublicName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "iu"));
+  assert.doesNotMatch(prepared.out.note, /Javier/u);
+  assert.ok(prepared.diagnostics.some(value => value.startsWith("future_leak_repaired:")));
+  assert.equal(auditModelOut(mappedReadReq, prepared.out).valid, true);
+});
 
-  const finalised = finaliseModelOutDetailed(req, out);
+test("public finalisation repairs mapped public future-result leaks and attaches media", () => {
+  const finalised = finaliseModelOutDetailed(mappedReadReq, mappedReadOut);
   assert.ok(Array.isArray(finalised.out.media));
-  assert.equal(futureLeaks(req.draw, finalised.out, req.lang, req.question).length, 0);
+  assert.equal(futureLeaks(mappedReadReq.draw, finalised.out, mappedReadReq.lang, mappedReadReq.question).length, 0);
   assert.doesNotMatch(finalised.out.cardText[0], new RegExp(laterPublicName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "iu"));
   assert.doesNotMatch(finalised.out.note, /Javier/u);
   assert.ok(finalised.diagnostics.some(value => value.startsWith("future_leak_repaired:")));
