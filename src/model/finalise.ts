@@ -1,5 +1,5 @@
-import type { ApiOut, ApiReq, ReadingOut } from "../contracts/types.js";
-import { attachMedia } from "../readers/media/runtime.js";
+import type { ApiOut, ApiReq, HandoverOut, ReadingOut } from "../contracts/types.js";
+import { attachMedia, isMappedReader } from "../readers/media/runtime.js";
 import { futureLeaks, repairFutureLeaks } from "../reading/reveal.js";
 import { addressViewer } from "./viewer-narration.js";
 
@@ -16,6 +16,15 @@ function serial(value: ApiOut): string {
   return JSON.stringify(value);
 }
 
+function canonicalHandoverCards(req: Extract<ApiReq, { task: "handover" }>): string[] {
+  const cards: string[] = [];
+  for (const turn of req.conv.turns) {
+    if (turn.kind !== "reading") continue;
+    for (const card of turn.draw.cards) if (!cards.includes(card.name)) cards.push(card.name);
+  }
+  return cards;
+}
+
 /**
  * Finalises generated prose inside core while preserving the public ApiOut shape.
  * Spanish narrator audience normalisation is core-side only; English keeps its
@@ -29,6 +38,13 @@ export function finaliseModelOutDetailed(req: ApiReq, value: ApiOut): Finalisati
     const before = serial(out);
     out = addressViewer(req, out);
     if (serial(out) !== before) diagnostics.push("spanish_audience_normalised");
+  }
+
+  if (req.task === "handover" && isMappedReader(req.reader)) {
+    const handover = out as HandoverOut;
+    const cards = canonicalHandoverCards(req);
+    if (JSON.stringify(handover.cards) !== JSON.stringify(cards)) diagnostics.push("mapped_handover_cards_canonicalised");
+    out = { ...handover, cards };
   }
 
   out = attachMedia(req, out);
