@@ -2,16 +2,17 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { parseCliInput } from "../dist/cli/input.js";
 import { runCli } from "../dist/cli/run.js";
+import { canonicalCards } from "../dist/domain/canonical.js";
 
 function pack() {
   return {
     prompt: { reading: "Interpret the spread.", chat: "Continue the reading." },
-    cards: Array.from({ length: 78 }, (_, i) => ({
-      id: `card-${i}`,
-      name: `Card ${i}`,
-      suit: "Test",
-      upright: `Upright ${i}`,
-      reversed: `Reversed ${i}`,
+    cards: canonicalCards("en-GB").map(card => ({
+      id: card.id,
+      name: card.name,
+      suit: card.suit,
+      upright: card.upright,
+      reversed: card.reversed,
     })),
     spreads: [{
       id: "one",
@@ -26,7 +27,7 @@ const reading = {
   gesture: "",
   opening: "",
   link: "",
-  cardText: ["Card 0 in the Message position asks you to give careful attention to what is beginning."],
+  cardText: ["This result asks you to give careful attention to what is beginning."],
   synthesis: "Together, this beginning asks you to move with deliberate attention.",
   reading: "You can move carefully while still taking the next practical step before certainty is complete.",
   closing: "Keep your next step deliberate.",
