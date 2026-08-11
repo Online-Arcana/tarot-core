@@ -4,7 +4,11 @@ import {
   type Fetch,
 } from "../vendor/openai-schema/src/openaiSchema.js";
 import { attachMedia } from "../readers/media/runtime.js";
-import { auditModelOut, type ModelAudit } from "./audit.js";
+import {
+  auditModelOut,
+  correctionFromAudit,
+  type ModelAudit,
+} from "./audit.js";
 import { prepareModelOutDetailed } from "./finalise.js";
 import {
   mergeNarratorCorrection,
@@ -158,33 +162,6 @@ const message = (cause: unknown): string => {
   return body ? `${base}: ${body}` : base;
 };
 
-function localAuditCorrection(
-  req: ApiReq,
-  candidate: ApiOut | undefined,
-  audit: ModelAudit | undefined,
-  failure: string | undefined,
-): string {
-  const findings = audit?.errors ?? (failure === undefined ? [] : [failure]);
-  if (req.lang.toLowerCase().startsWith("es")) {
-    return [
-      "El intento anterior no superó la validación determinista.",
-      "Devuelve el esquema estricto completo y realiza únicamente las correcciones mínimas necesarias.",
-      "Conserva las conclusiones válidas, los detalles propios del tarotista y todo campo correcto del intento anterior.",
-      "Completa las oraciones inacabadas, elimina duplicaciones y respeta los límites exactos de longitud, fundamento, voz y orden de revelación.",
-      ...findings.map(finding => `- ${finding}`),
-      ...(candidate === undefined ? [] : [`Candidato anterior: ${JSON.stringify(candidate)}`]),
-    ].join("\n");
-  }
-  return [
-    "The previous attempt did not pass deterministic validation.",
-    "Return the complete strict schema and make only the smallest necessary corrections.",
-    "Preserve every sound conclusion, reader-specific detail and valid field from the previous candidate.",
-    "Complete unfinished sentences, remove duplication, and obey exact length, grounding, voice and reveal-order constraints.",
-    ...findings.map(finding => `- ${finding}`),
-    ...(candidate === undefined ? [] : [`Previous candidate: ${JSON.stringify(candidate)}`]),
-  ].join("\n");
-}
-
 const accepted = (
   req: ApiReq,
   audit: ModelAudit,
@@ -272,7 +249,7 @@ export async function runModelSession(
         `narrow_spanish_narrator_correction:${narrow.paths.join(",")}`,
       ])];
     } else {
-      const correction = localAuditCorrection(req, primary, primaryAudit, primaryFailure);
+      const correction = correctionFromAudit(primary, primaryAudit, primaryFailure, req.lang);
       const generated = await send(escalationModel, correction);
       const prepared = prepareModelOutDetailed(req, generated);
       escalation = prepared.out;
