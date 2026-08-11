@@ -1,9 +1,18 @@
+import { execFileSync } from "node:child_process";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const inputDir = process.env.MATRIX_INPUT_DIR?.trim() || "reports/live-prose";
 const outputJson = process.env.MATRIX_SUMMARY_JSON?.trim() || "reports/live-prose-summary.json";
 const outputMarkdown = process.env.MATRIX_SUMMARY_MD?.trim() || "reports/live-prose-summary.md";
+
+function localHead() {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim() || null;
+  } catch {
+    return null;
+  }
+}
 
 const files = (await readdir(inputDir)).filter(name => name.endsWith(".json")).sort();
 const reports = [];
@@ -27,14 +36,14 @@ for (const report of reports) {
 const commits = [...new Set(reports.map(report => typeof report.commit === "string" ? report.commit.trim() : "").filter(Boolean))];
 const commit = commits.length === 1 ? commits[0] : null;
 const everyReportHasCommit = reports.every(report => typeof report.commit === "string" && report.commit.trim().length > 0);
-const expectedCommit = process.env.GITHUB_SHA?.trim() || null;
+const expectedCommit = process.env.GITHUB_SHA?.trim() || localHead();
 const expectedReports = 16;
 const expectedReadings = 80;
 const expectedTasks = 1040;
 const hardGates = {
   reportCount: reports.length === expectedReports,
   oneTestedCommit: everyReportHasCommit && commits.length === 1,
-  expectedCommit: expectedCommit === null || commit === expectedCommit,
+  expectedCommit: expectedCommit !== null && commit === expectedCommit,
   completeReadings: totals.completeReadings === expectedReadings,
   taskCount: totals.tasks === expectedTasks,
   noFailures: totals.failures === 0,
@@ -78,7 +87,7 @@ const rows = reports.map(report =>
 ).join("\n");
 const gates = Object.entries(hardGates).map(([name, ok]) => `- ${ok ? "PASS" : "FAIL"}: ${name}`).join("\n");
 const commitLine = commit ?? (commits.length ? `MIXED: ${commits.join(", ")}` : "MISSING");
-const markdown = `# Live prose matrix summary\n\nOverall gate: **${passed ? "PASS" : "FAIL"}**\n\n- Tested commit: ${commitLine}\n- Reports: ${reports.length}/${expectedReports}\n- Complete readings: ${totals.completeReadings}/${expectedReadings}\n- Tasks: ${totals.tasks}/${expectedTasks}\n- Primary: ${totals.primary}\n- Escalation: ${totals.escalation}\n- Reconstructed: ${totals.reconstructed}\n- Emergency fallback: ${totals.emergencyFallback}\n- Retry requests: ${totals.retryRequests}\n- Narrow Spanish narrator corrections: ${totals.narrowCorrections}\n\n## Per reader/language\n\n| Reader | Language | Readings | Primary | Escalation | Reconstructed | Emergency fallback | Failures |\n|---|---:|---:|---:|---:|---:|---:|---:|\n${rows}\n\n## Hard gates\n\n${gates}\n\n## Human review\n\nThe JSON artifacts preserve final outputs and raw model attempts for prose review. Automated success does not certify cultural accuracy, reader voice quality or naturalness. Human review remains required before release.\n`;
+const markdown = `# Live prose matrix summary\n\nOverall gate: **${passed ? "PASS" : "FAIL"}**\n\n- Tested commit: ${commitLine}\n- Expected checkout commit: ${expectedCommit ?? "UNAVAILABLE"}\n- Reports: ${reports.length}/${expectedReports}\n- Complete readings: ${totals.completeReadings}/${expectedReadings}\n- Tasks: ${totals.tasks}/${expectedTasks}\n- Primary: ${totals.primary}\n- Escalation: ${totals.escalation}\n- Reconstructed: ${totals.reconstructed}\n- Emergency fallback: ${totals.emergencyFallback}\n- Retry requests: ${totals.retryRequests}\n- Narrow Spanish narrator corrections: ${totals.narrowCorrections}\n\n## Per reader/language\n\n| Reader | Language | Readings | Primary | Escalation | Reconstructed | Emergency fallback | Failures |\n|---|---:|---:|---:|---:|---:|---:|---:|\n${rows}\n\n## Hard gates\n\n${gates}\n\n## Human review\n\nThe JSON artifacts preserve final outputs and raw model attempts for prose review. Automated success does not certify cultural accuracy, reader voice quality or naturalness. Human review remains required before release.\n`;
 await writeFile(outputMarkdown, markdown, "utf8");
 console.log(markdown);
 
