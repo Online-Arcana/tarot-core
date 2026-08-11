@@ -41,10 +41,13 @@ test("querent-operated mapped rituals explicitly tell the model who performs the
   assert.match(amaru, /You reach in without looking and draw one cord by the first end encountered/iu);
 });
 
-test("Spanish querent-operated ritual prompts carry the same physical participation contract", () => {
+test("Spanish querent-operated ritual prompts preserve natural pro-drop", () => {
   const ngaru = modelPrompt(pack, ritual("ngaru", "es-ES"));
   const amaru = modelPrompt(pack, ritual("amaru", "es-ES"));
 
-  assert.match(ngaru, /Tú introduces la mano sin mirar y extraes una concha/iu);
-  assert.match(amaru, /Tú introduces la mano sin mirar y extraes un cordón/iu);
+  assert.match(ngaru, /Introduces la mano sin mirar y extraes una concha/iu);
+  assert.match(amaru, /Introduces la mano sin mirar y extraes un cordón/iu);
+  assert.match(ngaru, /El español puede omitir «tú» cuando la conjugación ya deja claro el sujeto/iu);
+  assert.doesNotMatch(ngaru, /Tú introduces la mano/iu);
+  assert.doesNotMatch(amaru, /Tú introduces la mano/iu);
 });
