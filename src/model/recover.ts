@@ -4,6 +4,7 @@ import type {
   FitOut,
   HandoverOut,
   ReadingOut,
+  RitualOut,
 } from "../contracts/types.js";
 import { attachMedia, mediaFor } from "../readers/media/runtime.js";
 import { futureNameInText, futureResultNames } from "../reading/reveal.js";
@@ -383,6 +384,9 @@ const reconstructCandidate = (
   }
 };
 
+const sameRitual = (left: RitualOut, right: RitualOut): boolean =>
+  left.gesture === right.gesture && left.opening === right.opening && left.ritual === right.ritual;
+
 export function reconstructModelOutDetailed(
   req: ApiReq,
   candidates: readonly (ApiOut | undefined)[],
@@ -390,7 +394,26 @@ export function reconstructModelOutDetailed(
   const candidate = reconstructCandidate(req, candidates);
   const candidateAudit = auditModelOut(req, candidate);
   if (candidateAudit.valid) {
-    return { out: attachMedia(req, candidate), emergencyFallback: false, auditErrors: [] };
+    if (req.task !== "ritual") {
+      return { out: attachMedia(req, candidate), emergencyFallback: false, auditErrors: [] };
+    }
+    const generic = bareFallbackModelOut(req) as RitualOut;
+    if (!sameRitual(candidate as RitualOut, generic)) {
+      return { out: attachMedia(req, candidate), emergencyFallback: false, auditErrors: [] };
+    }
+    const recovered = recoverRitual(req, generic);
+    const recoveredAudit = auditModelOut(req, recovered);
+    if (!recoveredAudit.valid) {
+      throw new Error(`ritual_recovery_invalid: ${recoveredAudit.errors.join(" | ")}`);
+    }
+    if (sameRitual(recovered, generic)) {
+      throw new Error("ritual_recovery_generic_fallback: deterministic recovery did not escape the bare emergency ritual");
+    }
+    return {
+      out: attachMedia(req, recovered),
+      emergencyFallback: false,
+      auditErrors: ["ritual_generic_fallback_recovered"],
+    };
   }
 
   if (req.task === "ritual") {
