@@ -36,17 +36,20 @@ Prompt rules and deterministic validation prohibit an earlier interpretation fro
 
 For mapped readers, model-facing result identity and historical generated context use public mapped entities rather than canonical tarot names. User-authored questions and facts are preserved unchanged.
 
-## 5. Finalise before returning
+## 5. Prepare, audit, then present
 
-Before `ApiOut` leaves core, finalisation:
+Generated prose is prepared before the last deterministic audit. `prepareModelOutDetailed()`:
 
 - performs conservative Spanish narrator audience normalisation on narrator-owned fields only
 - repairs future-result leakage in staged readings
-- attaches public mapped-media presentation data where applicable
 - restores internal canonical handover card state after mapped model prompting
-- runs the ordinary deterministic audit again
+- deliberately strips any mapped `media` or `medium` presentation metadata from the candidate
 
-The operation is idempotent. The existing Online Arcana response handler still applies `addressViewer()` and `repairFutureLeaks()` afterwards for compatibility; regression tests prove that sequence does not alter an already-finalised core result.
+Mapped future-result repair still sees the correct public result names: preparation builds a temporary canonical media view from the draw, repairs the prose, and removes that temporary presentation data again before audit.
+
+The ordinary deterministic audit then validates the exact prose that will be returned. Only after it passes does `attachMedia()` add public mapped-media presentation data. Presentation attachment is append-only and never rewrites generated prose or hides a failed audit.
+
+`finaliseModelOutDetailed()` remains a compatibility helper for direct callers and performs preparation followed by presentation attachment. The operation is idempotent. The existing Online Arcana response handler still applies `addressViewer()` and `repairFutureLeaks()` afterwards for compatibility; regression tests prove that sequence does not alter an already-finalised core result.
 
 ## 6. Build presentation stages
 
@@ -95,6 +98,6 @@ Fallback return prose is selected from persona/canonical fallback data only when
 
 ## Release behaviour
 
-Customer-facing callers enable guaranteed output. Primary and escalation candidates are audited; constrained correction or deterministic reconstruction is used when required. A reconstructed ritual is explicitly kept distinct from the bare emergency fallback that the unchanged Online Arcana handler rejects.
+Customer-facing callers enable guaranteed output. Primary and escalation candidates are prepared and audited before presentation metadata is attached; constrained correction or deterministic reconstruction is used when required. A reconstructed ritual is explicitly kept distinct from the bare emergency fallback that the unchanged Online Arcana handler rejects.
 
 The placeholder remains an application-level emergency protection, but ordinary core generation is designed to return audited prose through primary, escalation or diagnosable reconstruction rather than expose a failed intermediate attempt.
