@@ -24,3 +24,7 @@ export function readerIdentity(id: ReaderId, lang?: LangCode): string {
   const active = lang?.toLowerCase().startsWith("es") ? meta.es : meta.en;
   return `${meta.gender}; ${active}; English ${meta.en}; Spanish ${meta.es}`;
 }
+
+export function spanishReaderPronoun(id: ReaderId): string {
+  return META[id].es;
+}
