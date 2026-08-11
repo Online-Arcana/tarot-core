@@ -13,9 +13,10 @@ canonical deck + spreads + personas + mapped media
         -> request canonicalisation
         -> shared bilingual prompt construction
         -> strict structured model output
+        -> pre-audit prose preparation
         -> deterministic audit / constrained correction
         -> deterministic recovery when required
-        -> core finalisation
+        -> attach public mapped presentation data
         -> unchanged ApiOut
 ```
 
@@ -45,7 +46,7 @@ Default lanes are independently configurable:
 - ritual: `gpt-5-mini` -> `gpt-5.6-luna`
 - read/chat: `gpt-5.6-luna` -> `gpt-5.6-luna`
 
-Every accepted generated candidate passes core finalisation and deterministic audit. Spanish narrator grammar failures caused by a leaked querent name or invalid tuteo pronoun case have a dedicated minimal correction schema that exposes only the affected narrator field or fields. Guaranteed recovery is available for customer-facing callers and remains diagnosable when reconstruction fails.
+Every accepted generated candidate has its prose prepared and deterministically audited before public mapped presentation metadata is attached. Spanish narrator grammar failures caused by a leaked querent name or invalid tuteo pronoun case have a dedicated minimal correction schema that exposes only the affected narrator field or fields. Guaranteed recovery is available for customer-facing callers and remains diagnosable when reconstruction fails.
 
 See [`docs/model.md`](docs/model.md) for the complete orchestration contract.
 
@@ -69,7 +70,7 @@ The paid model-facing release matrix is intentionally local, not a GitHub Action
 npm run test:live
 ```
 
-That command runs all 80 complete reader/language/spread readings locally, aggregates the machine gates and writes `reports/live-prose-review.md` for human review. Generated live reports and raw model attempts are ignored by Git.
+That command runs all 80 complete reader/language/spread readings locally, aggregates commit-bound machine gates and writes `reports/live-prose-review.md` for human review. Generated live reports and raw model attempts are ignored by Git.
 
 See [`docs/testing.md`](docs/testing.md) for the full release gates and single-cell debugging commands.
 
