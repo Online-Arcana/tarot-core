@@ -21,6 +21,9 @@ function taskBlock(title, task) {
   if (task.failed) return `\n### ${title}\n\n**FAILED:** ${clean(task.error)}\n`;
   const out = task.out ?? {};
   let body = `\n### ${title}\n\nSource: \`${task.source}\`; final audit: ${task.finalAudit?.valid ? "PASS" : "FAIL"}; network calls: ${task.networkCalls}; parse/shape retries: ${task.retryRequests}.\n`;
+  if (Array.isArray(task.auditErrors) && task.auditErrors.length > 0) {
+    body += field("Orchestration diagnostics", task.auditErrors.map(value => `- ${value}`).join("\n"));
+  }
   if (title.startsWith("Ritual ")) return body + field("Gesture", out.gesture) + field("Opening", out.opening) + field("Ritual", out.ritual);
   switch (task.task) {
     case "invite": return body + field("Invite", out.text);
@@ -47,7 +50,7 @@ function taskBlock(title, task) {
 let markdown = "# Live prose human-review pack\n\nThis file contains the accepted final prose from the paid 80-reading matrix. Review naturalness, reader voice, narrator/reader ownership, Spanish grammar, mapped-medium language and cultural appropriateness. Automated audit success is not cultural approval.\n";
 
 for (const report of reports) {
-  markdown += `\n# ${report.reader} · ${report.lang}\n`;
+  markdown += `\n# ${report.reader} · ${report.lang}\n\nTested commit: \`${clean(report.commit ?? "MISSING")}\`\n`;
   for (const spread of report.spreads) {
     markdown += `\n## ${spread.spread}\n`;
     markdown += taskBlock("Invite", spread.tasks.invite);
