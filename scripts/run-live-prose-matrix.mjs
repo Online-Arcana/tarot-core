@@ -29,7 +29,7 @@ function run(command, args, env = process.env) {
 
 const matrixEnv = {
   ...process.env,
-  GITHUB_SHA: commit,
+  MATRIX_COMMIT: commit,
 };
 
 let next = 0;
