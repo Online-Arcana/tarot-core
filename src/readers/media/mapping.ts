@@ -31,8 +31,6 @@ interface PresentationDef {
 
 interface MappingPack {
   readonly reader: MappedReader;
-  /** Private archival context retained for source review. Never exposed through ApiOut. */
-  readonly archiveCulture: LocalText;
   readonly presentation: PresentationDef;
   readonly elements: ReadonlyMap<string, ElementDef>;
   readonly cards: ReadonlyMap<string, MappingEntry>;
@@ -128,6 +126,10 @@ function parsePack(expected: MappedReader, value: unknown): MappingPack {
   const status = obj(source.status, `${path}.status`);
   if (status.culturalSpecialistReviewRequired !== true) throw new Error(`${path} must preserve cultural specialist review requirement`);
 
+  // Archive culture/provenance remains in the JSON for review, but is deliberately
+  // validated and discarded here so runtime presentation cannot read it.
+  local(source.culture, `${path}.culture`);
+
   const presentationRaw = obj(source.presentation, `${path}.presentation`);
   const states = obj(presentationRaw.states, `${path}.presentation.states`);
   const families = obj(presentationRaw.families, `${path}.presentation.families`);
@@ -152,7 +154,6 @@ function parsePack(expected: MappedReader, value: unknown): MappingPack {
 
   return {
     reader: expected,
-    archiveCulture: local(source.culture, `${path}.culture`),
     presentation,
     elements,
     cards,
