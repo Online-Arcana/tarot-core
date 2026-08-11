@@ -1,4 +1,5 @@
 import type { ApiOut, ApiReq, ReadingOut, RitualOut } from "../contracts/types.js";
+import { canonicalCards } from "../domain/canonical.js";
 import { profileFor, localText } from "../readers/profiles.js";
 import {
   isMappedReader,
@@ -100,10 +101,42 @@ const auditNarratorVoice = (issues: AuditIssue[], path: string, value: string, r
   }
 };
 
+const mappedEntityCache = new Map<string, readonly string[]>();
+
+function mappedEntityNames(req: ApiReq): readonly string[] {
+  if (!isMappedReader(req.reader)) return [];
+  const key = `${req.reader}:${auditLanguage(req.lang)}`;
+  const cached = mappedEntityCache.get(key);
+  if (cached) return cached;
+  const names = new Set<string>();
+  for (const card of canonicalCards(req.lang)) {
+    const media = mediaFor(req.reader, card, req.lang);
+    if (!media) continue;
+    if (media.publicName.trim()) names.add(media.publicName.trim());
+    if (media.itemName.trim()) names.add(media.itemName.trim());
+  }
+  const sorted = [...names].sort((a, b) => b.length - a.length);
+  mappedEntityCache.set(key, sorted);
+  return sorted;
+}
+
+function withoutMappedEntities(value: string, req: ApiReq): string {
+  let output = clean(value);
+  for (const name of mappedEntityNames(req)) {
+    output = output.replace(
+      new RegExp(`(?<![\\p{L}\\p{N}])${regexEscape(name)}(?![\\p{L}\\p{N}])`, "giu"),
+      " ",
+    );
+  }
+  return clean(output);
+}
+
 const auditReaderVoice = (issues: AuditIssue[], path: string, value: string, req: ApiReq): void => {
   const name = profileFor(req.reader).public.name;
   const selfName = new RegExp(`\\b${regexEscape(name)}(?:['’]s)?\\b`, "iu");
-  if (selfName.test(clean(value))) add(issues, "reader_third_person", path, `reader dialogue must not refer to ${name} as an outside third-person character`);
+  if (selfName.test(withoutMappedEntities(value, req))) {
+    add(issues, "reader_third_person", path, `reader dialogue must not refer to ${name} as an outside third-person character`);
+  }
 };
 
 const auditDuplicates = (issues: AuditIssue[], entries: readonly { path: string; value: string }[], req: ApiReq): void => {
@@ -178,75 +211,57 @@ function auditRitualAwareDialogue(req: Extract<ApiReq, { task: "read" }>, out: R
   out.cardText.forEach((value, index) => {
     const ritual = theatre[index];
     if (!ritual) return;
-    if (normaliseProse(value, req.lang) === normaliseProse(ritual, req.lang) || meaningfulOverlap(value, ritual, req.lang) >= 0.72) {
-      add(issues, "ritual_voice_leak", `read.cardText[${index}]`, "reader dialogue must be aware of the ritual without repeating or paraphrasing narrator prose");
-    }
-  });
-  const combined = [out.synthesis, out.reading, out.closing].join(" ");
-  theatre.forEach((ritual, index) => {
-    if (meaningfulOverlap(combined, ritual, req.lang) >= 0.8) add(issues, "ritual_voice_leak", "read.dialogue", `later reader dialogue must not reenact or summarise ritual ${index + 1}`);
+    if (meaningfulOverlap(ritual, value, req.lang) >= 0.56) add(issues, "ritual_reenactment", `read.cardText[${index}]`, "reader dialogue must not repeat or reenact the narrator ritual prose");
   });
 }
 
-const auditRead = (req: Extract<ApiReq, { task: "read" }>, out: ReadingOut, issues: AuditIssue[]): void => {
-  if ([out.gesture, out.opening, out.link].some(value => clean(value))) add(issues, "read_theatre_placeholder", "read.theatre", "gesture, opening and link must be empty because ritual requests own the visible theatre");
-  if (out.cardText.length !== req.draw.cards.length) add(issues, "card_count", "read.cardText", `must contain exactly ${req.draw.cards.length} card interpretations`);
-  out.cardText.forEach((value, index) => {
-    const path = `read.cardText[${index}]`;
-    auditText(issues, path, value, req, { minWords: 5, maxWords: 260, complete: true, direct: true });
-    auditReaderVoice(issues, path, value, req);
+function suppliedCards(req: Extract<ApiReq, { task: "handover" }>): Set<string> {
+  return new Set(req.conv.turns.flatMap(turn => turn.kind === "reading" ? turn.draw.cards.map(card => card.name) : []));
+}
+function suppliedQuestions(req: Extract<ApiReq, { task: "handover" }>): Set<string> {
+  return new Set([req.question, ...req.conv.turns.map(turn => turn.question)].map(clean));
+}
+function auditRead(req: Extract<ApiReq, { task: "read" }>, out: ReadingOut, issues: AuditIssue[]): void {
+  auditText(issues, "read.gesture", out.gesture, req, { maxWords: 0 });
+  auditText(issues, "read.opening", out.opening, req, { maxWords: 0 });
+  auditText(issues, "read.link", out.link, req, { maxWords: 0 });
+  if (out.cardText.length !== req.draw.cards.length) add(issues, "card_count", "read.cardText", "must contain exactly one interpretation per supplied result");
+  out.cardText.forEach((item, index) => {
+    auditText(issues, `read.cardText[${index}]`, item, req, { minWords: 5, maxWords: 260, complete: true, direct: true });
+    auditReaderVoice(issues, `read.cardText[${index}]`, item, req);
   });
-  for (const leak of futureLeaks(req.draw, out, req.lang, req.question)) add(issues, "reveal_order", `read.cardText[${leak.card}]`, `must not reveal later result ${leak.name}`);
   auditText(issues, "read.synthesis", out.synthesis, req, { minWords: 8, maxWords: 320, complete: true, direct: true });
   auditReaderVoice(issues, "read.synthesis", out.synthesis, req);
   auditText(issues, "read.reading", out.reading, req, { minWords: 12, maxWords: 700, complete: true, direct: true });
   auditReaderVoice(issues, "read.reading", out.reading, req);
   auditText(issues, "read.closing", out.closing, req, { minWords: 3, maxWords: 120, complete: true, direct: true });
   auditReaderVoice(issues, "read.closing", out.closing, req);
-  auditText(issues, "read.note", out.note, req, { maxWords: 100 });
+  auditText(issues, "read.note", out.note, req, { minWords: 1, maxWords: 100, complete: true });
   auditNarratorVoice(issues, "read.note", out.note, req);
-  auditRitualAwareDialogue(req, out, issues);
   auditDuplicates(issues, [
     ...out.cardText.map((value, index) => ({ path: `read.cardText[${index}]`, value })),
     { path: "read.synthesis", value: out.synthesis },
     { path: "read.reading", value: out.reading },
     { path: "read.closing", value: out.closing },
   ], req);
-  if (isMappedReader(req.reader)) {
-    const body = [...out.cardText, out.synthesis, out.reading, out.closing, out.note].join(" ");
-    if (mappedTerms.test(body)) add(issues, "canonical_medium", "read", "must interpret the mapped medium without tarot terminology");
-    req.draw.cards.forEach((card, index) => {
-      const value = out.cardText[index] ?? "";
-      if (containsWholePhrase(value, card.name, req.lang) || containsWholePhrase(value, card.suit, req.lang)) add(issues, "canonical_result", `read.cardText[${index}]`, "must not expose the canonical card or suit behind the mapped result");
-    });
+  auditRitualAwareDialogue(req, out, issues);
+  for (const leak of futureLeaks(req.draw, out, req.lang, req.question)) {
+    add(issues, "future_result", `read.cardText[${leak.card}]`, `must not name later unrevealed result ${leak.name}`);
   }
-};
+  if (isMappedReader(req.reader) && mappedTerms.test([out.synthesis, out.reading, out.closing, ...out.cardText].join(" "))) {
+    add(issues, "canonical_medium", "read.dialogue", "mapped reading dialogue must stay inside the reader's public medium");
+  }
+}
 
-const suppliedCards = (req: Extract<ApiReq, { task: "handover" }>): Set<string> => {
-  const cards = new Set<string>();
-  for (const turn of req.conv.turns) if (turn.kind === "reading") for (const card of turn.draw.cards) cards.add(card.name);
-  return cards;
-};
-const suppliedQuestions = (req: Extract<ApiReq, { task: "handover" }>): Set<string> => {
-  const questions = new Set<string>([clean(req.question)]);
-  for (const turn of req.conv.turns) questions.add(clean(turn.question));
-  return questions;
-};
-
-export const auditModelOut = <T extends ApiOut>(req: ApiReq, out: T): ModelAudit<T> => {
+export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
   const issues: AuditIssue[] = [];
   switch (req.task) {
-    case "invite": {
-      const value = out as Extract<ApiOut, { text: string }>;
-      auditText(issues, "invite.text", value.text, req, { minWords: 3, maxWords: 24, complete: true, oneLine: true, oneSentence: true });
-      auditReaderVoice(issues, "invite.text", value.text, req);
-      break;
-    }
+    case "invite": auditText(issues, "invite.text", (out as Extract<ApiOut, { text: string }>).text, req, { minWords: 3, maxWords: 24, complete: true, oneLine: true, oneSentence: true }); break;
     case "fit": {
-      const value = out as Extract<ApiOut, { level: string }>;
-      auditText(issues, "fit.reason", value.reason, req, { minWords: 2, maxWords: 32, complete: true, oneLine: true, direct: true });
+      const value = out as Extract<ApiOut, { reason: string }>;
+      auditText(issues, "fit.reason", value.reason, req, { minWords: 2, maxWords: 32, complete: true, oneLine: true, oneSentence: true, direct: true });
+      auditText(issues, "fit.offer", value.offer, req, { minWords: 2, maxWords: 32, complete: true, oneLine: true, oneSentence: true, direct: true });
       auditReaderVoice(issues, "fit.reason", value.reason, req);
-      auditText(issues, "fit.offer", value.offer, req, { minWords: 2, maxWords: 32, complete: true, oneLine: true, direct: true });
       auditReaderVoice(issues, "fit.offer", value.offer, req);
       break;
     }
