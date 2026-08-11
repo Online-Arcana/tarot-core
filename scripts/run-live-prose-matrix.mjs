@@ -27,9 +27,10 @@ function run(command, args, env = process.env) {
   });
 }
 
+// Internal compatibility carrier only: the value is the local checkout's git HEAD.
 const matrixEnv = {
   ...process.env,
-  MATRIX_COMMIT: commit,
+  GITHUB_SHA: commit,
 };
 
 let next = 0;
