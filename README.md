@@ -63,11 +63,19 @@ npm run ci
 
 The active tests include canonical-data checks, request canonicalisation, bilingual prompt and voice checks, mapped-medium validation, sequential ritual recovery and an exhaustive deterministic release matrix across all eight readers, both languages and all five spreads.
 
-See [`docs/testing.md`](docs/testing.md) for release gates.
+The paid model-facing release matrix is intentionally local, not a GitHub Actions job. With `OPENAI_API_KEY` set in your shell:
+
+```bash
+npm run test:live
+```
+
+That command runs all 80 complete reader/language/spread readings locally, aggregates the machine gates and writes `reports/live-prose-review.md` for human review. Generated live reports and raw model attempts are ignored by Git.
+
+See [`docs/testing.md`](docs/testing.md) for the full release gates and single-cell debugging commands.
 
 ## Release status
 
-Automated deterministic validation is an engineering gate, not a claim of cultural or prose approval. Canonical card prose, reader personas and mapped cultural systems retain explicit human review requirements. The paid live-model matrix and human review must be completed before the audited core replaces the application pin.
+Automated deterministic validation is an engineering gate, not a claim of cultural or prose approval. Canonical card prose, reader personas and mapped cultural systems retain explicit human review requirements. The paid local live-model matrix and human review must be completed before the audited core replaces the application pin.
 
 ## Documentation
 
