@@ -1,6 +1,7 @@
-import { auditModelOut } from "../dist/model/audit.js";
+import { auditModelOut as baseAuditModelOut } from "../dist/model/audit.js";
 import { fallbackModelOut } from "../dist/model/recover.js";
 import { runModelSession } from "../dist/model/run.js";
+import { auditSpanishNarrator } from "../dist/model/spanish-narrator.js";
 import { profiles } from "../dist/readers/profiles.js";
 import { spanishReaderPronoun } from "../dist/readers/meta.js";
 
@@ -122,21 +123,23 @@ async function runOne(reader, cardIndex = 0, priorRituals = [], drawCards = card
   const result = await runModelSession(pack, req, cfg());
   const text = prose(result.out);
   const emergency = fallbackModelOut(req);
-  const audit = auditModelOut(req, result.out);
+  const baseAudit = baseAuditModelOut(req, result.out);
+  const audit = auditSpanishNarrator(req, result.out, baseAudit);
   const identity = identityStats(reader, text);
 
   const failures = [];
   const warnings = [];
+  const emergencyFallback = JSON.stringify(result.out) === JSON.stringify(emergency);
 
   if (result.source === "reconstructed") failures.push("RECONSTRUCTED");
-  if (JSON.stringify(result.out) === JSON.stringify(emergency)) failures.push("EMERGENCY_FALLBACK");
+  if (emergencyFallback) failures.push("EMERGENCY_FALLBACK");
   if (genericReader.test(text)) failures.push("GENERIC_READER_LABEL");
   if (new RegExp(`\\b${escapeRegExp(querent)}\\b`, "iu").test(text)) failures.push("QUERENT_NAME_LEAK");
   if (identity.nameCount + identity.pronounCount === 0) failures.push("READER_IDENTITY_NOT_ESTABLISHED");
   if (!audit.valid) warnings.push(`POST_SMOKE_AUDIT: ${audit.errors.join(" | ")}`);
   if (identity.nameCount + identity.pronounCount > 3) warnings.push(`READER_IDENTITY_REPEATED_${identity.nameCount + identity.pronounCount}_TIMES`);
 
-  return { req, result, text, identity, failures, warnings };
+  return { req, result, text, identity, failures, warnings, emergencyFallback };
 }
 
 console.log("=== LIVE SPANISH NARRATOR STRING SMOKE ===");
@@ -144,6 +147,7 @@ console.log("This makes real model calls. Reconstructed/emergency fallback/gener
 
 let failed = 0;
 let warnings = 0;
+let placeholderRisk = 0;
 
 console.log("=== FIRST RITUAL: EVERY READER ===");
 for (const profile of profiles()) {
@@ -151,6 +155,7 @@ for (const profile of profiles()) {
     const run = await runOne(profile.id, 0, [], [cards[0]]);
     const status = run.failures.length ? "FAIL" : "PASS";
     if (run.failures.length) failed += 1;
+    if (run.emergencyFallback) placeholderRisk += 1;
     warnings += run.warnings.length;
     console.log(`\n[${status}] ${profile.public.name} (${spanishReaderPronoun(profile.id)}) source=${run.result.source} identity=${run.identity.nameCount} name/${run.identity.pronounCount} pronoun`);
     console.log(run.text);
@@ -158,6 +163,7 @@ for (const profile of profiles()) {
     if (run.warnings.length) console.log(`WARNINGS: ${run.warnings.join(" || ")}`);
   } catch (error) {
     failed += 1;
+    placeholderRisk += 1;
     console.log(`\n[ERROR] ${profile.public.name}: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
@@ -172,6 +178,7 @@ for (let index = 0; index < cards.length; index += 1) {
     if (seen.has(canonical)) run.failures.push("DUPLICATE_RITUAL");
     seen.add(canonical);
     if (run.failures.length) failed += 1;
+    if (run.emergencyFallback) placeholderRisk += 1;
     warnings += run.warnings.length;
     console.log(`\n[${run.failures.length ? "FAIL" : "PASS"}] Selena ritual ${index + 1}/3 source=${run.result.source} identity=${run.identity.nameCount} name/${run.identity.pronounCount} pronoun`);
     console.log(run.text);
@@ -180,13 +187,14 @@ for (let index = 0; index < cards.length; index += 1) {
     prior.push(run.text);
   } catch (error) {
     failed += 1;
+    placeholderRisk += 1;
     console.log(`\n[ERROR] Selena ritual ${index + 1}/3: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 console.log("\n=== SUMMARY ===");
-console.log(`Hard failures: ${failed}`);
-console.log(`Warnings     : ${warnings}`);
-console.log(`Placeholder-risk events: ${failed}`);
+console.log(`Hard failures          : ${failed}`);
+console.log(`Warnings               : ${warnings}`);
+console.log(`Placeholder-risk events: ${placeholderRisk}`);
 
 if (failed > 0) process.exitCode = 1;
