@@ -274,7 +274,7 @@ test("ritual prompts and payloads cannot receive archival provenance", () => {
   }
 });
 
-test("reading outputs carry v3 media without archival fields", () => {
+test("reading presentation attaches v3 media without rewriting generated prose", () => {
   const req = {
     ...base("read"),
     question: "What now?",
@@ -298,9 +298,12 @@ test("reading outputs carry v3 media without archival fields", () => {
   assert.equal(attached.media[0].family, null);
   assert.equal(attached.media[0].stateLabel, "front");
   assert.equal(attached.media[0].publicCategory, "Wakas");
-  assert.doesNotMatch(attached.cardText[0], /The Fool/u);
-  assert.doesNotMatch(attached.synthesis, /The Fool/u);
-  assertNoArchiveMetadata(attached);
+  assert.equal(attached.cardText[0], out.cardText[0]);
+  assert.equal(attached.synthesis, out.synthesis);
+  assert.equal(attached.reading, out.reading);
+  assert.equal(attached.closing, out.closing);
+  assert.equal(attached.note, out.note);
+  assertNoArchiveMetadata(attached.media);
 });
 
 test("ritual requests remain backward compatible with and without drawn context", () => {
