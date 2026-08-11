@@ -3,6 +3,7 @@ import {
   type Dict,
   type Fetch,
 } from "../vendor/openai-schema/src/openaiSchema.js";
+import { canonicaliseApiReq } from "../domain/request.js";
 import { attachMedia } from "../readers/media/runtime.js";
 import {
   auditModelOut,
@@ -17,7 +18,11 @@ import {
   spanishNarratorCorrection,
 } from "./narrow-correction.js";
 import { reconstructModelOutDetailed } from "./recover.js";
-import { genericCorrection, modelPrompt, type PromptPackLike } from "./prompt.js";
+import {
+  genericCorrection,
+  modelPrompt as buildModelPrompt,
+  type PromptPackLike,
+} from "./prompt.js";
 import { outputShape } from "./schema.js";
 import type { ApiOut, ApiReq, Task } from "../contracts/types.js";
 
@@ -87,11 +92,21 @@ export class ModelOutputError extends Error {
   }
 }
 
-export const validModelOut = (req: ApiReq, out: ApiOut): boolean =>
-  auditModelOut(req, prepareModelOutDetailed(req, out).out).valid;
+export const validModelOut = (req: ApiReq, out: ApiOut): boolean => {
+  const canonicalReq = canonicaliseApiReq(req);
+  return auditModelOut(canonicalReq, prepareModelOutDetailed(canonicalReq, out).out).valid;
+};
 
 export function correctionFor(req: ApiReq): string {
   return genericCorrection(req);
+}
+
+/**
+ * Public prompt helper. Direct callers receive the same canonical request boundary as
+ * runModelSession(), so stale compatibility prose can never become model semantics.
+ */
+export function modelPrompt(pack: ModelPack, req: ApiReq, correction = ""): string {
+  return buildModelPrompt(pack, canonicaliseApiReq(req), correction);
 }
 
 const longTask = (task: Task): boolean => task === "read" || task === "chat";
@@ -196,6 +211,7 @@ export async function runModelSession(
   req: ApiReq,
   cfg: ModelCfg,
 ): Promise<ModelResult> {
+  req = canonicaliseApiReq(req);
   const ai = new OpenAISchema<ApiOut>(
     cfg.apiKey,
     outputShape(req),
@@ -207,7 +223,7 @@ export async function runModelSession(
   );
   const [primaryModel, escalationModel] = modelRoute(req, cfg);
   const send = (model: string, correction = "") => ai.send(
-    [{ role: "system", content: modelPrompt(pack, req, correction) }],
+    [{ role: "system", content: buildModelPrompt(pack, req, correction) }],
     sendOpts(cfg, model),
   );
 
@@ -299,5 +315,4 @@ export async function runModel(pack: ModelPack, req: ApiReq, cfg: ModelCfg): Pro
   return (await runModelSession(pack, req, cfg)).out;
 }
 
-export { modelPrompt } from "./prompt.js";
 export { outputShape } from "./schema.js";
