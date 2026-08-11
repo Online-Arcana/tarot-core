@@ -60,3 +60,40 @@ test("grammar-only Spanish Luna correction receives and returns only the broken 
   assert.doesNotMatch(prompt, new RegExp(primary.response.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"));
   assert.doesNotMatch(JSON.stringify(second), /Te propongo una respuesta completamente distinta/iu);
 });
+
+test("Spanish pronoun-case failure uses the same narrator-only correction lane", async () => {
+  const badGesture = "Selena mantiene una mano junto a la lectura mientras la luz recorre despacio la mesa. El silencio queda abierto para tú mientras observas el patrón ya visible, y la habitación conserva una quietud estable alrededor de la pregunta sin alterar nada de lo que tienes delante.";
+  const fixedGesture = "Selena mantiene una mano junto a la lectura mientras la luz recorre despacio la mesa. El silencio queda abierto para ti mientras observas el patrón ya visible, y la habitación conserva una quietud estable alrededor de la pregunta sin alterar nada de lo que tienes delante.";
+  const candidate = { gesture: badGesture, response: primary.response };
+  const calls = [];
+  const fetch = async (_url, init) => {
+    const body = JSON.parse(init.body);
+    calls.push(body);
+    return response(calls.length === 1 ? candidate : { gesture: fixedGesture });
+  };
+
+  const initialAudit = auditModelOut(req, candidate);
+  assert.equal(initialAudit.valid, false);
+  assert.deepEqual(initialAudit.issues.map(issue => issue.code), ["spanish_pronoun_case"]);
+
+  const result = await runModelSession(pack, req, {
+    apiKey: "test",
+    conversation: false,
+    guaranteeOutput: true,
+    fetch,
+    body: {},
+  });
+
+  assert.equal(calls.length, 2);
+  assert.equal(result.source, "escalation");
+  assert.equal(result.out.response, candidate.response, "pronoun correction must not regenerate reader dialogue");
+  assert.equal(result.out.gesture, fixedGesture);
+  assert.equal(auditModelOut(req, result.out).valid, true);
+  assert.ok(result.auditErrors.some(value => value.includes("narrow_spanish_narrator_correction:chat.gesture")));
+
+  const second = calls[1];
+  assert.deepEqual(Object.keys(second.text.format.schema.properties), ["gesture"]);
+  assert.equal("response" in second.text.format.schema.properties, false);
+  assert.match(second.input[0].content, /para tú/iu);
+  assert.doesNotMatch(second.input[0].content, new RegExp(candidate.response.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"));
+});
