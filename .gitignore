@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .test-build/
+src/readers/personas.generated.json
 .dev.vars
 .dev.vars.*
 .env
