@@ -1,0 +1,48 @@
+name: patch-generic-ritual-recovery
+
+on:
+  push:
+    branches:
+      - agent/core-prose-audit-staging
+    paths:
+      - .github/workflows/patch-generic-ritual-recovery.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/core-prose-audit-staging
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Force distinct ritual recovery when reconstruction equals generic fallback
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'src/model/recover.ts';
+          let source = fs.readFileSync(path, 'utf8');
+          source = source.replace(
+            '  HandoverOut,\n  ReadingOut,\n} from "../contracts/types.js";',
+            '  HandoverOut,\n  ReadingOut,\n  RitualOut,\n} from "../contracts/types.js";',
+          );
+          const marker = `export function reconstructModelOutDetailed(\n  req: ApiReq,\n  candidates: readonly (ApiOut | undefined)[],\n): ReconstructionResult {\n  const candidate = reconstructCandidate(req, candidates);\n  const candidateAudit = auditModelOut(req, candidate);\n  if (candidateAudit.valid) {\n    return { out: attachMedia(req, candidate), emergencyFallback: false, auditErrors: [] };\n  }\n\n  if (req.task === "ritual") {`;
+          const replacement = `const sameRitual = (left: RitualOut, right: RitualOut): boolean =>\n  left.gesture === right.gesture && left.opening === right.opening && left.ritual === right.ritual;\n\nexport function reconstructModelOutDetailed(\n  req: ApiReq,\n  candidates: readonly (ApiOut | undefined)[],\n): ReconstructionResult {\n  const candidate = reconstructCandidate(req, candidates);\n  const candidateAudit = auditModelOut(req, candidate);\n  if (candidateAudit.valid) {\n    if (req.task !== "ritual") {\n      return { out: attachMedia(req, candidate), emergencyFallback: false, auditErrors: [] };\n    }\n    const generic = bareFallbackModelOut(req) as RitualOut;\n    if (!sameRitual(candidate as RitualOut, generic)) {\n      return { out: attachMedia(req, candidate), emergencyFallback: false, auditErrors: [] };\n    }\n    const recovered = recoverRitual(req, generic);\n    const recoveredAudit = auditModelOut(req, recovered);\n    if (!recoveredAudit.valid) {\n      throw new Error(\`ritual_recovery_invalid: \${recoveredAudit.errors.join(" | ")}\`);\n    }\n    if (sameRitual(recovered, generic)) {\n      throw new Error("ritual_recovery_generic_fallback: deterministic recovery did not escape the bare emergency ritual");\n    }\n    return {\n      out: attachMedia(req, recovered),\n      emergencyFallback: false,\n      auditErrors: ["ritual_generic_fallback_recovered"],\n    };\n  }\n\n  if (req.task === "ritual") {`;
+          if (!source.includes(marker)) throw new Error('reconstruction marker not found');
+          source = source.replace(marker, replacement);
+          fs.writeFileSync(path, source);
+          NODE
+          npm ci
+          npm run ci
+          git diff --check
+      - name: Commit patch
+        run: |
+          git config user.name kitty
+          git config user.email 141717449+kitty-crow@users.noreply.github.com
+          git add src/model/recover.ts
+          git commit -m "Keep reconstructed rituals distinct from generic fallback"
+          git push origin HEAD:agent/core-prose-audit-staging
