@@ -3,8 +3,8 @@ import {
   type Dict,
   type Fetch,
 } from "../vendor/openai-schema/src/openaiSchema.js";
-import { attachMedia } from "../readers/media/runtime.js";
 import { auditModelOut, type ModelAudit } from "./audit.js";
+import { finaliseModelOutDetailed } from "./finalise.js";
 import { reconstructModelOutDetailed } from "./recover.js";
 import { genericCorrection, modelPrompt, type PromptPackLike } from "./prompt.js";
 import { outputShape } from "./schema.js";
@@ -76,7 +76,8 @@ export class ModelOutputError extends Error {
   }
 }
 
-export const validModelOut = (req: ApiReq, out: ApiOut): boolean => auditModelOut(req, out).valid;
+export const validModelOut = (req: ApiReq, out: ApiOut): boolean =>
+  auditModelOut(req, finaliseModelOutDetailed(req, out).out).valid;
 
 export function correctionFor(req: ApiReq): string {
   return genericCorrection(req);
@@ -178,18 +179,18 @@ function localAuditCorrection(
 }
 
 const accepted = (
-  req: ApiReq,
   audit: ModelAudit,
+  diagnostics: readonly string[],
   source: ModelResult["source"],
   primaryModel: string,
   escalationModel: string,
   sessionKey: string | undefined,
 ): ModelResult => ({
-  out: attachMedia(req, audit.value),
+  out: audit.value,
   source,
   primaryModel,
   escalationModel,
-  auditErrors: audit.errors,
+  auditErrors: [...new Set([...audit.errors, ...diagnostics])],
   ...(sessionKey === undefined ? {} : { sessionKey }),
 });
 
@@ -228,28 +229,36 @@ export async function runModelSession(
   let primary: ApiOut | undefined;
   let primaryAudit: ModelAudit | undefined;
   let primaryFailure: string | undefined;
+  let primaryDiagnostics: readonly string[] = [];
   try {
-    primary = await send(primaryModel);
+    const generated = await send(primaryModel);
+    const finalised = finaliseModelOutDetailed(req, generated);
+    primary = finalised.out;
+    primaryDiagnostics = finalised.diagnostics;
     primaryAudit = auditModelOut(req, primary);
   } catch (cause: unknown) {
     primaryFailure = message(cause);
   }
   if (primaryAudit?.valid === true) {
-    return accepted(req, primaryAudit, "primary", primaryModel, escalationModel, ai.id);
+    return accepted(primaryAudit, primaryDiagnostics, "primary", primaryModel, escalationModel, ai.id);
   }
 
   let escalation: ApiOut | undefined;
   let escalationAudit: ModelAudit | undefined;
   let escalationFailure: string | undefined;
+  let escalationDiagnostics: readonly string[] = [];
   const correction = localAuditCorrection(req, primary, primaryAudit, primaryFailure);
   try {
-    escalation = await send(escalationModel, correction);
+    const generated = await send(escalationModel, correction);
+    const finalised = finaliseModelOutDetailed(req, generated);
+    escalation = finalised.out;
+    escalationDiagnostics = finalised.diagnostics;
     escalationAudit = auditModelOut(req, escalation);
   } catch (cause: unknown) {
     escalationFailure = message(cause);
   }
   if (escalationAudit?.valid === true) {
-    return accepted(req, escalationAudit, "escalation", primaryModel, escalationModel, ai.id);
+    return accepted(escalationAudit, escalationDiagnostics, "escalation", primaryModel, escalationModel, ai.id);
   }
 
   const errors = failures(primaryAudit, primaryFailure, escalationAudit, escalationFailure);
@@ -259,16 +268,23 @@ export async function runModelSession(
 
   try {
     const reconstructed = reconstructModelOutDetailed(req, [primary, escalation]);
-    const finalAudit = auditModelOut(req, reconstructed.out);
+    const finalised = finaliseModelOutDetailed(req, reconstructed.out);
+    const finalAudit = auditModelOut(req, finalised.out);
     if (!finalAudit.valid) {
       throw new Error(`reconstructed_output_invalid: ${finalAudit.errors.join(" | ")}`);
     }
     return {
-      out: reconstructed.out,
+      out: finalised.out,
       source: "reconstructed",
       primaryModel,
       escalationModel,
-      auditErrors: [...new Set([...errors, ...reconstructed.auditErrors])],
+      auditErrors: [...new Set([
+        ...errors,
+        ...primaryDiagnostics,
+        ...escalationDiagnostics,
+        ...reconstructed.auditErrors,
+        ...finalised.diagnostics,
+      ])],
       ...(ai.id === undefined ? {} : { sessionKey: ai.id }),
     };
   } catch (cause: unknown) {
