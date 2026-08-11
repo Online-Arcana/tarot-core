@@ -17,22 +17,19 @@ const primary = {
   gesture: "Selena piensa en Javier mientras mantiene una mano junto a la lectura y deja que la habitación se aquiete. La luz de la vela recorre lentamente la mesa, y su atención permanece en el patrón ya visible sin alterar nada de lo que tienes delante.",
   response: "Puedes volver a la tensión que ya reconoces y decidir qué parte merece una acción concreta antes de buscar más certeza.",
 };
-const corrected = {
-  gesture: "Selena piensa en lo que has preguntado mientras mantiene una mano junto a la lectura y deja que la habitación se aquiete. La luz de la vela recorre lentamente la mesa, y su atención permanece en el patrón ya visible ante ti sin alterar nada de lo que tienes delante.",
-  response: "Te propongo una respuesta completamente distinta que el corrector no debe poder conservar ni introducir en el resultado final.",
-};
+const correctedGesture = "Selena piensa en lo que has preguntado mientras mantiene una mano junto a la lectura y deja que la habitación se aquiete. La luz de la vela recorre lentamente la mesa, y su atención permanece en el patrón ya visible ante ti sin alterar nada de lo que tienes delante.";
 
 const response = value => new Response(JSON.stringify({ output_text: JSON.stringify(value) }), {
   status: 200,
   headers: { "content-type": "application/json" },
 });
 
-test("grammar-only Spanish Luna correction cannot rewrite unrelated fields", async () => {
+test("grammar-only Spanish Luna correction receives and returns only the broken narrator field", async () => {
   const calls = [];
   const fetch = async (_url, init) => {
     const body = JSON.parse(init.body);
     calls.push(body);
-    return response(calls.length === 1 ? primary : corrected);
+    return response(calls.length === 1 ? primary : { gesture: correctedGesture });
   };
 
   const result = await runModelSession(pack, req, {
@@ -46,9 +43,20 @@ test("grammar-only Spanish Luna correction cannot rewrite unrelated fields", asy
   assert.equal(calls.length, 2);
   assert.equal(result.source, "escalation");
   assert.equal(result.out.response, primary.response, "unrelated reader dialogue must remain byte-for-byte from primary");
-  assert.equal(result.out.gesture, corrected.gesture);
+  assert.equal(result.out.gesture, correctedGesture);
   assert.equal(auditModelOut(req, result.out).valid, true);
   assert.ok(result.auditErrors.some(value => value.includes("narrow_spanish_narrator_correction:chat.gesture")));
-  assert.match(calls[1].input[0].content, /Corrige únicamente estos campos: chat\.gesture/iu);
-  assert.match(calls[1].input[0].content, /cualquier cambio propuesto en otros campos será descartado/iu);
+
+  const second = calls[1];
+  assert.equal(second.text.format.name, "arcana_spanish_narrator_patch");
+  assert.deepEqual(Object.keys(second.text.format.schema.properties), ["gesture"]);
+  assert.deepEqual(second.text.format.schema.required, ["gesture"]);
+  assert.equal(second.text.format.schema.additionalProperties, false);
+  assert.equal("response" in second.text.format.schema.properties, false);
+
+  const prompt = second.input[0].content;
+  assert.match(prompt, /Devuelve exactamente estas claves y ninguna otra: gesture/iu);
+  assert.match(prompt, /Selena piensa en Javier/iu);
+  assert.doesNotMatch(prompt, new RegExp(primary.response.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"));
+  assert.doesNotMatch(JSON.stringify(second), /Te propongo una respuesta completamente distinta/iu);
 });
