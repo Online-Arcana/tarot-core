@@ -1,51 +1,69 @@
 # Reader media mappings
 
-This directory is owned by the Online Arcana core. It contains the bilingual, source-cited archives used at runtime for the seven mapped readers. Selena remains the unchanged vanilla naipes reader.
+This directory contains the seven mapped-reader physical systems used by Online Arcana core. Selena remains the vanilla tarot/naipes reader and therefore has no mapped-media file.
 
-## Runtime structure
+The mapped systems are runtime-integrated but remain `source-backed-draft`. `culturalSpecialistReviewRequired` stays true until the relevant human review is complete.
 
-Each reader map contains:
+## Source ownership
 
-- four minor families with fourteen fixed ranks each;
-- twenty-two fixed major equivalents;
-- the public names for both physical states;
-- the medium and ritual contract;
-- item descriptions and cultural/source registries;
-- English and Spanish presentation text.
+The v3 design deliberately separates four kinds of data so none of them becomes an accidental second source of truth:
 
-The runtime expands the compact `22 + 4 × 14` archive deterministically against the canonical naipes IDs. It never rerolls, invents or substitutes a mapped result.
+- `maps/*.json`: one explicit mapped result for every canonical card ID, with bilingual item/observation/interpretation data and research/source context
+- `rituals.json`: the single canonical mapped ritual/choreography source, including participation, concealment, single-cast rules, complete authored ritual sentences and audit aliases
+- `public-meta.json`: client-visible medium/culture/category presentation metadata
+- `../../data/deck.json`: the canonical 78-card ID and tarot-semantic source used to validate every map
+
+`index.json` is only a file inventory. It does not duplicate families, states, ritual rules or canonical card IDs.
+
+## Explicit v3 mapping
+
+Every mapped file uses an explicit object keyed by canonical card ID rather than a positional `22 + 4 × 14` array. Runtime validation requires the key set to match the canonical deck exactly: all 78 IDs, no missing IDs and no extras.
+
+This matters because positional rank/suit ordering is not semantic authority. A mapping remains attached to `major-fool`, `minor-cups-ace`, and so on by stable ID regardless of JSON ordering.
+
+The runtime never rerolls, invents or substitutes a mapped result. The canonical draw determines the mapped physical result deterministically.
 
 ## Presentation boundary
 
-Mapped results expose:
+A mapped result may expose public presentation fields such as:
 
-- `arcana`: internal structural class, minor or major;
-- `family`: the public minor family, or `null` for a major;
-- `stateLabel`: the reader's physical state rather than upright/reversed;
-- the fixed item name and concise canonical meaning.
+- physical item/result name
+- public family/category/number/state
+- concise public observation and interpretation
+- public medium and culture labels
+- client-safe ritual observation/direction
 
-The client must not infer a family from the first cultural element or hardcode reader-specific states.
+Research provenance, source notes, canonical tarot correspondence and implementation/control language are not copied into client-visible `MediumPresentation` merely because they exist in the archive.
+
+`public-meta.json` owns shared visible presentation metadata so runtime code does not hard-code reader exceptions or derive public copy from research fields.
+
+## Ritual boundary
+
+Physical choreography is authored once in `rituals.json`. Persona XML owns reader character/atmosphere, not a duplicate ritual sequence.
+
+The ritual data records whether the reader or querent performs the physical action, whether a medium is single-cast, how hidden results stay concealed, complete English/Spanish action sentences, continuity states, grounding aliases and validator action/object aliases.
+
+`participation.ts` is only a compatibility shim over that canonical ritual data. `ritual-recovery.ts` selects complete authored sentences from canonical data and shared fallback atmosphere; it does not contain reader-specific prose or interpolate arbitrary sensory fragments into grammar templates.
 
 ## Special physical systems
 
-- **Ngaru:** every logical shell has two physical copies, one painted on its outer surface and one on its inner surface. There are 78 logical results and 156 physical shells.
-- **Ame:** all four petal kinds are cast once for the entire spread. Marked basin areas are the spread positions. A single flower family and count forms a minor result; a fixed mixed-petal pattern forms a major result. Later positions inspect the same cast without casting again.
+Some systems have structural rules represented in their canonical ritual/mapping data. For example, Ngaru uses paired shell states and Ame is a single-cast medium whose later spread positions continue observing the original cast. These rules are validated generically from data rather than implemented as named-reader branches in shared model code.
 
 ## Historical and fictional boundary
 
-The physical elements and named beings are tied to the cited historical, museum, botanical, folklore or religious sources. The following remain Online Arcana fiction:
+The archive can contain source/research material needed for cultural review, while the complete divination systems and their one-to-one relationship with canonical tarot remain Online Arcana constructions.
 
-- the one-to-one correspondence with the canonical naipes;
-- the rank ordering inside each family;
-- the complete divination method;
-- each reader's interpretation of the resulting physical sign.
-
-Every archive remains marked `source-backed-draft` and `culturalSpecialistReviewRequired` until the relevant cultural review is complete. Broad comparative sources must not be represented as proof of a specifically Helvetii, Yorùbá, Māori, Japanese, Inka, Zoroastrian or Mexica practice when they do not establish that narrower claim.
+Do not present automated schema/runtime validation as cultural validation. The checklist in `CULTURAL-REVIEW.md` remains the release gate for knowledgeable human review of names, diacritics, sources, restricted/sacred material and claims about represented traditions.
 
 ## Contents
 
-- `index.json` summarises the final families, states and special physical rules.
-- `medium-map.schema.json` defines the compact version-2 archive shape.
-- `reader-rituals.json` defines the global writing boundary and points to each map as the ritual source of truth.
-- `canonical-card-index.json` mirrors the canonical identifiers for validation only; canonical meanings continue to come from the actual draw.
-- `maps/*.json` contains one complete reader archive.
+- `index.json`: non-semantic v3 inventory of mapped files and shared source files
+- `medium-map.schema.json`: explicit v3 map schema
+- `rituals.json`: sole mapped ritual/choreography source
+- `public-meta.json`: shared client-facing mapped presentation metadata
+- `maps/*.json`: seven explicit 78-ID mapped archives
+- `mapping.ts`: parser and exact canonical-ID-set validation
+- `ritual.ts`: ritual-data parser and generic audit/runtime accessors
+- `runtime-v3.ts`: mapped presentation runtime
+- `runtime.ts`: stable compatibility re-export
+- `CULTURAL-REVIEW.md`: human review checklist and pack-specific cautions
