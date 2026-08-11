@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { auditModelOut } from "../dist/model/audit.js";
 import {
   hasDirectAddress,
   hasNarratorFirstPerson,
@@ -23,6 +24,24 @@ test("Spanish narrator first-person audit covers object, possessive and preposit
     assert.equal(hasNarratorFirstPerson(text, "es-ES"), true, text);
   }
   assert.equal(hasNarratorFirstPerson("Selena gira sus anillos y guarda silencio.", "es-ES"), false);
+});
+
+test("Spanish audit rejects tú/te after ordinary prepositions but preserves valid ti, contigo and de tú a tú", () => {
+  const req = {
+    task: "return",
+    lang: "es-ES",
+    reader: "selena",
+    name: "Javier",
+    history: [],
+    trail: { id: "trail", summary: "", visits: [] },
+  };
+  const pronounIssues = text => auditModelOut(req, { text }).issues.filter(issue => issue.code === "spanish_pronoun_case");
+
+  assert.equal(pronounIssues("Esto queda más claro para tú cuando vuelves a mirar lo que ya tienes delante.").length, 1);
+  assert.equal(pronounIssues("Esto queda más claro con ti cuando vuelves a mirar lo que ya tienes delante.").length, 1);
+  assert.equal(pronounIssues("Esto queda más claro para ti cuando vuelves a mirar lo que ya tienes delante.").length, 0);
+  assert.equal(pronounIssues("Esto queda más claro contigo cuando vuelves a mirar lo que ya tienes delante.").length, 0);
+  assert.equal(pronounIssues("Puedes hablar de tú a tú sobre lo que ya tienes delante.").length, 0);
 });
 
 test("Death named by the user is not treated as an English future-result leak", () => {
