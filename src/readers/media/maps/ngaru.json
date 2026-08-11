@@ -1,1 +1,1181 @@
-{"$schema":"../medium-map.schema.json","version":2,"status":{"state":"source-backed-draft","runtimeIntegrated":true,"culturalSpecialistReviewRequired":true,"note":{"en":"The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.","es":"Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."}},"reader":"ngaru","readerName":{"en":"Ngaru","es":"Ngaru"},"culture":{"en":"Māori customary art, oral tradition and named atua or legendary figures","es":"Arte consuetudinario māori, tradición oral y atua o figuras legendarias nombradas"},"medium":{"en":"paired painted seashells, with one outer-painted and one inner-painted copy of every logical result","es":"conchas marinas pintadas por pares, con una copia pintada por fuera y otra por dentro de cada resultado lógico"},"canonicalDeck":{"name":{"en":"Online Arcana naipes","es":"Naipes de Online Arcana"},"cardCount":78,"orientationValues":["upright","reversed"],"physicalItemCount":156,"mappingRule":{"en":"Exactly one fixed medium result per canonical card; the public state is selected by the canonical orientation.","es":"Exactamente un resultado fijo del medio por cada naipe canónico; el estado público se selecciona mediante la orientación canónica."}},"presentation":{"rankMode":"count","majorMode":"painted-being","states":{"upright":{"en":"outer","es":"exterior"},"reversed":{"en":"inner","es":"interior"}},"families":{"wands":{"en":"Kaokao","es":"Kaokao"},"cups":{"en":"Koru","es":"Koru"},"swords":{"en":"Niho taniwha","es":"Niho taniwha"},"pentacles":{"en":"Pātiki","es":"Pātiki"}}},"ritual":{"concealment":{"en":"All 156 physical shells remain hidden inside an opaque sea-worn bag: two shells for each of the 78 logical results.","es":"Las 156 conchas físicas permanecen ocultas dentro de una bolsa opaca desgastada por el mar: dos conchas por cada uno de los 78 resultados lógicos."},"chance":{"en":"Ngaru reaches into the bag without looking and withdraws the predetermined member of the outer-painted or inner-painted pair.","es":"Ngaru introduce la mano en la bolsa sin mirar y extrae el miembro predeterminado del par pintado por fuera o por dentro."},"upright":{"en":"The selected copy carries its painting on the outer convex surface.","es":"La copia elegida lleva la pintura en la superficie convexa exterior."},"reversed":{"en":"The selected copy carries its painting on the inner concave surface.","es":"La copia elegida lleva la pintura en la superficie cóncava interior."},"beats":{"en":["sea-worn opaque bag","blind reach","shell texture","one shell withdrawn","painting located on the outer or inner surface"],"es":["bolsa opaca desgastada por el mar","búsqueda a ciegas","textura de las conchas","extracción de una concha","pintura situada en la superficie exterior o interior"]}},"sourceRegistry":[{"id":"teara-koru","title":"Te Ara: the koru","url":"https://teara.govt.nz/en/photograph/2422/the-koru","note":"Documents the koru form in Māori art."},{"id":"tepapa-weaving","title":"Te Papa: korowai pattern descriptions","url":"https://collections.tepapa.govt.nz/object/65120","note":"Documents pātiki, kaokao and niho taniwha patterns."},{"id":"teara-creation","title":"Te Ara: Māori creation traditions","url":"https://teara.govt.nz/en/maori-creation-traditions","note":"Documents creation traditions and named atua."},{"id":"teara-religion","title":"Te Ara: traditional Māori religion","url":"https://teara.govt.nz/en/traditional-maori-religion-nga-karakia-a-te-maori","note":"Documents atua and customary religious traditions."}],"culturalElementRegistry":[{"id":"family-wands","name":{"en":"Kaokao","es":"Kaokao"},"sourceIds":["teara-koru","tepapa-weaving"],"sensitivity":"living-indigenous-heritage"},{"id":"family-cups","name":{"en":"Koru","es":"Koru"},"sourceIds":["teara-koru","tepapa-weaving"],"sensitivity":"living-indigenous-heritage"},{"id":"family-swords","name":{"en":"Niho taniwha","es":"Niho taniwha"},"sourceIds":["teara-koru","tepapa-weaving"],"sensitivity":"living-indigenous-heritage"},{"id":"family-pentacles","name":{"en":"Pātiki","es":"Pātiki"},"sourceIds":["teara-koru","tepapa-weaving"],"sensitivity":"living-indigenous-heritage"},{"id":"major-ranginui","name":{"en":"Ranginui","es":"Ranginui"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-papatuanuku","name":{"en":"Papatūānuku","es":"Papatūānuku"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tane-mahuta","name":{"en":"Tāne-mahuta","es":"Tāne-mahuta"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tangaroa","name":{"en":"Tangaroa","es":"Tangaroa"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tawhirimatea","name":{"en":"Tāwhirimātea","es":"Tāwhirimātea"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tumatauenga","name":{"en":"Tūmatauenga","es":"Tūmatauenga"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-rongo-ma-tane","name":{"en":"Rongo-mā-Tāne","es":"Rongo-mā-Tāne"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-haumia-tiketike","name":{"en":"Haumia-tiketike","es":"Haumia-tiketike"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-ruaumoko","name":{"en":"Rūaumoko","es":"Rūaumoko"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-hine-nui-te-po","name":{"en":"Hine-nui-te-pō","es":"Hine-nui-te-pō"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-hine-ahu-one","name":{"en":"Hine-ahu-one","es":"Hine-ahu-one"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-maui-tikitiki-a-taranga","name":{"en":"Māui-tikitiki-a-Taranga","es":"Māui-tikitiki-a-Taranga"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-mahuika","name":{"en":"Māhuika","es":"Māhuika"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-whaitiri","name":{"en":"Whaitiri","es":"Whaitiri"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tawhaki","name":{"en":"Tāwhaki","es":"Tāwhaki"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tinirau","name":{"en":"Tinirau","es":"Tinirau"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-uenuku","name":{"en":"Uenuku","es":"Uenuku"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-kahukura","name":{"en":"Kahukura","es":"Kahukura"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-paikea","name":{"en":"Paikea","es":"Paikea"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-kupe","name":{"en":"Kupe","es":"Kupe"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-hine-te-iwaiwa","name":{"en":"Hine-te-iwaiwa","es":"Hine-te-iwaiwa"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"},{"id":"major-maru","name":{"en":"Maru","es":"Maru"},"sourceIds":["teara-creation","teara-religion"],"sensitivity":"living-indigenous-heritage"}],"major":[{"itemName":{"en":"Ranginui","es":"Ranginui"},"culturalElementIds":["major-ranginui"],"itemDescription":{"en":"A seashell painted directly with Ranginui.","es":"Una concha marina pintada directamente con Ranginui."}},{"itemName":{"en":"Papatūānuku","es":"Papatūānuku"},"culturalElementIds":["major-papatuanuku"],"itemDescription":{"en":"A seashell painted directly with Papatūānuku.","es":"Una concha marina pintada directamente con Papatūānuku."}},{"itemName":{"en":"Tāne-mahuta","es":"Tāne-mahuta"},"culturalElementIds":["major-tane-mahuta"],"itemDescription":{"en":"A seashell painted directly with Tāne-mahuta.","es":"Una concha marina pintada directamente con Tāne-mahuta."}},{"itemName":{"en":"Tangaroa","es":"Tangaroa"},"culturalElementIds":["major-tangaroa"],"itemDescription":{"en":"A seashell painted directly with Tangaroa.","es":"Una concha marina pintada directamente con Tangaroa."}},{"itemName":{"en":"Tāwhirimātea","es":"Tāwhirimātea"},"culturalElementIds":["major-tawhirimatea"],"itemDescription":{"en":"A seashell painted directly with Tāwhirimātea.","es":"Una concha marina pintada directamente con Tāwhirimātea."}},{"itemName":{"en":"Tūmatauenga","es":"Tūmatauenga"},"culturalElementIds":["major-tumatauenga"],"itemDescription":{"en":"A seashell painted directly with Tūmatauenga.","es":"Una concha marina pintada directamente con Tūmatauenga."}},{"itemName":{"en":"Rongo-mā-Tāne","es":"Rongo-mā-Tāne"},"culturalElementIds":["major-rongo-ma-tane"],"itemDescription":{"en":"A seashell painted directly with Rongo-mā-Tāne.","es":"Una concha marina pintada directamente con Rongo-mā-Tāne."}},{"itemName":{"en":"Haumia-tiketike","es":"Haumia-tiketike"},"culturalElementIds":["major-haumia-tiketike"],"itemDescription":{"en":"A seashell painted directly with Haumia-tiketike.","es":"Una concha marina pintada directamente con Haumia-tiketike."}},{"itemName":{"en":"Rūaumoko","es":"Rūaumoko"},"culturalElementIds":["major-ruaumoko"],"itemDescription":{"en":"A seashell painted directly with Rūaumoko.","es":"Una concha marina pintada directamente con Rūaumoko."}},{"itemName":{"en":"Hine-nui-te-pō","es":"Hine-nui-te-pō"},"culturalElementIds":["major-hine-nui-te-po"],"itemDescription":{"en":"A seashell painted directly with Hine-nui-te-pō.","es":"Una concha marina pintada directamente con Hine-nui-te-pō."}},{"itemName":{"en":"Hine-ahu-one","es":"Hine-ahu-one"},"culturalElementIds":["major-hine-ahu-one"],"itemDescription":{"en":"A seashell painted directly with Hine-ahu-one.","es":"Una concha marina pintada directamente con Hine-ahu-one."}},{"itemName":{"en":"Māui-tikitiki-a-Taranga","es":"Māui-tikitiki-a-Taranga"},"culturalElementIds":["major-maui-tikitiki-a-taranga"],"itemDescription":{"en":"A seashell painted directly with Māui-tikitiki-a-Taranga.","es":"Una concha marina pintada directamente con Māui-tikitiki-a-Taranga."}},{"itemName":{"en":"Māhuika","es":"Māhuika"},"culturalElementIds":["major-mahuika"],"itemDescription":{"en":"A seashell painted directly with Māhuika.","es":"Una concha marina pintada directamente con Māhuika."}},{"itemName":{"en":"Whaitiri","es":"Whaitiri"},"culturalElementIds":["major-whaitiri"],"itemDescription":{"en":"A seashell painted directly with Whaitiri.","es":"Una concha marina pintada directamente con Whaitiri."}},{"itemName":{"en":"Tāwhaki","es":"Tāwhaki"},"culturalElementIds":["major-tawhaki"],"itemDescription":{"en":"A seashell painted directly with Tāwhaki.","es":"Una concha marina pintada directamente con Tāwhaki."}},{"itemName":{"en":"Tinirau","es":"Tinirau"},"culturalElementIds":["major-tinirau"],"itemDescription":{"en":"A seashell painted directly with Tinirau.","es":"Una concha marina pintada directamente con Tinirau."}},{"itemName":{"en":"Uenuku","es":"Uenuku"},"culturalElementIds":["major-uenuku"],"itemDescription":{"en":"A seashell painted directly with Uenuku.","es":"Una concha marina pintada directamente con Uenuku."}},{"itemName":{"en":"Kahukura","es":"Kahukura"},"culturalElementIds":["major-kahukura"],"itemDescription":{"en":"A seashell painted directly with Kahukura.","es":"Una concha marina pintada directamente con Kahukura."}},{"itemName":{"en":"Paikea","es":"Paikea"},"culturalElementIds":["major-paikea"],"itemDescription":{"en":"A seashell painted directly with Paikea.","es":"Una concha marina pintada directamente con Paikea."}},{"itemName":{"en":"Kupe","es":"Kupe"},"culturalElementIds":["major-kupe"],"itemDescription":{"en":"A seashell painted directly with Kupe.","es":"Una concha marina pintada directamente con Kupe."}},{"itemName":{"en":"Hine-te-iwaiwa","es":"Hine-te-iwaiwa"},"culturalElementIds":["major-hine-te-iwaiwa"],"itemDescription":{"en":"A seashell painted directly with Hine-te-iwaiwa.","es":"Una concha marina pintada directamente con Hine-te-iwaiwa."}},{"itemName":{"en":"Maru","es":"Maru"},"culturalElementIds":["major-maru"],"itemDescription":{"en":"A seashell painted directly with Maru.","es":"Una concha marina pintada directamente con Maru."}}],"minor":{"wands":[{"itemName":{"en":"1 Kaokao","es":"1 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"2 Kaokao","es":"2 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"3 Kaokao","es":"3 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"4 Kaokao","es":"4 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"5 Kaokao","es":"5 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"6 Kaokao","es":"6 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"7 Kaokao","es":"7 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"8 Kaokao","es":"8 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"9 Kaokao","es":"9 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"10 Kaokao","es":"10 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"11 Kaokao","es":"11 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"12 Kaokao","es":"12 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"13 Kaokao","es":"13 Kaokao"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"14 Kaokao","es":"14 Kaokao"},"culturalElementIds":["family-wands"]}],"cups":[{"itemName":{"en":"1 Koru","es":"1 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"2 Koru","es":"2 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"3 Koru","es":"3 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"4 Koru","es":"4 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"5 Koru","es":"5 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"6 Koru","es":"6 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"7 Koru","es":"7 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"8 Koru","es":"8 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"9 Koru","es":"9 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"10 Koru","es":"10 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"11 Koru","es":"11 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"12 Koru","es":"12 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"13 Koru","es":"13 Koru"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"14 Koru","es":"14 Koru"},"culturalElementIds":["family-cups"]}],"swords":[{"itemName":{"en":"1 Niho taniwha","es":"1 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"2 Niho taniwha","es":"2 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"3 Niho taniwha","es":"3 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"4 Niho taniwha","es":"4 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"5 Niho taniwha","es":"5 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"6 Niho taniwha","es":"6 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"7 Niho taniwha","es":"7 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"8 Niho taniwha","es":"8 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"9 Niho taniwha","es":"9 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"10 Niho taniwha","es":"10 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"11 Niho taniwha","es":"11 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"12 Niho taniwha","es":"12 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"13 Niho taniwha","es":"13 Niho taniwha"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"14 Niho taniwha","es":"14 Niho taniwha"},"culturalElementIds":["family-swords"]}],"pentacles":[{"itemName":{"en":"1 Pātiki","es":"1 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"2 Pātiki","es":"2 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"3 Pātiki","es":"3 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"4 Pātiki","es":"4 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"5 Pātiki","es":"5 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"6 Pātiki","es":"6 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"7 Pātiki","es":"7 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"8 Pātiki","es":"8 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"9 Pātiki","es":"9 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"10 Pātiki","es":"10 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"11 Pātiki","es":"11 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"12 Pātiki","es":"12 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"13 Pātiki","es":"13 Pātiki"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"14 Pātiki","es":"14 Pātiki"},"culturalElementIds":["family-pentacles"]}]}}
+{
+  "$schema": "../medium-map.schema.json",
+  "version": 3,
+  "status": {
+    "state": "source-backed-draft",
+    "culturalSpecialistReviewRequired": true,
+    "note": {
+      "en": "The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.",
+      "es": "Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."
+    }
+  },
+  "reader": "ngaru",
+  "culture": {
+    "en": "Māori customary art, oral tradition and named atua or legendary figures",
+    "es": "Arte consuetudinario māori, tradición oral y atua o figuras legendarias nombradas"
+  },
+  "presentation": {
+    "rankMode": "count",
+    "majorMode": "painted-being",
+    "states": {
+      "upright": {
+        "en": "outer",
+        "es": "exterior"
+      },
+      "reversed": {
+        "en": "inner",
+        "es": "interior"
+      }
+    },
+    "families": {
+      "wands": {
+        "en": "Kaokao",
+        "es": "Kaokao"
+      },
+      "cups": {
+        "en": "Koru",
+        "es": "Koru"
+      },
+      "swords": {
+        "en": "Niho taniwha",
+        "es": "Niho taniwha"
+      },
+      "pentacles": {
+        "en": "Pātiki",
+        "es": "Pātiki"
+      }
+    }
+  },
+  "sourceRegistry": [
+    {
+      "id": "teara-koru",
+      "title": "Te Ara: the koru",
+      "url": "https://teara.govt.nz/en/photograph/2422/the-koru",
+      "note": "Documents the koru form in Māori art."
+    },
+    {
+      "id": "tepapa-weaving",
+      "title": "Te Papa: korowai pattern descriptions",
+      "url": "https://collections.tepapa.govt.nz/object/65120",
+      "note": "Documents pātiki, kaokao and niho taniwha patterns."
+    },
+    {
+      "id": "teara-creation",
+      "title": "Te Ara: Māori creation traditions",
+      "url": "https://teara.govt.nz/en/maori-creation-traditions",
+      "note": "Documents creation traditions and named atua."
+    },
+    {
+      "id": "teara-religion",
+      "title": "Te Ara: traditional Māori religion",
+      "url": "https://teara.govt.nz/en/traditional-maori-religion-nga-karakia-a-te-maori",
+      "note": "Documents atua and customary religious traditions."
+    }
+  ],
+  "culturalElementRegistry": [
+    {
+      "id": "family-wands",
+      "name": {
+        "en": "Kaokao",
+        "es": "Kaokao"
+      },
+      "sourceIds": [
+        "teara-koru",
+        "tepapa-weaving"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "family-cups",
+      "name": {
+        "en": "Koru",
+        "es": "Koru"
+      },
+      "sourceIds": [
+        "teara-koru",
+        "tepapa-weaving"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "family-swords",
+      "name": {
+        "en": "Niho taniwha",
+        "es": "Niho taniwha"
+      },
+      "sourceIds": [
+        "teara-koru",
+        "tepapa-weaving"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "family-pentacles",
+      "name": {
+        "en": "Pātiki",
+        "es": "Pātiki"
+      },
+      "sourceIds": [
+        "teara-koru",
+        "tepapa-weaving"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-ranginui",
+      "name": {
+        "en": "Ranginui",
+        "es": "Ranginui"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-papatuanuku",
+      "name": {
+        "en": "Papatūānuku",
+        "es": "Papatūānuku"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tane-mahuta",
+      "name": {
+        "en": "Tāne-mahuta",
+        "es": "Tāne-mahuta"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tangaroa",
+      "name": {
+        "en": "Tangaroa",
+        "es": "Tangaroa"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tawhirimatea",
+      "name": {
+        "en": "Tāwhirimātea",
+        "es": "Tāwhirimātea"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tumatauenga",
+      "name": {
+        "en": "Tūmatauenga",
+        "es": "Tūmatauenga"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-rongo-ma-tane",
+      "name": {
+        "en": "Rongo-mā-Tāne",
+        "es": "Rongo-mā-Tāne"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-haumia-tiketike",
+      "name": {
+        "en": "Haumia-tiketike",
+        "es": "Haumia-tiketike"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-ruaumoko",
+      "name": {
+        "en": "Rūaumoko",
+        "es": "Rūaumoko"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-hine-nui-te-po",
+      "name": {
+        "en": "Hine-nui-te-pō",
+        "es": "Hine-nui-te-pō"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-hine-ahu-one",
+      "name": {
+        "en": "Hine-ahu-one",
+        "es": "Hine-ahu-one"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-maui-tikitiki-a-taranga",
+      "name": {
+        "en": "Māui-tikitiki-a-Taranga",
+        "es": "Māui-tikitiki-a-Taranga"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-mahuika",
+      "name": {
+        "en": "Māhuika",
+        "es": "Māhuika"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-whaitiri",
+      "name": {
+        "en": "Whaitiri",
+        "es": "Whaitiri"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tawhaki",
+      "name": {
+        "en": "Tāwhaki",
+        "es": "Tāwhaki"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tinirau",
+      "name": {
+        "en": "Tinirau",
+        "es": "Tinirau"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-uenuku",
+      "name": {
+        "en": "Uenuku",
+        "es": "Uenuku"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-kahukura",
+      "name": {
+        "en": "Kahukura",
+        "es": "Kahukura"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-paikea",
+      "name": {
+        "en": "Paikea",
+        "es": "Paikea"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-kupe",
+      "name": {
+        "en": "Kupe",
+        "es": "Kupe"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-hine-te-iwaiwa",
+      "name": {
+        "en": "Hine-te-iwaiwa",
+        "es": "Hine-te-iwaiwa"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-maru",
+      "name": {
+        "en": "Maru",
+        "es": "Maru"
+      },
+      "sourceIds": [
+        "teara-creation",
+        "teara-religion"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    }
+  ],
+  "cards": {
+    "major-fool": {
+      "itemName": {
+        "en": "Ranginui",
+        "es": "Ranginui"
+      },
+      "culturalElementIds": [
+        "major-ranginui"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Ranginui.",
+        "es": "Una concha marina pintada directamente con Ranginui."
+      }
+    },
+    "major-magician": {
+      "itemName": {
+        "en": "Papatūānuku",
+        "es": "Papatūānuku"
+      },
+      "culturalElementIds": [
+        "major-papatuanuku"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Papatūānuku.",
+        "es": "Una concha marina pintada directamente con Papatūānuku."
+      }
+    },
+    "major-priestess": {
+      "itemName": {
+        "en": "Tāne-mahuta",
+        "es": "Tāne-mahuta"
+      },
+      "culturalElementIds": [
+        "major-tane-mahuta"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Tāne-mahuta.",
+        "es": "Una concha marina pintada directamente con Tāne-mahuta."
+      }
+    },
+    "major-empress": {
+      "itemName": {
+        "en": "Tangaroa",
+        "es": "Tangaroa"
+      },
+      "culturalElementIds": [
+        "major-tangaroa"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Tangaroa.",
+        "es": "Una concha marina pintada directamente con Tangaroa."
+      }
+    },
+    "major-emperor": {
+      "itemName": {
+        "en": "Tāwhirimātea",
+        "es": "Tāwhirimātea"
+      },
+      "culturalElementIds": [
+        "major-tawhirimatea"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Tāwhirimātea.",
+        "es": "Una concha marina pintada directamente con Tāwhirimātea."
+      }
+    },
+    "major-hierophant": {
+      "itemName": {
+        "en": "Tūmatauenga",
+        "es": "Tūmatauenga"
+      },
+      "culturalElementIds": [
+        "major-tumatauenga"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Tūmatauenga.",
+        "es": "Una concha marina pintada directamente con Tūmatauenga."
+      }
+    },
+    "major-lovers": {
+      "itemName": {
+        "en": "Rongo-mā-Tāne",
+        "es": "Rongo-mā-Tāne"
+      },
+      "culturalElementIds": [
+        "major-rongo-ma-tane"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Rongo-mā-Tāne.",
+        "es": "Una concha marina pintada directamente con Rongo-mā-Tāne."
+      }
+    },
+    "major-chariot": {
+      "itemName": {
+        "en": "Haumia-tiketike",
+        "es": "Haumia-tiketike"
+      },
+      "culturalElementIds": [
+        "major-haumia-tiketike"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Haumia-tiketike.",
+        "es": "Una concha marina pintada directamente con Haumia-tiketike."
+      }
+    },
+    "major-strength": {
+      "itemName": {
+        "en": "Rūaumoko",
+        "es": "Rūaumoko"
+      },
+      "culturalElementIds": [
+        "major-ruaumoko"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Rūaumoko.",
+        "es": "Una concha marina pintada directamente con Rūaumoko."
+      }
+    },
+    "major-hermit": {
+      "itemName": {
+        "en": "Hine-nui-te-pō",
+        "es": "Hine-nui-te-pō"
+      },
+      "culturalElementIds": [
+        "major-hine-nui-te-po"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Hine-nui-te-pō.",
+        "es": "Una concha marina pintada directamente con Hine-nui-te-pō."
+      }
+    },
+    "major-wheel": {
+      "itemName": {
+        "en": "Hine-ahu-one",
+        "es": "Hine-ahu-one"
+      },
+      "culturalElementIds": [
+        "major-hine-ahu-one"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Hine-ahu-one.",
+        "es": "Una concha marina pintada directamente con Hine-ahu-one."
+      }
+    },
+    "major-justice": {
+      "itemName": {
+        "en": "Māui-tikitiki-a-Taranga",
+        "es": "Māui-tikitiki-a-Taranga"
+      },
+      "culturalElementIds": [
+        "major-maui-tikitiki-a-taranga"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Māui-tikitiki-a-Taranga.",
+        "es": "Una concha marina pintada directamente con Māui-tikitiki-a-Taranga."
+      }
+    },
+    "major-hanged": {
+      "itemName": {
+        "en": "Māhuika",
+        "es": "Māhuika"
+      },
+      "culturalElementIds": [
+        "major-mahuika"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Māhuika.",
+        "es": "Una concha marina pintada directamente con Māhuika."
+      }
+    },
+    "major-death": {
+      "itemName": {
+        "en": "Whaitiri",
+        "es": "Whaitiri"
+      },
+      "culturalElementIds": [
+        "major-whaitiri"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Whaitiri.",
+        "es": "Una concha marina pintada directamente con Whaitiri."
+      }
+    },
+    "major-temperance": {
+      "itemName": {
+        "en": "Tāwhaki",
+        "es": "Tāwhaki"
+      },
+      "culturalElementIds": [
+        "major-tawhaki"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Tāwhaki.",
+        "es": "Una concha marina pintada directamente con Tāwhaki."
+      }
+    },
+    "major-devil": {
+      "itemName": {
+        "en": "Tinirau",
+        "es": "Tinirau"
+      },
+      "culturalElementIds": [
+        "major-tinirau"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Tinirau.",
+        "es": "Una concha marina pintada directamente con Tinirau."
+      }
+    },
+    "major-tower": {
+      "itemName": {
+        "en": "Uenuku",
+        "es": "Uenuku"
+      },
+      "culturalElementIds": [
+        "major-uenuku"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Uenuku.",
+        "es": "Una concha marina pintada directamente con Uenuku."
+      }
+    },
+    "major-star": {
+      "itemName": {
+        "en": "Kahukura",
+        "es": "Kahukura"
+      },
+      "culturalElementIds": [
+        "major-kahukura"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Kahukura.",
+        "es": "Una concha marina pintada directamente con Kahukura."
+      }
+    },
+    "major-moon": {
+      "itemName": {
+        "en": "Paikea",
+        "es": "Paikea"
+      },
+      "culturalElementIds": [
+        "major-paikea"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Paikea.",
+        "es": "Una concha marina pintada directamente con Paikea."
+      }
+    },
+    "major-sun": {
+      "itemName": {
+        "en": "Kupe",
+        "es": "Kupe"
+      },
+      "culturalElementIds": [
+        "major-kupe"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Kupe.",
+        "es": "Una concha marina pintada directamente con Kupe."
+      }
+    },
+    "major-judgement": {
+      "itemName": {
+        "en": "Hine-te-iwaiwa",
+        "es": "Hine-te-iwaiwa"
+      },
+      "culturalElementIds": [
+        "major-hine-te-iwaiwa"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Hine-te-iwaiwa.",
+        "es": "Una concha marina pintada directamente con Hine-te-iwaiwa."
+      }
+    },
+    "major-world": {
+      "itemName": {
+        "en": "Maru",
+        "es": "Maru"
+      },
+      "culturalElementIds": [
+        "major-maru"
+      ],
+      "itemDescription": {
+        "en": "A seashell painted directly with Maru.",
+        "es": "Una concha marina pintada directamente con Maru."
+      }
+    },
+    "wands-ace": {
+      "itemName": {
+        "en": "1 Kaokao",
+        "es": "1 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-two": {
+      "itemName": {
+        "en": "2 Kaokao",
+        "es": "2 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-three": {
+      "itemName": {
+        "en": "3 Kaokao",
+        "es": "3 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-four": {
+      "itemName": {
+        "en": "4 Kaokao",
+        "es": "4 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-five": {
+      "itemName": {
+        "en": "5 Kaokao",
+        "es": "5 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-six": {
+      "itemName": {
+        "en": "6 Kaokao",
+        "es": "6 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-seven": {
+      "itemName": {
+        "en": "7 Kaokao",
+        "es": "7 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-eight": {
+      "itemName": {
+        "en": "8 Kaokao",
+        "es": "8 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-nine": {
+      "itemName": {
+        "en": "9 Kaokao",
+        "es": "9 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-ten": {
+      "itemName": {
+        "en": "10 Kaokao",
+        "es": "10 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-page": {
+      "itemName": {
+        "en": "11 Kaokao",
+        "es": "11 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-knight": {
+      "itemName": {
+        "en": "12 Kaokao",
+        "es": "12 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-queen": {
+      "itemName": {
+        "en": "13 Kaokao",
+        "es": "13 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-king": {
+      "itemName": {
+        "en": "14 Kaokao",
+        "es": "14 Kaokao"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "cups-ace": {
+      "itemName": {
+        "en": "1 Koru",
+        "es": "1 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-two": {
+      "itemName": {
+        "en": "2 Koru",
+        "es": "2 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-three": {
+      "itemName": {
+        "en": "3 Koru",
+        "es": "3 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-four": {
+      "itemName": {
+        "en": "4 Koru",
+        "es": "4 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-five": {
+      "itemName": {
+        "en": "5 Koru",
+        "es": "5 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-six": {
+      "itemName": {
+        "en": "6 Koru",
+        "es": "6 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-seven": {
+      "itemName": {
+        "en": "7 Koru",
+        "es": "7 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-eight": {
+      "itemName": {
+        "en": "8 Koru",
+        "es": "8 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-nine": {
+      "itemName": {
+        "en": "9 Koru",
+        "es": "9 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-ten": {
+      "itemName": {
+        "en": "10 Koru",
+        "es": "10 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-page": {
+      "itemName": {
+        "en": "11 Koru",
+        "es": "11 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-knight": {
+      "itemName": {
+        "en": "12 Koru",
+        "es": "12 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-queen": {
+      "itemName": {
+        "en": "13 Koru",
+        "es": "13 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-king": {
+      "itemName": {
+        "en": "14 Koru",
+        "es": "14 Koru"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "swords-ace": {
+      "itemName": {
+        "en": "1 Niho taniwha",
+        "es": "1 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-two": {
+      "itemName": {
+        "en": "2 Niho taniwha",
+        "es": "2 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-three": {
+      "itemName": {
+        "en": "3 Niho taniwha",
+        "es": "3 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-four": {
+      "itemName": {
+        "en": "4 Niho taniwha",
+        "es": "4 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-five": {
+      "itemName": {
+        "en": "5 Niho taniwha",
+        "es": "5 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-six": {
+      "itemName": {
+        "en": "6 Niho taniwha",
+        "es": "6 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-seven": {
+      "itemName": {
+        "en": "7 Niho taniwha",
+        "es": "7 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-eight": {
+      "itemName": {
+        "en": "8 Niho taniwha",
+        "es": "8 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-nine": {
+      "itemName": {
+        "en": "9 Niho taniwha",
+        "es": "9 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-ten": {
+      "itemName": {
+        "en": "10 Niho taniwha",
+        "es": "10 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-page": {
+      "itemName": {
+        "en": "11 Niho taniwha",
+        "es": "11 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-knight": {
+      "itemName": {
+        "en": "12 Niho taniwha",
+        "es": "12 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-queen": {
+      "itemName": {
+        "en": "13 Niho taniwha",
+        "es": "13 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-king": {
+      "itemName": {
+        "en": "14 Niho taniwha",
+        "es": "14 Niho taniwha"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "pentacles-ace": {
+      "itemName": {
+        "en": "1 Pātiki",
+        "es": "1 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-two": {
+      "itemName": {
+        "en": "2 Pātiki",
+        "es": "2 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-three": {
+      "itemName": {
+        "en": "3 Pātiki",
+        "es": "3 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-four": {
+      "itemName": {
+        "en": "4 Pātiki",
+        "es": "4 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-five": {
+      "itemName": {
+        "en": "5 Pātiki",
+        "es": "5 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-six": {
+      "itemName": {
+        "en": "6 Pātiki",
+        "es": "6 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-seven": {
+      "itemName": {
+        "en": "7 Pātiki",
+        "es": "7 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-eight": {
+      "itemName": {
+        "en": "8 Pātiki",
+        "es": "8 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-nine": {
+      "itemName": {
+        "en": "9 Pātiki",
+        "es": "9 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-ten": {
+      "itemName": {
+        "en": "10 Pātiki",
+        "es": "10 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-page": {
+      "itemName": {
+        "en": "11 Pātiki",
+        "es": "11 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-knight": {
+      "itemName": {
+        "en": "12 Pātiki",
+        "es": "12 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-queen": {
+      "itemName": {
+        "en": "13 Pātiki",
+        "es": "13 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-king": {
+      "itemName": {
+        "en": "14 Pātiki",
+        "es": "14 Pātiki"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    }
+  }
+}

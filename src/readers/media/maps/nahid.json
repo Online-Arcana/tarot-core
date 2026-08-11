@@ -1,1 +1,1187 @@
-{"$schema":"../medium-map.schema.json","version":2,"status":{"state":"source-backed-draft","runtimeIntegrated":true,"culturalSpecialistReviewRequired":true,"note":{"en":"The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.","es":"Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."}},"reader":"nahid","readerName":{"en":"Nahid","es":"Nahid"},"culture":{"en":"pre-Islamic Iranian and Zoroastrian elemental cosmology and divine traditions","es":"Cosmología elemental y tradiciones divinas iranias preislámicas y zoroastrianas"},"medium":{"en":"one recognisable incense-smoke pattern","es":"un patrón reconocible de humo de incienso"},"canonicalDeck":{"name":{"en":"Online Arcana naipes","es":"Naipes de Online Arcana"},"cardCount":78,"orientationValues":["upright","reversed"],"mappingRule":{"en":"Exactly one fixed medium result per canonical card; the public state is selected by the canonical orientation.","es":"Exactamente un resultado fijo del medio por cada naipe canónico; el estado público se selecciona mediante la orientación canónica."}},"presentation":{"rankMode":"count","majorMode":"complex-smoke","states":{"upright":{"en":"forming","es":"formándose"},"reversed":{"en":"dispersing","es":"dispersándose"}},"families":{"wands":{"en":"Fire","es":"Fuego"},"cups":{"en":"Water","es":"Agua"},"swords":{"en":"Air","es":"Aire"},"pentacles":{"en":"Earth","es":"Tierra"}}},"ritual":{"concealment":{"en":"Heat, air currents and the changing ember conceal the next smoke pattern until it appears.","es":"El calor, las corrientes de aire y la brasa cambiante ocultan el siguiente patrón de humo hasta que aparece."},"chance":{"en":"Nahid lights the incense and waits without forcing the smoke until the predetermined elemental or divine signature becomes recognisable.","es":"Nahid enciende el incienso y espera sin forzar el humo hasta que la formación elemental o divina predeterminada se vuelve reconocible."},"upright":{"en":"The intended smoke signature completes and becomes recognisable.","es":"La formación de humo prevista se completa y se vuelve reconocible."},"reversed":{"en":"The intended smoke signature separates while it is being recognised.","es":"La formación de humo prevista se separa mientras se reconoce."},"beats":{"en":["lighting incense","uncontrolled first curls","elemental features gathering","one signature becoming recognisable","formation or dispersal"],"es":["encendido del incienso","primeras volutas incontroladas","reunión de rasgos elementales","una formación que se vuelve reconocible","formación o dispersión"]}},"sourceRegistry":[{"id":"iranica-elements","title":"Encyclopaedia Iranica: Elements","url":"https://www.iranicaonline.org/articles/elements/","note":"Documents Persian adoption and treatment of fire, water, earth and air in Middle Persian cosmology."},{"id":"iranica-rituals","title":"Encyclopaedia Iranica: Zoroastrian rituals","url":"https://www.iranicaonline.org/articles/zoroastrian-rituals/","note":"Documents ritual importance of fire and water and purity practices."},{"id":"iranica-fire","title":"Encyclopaedia Iranica: Ātaš","url":"https://www.iranicaonline.org/articles/atas-fire/","note":"Documents sacred fire in Iranian and Zoroastrian tradition."},{"id":"iranica-myths","title":"Encyclopaedia Iranica: Iranian myths and legends","url":"https://www.iranicaonline.org/articles/iran-iv-myths-and-legends/","note":"Documents Iranian mythic and cosmological traditions."},{"id":"iranica-amesha","title":"Encyclopaedia Iranica: Aməša Spənta","url":"https://www.iranicaonline.org/articles/amesa-spenta-beneficent-divinity/","note":"Documents the beneficent divinities and their cosmological associations."}],"culturalElementRegistry":[{"id":"family-wands","name":{"en":"Fire","es":"Fuego"},"sourceIds":["iranica-elements","iranica-rituals"],"sensitivity":"living-religion"},{"id":"family-cups","name":{"en":"Water","es":"Agua"},"sourceIds":["iranica-elements","iranica-rituals"],"sensitivity":"living-religion"},{"id":"family-swords","name":{"en":"Air","es":"Aire"},"sourceIds":["iranica-elements","iranica-rituals"],"sensitivity":"living-religion"},{"id":"family-pentacles","name":{"en":"Earth","es":"Tierra"},"sourceIds":["iranica-elements","iranica-rituals"],"sensitivity":"living-religion"},{"id":"major-ahura-mazda","name":{"en":"Ahura Mazda","es":"Ahura Mazda"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-anahita","name":{"en":"Anāhitā","es":"Anāhitā"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-mithra","name":{"en":"Mithra","es":"Mithra"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-atar","name":{"en":"Ātar","es":"Ātar"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-sraosha","name":{"en":"Sraosha","es":"Sraosha"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-rashnu","name":{"en":"Rashnu","es":"Rashnu"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-verethragna","name":{"en":"Verethragna","es":"Verethragna"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-tishtrya","name":{"en":"Tishtrya","es":"Tishtrya"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-haoma","name":{"en":"Haoma","es":"Haoma"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-vayu","name":{"en":"Vayu","es":"Vayu"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-spenta-armaiti","name":{"en":"Spenta Armaiti","es":"Spenta Armaiti"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-vohu-manah","name":{"en":"Vohu Manah","es":"Vohu Manah"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-asha-vahishta","name":{"en":"Asha Vahishta","es":"Asha Vahishta"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-khshathra-vairya","name":{"en":"Khshathra Vairya","es":"Khshathra Vairya"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-haurvatat","name":{"en":"Haurvatat","es":"Haurvatat"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-ameretat","name":{"en":"Ameretat","es":"Ameretat"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-daena","name":{"en":"Daēnā","es":"Daēnā"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-the-fravashis","name":{"en":"The Fravashis","es":"Las fravashis"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-zam","name":{"en":"Zam","es":"Zam"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-apam-napat","name":{"en":"Apam Napat","es":"Apam Napat"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-airyaman","name":{"en":"Airyaman","es":"Airyaman"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"},{"id":"major-chista","name":{"en":"Chista","es":"Chista"},"sourceIds":["iranica-myths","iranica-amesha"],"sensitivity":"living-religion"}],"major":[{"itemName":{"en":"Ahura Mazda","es":"Ahura Mazda"},"culturalElementIds":["major-ahura-mazda"],"itemDescription":{"en":"A complex smoke signature combining fire, water and air to represent Ahura Mazda.","es":"Una formación compleja de humo que combina fuego, agua y aire para representar a Ahura Mazda."}},{"itemName":{"en":"Anāhitā","es":"Anāhitā"},"culturalElementIds":["major-anahita"],"itemDescription":{"en":"A complex smoke signature combining water and air to represent Anāhitā.","es":"Una formación compleja de humo que combina agua y aire para representar a Anāhitā."}},{"itemName":{"en":"Mithra","es":"Mithra"},"culturalElementIds":["major-mithra"],"itemDescription":{"en":"A complex smoke signature combining air and earth to represent Mithra.","es":"Una formación compleja de humo que combina aire y tierra para representar a Mithra."}},{"itemName":{"en":"Ātar","es":"Ātar"},"culturalElementIds":["major-atar"],"itemDescription":{"en":"A complex smoke signature combining earth and fire to represent Ātar.","es":"Una formación compleja de humo que combina tierra y fuego para representar a Ātar."}},{"itemName":{"en":"Sraosha","es":"Sraosha"},"culturalElementIds":["major-sraosha"],"itemDescription":{"en":"A complex smoke signature combining fire, air and earth to represent Sraosha.","es":"Una formación compleja de humo que combina fuego, aire y tierra para representar a Sraosha."}},{"itemName":{"en":"Rashnu","es":"Rashnu"},"culturalElementIds":["major-rashnu"],"itemDescription":{"en":"A complex smoke signature combining water and earth to represent Rashnu.","es":"Una formación compleja de humo que combina agua y tierra para representar a Rashnu."}},{"itemName":{"en":"Verethragna","es":"Verethragna"},"culturalElementIds":["major-verethragna"],"itemDescription":{"en":"A complex smoke signature combining air and fire to represent Verethragna.","es":"Una formación compleja de humo que combina aire y fuego para representar a Verethragna."}},{"itemName":{"en":"Tishtrya","es":"Tishtrya"},"culturalElementIds":["major-tishtrya"],"itemDescription":{"en":"A complex smoke signature combining earth and water to represent Tishtrya.","es":"Una formación compleja de humo que combina tierra y agua para representar a Tishtrya."}},{"itemName":{"en":"Haoma","es":"Haoma"},"culturalElementIds":["major-haoma"],"itemDescription":{"en":"A complex smoke signature combining fire, earth and water to represent Haoma.","es":"Una formación compleja de humo que combina fuego, tierra y agua para representar a Haoma."}},{"itemName":{"en":"Vayu","es":"Vayu"},"culturalElementIds":["major-vayu"],"itemDescription":{"en":"A complex smoke signature combining water and fire to represent Vayu.","es":"Una formación compleja de humo que combina agua y fuego para representar a Vayu."}},{"itemName":{"en":"Spenta Armaiti","es":"Spenta Armaiti"},"culturalElementIds":["major-spenta-armaiti"],"itemDescription":{"en":"A complex smoke signature combining air and water to represent Spenta Armaiti.","es":"Una formación compleja de humo que combina aire y agua para representar a Spenta Armaiti."}},{"itemName":{"en":"Vohu Manah","es":"Vohu Manah"},"culturalElementIds":["major-vohu-manah"],"itemDescription":{"en":"A complex smoke signature combining earth and air to represent Vohu Manah.","es":"Una formación compleja de humo que combina tierra y aire para representar a Vohu Manah."}},{"itemName":{"en":"Asha Vahishta","es":"Asha Vahishta"},"culturalElementIds":["major-asha-vahishta"],"itemDescription":{"en":"A complex smoke signature combining fire, water and air to represent Asha Vahishta.","es":"Una formación compleja de humo que combina fuego, agua y aire para representar a Asha Vahishta."}},{"itemName":{"en":"Khshathra Vairya","es":"Khshathra Vairya"},"culturalElementIds":["major-khshathra-vairya"],"itemDescription":{"en":"A complex smoke signature combining water and air to represent Khshathra Vairya.","es":"Una formación compleja de humo que combina agua y aire para representar a Khshathra Vairya."}},{"itemName":{"en":"Haurvatat","es":"Haurvatat"},"culturalElementIds":["major-haurvatat"],"itemDescription":{"en":"A complex smoke signature combining air and earth to represent Haurvatat.","es":"Una formación compleja de humo que combina aire y tierra para representar a Haurvatat."}},{"itemName":{"en":"Ameretat","es":"Ameretat"},"culturalElementIds":["major-ameretat"],"itemDescription":{"en":"A complex smoke signature combining earth and fire to represent Ameretat.","es":"Una formación compleja de humo que combina tierra y fuego para representar a Ameretat."}},{"itemName":{"en":"Daēnā","es":"Daēnā"},"culturalElementIds":["major-daena"],"itemDescription":{"en":"A complex smoke signature combining fire, water and air to represent Daēnā.","es":"Una formación compleja de humo que combina fuego, agua y aire para representar a Daēnā."}},{"itemName":{"en":"The Fravashis","es":"Las fravashis"},"culturalElementIds":["major-the-fravashis"],"itemDescription":{"en":"A complex smoke signature combining water and air to represent The Fravashis.","es":"Una formación compleja de humo que combina agua y aire para representar a Las fravashis."}},{"itemName":{"en":"Zam","es":"Zam"},"culturalElementIds":["major-zam"],"itemDescription":{"en":"A complex smoke signature combining air and earth to represent Zam.","es":"Una formación compleja de humo que combina aire y tierra para representar a Zam."}},{"itemName":{"en":"Apam Napat","es":"Apam Napat"},"culturalElementIds":["major-apam-napat"],"itemDescription":{"en":"A complex smoke signature combining earth and fire to represent Apam Napat.","es":"Una formación compleja de humo que combina tierra y fuego para representar a Apam Napat."}},{"itemName":{"en":"Airyaman","es":"Airyaman"},"culturalElementIds":["major-airyaman"],"itemDescription":{"en":"A complex smoke signature combining fire, air and earth to represent Airyaman.","es":"Una formación compleja de humo que combina fuego, aire y tierra para representar a Airyaman."}},{"itemName":{"en":"Chista","es":"Chista"},"culturalElementIds":["major-chista"],"itemDescription":{"en":"A complex smoke signature combining water and earth to represent Chista.","es":"Una formación compleja de humo que combina agua y tierra para representar a Chista."}}],"minor":{"wands":[{"itemName":{"en":"1 Fire Tongue","es":"1 lengua de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"2 Fire Tongues","es":"2 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"3 Fire Tongues","es":"3 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"4 Fire Tongues","es":"4 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"5 Fire Tongues","es":"5 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"6 Fire Tongues","es":"6 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"7 Fire Tongues","es":"7 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"8 Fire Tongues","es":"8 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"9 Fire Tongues","es":"9 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"10 Fire Tongues","es":"10 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"11 Fire Tongues","es":"11 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"12 Fire Tongues","es":"12 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"13 Fire Tongues","es":"13 lenguas de fuego"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"14 Fire Tongues","es":"14 lenguas de fuego"},"culturalElementIds":["family-wands"]}],"cups":[{"itemName":{"en":"1 Water Current","es":"1 corriente de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"2 Water Currents","es":"2 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"3 Water Currents","es":"3 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"4 Water Currents","es":"4 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"5 Water Currents","es":"5 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"6 Water Currents","es":"6 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"7 Water Currents","es":"7 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"8 Water Currents","es":"8 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"9 Water Currents","es":"9 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"10 Water Currents","es":"10 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"11 Water Currents","es":"11 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"12 Water Currents","es":"12 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"13 Water Currents","es":"13 corrientes de agua"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"14 Water Currents","es":"14 corrientes de agua"},"culturalElementIds":["family-cups"]}],"swords":[{"itemName":{"en":"1 Air Spiral","es":"1 espiral de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"2 Air Spirals","es":"2 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"3 Air Spirals","es":"3 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"4 Air Spirals","es":"4 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"5 Air Spirals","es":"5 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"6 Air Spirals","es":"6 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"7 Air Spirals","es":"7 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"8 Air Spirals","es":"8 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"9 Air Spirals","es":"9 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"10 Air Spirals","es":"10 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"11 Air Spirals","es":"11 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"12 Air Spirals","es":"12 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"13 Air Spirals","es":"13 espirales de aire"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"14 Air Spirals","es":"14 espirales de aire"},"culturalElementIds":["family-swords"]}],"pentacles":[{"itemName":{"en":"1 Earth Pillar","es":"1 pilar de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"2 Earth Pillars","es":"2 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"3 Earth Pillars","es":"3 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"4 Earth Pillars","es":"4 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"5 Earth Pillars","es":"5 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"6 Earth Pillars","es":"6 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"7 Earth Pillars","es":"7 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"8 Earth Pillars","es":"8 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"9 Earth Pillars","es":"9 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"10 Earth Pillars","es":"10 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"11 Earth Pillars","es":"11 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"12 Earth Pillars","es":"12 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"13 Earth Pillars","es":"13 pilares de tierra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"14 Earth Pillars","es":"14 pilares de tierra"},"culturalElementIds":["family-pentacles"]}]}}
+{
+  "$schema": "../medium-map.schema.json",
+  "version": 3,
+  "status": {
+    "state": "source-backed-draft",
+    "culturalSpecialistReviewRequired": true,
+    "note": {
+      "en": "The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.",
+      "es": "Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."
+    }
+  },
+  "reader": "nahid",
+  "culture": {
+    "en": "pre-Islamic Iranian and Zoroastrian elemental cosmology and divine traditions",
+    "es": "Cosmología elemental y tradiciones divinas iranias preislámicas y zoroastrianas"
+  },
+  "presentation": {
+    "rankMode": "count",
+    "majorMode": "complex-smoke",
+    "states": {
+      "upright": {
+        "en": "forming",
+        "es": "formándose"
+      },
+      "reversed": {
+        "en": "dispersing",
+        "es": "dispersándose"
+      }
+    },
+    "families": {
+      "wands": {
+        "en": "Fire",
+        "es": "Fuego"
+      },
+      "cups": {
+        "en": "Water",
+        "es": "Agua"
+      },
+      "swords": {
+        "en": "Air",
+        "es": "Aire"
+      },
+      "pentacles": {
+        "en": "Earth",
+        "es": "Tierra"
+      }
+    }
+  },
+  "sourceRegistry": [
+    {
+      "id": "iranica-elements",
+      "title": "Encyclopaedia Iranica: Elements",
+      "url": "https://www.iranicaonline.org/articles/elements/",
+      "note": "Documents Persian adoption and treatment of fire, water, earth and air in Middle Persian cosmology."
+    },
+    {
+      "id": "iranica-rituals",
+      "title": "Encyclopaedia Iranica: Zoroastrian rituals",
+      "url": "https://www.iranicaonline.org/articles/zoroastrian-rituals/",
+      "note": "Documents ritual importance of fire and water and purity practices."
+    },
+    {
+      "id": "iranica-fire",
+      "title": "Encyclopaedia Iranica: Ātaš",
+      "url": "https://www.iranicaonline.org/articles/atas-fire/",
+      "note": "Documents sacred fire in Iranian and Zoroastrian tradition."
+    },
+    {
+      "id": "iranica-myths",
+      "title": "Encyclopaedia Iranica: Iranian myths and legends",
+      "url": "https://www.iranicaonline.org/articles/iran-iv-myths-and-legends/",
+      "note": "Documents Iranian mythic and cosmological traditions."
+    },
+    {
+      "id": "iranica-amesha",
+      "title": "Encyclopaedia Iranica: Aməša Spənta",
+      "url": "https://www.iranicaonline.org/articles/amesa-spenta-beneficent-divinity/",
+      "note": "Documents the beneficent divinities and their cosmological associations."
+    }
+  ],
+  "culturalElementRegistry": [
+    {
+      "id": "family-wands",
+      "name": {
+        "en": "Fire",
+        "es": "Fuego"
+      },
+      "sourceIds": [
+        "iranica-elements",
+        "iranica-rituals"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "family-cups",
+      "name": {
+        "en": "Water",
+        "es": "Agua"
+      },
+      "sourceIds": [
+        "iranica-elements",
+        "iranica-rituals"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "family-swords",
+      "name": {
+        "en": "Air",
+        "es": "Aire"
+      },
+      "sourceIds": [
+        "iranica-elements",
+        "iranica-rituals"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "family-pentacles",
+      "name": {
+        "en": "Earth",
+        "es": "Tierra"
+      },
+      "sourceIds": [
+        "iranica-elements",
+        "iranica-rituals"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-ahura-mazda",
+      "name": {
+        "en": "Ahura Mazda",
+        "es": "Ahura Mazda"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-anahita",
+      "name": {
+        "en": "Anāhitā",
+        "es": "Anāhitā"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-mithra",
+      "name": {
+        "en": "Mithra",
+        "es": "Mithra"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-atar",
+      "name": {
+        "en": "Ātar",
+        "es": "Ātar"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-sraosha",
+      "name": {
+        "en": "Sraosha",
+        "es": "Sraosha"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-rashnu",
+      "name": {
+        "en": "Rashnu",
+        "es": "Rashnu"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-verethragna",
+      "name": {
+        "en": "Verethragna",
+        "es": "Verethragna"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-tishtrya",
+      "name": {
+        "en": "Tishtrya",
+        "es": "Tishtrya"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-haoma",
+      "name": {
+        "en": "Haoma",
+        "es": "Haoma"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-vayu",
+      "name": {
+        "en": "Vayu",
+        "es": "Vayu"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-spenta-armaiti",
+      "name": {
+        "en": "Spenta Armaiti",
+        "es": "Spenta Armaiti"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-vohu-manah",
+      "name": {
+        "en": "Vohu Manah",
+        "es": "Vohu Manah"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-asha-vahishta",
+      "name": {
+        "en": "Asha Vahishta",
+        "es": "Asha Vahishta"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-khshathra-vairya",
+      "name": {
+        "en": "Khshathra Vairya",
+        "es": "Khshathra Vairya"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-haurvatat",
+      "name": {
+        "en": "Haurvatat",
+        "es": "Haurvatat"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-ameretat",
+      "name": {
+        "en": "Ameretat",
+        "es": "Ameretat"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-daena",
+      "name": {
+        "en": "Daēnā",
+        "es": "Daēnā"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-the-fravashis",
+      "name": {
+        "en": "The Fravashis",
+        "es": "Las fravashis"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-zam",
+      "name": {
+        "en": "Zam",
+        "es": "Zam"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-apam-napat",
+      "name": {
+        "en": "Apam Napat",
+        "es": "Apam Napat"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-airyaman",
+      "name": {
+        "en": "Airyaman",
+        "es": "Airyaman"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-chista",
+      "name": {
+        "en": "Chista",
+        "es": "Chista"
+      },
+      "sourceIds": [
+        "iranica-myths",
+        "iranica-amesha"
+      ],
+      "sensitivity": "living-religion"
+    }
+  ],
+  "cards": {
+    "major-fool": {
+      "itemName": {
+        "en": "Ahura Mazda",
+        "es": "Ahura Mazda"
+      },
+      "culturalElementIds": [
+        "major-ahura-mazda"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining fire, water and air to represent Ahura Mazda.",
+        "es": "Una formación compleja de humo que combina fuego, agua y aire para representar a Ahura Mazda."
+      }
+    },
+    "major-magician": {
+      "itemName": {
+        "en": "Anāhitā",
+        "es": "Anāhitā"
+      },
+      "culturalElementIds": [
+        "major-anahita"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining water and air to represent Anāhitā.",
+        "es": "Una formación compleja de humo que combina agua y aire para representar a Anāhitā."
+      }
+    },
+    "major-priestess": {
+      "itemName": {
+        "en": "Mithra",
+        "es": "Mithra"
+      },
+      "culturalElementIds": [
+        "major-mithra"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining air and earth to represent Mithra.",
+        "es": "Una formación compleja de humo que combina aire y tierra para representar a Mithra."
+      }
+    },
+    "major-empress": {
+      "itemName": {
+        "en": "Ātar",
+        "es": "Ātar"
+      },
+      "culturalElementIds": [
+        "major-atar"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining earth and fire to represent Ātar.",
+        "es": "Una formación compleja de humo que combina tierra y fuego para representar a Ātar."
+      }
+    },
+    "major-emperor": {
+      "itemName": {
+        "en": "Sraosha",
+        "es": "Sraosha"
+      },
+      "culturalElementIds": [
+        "major-sraosha"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining fire, air and earth to represent Sraosha.",
+        "es": "Una formación compleja de humo que combina fuego, aire y tierra para representar a Sraosha."
+      }
+    },
+    "major-hierophant": {
+      "itemName": {
+        "en": "Rashnu",
+        "es": "Rashnu"
+      },
+      "culturalElementIds": [
+        "major-rashnu"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining water and earth to represent Rashnu.",
+        "es": "Una formación compleja de humo que combina agua y tierra para representar a Rashnu."
+      }
+    },
+    "major-lovers": {
+      "itemName": {
+        "en": "Verethragna",
+        "es": "Verethragna"
+      },
+      "culturalElementIds": [
+        "major-verethragna"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining air and fire to represent Verethragna.",
+        "es": "Una formación compleja de humo que combina aire y fuego para representar a Verethragna."
+      }
+    },
+    "major-chariot": {
+      "itemName": {
+        "en": "Tishtrya",
+        "es": "Tishtrya"
+      },
+      "culturalElementIds": [
+        "major-tishtrya"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining earth and water to represent Tishtrya.",
+        "es": "Una formación compleja de humo que combina tierra y agua para representar a Tishtrya."
+      }
+    },
+    "major-strength": {
+      "itemName": {
+        "en": "Haoma",
+        "es": "Haoma"
+      },
+      "culturalElementIds": [
+        "major-haoma"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining fire, earth and water to represent Haoma.",
+        "es": "Una formación compleja de humo que combina fuego, tierra y agua para representar a Haoma."
+      }
+    },
+    "major-hermit": {
+      "itemName": {
+        "en": "Vayu",
+        "es": "Vayu"
+      },
+      "culturalElementIds": [
+        "major-vayu"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining water and fire to represent Vayu.",
+        "es": "Una formación compleja de humo que combina agua y fuego para representar a Vayu."
+      }
+    },
+    "major-wheel": {
+      "itemName": {
+        "en": "Spenta Armaiti",
+        "es": "Spenta Armaiti"
+      },
+      "culturalElementIds": [
+        "major-spenta-armaiti"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining air and water to represent Spenta Armaiti.",
+        "es": "Una formación compleja de humo que combina aire y agua para representar a Spenta Armaiti."
+      }
+    },
+    "major-justice": {
+      "itemName": {
+        "en": "Vohu Manah",
+        "es": "Vohu Manah"
+      },
+      "culturalElementIds": [
+        "major-vohu-manah"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining earth and air to represent Vohu Manah.",
+        "es": "Una formación compleja de humo que combina tierra y aire para representar a Vohu Manah."
+      }
+    },
+    "major-hanged": {
+      "itemName": {
+        "en": "Asha Vahishta",
+        "es": "Asha Vahishta"
+      },
+      "culturalElementIds": [
+        "major-asha-vahishta"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining fire, water and air to represent Asha Vahishta.",
+        "es": "Una formación compleja de humo que combina fuego, agua y aire para representar a Asha Vahishta."
+      }
+    },
+    "major-death": {
+      "itemName": {
+        "en": "Khshathra Vairya",
+        "es": "Khshathra Vairya"
+      },
+      "culturalElementIds": [
+        "major-khshathra-vairya"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining water and air to represent Khshathra Vairya.",
+        "es": "Una formación compleja de humo que combina agua y aire para representar a Khshathra Vairya."
+      }
+    },
+    "major-temperance": {
+      "itemName": {
+        "en": "Haurvatat",
+        "es": "Haurvatat"
+      },
+      "culturalElementIds": [
+        "major-haurvatat"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining air and earth to represent Haurvatat.",
+        "es": "Una formación compleja de humo que combina aire y tierra para representar a Haurvatat."
+      }
+    },
+    "major-devil": {
+      "itemName": {
+        "en": "Ameretat",
+        "es": "Ameretat"
+      },
+      "culturalElementIds": [
+        "major-ameretat"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining earth and fire to represent Ameretat.",
+        "es": "Una formación compleja de humo que combina tierra y fuego para representar a Ameretat."
+      }
+    },
+    "major-tower": {
+      "itemName": {
+        "en": "Daēnā",
+        "es": "Daēnā"
+      },
+      "culturalElementIds": [
+        "major-daena"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining fire, water and air to represent Daēnā.",
+        "es": "Una formación compleja de humo que combina fuego, agua y aire para representar a Daēnā."
+      }
+    },
+    "major-star": {
+      "itemName": {
+        "en": "The Fravashis",
+        "es": "Las fravashis"
+      },
+      "culturalElementIds": [
+        "major-the-fravashis"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining water and air to represent The Fravashis.",
+        "es": "Una formación compleja de humo que combina agua y aire para representar a Las fravashis."
+      }
+    },
+    "major-moon": {
+      "itemName": {
+        "en": "Zam",
+        "es": "Zam"
+      },
+      "culturalElementIds": [
+        "major-zam"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining air and earth to represent Zam.",
+        "es": "Una formación compleja de humo que combina aire y tierra para representar a Zam."
+      }
+    },
+    "major-sun": {
+      "itemName": {
+        "en": "Apam Napat",
+        "es": "Apam Napat"
+      },
+      "culturalElementIds": [
+        "major-apam-napat"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining earth and fire to represent Apam Napat.",
+        "es": "Una formación compleja de humo que combina tierra y fuego para representar a Apam Napat."
+      }
+    },
+    "major-judgement": {
+      "itemName": {
+        "en": "Airyaman",
+        "es": "Airyaman"
+      },
+      "culturalElementIds": [
+        "major-airyaman"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining fire, air and earth to represent Airyaman.",
+        "es": "Una formación compleja de humo que combina fuego, aire y tierra para representar a Airyaman."
+      }
+    },
+    "major-world": {
+      "itemName": {
+        "en": "Chista",
+        "es": "Chista"
+      },
+      "culturalElementIds": [
+        "major-chista"
+      ],
+      "itemDescription": {
+        "en": "A complex smoke signature combining water and earth to represent Chista.",
+        "es": "Una formación compleja de humo que combina agua y tierra para representar a Chista."
+      }
+    },
+    "wands-ace": {
+      "itemName": {
+        "en": "1 Fire Tongue",
+        "es": "1 lengua de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-two": {
+      "itemName": {
+        "en": "2 Fire Tongues",
+        "es": "2 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-three": {
+      "itemName": {
+        "en": "3 Fire Tongues",
+        "es": "3 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-four": {
+      "itemName": {
+        "en": "4 Fire Tongues",
+        "es": "4 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-five": {
+      "itemName": {
+        "en": "5 Fire Tongues",
+        "es": "5 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-six": {
+      "itemName": {
+        "en": "6 Fire Tongues",
+        "es": "6 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-seven": {
+      "itemName": {
+        "en": "7 Fire Tongues",
+        "es": "7 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-eight": {
+      "itemName": {
+        "en": "8 Fire Tongues",
+        "es": "8 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-nine": {
+      "itemName": {
+        "en": "9 Fire Tongues",
+        "es": "9 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-ten": {
+      "itemName": {
+        "en": "10 Fire Tongues",
+        "es": "10 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-page": {
+      "itemName": {
+        "en": "11 Fire Tongues",
+        "es": "11 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-knight": {
+      "itemName": {
+        "en": "12 Fire Tongues",
+        "es": "12 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-queen": {
+      "itemName": {
+        "en": "13 Fire Tongues",
+        "es": "13 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-king": {
+      "itemName": {
+        "en": "14 Fire Tongues",
+        "es": "14 lenguas de fuego"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "cups-ace": {
+      "itemName": {
+        "en": "1 Water Current",
+        "es": "1 corriente de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-two": {
+      "itemName": {
+        "en": "2 Water Currents",
+        "es": "2 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-three": {
+      "itemName": {
+        "en": "3 Water Currents",
+        "es": "3 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-four": {
+      "itemName": {
+        "en": "4 Water Currents",
+        "es": "4 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-five": {
+      "itemName": {
+        "en": "5 Water Currents",
+        "es": "5 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-six": {
+      "itemName": {
+        "en": "6 Water Currents",
+        "es": "6 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-seven": {
+      "itemName": {
+        "en": "7 Water Currents",
+        "es": "7 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-eight": {
+      "itemName": {
+        "en": "8 Water Currents",
+        "es": "8 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-nine": {
+      "itemName": {
+        "en": "9 Water Currents",
+        "es": "9 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-ten": {
+      "itemName": {
+        "en": "10 Water Currents",
+        "es": "10 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-page": {
+      "itemName": {
+        "en": "11 Water Currents",
+        "es": "11 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-knight": {
+      "itemName": {
+        "en": "12 Water Currents",
+        "es": "12 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-queen": {
+      "itemName": {
+        "en": "13 Water Currents",
+        "es": "13 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-king": {
+      "itemName": {
+        "en": "14 Water Currents",
+        "es": "14 corrientes de agua"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "swords-ace": {
+      "itemName": {
+        "en": "1 Air Spiral",
+        "es": "1 espiral de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-two": {
+      "itemName": {
+        "en": "2 Air Spirals",
+        "es": "2 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-three": {
+      "itemName": {
+        "en": "3 Air Spirals",
+        "es": "3 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-four": {
+      "itemName": {
+        "en": "4 Air Spirals",
+        "es": "4 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-five": {
+      "itemName": {
+        "en": "5 Air Spirals",
+        "es": "5 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-six": {
+      "itemName": {
+        "en": "6 Air Spirals",
+        "es": "6 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-seven": {
+      "itemName": {
+        "en": "7 Air Spirals",
+        "es": "7 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-eight": {
+      "itemName": {
+        "en": "8 Air Spirals",
+        "es": "8 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-nine": {
+      "itemName": {
+        "en": "9 Air Spirals",
+        "es": "9 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-ten": {
+      "itemName": {
+        "en": "10 Air Spirals",
+        "es": "10 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-page": {
+      "itemName": {
+        "en": "11 Air Spirals",
+        "es": "11 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-knight": {
+      "itemName": {
+        "en": "12 Air Spirals",
+        "es": "12 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-queen": {
+      "itemName": {
+        "en": "13 Air Spirals",
+        "es": "13 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-king": {
+      "itemName": {
+        "en": "14 Air Spirals",
+        "es": "14 espirales de aire"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "pentacles-ace": {
+      "itemName": {
+        "en": "1 Earth Pillar",
+        "es": "1 pilar de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-two": {
+      "itemName": {
+        "en": "2 Earth Pillars",
+        "es": "2 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-three": {
+      "itemName": {
+        "en": "3 Earth Pillars",
+        "es": "3 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-four": {
+      "itemName": {
+        "en": "4 Earth Pillars",
+        "es": "4 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-five": {
+      "itemName": {
+        "en": "5 Earth Pillars",
+        "es": "5 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-six": {
+      "itemName": {
+        "en": "6 Earth Pillars",
+        "es": "6 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-seven": {
+      "itemName": {
+        "en": "7 Earth Pillars",
+        "es": "7 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-eight": {
+      "itemName": {
+        "en": "8 Earth Pillars",
+        "es": "8 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-nine": {
+      "itemName": {
+        "en": "9 Earth Pillars",
+        "es": "9 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-ten": {
+      "itemName": {
+        "en": "10 Earth Pillars",
+        "es": "10 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-page": {
+      "itemName": {
+        "en": "11 Earth Pillars",
+        "es": "11 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-knight": {
+      "itemName": {
+        "en": "12 Earth Pillars",
+        "es": "12 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-queen": {
+      "itemName": {
+        "en": "13 Earth Pillars",
+        "es": "13 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-king": {
+      "itemName": {
+        "en": "14 Earth Pillars",
+        "es": "14 pilares de tierra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    }
+  }
+}

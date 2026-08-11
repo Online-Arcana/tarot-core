@@ -1,1 +1,1191 @@
-{"$schema":"../medium-map.schema.json","version":2,"status":{"state":"source-backed-draft","runtimeIntegrated":true,"culturalSpecialistReviewRequired":true,"note":{"en":"The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.","es":"Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."}},"reader":"mictli","readerName":{"en":"Mictli","es":"Mictli"},"culture":{"en":"pre-Hispanic Mexica ritual, economic and divine iconography","es":"Iconografía ritual, económica y divina mexica prehispánica"},"medium":{"en":"one carved stone disk","es":"un disco de piedra tallado"},"canonicalDeck":{"name":{"en":"Online Arcana naipes","es":"Naipes de Online Arcana"},"cardCount":78,"orientationValues":["upright","reversed"],"mappingRule":{"en":"Exactly one fixed medium result per canonical card; the public state is selected by the canonical orientation.","es":"Exactamente un resultado fijo del medio por cada naipe canónico; el estado público se selecciona mediante la orientación canónica."}},"presentation":{"rankMode":"count","majorMode":"deity-disk","states":{"upright":{"en":"aligned","es":"alineado"},"reversed":{"en":"turned","es":"girado"}},"families":{"wands":{"en":"Eagles","es":"Águilas"},"cups":{"en":"Cempasúchil","es":"Cempasúchil"},"swords":{"en":"Jaguars","es":"Jaguares"},"pentacles":{"en":"Cacao","es":"Cacao"}}},"ritual":{"concealment":{"en":"All carved stone disks remain hidden in a dark covered vessel.","es":"Todos los discos de piedra tallados permanecen ocultos dentro de un recipiente oscuro y cubierto."},"chance":{"en":"Mictli mixes the disks without exposing their carvings and draws one unseen.","es":"Mictli mezcla los discos sin exponer sus tallas y extrae uno sin verlo."},"upright":{"en":"The disk rests with its carving aligned to the marked reading line.","es":"El disco queda con la talla alineada con la línea marcada de lectura."},"reversed":{"en":"The disk rests turned away from the marked reading line.","es":"El disco queda girado respecto a la línea marcada de lectura."},"beats":{"en":["covered stone vessel","stone grinding against stone","unseen draw","disk placed without correction","alignment with the reading line"],"es":["recipiente de piedra cubierto","piedra rozando contra piedra","extracción a ciegas","disco colocado sin corregir","alineación con la línea de lectura"]}},"sourceRegistry":[{"id":"met-eagle","title":"Metropolitan Museum: Mexica eagle-head labret","url":"https://www.metmuseum.org/art/collection/search/310663","note":"Documents eagle imagery and its relationship to Mexica origins and rulership."},{"id":"bm-four-movement","title":"British Museum: cuauhxicalli with Four Movement glyph","url":"https://www.britishmuseum.org/collection/object/E_Am-6185","note":"Documents Mexica solar and calendrical imagery."},{"id":"met-tecpatl","title":"Metropolitan Museum: Mexica tecpatl ritual knife","url":"https://www.metmuseum.org/art/collection/search/929310","note":"Documents Mexica ritual iconography."},{"id":"famsi-day-signs","title":"FAMSI: Aztec calendar day signs reference","url":"http://www.famsi.org/research/loubat/Tonalamatl/index.html","note":"Reference corpus for Mexica calendrical signs and iconography."},{"id":"met-mexica","title":"Metropolitan Museum: Mexica collection context","url":"https://www.metmuseum.org/art/collection/search?geolocation=Mexico&era=A.D.%201400-1600","note":"Museum collection context for Mexica deities, animals, plants and ritual objects."}],"culturalElementRegistry":[{"id":"family-wands","name":{"en":"Eagles","es":"Águilas"},"sourceIds":["met-eagle","met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"family-cups","name":{"en":"Cempasúchil","es":"Cempasúchil"},"sourceIds":["met-eagle","met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"family-swords","name":{"en":"Jaguars","es":"Jaguares"},"sourceIds":["met-eagle","met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"family-pentacles","name":{"en":"Cacao","es":"Cacao"},"sourceIds":["met-eagle","met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-quetzalcoatl","name":{"en":"Quetzalcōātl","es":"Quetzalcōātl"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tezcatlipoca","name":{"en":"Tezcatlipōca","es":"Tezcatlipōca"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-huitzilopochtli","name":{"en":"Huitzilopochtli","es":"Huitzilopochtli"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tlaloc","name":{"en":"Tlāloc","es":"Tlāloc"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-chalchiuhtlicue","name":{"en":"Chalchiuhtlicue","es":"Chalchiuhtlicue"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-xipe-totec","name":{"en":"Xipe Tōtec","es":"Xipe Tōtec"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-coatlicue","name":{"en":"Coatlicue","es":"Coatlicue"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-mictlantecutli","name":{"en":"Mictlāntēcutli","es":"Mictlāntēcutli"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-mictecacihuatl","name":{"en":"Mictēcacihuātl","es":"Mictēcacihuātl"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-xochipilli","name":{"en":"Xōchipilli","es":"Xōchipilli"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-xochiquetzal","name":{"en":"Xochiquetzal","es":"Xochiquetzal"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tlazolteotl","name":{"en":"Tlazōlteōtl","es":"Tlazōlteōtl"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tonatiuh","name":{"en":"Tonatiuh","es":"Tonatiuh"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-coyolxauhqui","name":{"en":"Coyolxāuhqui","es":"Coyolxāuhqui"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-mayahuel","name":{"en":"Mayahuel","es":"Mayahuel"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-xiuhtecuhtli","name":{"en":"Xiuhtecuhtli","es":"Xiuhtecuhtli"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-tlahuizcalpantecuhtli","name":{"en":"Tlahuizcalpantecuhtli","es":"Tlahuizcalpantecuhtli"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-centeotl","name":{"en":"Centeōtl","es":"Centeōtl"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-chicomecoatl","name":{"en":"Chicomecōātl","es":"Chicomecōātl"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-mixcoatl","name":{"en":"Mixcōātl","es":"Mixcōātl"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-ehecatl","name":{"en":"Ehēcatl","es":"Ehēcatl"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"},{"id":"major-itzpapalotl","name":{"en":"Itzpapālōtl","es":"Itzpapālōtl"},"sourceIds":["met-mexica","famsi-day-signs"],"sensitivity":"living-indigenous-heritage"}],"major":[{"itemName":{"en":"Quetzalcōātl","es":"Quetzalcōātl"},"culturalElementIds":["major-quetzalcoatl"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Quetzalcōātl.","es":"Un disco de piedra tallado directamente con la iconografía de Quetzalcōātl."}},{"itemName":{"en":"Tezcatlipōca","es":"Tezcatlipōca"},"culturalElementIds":["major-tezcatlipoca"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Tezcatlipōca.","es":"Un disco de piedra tallado directamente con la iconografía de Tezcatlipōca."}},{"itemName":{"en":"Huitzilopochtli","es":"Huitzilopochtli"},"culturalElementIds":["major-huitzilopochtli"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Huitzilopochtli.","es":"Un disco de piedra tallado directamente con la iconografía de Huitzilopochtli."}},{"itemName":{"en":"Tlāloc","es":"Tlāloc"},"culturalElementIds":["major-tlaloc"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Tlāloc.","es":"Un disco de piedra tallado directamente con la iconografía de Tlāloc."}},{"itemName":{"en":"Chalchiuhtlicue","es":"Chalchiuhtlicue"},"culturalElementIds":["major-chalchiuhtlicue"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Chalchiuhtlicue.","es":"Un disco de piedra tallado directamente con la iconografía de Chalchiuhtlicue."}},{"itemName":{"en":"Xipe Tōtec","es":"Xipe Tōtec"},"culturalElementIds":["major-xipe-totec"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Xipe Tōtec.","es":"Un disco de piedra tallado directamente con la iconografía de Xipe Tōtec."}},{"itemName":{"en":"Coatlicue","es":"Coatlicue"},"culturalElementIds":["major-coatlicue"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Coatlicue.","es":"Un disco de piedra tallado directamente con la iconografía de Coatlicue."}},{"itemName":{"en":"Mictlāntēcutli","es":"Mictlāntēcutli"},"culturalElementIds":["major-mictlantecutli"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Mictlāntēcutli.","es":"Un disco de piedra tallado directamente con la iconografía de Mictlāntēcutli."}},{"itemName":{"en":"Mictēcacihuātl","es":"Mictēcacihuātl"},"culturalElementIds":["major-mictecacihuatl"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Mictēcacihuātl.","es":"Un disco de piedra tallado directamente con la iconografía de Mictēcacihuātl."}},{"itemName":{"en":"Xōchipilli","es":"Xōchipilli"},"culturalElementIds":["major-xochipilli"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Xōchipilli.","es":"Un disco de piedra tallado directamente con la iconografía de Xōchipilli."}},{"itemName":{"en":"Xochiquetzal","es":"Xochiquetzal"},"culturalElementIds":["major-xochiquetzal"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Xochiquetzal.","es":"Un disco de piedra tallado directamente con la iconografía de Xochiquetzal."}},{"itemName":{"en":"Tlazōlteōtl","es":"Tlazōlteōtl"},"culturalElementIds":["major-tlazolteotl"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Tlazōlteōtl.","es":"Un disco de piedra tallado directamente con la iconografía de Tlazōlteōtl."}},{"itemName":{"en":"Tonatiuh","es":"Tonatiuh"},"culturalElementIds":["major-tonatiuh"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Tonatiuh.","es":"Un disco de piedra tallado directamente con la iconografía de Tonatiuh."}},{"itemName":{"en":"Coyolxāuhqui","es":"Coyolxāuhqui"},"culturalElementIds":["major-coyolxauhqui"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Coyolxāuhqui.","es":"Un disco de piedra tallado directamente con la iconografía de Coyolxāuhqui."}},{"itemName":{"en":"Mayahuel","es":"Mayahuel"},"culturalElementIds":["major-mayahuel"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Mayahuel.","es":"Un disco de piedra tallado directamente con la iconografía de Mayahuel."}},{"itemName":{"en":"Xiuhtecuhtli","es":"Xiuhtecuhtli"},"culturalElementIds":["major-xiuhtecuhtli"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Xiuhtecuhtli.","es":"Un disco de piedra tallado directamente con la iconografía de Xiuhtecuhtli."}},{"itemName":{"en":"Tlahuizcalpantecuhtli","es":"Tlahuizcalpantecuhtli"},"culturalElementIds":["major-tlahuizcalpantecuhtli"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Tlahuizcalpantecuhtli.","es":"Un disco de piedra tallado directamente con la iconografía de Tlahuizcalpantecuhtli."}},{"itemName":{"en":"Centeōtl","es":"Centeōtl"},"culturalElementIds":["major-centeotl"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Centeōtl.","es":"Un disco de piedra tallado directamente con la iconografía de Centeōtl."}},{"itemName":{"en":"Chicomecōātl","es":"Chicomecōātl"},"culturalElementIds":["major-chicomecoatl"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Chicomecōātl.","es":"Un disco de piedra tallado directamente con la iconografía de Chicomecōātl."}},{"itemName":{"en":"Mixcōātl","es":"Mixcōātl"},"culturalElementIds":["major-mixcoatl"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Mixcōātl.","es":"Un disco de piedra tallado directamente con la iconografía de Mixcōātl."}},{"itemName":{"en":"Ehēcatl","es":"Ehēcatl"},"culturalElementIds":["major-ehecatl"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Ehēcatl.","es":"Un disco de piedra tallado directamente con la iconografía de Ehēcatl."}},{"itemName":{"en":"Itzpapālōtl","es":"Itzpapālōtl"},"culturalElementIds":["major-itzpapalotl"],"itemDescription":{"en":"A stone disk carved directly with the iconography of Itzpapālōtl.","es":"Un disco de piedra tallado directamente con la iconografía de Itzpapālōtl."}}],"minor":{"wands":[{"itemName":{"en":"1 Eagle","es":"1 águila"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"2 Eagles","es":"2 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"3 Eagles","es":"3 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"4 Eagles","es":"4 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"5 Eagles","es":"5 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"6 Eagles","es":"6 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"7 Eagles","es":"7 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"8 Eagles","es":"8 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"9 Eagles","es":"9 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"10 Eagles","es":"10 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"11 Eagles","es":"11 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"12 Eagles","es":"12 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"13 Eagles","es":"13 águilas"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"14 Eagles","es":"14 águilas"},"culturalElementIds":["family-wands"]}],"cups":[{"itemName":{"en":"1 Cempasúchil","es":"1 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"2 Cempasúchil","es":"2 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"3 Cempasúchil","es":"3 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"4 Cempasúchil","es":"4 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"5 Cempasúchil","es":"5 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"6 Cempasúchil","es":"6 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"7 Cempasúchil","es":"7 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"8 Cempasúchil","es":"8 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"9 Cempasúchil","es":"9 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"10 Cempasúchil","es":"10 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"11 Cempasúchil","es":"11 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"12 Cempasúchil","es":"12 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"13 Cempasúchil","es":"13 Cempasúchil"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"14 Cempasúchil","es":"14 Cempasúchil"},"culturalElementIds":["family-cups"]}],"swords":[{"itemName":{"en":"1 Jaguar","es":"1 jaguar"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"2 Jaguars","es":"2 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"3 Jaguars","es":"3 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"4 Jaguars","es":"4 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"5 Jaguars","es":"5 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"6 Jaguars","es":"6 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"7 Jaguars","es":"7 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"8 Jaguars","es":"8 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"9 Jaguars","es":"9 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"10 Jaguars","es":"10 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"11 Jaguars","es":"11 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"12 Jaguars","es":"12 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"13 Jaguars","es":"13 jaguares"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"14 Jaguars","es":"14 jaguares"},"culturalElementIds":["family-swords"]}],"pentacles":[{"itemName":{"en":"1 Cacao Bean","es":"1 grano de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"2 Cacao Beans","es":"2 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"3 Cacao Beans","es":"3 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"4 Cacao Beans","es":"4 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"5 Cacao Beans","es":"5 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"6 Cacao Beans","es":"6 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"7 Cacao Beans","es":"7 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"8 Cacao Beans","es":"8 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"9 Cacao Beans","es":"9 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"10 Cacao Beans","es":"10 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"11 Cacao Beans","es":"11 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"12 Cacao Beans","es":"12 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"13 Cacao Beans","es":"13 granos de cacao"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"14 Cacao Beans","es":"14 granos de cacao"},"culturalElementIds":["family-pentacles"]}]}}
+{
+  "$schema": "../medium-map.schema.json",
+  "version": 3,
+  "status": {
+    "state": "source-backed-draft",
+    "culturalSpecialistReviewRequired": true,
+    "note": {
+      "en": "The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.",
+      "es": "Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."
+    }
+  },
+  "reader": "mictli",
+  "culture": {
+    "en": "pre-Hispanic Mexica ritual, economic and divine iconography",
+    "es": "Iconografía ritual, económica y divina mexica prehispánica"
+  },
+  "presentation": {
+    "rankMode": "count",
+    "majorMode": "deity-disk",
+    "states": {
+      "upright": {
+        "en": "aligned",
+        "es": "alineado"
+      },
+      "reversed": {
+        "en": "turned",
+        "es": "girado"
+      }
+    },
+    "families": {
+      "wands": {
+        "en": "Eagles",
+        "es": "Águilas"
+      },
+      "cups": {
+        "en": "Cempasúchil",
+        "es": "Cempasúchil"
+      },
+      "swords": {
+        "en": "Jaguars",
+        "es": "Jaguares"
+      },
+      "pentacles": {
+        "en": "Cacao",
+        "es": "Cacao"
+      }
+    }
+  },
+  "sourceRegistry": [
+    {
+      "id": "met-eagle",
+      "title": "Metropolitan Museum: Mexica eagle-head labret",
+      "url": "https://www.metmuseum.org/art/collection/search/310663",
+      "note": "Documents eagle imagery and its relationship to Mexica origins and rulership."
+    },
+    {
+      "id": "bm-four-movement",
+      "title": "British Museum: cuauhxicalli with Four Movement glyph",
+      "url": "https://www.britishmuseum.org/collection/object/E_Am-6185",
+      "note": "Documents Mexica solar and calendrical imagery."
+    },
+    {
+      "id": "met-tecpatl",
+      "title": "Metropolitan Museum: Mexica tecpatl ritual knife",
+      "url": "https://www.metmuseum.org/art/collection/search/929310",
+      "note": "Documents Mexica ritual iconography."
+    },
+    {
+      "id": "famsi-day-signs",
+      "title": "FAMSI: Aztec calendar day signs reference",
+      "url": "http://www.famsi.org/research/loubat/Tonalamatl/index.html",
+      "note": "Reference corpus for Mexica calendrical signs and iconography."
+    },
+    {
+      "id": "met-mexica",
+      "title": "Metropolitan Museum: Mexica collection context",
+      "url": "https://www.metmuseum.org/art/collection/search?geolocation=Mexico&era=A.D.%201400-1600",
+      "note": "Museum collection context for Mexica deities, animals, plants and ritual objects."
+    }
+  ],
+  "culturalElementRegistry": [
+    {
+      "id": "family-wands",
+      "name": {
+        "en": "Eagles",
+        "es": "Águilas"
+      },
+      "sourceIds": [
+        "met-eagle",
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "family-cups",
+      "name": {
+        "en": "Cempasúchil",
+        "es": "Cempasúchil"
+      },
+      "sourceIds": [
+        "met-eagle",
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "family-swords",
+      "name": {
+        "en": "Jaguars",
+        "es": "Jaguares"
+      },
+      "sourceIds": [
+        "met-eagle",
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "family-pentacles",
+      "name": {
+        "en": "Cacao",
+        "es": "Cacao"
+      },
+      "sourceIds": [
+        "met-eagle",
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-quetzalcoatl",
+      "name": {
+        "en": "Quetzalcōātl",
+        "es": "Quetzalcōātl"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tezcatlipoca",
+      "name": {
+        "en": "Tezcatlipōca",
+        "es": "Tezcatlipōca"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-huitzilopochtli",
+      "name": {
+        "en": "Huitzilopochtli",
+        "es": "Huitzilopochtli"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tlaloc",
+      "name": {
+        "en": "Tlāloc",
+        "es": "Tlāloc"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-chalchiuhtlicue",
+      "name": {
+        "en": "Chalchiuhtlicue",
+        "es": "Chalchiuhtlicue"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-xipe-totec",
+      "name": {
+        "en": "Xipe Tōtec",
+        "es": "Xipe Tōtec"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-coatlicue",
+      "name": {
+        "en": "Coatlicue",
+        "es": "Coatlicue"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-mictlantecutli",
+      "name": {
+        "en": "Mictlāntēcutli",
+        "es": "Mictlāntēcutli"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-mictecacihuatl",
+      "name": {
+        "en": "Mictēcacihuātl",
+        "es": "Mictēcacihuātl"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-xochipilli",
+      "name": {
+        "en": "Xōchipilli",
+        "es": "Xōchipilli"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-xochiquetzal",
+      "name": {
+        "en": "Xochiquetzal",
+        "es": "Xochiquetzal"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tlazolteotl",
+      "name": {
+        "en": "Tlazōlteōtl",
+        "es": "Tlazōlteōtl"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tonatiuh",
+      "name": {
+        "en": "Tonatiuh",
+        "es": "Tonatiuh"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-coyolxauhqui",
+      "name": {
+        "en": "Coyolxāuhqui",
+        "es": "Coyolxāuhqui"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-mayahuel",
+      "name": {
+        "en": "Mayahuel",
+        "es": "Mayahuel"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-xiuhtecuhtli",
+      "name": {
+        "en": "Xiuhtecuhtli",
+        "es": "Xiuhtecuhtli"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-tlahuizcalpantecuhtli",
+      "name": {
+        "en": "Tlahuizcalpantecuhtli",
+        "es": "Tlahuizcalpantecuhtli"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-centeotl",
+      "name": {
+        "en": "Centeōtl",
+        "es": "Centeōtl"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-chicomecoatl",
+      "name": {
+        "en": "Chicomecōātl",
+        "es": "Chicomecōātl"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-mixcoatl",
+      "name": {
+        "en": "Mixcōātl",
+        "es": "Mixcōātl"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-ehecatl",
+      "name": {
+        "en": "Ehēcatl",
+        "es": "Ehēcatl"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    },
+    {
+      "id": "major-itzpapalotl",
+      "name": {
+        "en": "Itzpapālōtl",
+        "es": "Itzpapālōtl"
+      },
+      "sourceIds": [
+        "met-mexica",
+        "famsi-day-signs"
+      ],
+      "sensitivity": "living-indigenous-heritage"
+    }
+  ],
+  "cards": {
+    "major-fool": {
+      "itemName": {
+        "en": "Quetzalcōātl",
+        "es": "Quetzalcōātl"
+      },
+      "culturalElementIds": [
+        "major-quetzalcoatl"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Quetzalcōātl.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Quetzalcōātl."
+      }
+    },
+    "major-magician": {
+      "itemName": {
+        "en": "Tezcatlipōca",
+        "es": "Tezcatlipōca"
+      },
+      "culturalElementIds": [
+        "major-tezcatlipoca"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Tezcatlipōca.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Tezcatlipōca."
+      }
+    },
+    "major-priestess": {
+      "itemName": {
+        "en": "Huitzilopochtli",
+        "es": "Huitzilopochtli"
+      },
+      "culturalElementIds": [
+        "major-huitzilopochtli"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Huitzilopochtli.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Huitzilopochtli."
+      }
+    },
+    "major-empress": {
+      "itemName": {
+        "en": "Tlāloc",
+        "es": "Tlāloc"
+      },
+      "culturalElementIds": [
+        "major-tlaloc"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Tlāloc.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Tlāloc."
+      }
+    },
+    "major-emperor": {
+      "itemName": {
+        "en": "Chalchiuhtlicue",
+        "es": "Chalchiuhtlicue"
+      },
+      "culturalElementIds": [
+        "major-chalchiuhtlicue"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Chalchiuhtlicue.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Chalchiuhtlicue."
+      }
+    },
+    "major-hierophant": {
+      "itemName": {
+        "en": "Xipe Tōtec",
+        "es": "Xipe Tōtec"
+      },
+      "culturalElementIds": [
+        "major-xipe-totec"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Xipe Tōtec.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Xipe Tōtec."
+      }
+    },
+    "major-lovers": {
+      "itemName": {
+        "en": "Coatlicue",
+        "es": "Coatlicue"
+      },
+      "culturalElementIds": [
+        "major-coatlicue"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Coatlicue.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Coatlicue."
+      }
+    },
+    "major-chariot": {
+      "itemName": {
+        "en": "Mictlāntēcutli",
+        "es": "Mictlāntēcutli"
+      },
+      "culturalElementIds": [
+        "major-mictlantecutli"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Mictlāntēcutli.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Mictlāntēcutli."
+      }
+    },
+    "major-strength": {
+      "itemName": {
+        "en": "Mictēcacihuātl",
+        "es": "Mictēcacihuātl"
+      },
+      "culturalElementIds": [
+        "major-mictecacihuatl"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Mictēcacihuātl.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Mictēcacihuātl."
+      }
+    },
+    "major-hermit": {
+      "itemName": {
+        "en": "Xōchipilli",
+        "es": "Xōchipilli"
+      },
+      "culturalElementIds": [
+        "major-xochipilli"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Xōchipilli.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Xōchipilli."
+      }
+    },
+    "major-wheel": {
+      "itemName": {
+        "en": "Xochiquetzal",
+        "es": "Xochiquetzal"
+      },
+      "culturalElementIds": [
+        "major-xochiquetzal"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Xochiquetzal.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Xochiquetzal."
+      }
+    },
+    "major-justice": {
+      "itemName": {
+        "en": "Tlazōlteōtl",
+        "es": "Tlazōlteōtl"
+      },
+      "culturalElementIds": [
+        "major-tlazolteotl"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Tlazōlteōtl.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Tlazōlteōtl."
+      }
+    },
+    "major-hanged": {
+      "itemName": {
+        "en": "Tonatiuh",
+        "es": "Tonatiuh"
+      },
+      "culturalElementIds": [
+        "major-tonatiuh"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Tonatiuh.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Tonatiuh."
+      }
+    },
+    "major-death": {
+      "itemName": {
+        "en": "Coyolxāuhqui",
+        "es": "Coyolxāuhqui"
+      },
+      "culturalElementIds": [
+        "major-coyolxauhqui"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Coyolxāuhqui.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Coyolxāuhqui."
+      }
+    },
+    "major-temperance": {
+      "itemName": {
+        "en": "Mayahuel",
+        "es": "Mayahuel"
+      },
+      "culturalElementIds": [
+        "major-mayahuel"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Mayahuel.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Mayahuel."
+      }
+    },
+    "major-devil": {
+      "itemName": {
+        "en": "Xiuhtecuhtli",
+        "es": "Xiuhtecuhtli"
+      },
+      "culturalElementIds": [
+        "major-xiuhtecuhtli"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Xiuhtecuhtli.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Xiuhtecuhtli."
+      }
+    },
+    "major-tower": {
+      "itemName": {
+        "en": "Tlahuizcalpantecuhtli",
+        "es": "Tlahuizcalpantecuhtli"
+      },
+      "culturalElementIds": [
+        "major-tlahuizcalpantecuhtli"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Tlahuizcalpantecuhtli.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Tlahuizcalpantecuhtli."
+      }
+    },
+    "major-star": {
+      "itemName": {
+        "en": "Centeōtl",
+        "es": "Centeōtl"
+      },
+      "culturalElementIds": [
+        "major-centeotl"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Centeōtl.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Centeōtl."
+      }
+    },
+    "major-moon": {
+      "itemName": {
+        "en": "Chicomecōātl",
+        "es": "Chicomecōātl"
+      },
+      "culturalElementIds": [
+        "major-chicomecoatl"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Chicomecōātl.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Chicomecōātl."
+      }
+    },
+    "major-sun": {
+      "itemName": {
+        "en": "Mixcōātl",
+        "es": "Mixcōātl"
+      },
+      "culturalElementIds": [
+        "major-mixcoatl"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Mixcōātl.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Mixcōātl."
+      }
+    },
+    "major-judgement": {
+      "itemName": {
+        "en": "Ehēcatl",
+        "es": "Ehēcatl"
+      },
+      "culturalElementIds": [
+        "major-ehecatl"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Ehēcatl.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Ehēcatl."
+      }
+    },
+    "major-world": {
+      "itemName": {
+        "en": "Itzpapālōtl",
+        "es": "Itzpapālōtl"
+      },
+      "culturalElementIds": [
+        "major-itzpapalotl"
+      ],
+      "itemDescription": {
+        "en": "A stone disk carved directly with the iconography of Itzpapālōtl.",
+        "es": "Un disco de piedra tallado directamente con la iconografía de Itzpapālōtl."
+      }
+    },
+    "wands-ace": {
+      "itemName": {
+        "en": "1 Eagle",
+        "es": "1 águila"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-two": {
+      "itemName": {
+        "en": "2 Eagles",
+        "es": "2 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-three": {
+      "itemName": {
+        "en": "3 Eagles",
+        "es": "3 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-four": {
+      "itemName": {
+        "en": "4 Eagles",
+        "es": "4 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-five": {
+      "itemName": {
+        "en": "5 Eagles",
+        "es": "5 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-six": {
+      "itemName": {
+        "en": "6 Eagles",
+        "es": "6 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-seven": {
+      "itemName": {
+        "en": "7 Eagles",
+        "es": "7 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-eight": {
+      "itemName": {
+        "en": "8 Eagles",
+        "es": "8 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-nine": {
+      "itemName": {
+        "en": "9 Eagles",
+        "es": "9 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-ten": {
+      "itemName": {
+        "en": "10 Eagles",
+        "es": "10 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-page": {
+      "itemName": {
+        "en": "11 Eagles",
+        "es": "11 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-knight": {
+      "itemName": {
+        "en": "12 Eagles",
+        "es": "12 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-queen": {
+      "itemName": {
+        "en": "13 Eagles",
+        "es": "13 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-king": {
+      "itemName": {
+        "en": "14 Eagles",
+        "es": "14 águilas"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "cups-ace": {
+      "itemName": {
+        "en": "1 Cempasúchil",
+        "es": "1 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-two": {
+      "itemName": {
+        "en": "2 Cempasúchil",
+        "es": "2 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-three": {
+      "itemName": {
+        "en": "3 Cempasúchil",
+        "es": "3 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-four": {
+      "itemName": {
+        "en": "4 Cempasúchil",
+        "es": "4 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-five": {
+      "itemName": {
+        "en": "5 Cempasúchil",
+        "es": "5 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-six": {
+      "itemName": {
+        "en": "6 Cempasúchil",
+        "es": "6 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-seven": {
+      "itemName": {
+        "en": "7 Cempasúchil",
+        "es": "7 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-eight": {
+      "itemName": {
+        "en": "8 Cempasúchil",
+        "es": "8 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-nine": {
+      "itemName": {
+        "en": "9 Cempasúchil",
+        "es": "9 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-ten": {
+      "itemName": {
+        "en": "10 Cempasúchil",
+        "es": "10 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-page": {
+      "itemName": {
+        "en": "11 Cempasúchil",
+        "es": "11 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-knight": {
+      "itemName": {
+        "en": "12 Cempasúchil",
+        "es": "12 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-queen": {
+      "itemName": {
+        "en": "13 Cempasúchil",
+        "es": "13 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-king": {
+      "itemName": {
+        "en": "14 Cempasúchil",
+        "es": "14 Cempasúchil"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "swords-ace": {
+      "itemName": {
+        "en": "1 Jaguar",
+        "es": "1 jaguar"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-two": {
+      "itemName": {
+        "en": "2 Jaguars",
+        "es": "2 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-three": {
+      "itemName": {
+        "en": "3 Jaguars",
+        "es": "3 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-four": {
+      "itemName": {
+        "en": "4 Jaguars",
+        "es": "4 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-five": {
+      "itemName": {
+        "en": "5 Jaguars",
+        "es": "5 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-six": {
+      "itemName": {
+        "en": "6 Jaguars",
+        "es": "6 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-seven": {
+      "itemName": {
+        "en": "7 Jaguars",
+        "es": "7 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-eight": {
+      "itemName": {
+        "en": "8 Jaguars",
+        "es": "8 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-nine": {
+      "itemName": {
+        "en": "9 Jaguars",
+        "es": "9 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-ten": {
+      "itemName": {
+        "en": "10 Jaguars",
+        "es": "10 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-page": {
+      "itemName": {
+        "en": "11 Jaguars",
+        "es": "11 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-knight": {
+      "itemName": {
+        "en": "12 Jaguars",
+        "es": "12 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-queen": {
+      "itemName": {
+        "en": "13 Jaguars",
+        "es": "13 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-king": {
+      "itemName": {
+        "en": "14 Jaguars",
+        "es": "14 jaguares"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "pentacles-ace": {
+      "itemName": {
+        "en": "1 Cacao Bean",
+        "es": "1 grano de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-two": {
+      "itemName": {
+        "en": "2 Cacao Beans",
+        "es": "2 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-three": {
+      "itemName": {
+        "en": "3 Cacao Beans",
+        "es": "3 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-four": {
+      "itemName": {
+        "en": "4 Cacao Beans",
+        "es": "4 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-five": {
+      "itemName": {
+        "en": "5 Cacao Beans",
+        "es": "5 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-six": {
+      "itemName": {
+        "en": "6 Cacao Beans",
+        "es": "6 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-seven": {
+      "itemName": {
+        "en": "7 Cacao Beans",
+        "es": "7 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-eight": {
+      "itemName": {
+        "en": "8 Cacao Beans",
+        "es": "8 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-nine": {
+      "itemName": {
+        "en": "9 Cacao Beans",
+        "es": "9 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-ten": {
+      "itemName": {
+        "en": "10 Cacao Beans",
+        "es": "10 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-page": {
+      "itemName": {
+        "en": "11 Cacao Beans",
+        "es": "11 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-knight": {
+      "itemName": {
+        "en": "12 Cacao Beans",
+        "es": "12 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-queen": {
+      "itemName": {
+        "en": "13 Cacao Beans",
+        "es": "13 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-king": {
+      "itemName": {
+        "en": "14 Cacao Beans",
+        "es": "14 granos de cacao"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    }
+  }
+}

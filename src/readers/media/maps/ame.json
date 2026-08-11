@@ -1,1 +1,934 @@
-{"$schema":"../medium-map.schema.json","version":2,"status":{"state":"source-backed-draft","runtimeIntegrated":true,"culturalSpecialistReviewRequired":true,"note":{"en":"The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.","es":"Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."}},"reader":"ame","readerName":{"en":"Ame","es":"Ame"},"culture":{"en":"Japanese seasonal flowers, Shinto mythology and documented yōkai folklore","es":"Flores estacionales japonesas, mitología sintoísta y folclore yōkai documentado"},"medium":{"en":"sakura, hasu, fuji and ajisai petals cast together onto collected rainwater","es":"pétalos de sakura, hasu, fuji y ajisai lanzados juntos sobre agua de lluvia recogida"},"canonicalDeck":{"name":{"en":"Online Arcana naipes","es":"Naipes de Online Arcana"},"cardCount":78,"orientationValues":["upright","reversed"],"mappingRule":{"en":"Exactly one fixed medium result per canonical card; the public state is selected by the canonical orientation.","es":"Exactamente un resultado fijo del medio por cada naipe canónico; el estado público se selecciona mediante la orientación canónica."}},"presentation":{"rankMode":"count","majorMode":"mixed-petals","states":{"upright":{"en":"still","es":"quieto"},"reversed":{"en":"drifting","es":"a la deriva"}},"families":{"wands":{"en":"Fuji","es":"Fuji"},"cups":{"en":"Hasu","es":"Hasu"},"swords":{"en":"Sakura","es":"Sakura"},"pentacles":{"en":"Ajisai","es":"Ajisai"}}},"ritual":{"concealment":{"en":"Ame holds one gathered handful containing all four kinds of petals above a basin whose marked areas correspond to the spread positions.","es":"Ame sostiene sobre una pila un solo puñado que contiene los cuatro tipos de pétalos; las zonas marcadas de la pila corresponden a las posiciones de la tirada."},"chance":{"en":"At the beginning of the spread, Ame releases the entire handful once. Every petal falls, collides and drifts into the marked spread areas; no second cast is made.","es":"Al comienzo de la tirada, Ame suelta todo el puñado una sola vez. Todos los pétalos caen, chocan y derivan hacia las zonas marcadas de la tirada; no se realiza un segundo lanzamiento."},"continuation":{"en":"Without casting again, Ame turns her attention to the next marked spread area and counts the petals already resting or drifting there.","es":"Sin volver a lanzar, Ame dirige su atención a la siguiente zona marcada de la tirada y cuenta los pétalos que ya reposan o derivan allí."},"upright":{"en":"The relevant petals are still when that spread position is read.","es":"Los pétalos relevantes están quietos cuando se lee esa posición de la tirada."},"reversed":{"en":"The relevant petals are still drifting when that spread position is read.","es":"Los pétalos relevantes todavía están a la deriva cuando se lee esa posición de la tirada."},"beats":{"en":["basin of collected rainwater","one mixed handful","single release for the whole spread","petals entering marked areas","counting each area without another cast"],"es":["pila de agua de lluvia recogida","un solo puñado mezclado","un único lanzamiento para toda la tirada","pétalos que entran en zonas marcadas","recuento de cada zona sin otro lanzamiento"]}},"sourceRegistry":[{"id":"kew-plants","title":"Royal Botanic Gardens, Kew: Plants of the World Online","url":"https://powo.science.kew.org/","note":"Botanical reference for sakura, lotus, Japanese wisteria and hydrangea."},{"id":"shinto-regalia","title":"Encyclopedia of Shinto: Three sacred treasures","url":"https://d-museum.kokugakuin.ac.jp/eos/detail/?id=8656","note":"Documents Shinto mythic and ritual traditions."},{"id":"shinto-shrines","title":"Encyclopedia of Shinto: shrine composition","url":"https://d-museum.kokugakuin.ac.jp/eos/detail/?id=9114","note":"Documents shrine structures and ritual context."},{"id":"shinto-kagura","title":"Encyclopedia of Shinto: Kagura","url":"https://d-museum.kokugakuin.ac.jp/eos/detail/?id=9175","note":"Documents ritual traditions involving kami."},{"id":"yokai-db","title":"Nichibunken: Database of Folktales of Mysterious Phenomena and Yōkai","url":"https://www.nichibun.ac.jp/en/db/category/yokai/","note":"Research database indexing Japanese yōkai and anomalous folklore, including kitsune, tengu, kappa and tanuki."}],"culturalElementRegistry":[{"id":"family-wands","name":{"en":"Fuji","es":"Fuji"},"sourceIds":["kew-plants"],"sensitivity":"living-religion"},{"id":"family-cups","name":{"en":"Hasu","es":"Hasu"},"sourceIds":["kew-plants"],"sensitivity":"living-religion"},{"id":"family-swords","name":{"en":"Sakura","es":"Sakura"},"sourceIds":["kew-plants"],"sensitivity":"living-religion"},{"id":"family-pentacles","name":{"en":"Ajisai","es":"Ajisai"},"sourceIds":["kew-plants"],"sensitivity":"living-religion"},{"id":"major-being","name":{"en":"Named being","es":"Ser nombrado"},"sourceIds":["kew-plants","shinto-regalia","shinto-shrines","shinto-kagura","yokai-db"],"sensitivity":"specialist-review"}],"major":[{"itemName":{"en":"Amaterasu","es":"Amaterasu"},"culturalElementIds":["major-being"],"itemDescription":{"en":"2 Sakura, 1 Hasu and 1 Fuji","es":"2 Sakura, 1 Hasu and 1 Fuji"}},{"itemName":{"en":"Susanoo","es":"Susanoo"},"culturalElementIds":["major-being"],"itemDescription":{"en":"3 Hasu and 3 Fuji","es":"3 Hasu and 3 Fuji"}},{"itemName":{"en":"Tsukuyomi","es":"Tsukuyomi"},"culturalElementIds":["major-being"],"itemDescription":{"en":"4 Fuji and 1 Ajisai","es":"4 Fuji and 1 Ajisai"}},{"itemName":{"en":"Inari","es":"Inari"},"culturalElementIds":["major-being"],"itemDescription":{"en":"5 Ajisai, 3 Sakura and 1 Hasu","es":"5 Ajisai, 3 Sakura and 1 Hasu"}},{"itemName":{"en":"Ukanomitama","es":"Ukanomitama"},"culturalElementIds":["major-being"],"itemDescription":{"en":"6 Sakura and 1 Fuji","es":"6 Sakura and 1 Fuji"}},{"itemName":{"en":"Ame-no-Uzume","es":"Ame-no-Uzume"},"culturalElementIds":["major-being"],"itemDescription":{"en":"2 Hasu and 3 Ajisai","es":"2 Hasu and 3 Ajisai"}},{"itemName":{"en":"Sarutahiko","es":"Sarutahiko"},"culturalElementIds":["major-being"],"itemDescription":{"en":"3 Fuji, 1 Sakura and 1 Hasu","es":"3 Fuji, 1 Sakura and 1 Hasu"}},{"itemName":{"en":"Ōkuninushi","es":"Ōkuninushi"},"culturalElementIds":["major-being"],"itemDescription":{"en":"4 Ajisai and 3 Hasu","es":"4 Ajisai and 3 Hasu"}},{"itemName":{"en":"Takemikazuchi","es":"Takemikazuchi"},"culturalElementIds":["major-being"],"itemDescription":{"en":"5 Sakura and 1 Ajisai","es":"5 Sakura and 1 Ajisai"}},{"itemName":{"en":"Konohanasakuya-hime","es":"Konohanasakuya-hime"},"culturalElementIds":["major-being"],"itemDescription":{"en":"6 Hasu, 3 Sakura and 1 Fuji","es":"6 Hasu, 3 Sakura and 1 Fuji"}},{"itemName":{"en":"Izanagi","es":"Izanagi"},"culturalElementIds":["major-being"],"itemDescription":{"en":"2 Fuji and 1 Hasu","es":"2 Fuji and 1 Hasu"}},{"itemName":{"en":"Izanami","es":"Izanami"},"culturalElementIds":["major-being"],"itemDescription":{"en":"3 Ajisai and 3 Fuji","es":"3 Ajisai and 3 Fuji"}},{"itemName":{"en":"Hachiman","es":"Hachiman"},"culturalElementIds":["major-being"],"itemDescription":{"en":"4 Sakura, 1 Hasu and 1 Fuji","es":"4 Sakura, 1 Hasu and 1 Fuji"}},{"itemName":{"en":"Raijin","es":"Raijin"},"culturalElementIds":["major-being"],"itemDescription":{"en":"5 Hasu and 3 Fuji","es":"5 Hasu and 3 Fuji"}},{"itemName":{"en":"Fūjin","es":"Fūjin"},"culturalElementIds":["major-being"],"itemDescription":{"en":"6 Fuji and 1 Ajisai","es":"6 Fuji and 1 Ajisai"}},{"itemName":{"en":"Kitsune","es":"Kitsune"},"culturalElementIds":["major-being"],"itemDescription":{"en":"2 Ajisai, 3 Sakura and 1 Hasu","es":"2 Ajisai, 3 Sakura and 1 Hasu"}},{"itemName":{"en":"Tanuki","es":"Tanuki"},"culturalElementIds":["major-being"],"itemDescription":{"en":"3 Sakura and 1 Hasu","es":"3 Sakura and 1 Hasu"}},{"itemName":{"en":"Tengu","es":"Tengu"},"culturalElementIds":["major-being"],"itemDescription":{"en":"4 Hasu and 3 Fuji","es":"4 Hasu and 3 Fuji"}},{"itemName":{"en":"Kappa","es":"Kappa"},"culturalElementIds":["major-being"],"itemDescription":{"en":"5 Fuji, 1 Ajisai and 1 Sakura","es":"5 Fuji, 1 Ajisai and 1 Sakura"}},{"itemName":{"en":"Yuki-onna","es":"Yuki-onna"},"culturalElementIds":["major-being"],"itemDescription":{"en":"6 Ajisai and 3 Sakura","es":"6 Ajisai and 3 Sakura"}},{"itemName":{"en":"Bakeneko","es":"Bakeneko"},"culturalElementIds":["major-being"],"itemDescription":{"en":"2 Sakura and 1 Fuji","es":"2 Sakura and 1 Fuji"}},{"itemName":{"en":"Jorōgumo","es":"Jorōgumo"},"culturalElementIds":["major-being"],"itemDescription":{"en":"3 Hasu, 3 Ajisai and 1 Sakura","es":"3 Hasu, 3 Ajisai and 1 Sakura"}}],"minor":{"wands":[{"itemName":{"en":"1 Fuji Petal","es":"1 pétalo de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"2 Fuji Petals","es":"2 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"3 Fuji Petals","es":"3 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"4 Fuji Petals","es":"4 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"5 Fuji Petals","es":"5 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"6 Fuji Petals","es":"6 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"7 Fuji Petals","es":"7 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"8 Fuji Petals","es":"8 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"9 Fuji Petals","es":"9 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"10 Fuji Petals","es":"10 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"11 Fuji Petals","es":"11 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"12 Fuji Petals","es":"12 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"13 Fuji Petals","es":"13 pétalos de Fuji"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"14 Fuji Petals","es":"14 pétalos de Fuji"},"culturalElementIds":["family-wands"]}],"cups":[{"itemName":{"en":"1 Hasu Petal","es":"1 pétalo de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"2 Hasu Petals","es":"2 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"3 Hasu Petals","es":"3 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"4 Hasu Petals","es":"4 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"5 Hasu Petals","es":"5 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"6 Hasu Petals","es":"6 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"7 Hasu Petals","es":"7 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"8 Hasu Petals","es":"8 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"9 Hasu Petals","es":"9 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"10 Hasu Petals","es":"10 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"11 Hasu Petals","es":"11 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"12 Hasu Petals","es":"12 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"13 Hasu Petals","es":"13 pétalos de Hasu"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"14 Hasu Petals","es":"14 pétalos de Hasu"},"culturalElementIds":["family-cups"]}],"swords":[{"itemName":{"en":"1 Sakura Petal","es":"1 pétalo de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"2 Sakura Petals","es":"2 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"3 Sakura Petals","es":"3 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"4 Sakura Petals","es":"4 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"5 Sakura Petals","es":"5 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"6 Sakura Petals","es":"6 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"7 Sakura Petals","es":"7 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"8 Sakura Petals","es":"8 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"9 Sakura Petals","es":"9 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"10 Sakura Petals","es":"10 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"11 Sakura Petals","es":"11 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"12 Sakura Petals","es":"12 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"13 Sakura Petals","es":"13 pétalos de Sakura"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"14 Sakura Petals","es":"14 pétalos de Sakura"},"culturalElementIds":["family-swords"]}],"pentacles":[{"itemName":{"en":"1 Ajisai Petal","es":"1 pétalo de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"2 Ajisai Petals","es":"2 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"3 Ajisai Petals","es":"3 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"4 Ajisai Petals","es":"4 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"5 Ajisai Petals","es":"5 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"6 Ajisai Petals","es":"6 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"7 Ajisai Petals","es":"7 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"8 Ajisai Petals","es":"8 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"9 Ajisai Petals","es":"9 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"10 Ajisai Petals","es":"10 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"11 Ajisai Petals","es":"11 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"12 Ajisai Petals","es":"12 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"13 Ajisai Petals","es":"13 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"14 Ajisai Petals","es":"14 pétalos de Ajisai"},"culturalElementIds":["family-pentacles"]}]}}
+{
+  "$schema": "../medium-map.schema.json",
+  "version": 3,
+  "status": {
+    "state": "source-backed-draft",
+    "culturalSpecialistReviewRequired": true,
+    "note": {
+      "en": "The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.",
+      "es": "Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."
+    }
+  },
+  "reader": "ame",
+  "culture": {
+    "en": "Japanese seasonal flowers, Shinto mythology and documented yōkai folklore",
+    "es": "Flores estacionales japonesas, mitología sintoísta y folclore yōkai documentado"
+  },
+  "presentation": {
+    "rankMode": "count",
+    "majorMode": "mixed-petals",
+    "states": {
+      "upright": {
+        "en": "still",
+        "es": "quieto"
+      },
+      "reversed": {
+        "en": "drifting",
+        "es": "a la deriva"
+      }
+    },
+    "families": {
+      "wands": {
+        "en": "Fuji",
+        "es": "Fuji"
+      },
+      "cups": {
+        "en": "Hasu",
+        "es": "Hasu"
+      },
+      "swords": {
+        "en": "Sakura",
+        "es": "Sakura"
+      },
+      "pentacles": {
+        "en": "Ajisai",
+        "es": "Ajisai"
+      }
+    }
+  },
+  "sourceRegistry": [
+    {
+      "id": "kew-plants",
+      "title": "Royal Botanic Gardens, Kew: Plants of the World Online",
+      "url": "https://powo.science.kew.org/",
+      "note": "Botanical reference for sakura, lotus, Japanese wisteria and hydrangea."
+    },
+    {
+      "id": "shinto-regalia",
+      "title": "Encyclopedia of Shinto: Three sacred treasures",
+      "url": "https://d-museum.kokugakuin.ac.jp/eos/detail/?id=8656",
+      "note": "Documents Shinto mythic and ritual traditions."
+    },
+    {
+      "id": "shinto-shrines",
+      "title": "Encyclopedia of Shinto: shrine composition",
+      "url": "https://d-museum.kokugakuin.ac.jp/eos/detail/?id=9114",
+      "note": "Documents shrine structures and ritual context."
+    },
+    {
+      "id": "shinto-kagura",
+      "title": "Encyclopedia of Shinto: Kagura",
+      "url": "https://d-museum.kokugakuin.ac.jp/eos/detail/?id=9175",
+      "note": "Documents ritual traditions involving kami."
+    },
+    {
+      "id": "yokai-db",
+      "title": "Nichibunken: Database of Folktales of Mysterious Phenomena and Yōkai",
+      "url": "https://www.nichibun.ac.jp/en/db/category/yokai/",
+      "note": "Research database indexing Japanese yōkai and anomalous folklore, including kitsune, tengu, kappa and tanuki."
+    }
+  ],
+  "culturalElementRegistry": [
+    {
+      "id": "family-wands",
+      "name": {
+        "en": "Fuji",
+        "es": "Fuji"
+      },
+      "sourceIds": [
+        "kew-plants"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "family-cups",
+      "name": {
+        "en": "Hasu",
+        "es": "Hasu"
+      },
+      "sourceIds": [
+        "kew-plants"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "family-swords",
+      "name": {
+        "en": "Sakura",
+        "es": "Sakura"
+      },
+      "sourceIds": [
+        "kew-plants"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "family-pentacles",
+      "name": {
+        "en": "Ajisai",
+        "es": "Ajisai"
+      },
+      "sourceIds": [
+        "kew-plants"
+      ],
+      "sensitivity": "living-religion"
+    },
+    {
+      "id": "major-being",
+      "name": {
+        "en": "Named being",
+        "es": "Ser nombrado"
+      },
+      "sourceIds": [
+        "kew-plants",
+        "shinto-regalia",
+        "shinto-shrines",
+        "shinto-kagura",
+        "yokai-db"
+      ],
+      "sensitivity": "specialist-review"
+    }
+  ],
+  "cards": {
+    "major-fool": {
+      "itemName": {
+        "en": "Amaterasu",
+        "es": "Amaterasu"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "2 Sakura, 1 Hasu and 1 Fuji",
+        "es": "2 Sakura, 1 Hasu and 1 Fuji"
+      }
+    },
+    "major-magician": {
+      "itemName": {
+        "en": "Susanoo",
+        "es": "Susanoo"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "3 Hasu and 3 Fuji",
+        "es": "3 Hasu and 3 Fuji"
+      }
+    },
+    "major-priestess": {
+      "itemName": {
+        "en": "Tsukuyomi",
+        "es": "Tsukuyomi"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "4 Fuji and 1 Ajisai",
+        "es": "4 Fuji and 1 Ajisai"
+      }
+    },
+    "major-empress": {
+      "itemName": {
+        "en": "Inari",
+        "es": "Inari"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "5 Ajisai, 3 Sakura and 1 Hasu",
+        "es": "5 Ajisai, 3 Sakura and 1 Hasu"
+      }
+    },
+    "major-emperor": {
+      "itemName": {
+        "en": "Ukanomitama",
+        "es": "Ukanomitama"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "6 Sakura and 1 Fuji",
+        "es": "6 Sakura and 1 Fuji"
+      }
+    },
+    "major-hierophant": {
+      "itemName": {
+        "en": "Ame-no-Uzume",
+        "es": "Ame-no-Uzume"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "2 Hasu and 3 Ajisai",
+        "es": "2 Hasu and 3 Ajisai"
+      }
+    },
+    "major-lovers": {
+      "itemName": {
+        "en": "Sarutahiko",
+        "es": "Sarutahiko"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "3 Fuji, 1 Sakura and 1 Hasu",
+        "es": "3 Fuji, 1 Sakura and 1 Hasu"
+      }
+    },
+    "major-chariot": {
+      "itemName": {
+        "en": "Ōkuninushi",
+        "es": "Ōkuninushi"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "4 Ajisai and 3 Hasu",
+        "es": "4 Ajisai and 3 Hasu"
+      }
+    },
+    "major-strength": {
+      "itemName": {
+        "en": "Takemikazuchi",
+        "es": "Takemikazuchi"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "5 Sakura and 1 Ajisai",
+        "es": "5 Sakura and 1 Ajisai"
+      }
+    },
+    "major-hermit": {
+      "itemName": {
+        "en": "Konohanasakuya-hime",
+        "es": "Konohanasakuya-hime"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "6 Hasu, 3 Sakura and 1 Fuji",
+        "es": "6 Hasu, 3 Sakura and 1 Fuji"
+      }
+    },
+    "major-wheel": {
+      "itemName": {
+        "en": "Izanagi",
+        "es": "Izanagi"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "2 Fuji and 1 Hasu",
+        "es": "2 Fuji and 1 Hasu"
+      }
+    },
+    "major-justice": {
+      "itemName": {
+        "en": "Izanami",
+        "es": "Izanami"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "3 Ajisai and 3 Fuji",
+        "es": "3 Ajisai and 3 Fuji"
+      }
+    },
+    "major-hanged": {
+      "itemName": {
+        "en": "Hachiman",
+        "es": "Hachiman"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "4 Sakura, 1 Hasu and 1 Fuji",
+        "es": "4 Sakura, 1 Hasu and 1 Fuji"
+      }
+    },
+    "major-death": {
+      "itemName": {
+        "en": "Raijin",
+        "es": "Raijin"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "5 Hasu and 3 Fuji",
+        "es": "5 Hasu and 3 Fuji"
+      }
+    },
+    "major-temperance": {
+      "itemName": {
+        "en": "Fūjin",
+        "es": "Fūjin"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "6 Fuji and 1 Ajisai",
+        "es": "6 Fuji and 1 Ajisai"
+      }
+    },
+    "major-devil": {
+      "itemName": {
+        "en": "Kitsune",
+        "es": "Kitsune"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "2 Ajisai, 3 Sakura and 1 Hasu",
+        "es": "2 Ajisai, 3 Sakura and 1 Hasu"
+      }
+    },
+    "major-tower": {
+      "itemName": {
+        "en": "Tanuki",
+        "es": "Tanuki"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "3 Sakura and 1 Hasu",
+        "es": "3 Sakura and 1 Hasu"
+      }
+    },
+    "major-star": {
+      "itemName": {
+        "en": "Tengu",
+        "es": "Tengu"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "4 Hasu and 3 Fuji",
+        "es": "4 Hasu and 3 Fuji"
+      }
+    },
+    "major-moon": {
+      "itemName": {
+        "en": "Kappa",
+        "es": "Kappa"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "5 Fuji, 1 Ajisai and 1 Sakura",
+        "es": "5 Fuji, 1 Ajisai and 1 Sakura"
+      }
+    },
+    "major-sun": {
+      "itemName": {
+        "en": "Yuki-onna",
+        "es": "Yuki-onna"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "6 Ajisai and 3 Sakura",
+        "es": "6 Ajisai and 3 Sakura"
+      }
+    },
+    "major-judgement": {
+      "itemName": {
+        "en": "Bakeneko",
+        "es": "Bakeneko"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "2 Sakura and 1 Fuji",
+        "es": "2 Sakura and 1 Fuji"
+      }
+    },
+    "major-world": {
+      "itemName": {
+        "en": "Jorōgumo",
+        "es": "Jorōgumo"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "3 Hasu, 3 Ajisai and 1 Sakura",
+        "es": "3 Hasu, 3 Ajisai and 1 Sakura"
+      }
+    },
+    "wands-ace": {
+      "itemName": {
+        "en": "1 Fuji Petal",
+        "es": "1 pétalo de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-two": {
+      "itemName": {
+        "en": "2 Fuji Petals",
+        "es": "2 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-three": {
+      "itemName": {
+        "en": "3 Fuji Petals",
+        "es": "3 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-four": {
+      "itemName": {
+        "en": "4 Fuji Petals",
+        "es": "4 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-five": {
+      "itemName": {
+        "en": "5 Fuji Petals",
+        "es": "5 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-six": {
+      "itemName": {
+        "en": "6 Fuji Petals",
+        "es": "6 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-seven": {
+      "itemName": {
+        "en": "7 Fuji Petals",
+        "es": "7 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-eight": {
+      "itemName": {
+        "en": "8 Fuji Petals",
+        "es": "8 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-nine": {
+      "itemName": {
+        "en": "9 Fuji Petals",
+        "es": "9 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-ten": {
+      "itemName": {
+        "en": "10 Fuji Petals",
+        "es": "10 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-page": {
+      "itemName": {
+        "en": "11 Fuji Petals",
+        "es": "11 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-knight": {
+      "itemName": {
+        "en": "12 Fuji Petals",
+        "es": "12 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-queen": {
+      "itemName": {
+        "en": "13 Fuji Petals",
+        "es": "13 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-king": {
+      "itemName": {
+        "en": "14 Fuji Petals",
+        "es": "14 pétalos de Fuji"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "cups-ace": {
+      "itemName": {
+        "en": "1 Hasu Petal",
+        "es": "1 pétalo de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-two": {
+      "itemName": {
+        "en": "2 Hasu Petals",
+        "es": "2 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-three": {
+      "itemName": {
+        "en": "3 Hasu Petals",
+        "es": "3 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-four": {
+      "itemName": {
+        "en": "4 Hasu Petals",
+        "es": "4 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-five": {
+      "itemName": {
+        "en": "5 Hasu Petals",
+        "es": "5 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-six": {
+      "itemName": {
+        "en": "6 Hasu Petals",
+        "es": "6 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-seven": {
+      "itemName": {
+        "en": "7 Hasu Petals",
+        "es": "7 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-eight": {
+      "itemName": {
+        "en": "8 Hasu Petals",
+        "es": "8 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-nine": {
+      "itemName": {
+        "en": "9 Hasu Petals",
+        "es": "9 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-ten": {
+      "itemName": {
+        "en": "10 Hasu Petals",
+        "es": "10 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-page": {
+      "itemName": {
+        "en": "11 Hasu Petals",
+        "es": "11 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-knight": {
+      "itemName": {
+        "en": "12 Hasu Petals",
+        "es": "12 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-queen": {
+      "itemName": {
+        "en": "13 Hasu Petals",
+        "es": "13 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-king": {
+      "itemName": {
+        "en": "14 Hasu Petals",
+        "es": "14 pétalos de Hasu"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "swords-ace": {
+      "itemName": {
+        "en": "1 Sakura Petal",
+        "es": "1 pétalo de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-two": {
+      "itemName": {
+        "en": "2 Sakura Petals",
+        "es": "2 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-three": {
+      "itemName": {
+        "en": "3 Sakura Petals",
+        "es": "3 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-four": {
+      "itemName": {
+        "en": "4 Sakura Petals",
+        "es": "4 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-five": {
+      "itemName": {
+        "en": "5 Sakura Petals",
+        "es": "5 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-six": {
+      "itemName": {
+        "en": "6 Sakura Petals",
+        "es": "6 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-seven": {
+      "itemName": {
+        "en": "7 Sakura Petals",
+        "es": "7 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-eight": {
+      "itemName": {
+        "en": "8 Sakura Petals",
+        "es": "8 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-nine": {
+      "itemName": {
+        "en": "9 Sakura Petals",
+        "es": "9 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-ten": {
+      "itemName": {
+        "en": "10 Sakura Petals",
+        "es": "10 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-page": {
+      "itemName": {
+        "en": "11 Sakura Petals",
+        "es": "11 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-knight": {
+      "itemName": {
+        "en": "12 Sakura Petals",
+        "es": "12 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-queen": {
+      "itemName": {
+        "en": "13 Sakura Petals",
+        "es": "13 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-king": {
+      "itemName": {
+        "en": "14 Sakura Petals",
+        "es": "14 pétalos de Sakura"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "pentacles-ace": {
+      "itemName": {
+        "en": "1 Ajisai Petal",
+        "es": "1 pétalo de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-two": {
+      "itemName": {
+        "en": "2 Ajisai Petals",
+        "es": "2 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-three": {
+      "itemName": {
+        "en": "3 Ajisai Petals",
+        "es": "3 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-four": {
+      "itemName": {
+        "en": "4 Ajisai Petals",
+        "es": "4 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-five": {
+      "itemName": {
+        "en": "5 Ajisai Petals",
+        "es": "5 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-six": {
+      "itemName": {
+        "en": "6 Ajisai Petals",
+        "es": "6 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-seven": {
+      "itemName": {
+        "en": "7 Ajisai Petals",
+        "es": "7 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-eight": {
+      "itemName": {
+        "en": "8 Ajisai Petals",
+        "es": "8 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-nine": {
+      "itemName": {
+        "en": "9 Ajisai Petals",
+        "es": "9 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-ten": {
+      "itemName": {
+        "en": "10 Ajisai Petals",
+        "es": "10 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-page": {
+      "itemName": {
+        "en": "11 Ajisai Petals",
+        "es": "11 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-knight": {
+      "itemName": {
+        "en": "12 Ajisai Petals",
+        "es": "12 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-queen": {
+      "itemName": {
+        "en": "13 Ajisai Petals",
+        "es": "13 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-king": {
+      "itemName": {
+        "en": "14 Ajisai Petals",
+        "es": "14 pétalos de Ajisai"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    }
+  }
+}
