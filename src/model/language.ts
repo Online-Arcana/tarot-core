@@ -12,7 +12,7 @@ const STOPWORDS: Readonly<Record<AuditLanguage, ReadonlySet<string>>> = {
 };
 
 const DIRECT_ES = /(?<![\p{L}\p{N}])(?:tú|te|ti|contigo|tu|tus)(?![\p{L}\p{N}])/iu;
-const DIRECT_ES_VERB = /\b(?:eres|estás|has|tienes|puedes|debes|quieres|necesitas|sientes|ves|miras|escuchas|haces|vas|vienes|llevas|sigues|encuentras|buscas|dejas|tomas|introduces|metes|sacas|extraes|eliges|retiras|mantienes|recibes|reconoces|aceptas|temes|esperas|piensas|crees|notas|preguntas|decides|avanzas|vuelves|regresas|permites|sostienes|comprendes)\b/iu;
+const DIRECT_ES_VERB = /\b(?:eres|estás|estés|has|hayas|tienes|tengas|puedes|puedas|debes|quieres|quieras|necesitas|necesites|sientes|sientas|ves|veas|miras|mires|escuchas|escuches|haces|hagas|vas|vayas|vienes|llevas|lleves|sigues|sigas|encuentras|encuentres|buscas|busques|dejas|dejes|tomas|tomes|introduces|metes|sacas|extraes|eliges|elijas|retiras|mantienes|mantengas|recibes|reconoces|aceptas|temes|esperas|piensas|crees|notas|preguntas|decides|decidas|avanzas|avances|vuelves|regresas|permites|permitas|sostienes|comprendes|comprendas|sabes|sepas)\b/iu;
 const DIRECT_ES_IMPERATIVE = /(?:^|[.!?;:]["'’”)]*\s+)(?:aclara|acepta|busca|comprende|considera|cuida|deja|detente|dime|elige|escribe|escucha|haz|imagina|mantén|mira|observa|permítete|piensa|pon|pregúntate|recuerda|respira|revisa|separa|toma|confía)\b/iu;
 const DIRECT_EN = /\b(?:you|your|yours|yourself|yourselves)\b/iu;
 const DIRECT_EN_IMPERATIVE = /(?:^|[.!?]["'’”)]*\s+)(?:ask|begin|breathe|bring|check|choose|consider|explore|follow|give|hold|imagine|keep|let|listen|look|name|notice|pause|remember|return|share|sit|speak|stay|take|tell|think|trust|try)\b/iu;
@@ -21,6 +21,9 @@ const NARRATOR_FIRST: Readonly<Record<AuditLanguage, RegExp>> = {
   en: /\b(?:I|me|my|mine|myself|we|us|our|ours|ourselves)\b/iu,
   es: /(?<![\p{L}\p{N}])(?:yo|me|mí|mi|mis|mío|mía|míos|mías|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras)(?![\p{L}\p{N}])/iu,
 };
+
+const SPANISH_ENGLISH_INTRUSION = /(?<![\p{L}\p{N}])(?:boundary|boundaries|reader|readers|spread|spreads|deck|card|cards|upright|reversed|question|questions|answer|answers|insight|insights|choice|choices|outcome|outcomes)(?![\p{L}\p{N}])/iu;
+const SPANISH_NONIDIOMATIC = /\binformaci[oó]n\s+intuible\b/iu;
 
 export function auditLanguage(code: LangCode): AuditLanguage {
   return code.toLowerCase().startsWith("es") ? "es" : "en";
@@ -55,6 +58,16 @@ export function hasNarratorFirstPerson(value: string, code: LangCode): boolean {
   return NARRATOR_FIRST[auditLanguage(code)].test(value);
 }
 
+export function spanishLanguageIssue(value: string, code: LangCode): string | null {
+  if (auditLanguage(code) !== "es") return null;
+  const intrusion = SPANISH_ENGLISH_INTRUSION.exec(value)?.[0];
+  if (intrusion) return `must remain in natural Spanish and must not contain the English token ${JSON.stringify(intrusion)}`;
+  if (SPANISH_NONIDIOMATIC.test(value)) {
+    return "must use idiomatic Spanish rather than «información intuible»; use a natural construction such as «lo que intuyes»";
+  }
+  return null;
+}
+
 function activeTarotPreparation(value: string, code: LangCode): Set<string> {
   const result = new Set<string>();
   if (auditLanguage(code) === "es") {
@@ -72,6 +85,10 @@ function activeTarotPreparation(value: string, code: LangCode): Set<string> {
     if (/\b(?:shuffle|shuffles|mix|mixes)\b[^.!?]{0,80}\b(?:deck|cards?)\b|\b(?:deck|cards?)\b[^.!?]{0,80}\b(?:shuffle|shuffles|mix|mixes)\b|\b(?:shuffle|mix)(?:s|ing)?\b[^.!?]{0,60}\b(?:again|once\s+more)\b/iu.test(value)) result.add("shuffle");
   }
   return result;
+}
+
+export function hasActiveTarotPreparation(value: string, code: LangCode): boolean {
+  return activeTarotPreparation(value, code).size > 0;
 }
 
 function explicitTarotPreparationReset(value: string, code: LangCode): boolean {
