@@ -133,6 +133,43 @@ function occurrences(value: string, needle: string): number {
   }
 }
 
+function compactPatch(
+  original: string,
+  before: string,
+  after: string,
+): readonly [before: string, after: string] {
+  if (occurrences(original, before) !== 1) return [before, after];
+
+  let prefix = 0;
+  while (prefix < before.length && prefix < after.length && before[prefix] === after[prefix]) prefix += 1;
+
+  let suffix = 0;
+  while (
+    suffix < before.length - prefix &&
+    suffix < after.length - prefix &&
+    before[before.length - 1 - suffix] === after[after.length - 1 - suffix]
+  ) suffix += 1;
+
+  if (prefix === 0 && suffix === 0) return [before, after];
+  const coreBeforeEnd = before.length - suffix;
+  const coreAfterEnd = after.length - suffix;
+  if (prefix >= coreBeforeEnd) return [before, after];
+
+  const maxContext = Math.max(prefix, suffix);
+  for (let context = 0; context <= maxContext; context += 1) {
+    const start = Math.max(0, prefix - context);
+    const beforeEnd = Math.min(before.length, coreBeforeEnd + context);
+    const afterEnd = Math.min(after.length, coreAfterEnd + context);
+    const candidateBefore = before.slice(start, beforeEnd);
+    const candidateAfter = after.slice(start, afterEnd);
+    if (candidateBefore && occurrences(original, candidateBefore) === 1) {
+      return [candidateBefore, candidateAfter];
+    }
+  }
+
+  return [before, after];
+}
+
 export function finalProofreadShape(req: ApiReq, out: ApiOut) {
   const fields = proofreadFields(req, out);
   const paths = Object.keys(fields);
@@ -171,43 +208,44 @@ export function finalProofreadShape(req: ApiReq, out: ApiOut) {
           if (decontaminatedPaths.has(path)) {
             throw new Error(`Final proofread edit ${index} cannot patch a decontaminated field`);
           }
-          if (before.length > 240 || after.length > 320 || Math.abs(after.length - before.length) > 120) {
+          const [patchBefore, patchAfter] = compactPatch(original, before, after);
+          if (patchBefore.length > 240 || patchAfter.length > 320 || Math.abs(patchAfter.length - patchBefore.length) > 120) {
             throw new Error(`Final proofread edit ${index} is too large for a surgical correction`);
           }
-          if (original.length > 24 && before === original) {
+          if (original.length > 24 && patchBefore === original) {
             throw new Error(`Final proofread edit ${index} attempts to replace an entire field without decontamination mode`);
           }
-          if (original.length > 80 && before.length > original.length * 0.6) {
+          if (original.length > 80 && patchBefore.length > original.length * 0.6) {
             throw new Error(`Final proofread edit ${index} spans too much of the original field`);
           }
-          if (occurrences(original, before) !== 1) {
+          if (occurrences(original, patchBefore) !== 1) {
             throw new Error(`Final proofread edit ${index} must identify one exact original span in ${path}`);
           }
-          const at = original.indexOf(before);
-          const end = at + before.length;
+          const at = original.indexOf(patchBefore);
+          const end = at + patchBefore.length;
           const ranges = patchRanges.get(path) ?? [];
           if (ranges.some(([start, finish]) => at < finish && end > start)) {
             throw new Error(`Final proofread edit ${index} overlaps an earlier edit in ${path}`);
           }
           ranges.push([at, end]);
           patchRanges.set(path, ranges);
-          const key = `${path}\u0000${before}`;
+          const key = `${path}\u0000${patchBefore}`;
           if (seenSpans.has(key)) throw new Error(`Final proofread edit ${index} duplicates an earlier exact span`);
           seenSpans.add(key);
           patchedPaths.add(path);
-        } else {
-          if (!after.trim()) {
-            throw new Error(`Final proofread edit ${index} cannot replace a contaminated field with empty text`);
-          }
-          if (patchedPaths.has(path) || decontaminatedPaths.has(path)) {
-            throw new Error(`Final proofread edit ${index} cannot decontaminate a field that already has edits`);
-          }
-          if (before !== original) {
-            throw new Error(`Final proofread edit ${index} must supply the entire contaminated field in decontamination mode`);
-          }
-          decontaminatedPaths.add(path);
+          return { mode, path, before: patchBefore, after: patchAfter };
         }
 
+        if (!after.trim()) {
+          throw new Error(`Final proofread edit ${index} cannot replace a contaminated field with empty text`);
+        }
+        if (patchedPaths.has(path) || decontaminatedPaths.has(path)) {
+          throw new Error(`Final proofread edit ${index} cannot decontaminate a field that already has edits`);
+        }
+        if (before !== original) {
+          throw new Error(`Final proofread edit ${index} must supply the entire contaminated field in decontamination mode`);
+        }
+        decontaminatedPaths.add(path);
         return { mode, path, before, after };
       });
       return { edits };
@@ -241,6 +279,7 @@ export function finalProofreadPrompt(
     "Inspect all editable fields together for cross-field continuity. A correction in one field must not create a contradiction with another field in the same output.",
     "For mode=patch: before must be one SHORT exact substring copied verbatim from that field and after must contain only its minimal correction. You may return multiple distinct, non-overlapping patch edits for the same field when several separate defects need correction. after may be an empty string only when simply deleting that exact broken or leaked span leaves the complete field correct and coherent. Do not use an entire field or paragraph as before.",
     "Before returning any patch, mentally apply it to the COMPLETE field and reread the resulting full sentence and neighbouring text, including every untouched word immediately before and after the replaced span. The final field must be grammatical, natural and non-repetitive. If a short replacement would leave duplicated, dangling or contradictory residue outside the span, widen before only enough to include that residue and correct the whole defective phrase in one surgical edit.",
+    "Treat malformed punctuation spacing and plainly non-native collocations or metaphors as real defects, not harmless style. Examples of this failure class include English wording such as 'speak the necessary conversations', Spanish wording such as 'la quietud se reúne a tu alrededor', and stray whitespace before punctuation such as 'paño ;'. Correct only the defective phrase and preserve the surrounding meaning.",
     "ONE EXCEPTION: PRIVATE-CONTEXT DECONTAMINATION. If private prompt, schema, validator, audit, model, implementation, internal state/control language or private gender-handling instructions have leaked into a visible field, first use a normal patch if removing/correcting the leaked span leaves coherent intended prose.",
     "Only when that private leakage has contaminated or displaced the field so badly that surgical removal cannot recover coherent customer-visible prose may you use mode=decontaminate. In that mode, before MUST be the entire exact contaminated field and after may reconstruct ONLY that one field from the reference context.",
     "Decontamination is permission to reinvent wording only because the contaminated field is no longer trustworthy. It is NOT permission to invent content. Preserve the intended meaning, established facts, result state/orientation, chronology, scene continuity, imagery that is still supported, reader identity/personality, voice ownership and task purpose. Add nothing that the canonical context does not support.",
