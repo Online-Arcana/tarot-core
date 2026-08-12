@@ -30,6 +30,8 @@ The suite includes the following matrix-style gates:
 
 The handover matrix uses the real `handoverConv()` state transitions. It verifies receiving/returning conversations begin empty, the trail is correct, canonical card state remains internal, and mapped model input does not leak tarot identity.
 
+Mapped-medium enforcement is applied to every user-visible prose family rather than only the main reading dialogue. Ritual narration, read notes, chat gestures/responses, invite, fit, suggestions, continuation, titles and return acknowledgements are all rejected if they fall back into canonical tarot/card vocabulary for a mapped reader. Generic role labels such as `the reader`, `el lector`, `la lectora` and generic `tarotista` wording are rejected from the visible voice paths where they would replace the configured reader identity.
+
 ## Specific regression classes
 
 There are explicit tests for the failure classes that triggered this audit, including:
@@ -48,6 +50,7 @@ There are explicit tests for the failure classes that triggered this audit, incl
 - future mapped public result names being repaired before their reveal
 - exact three-item suggestions
 - mapped generated prose being rejected rather than regex-scrubbed by presentation
+- mapped narrator and short utility prose remaining in public-medium/neutral vocabulary
 - public media metadata containing no archival/operational controls
 - deleted v2 duplicate ritual/card-index authorities not reappearing
 - rank×suit meaning synthesis remaining unavailable
@@ -75,9 +78,11 @@ The wrappers refuse to run when the worktree contains non-ignored changes. Every
 
 The full matrix exercises 80 complete readings: eight readers × two languages × five spreads. It collects the generated prose for invite, fit, every ritual, read/card text, synthesis, closing/note, chat, suggestions, continue, title, handover and return, along with model provenance, audit/correction/reconstruction diagnostics and placeholder-risk counters.
 
-The A → B → A return fixture uses the real `handoverConv()` helper so the paid matrix follows the same conversation/trail shape as production without adding an extra model call.
+The A → B → A return fixture uses the real `handoverConv()` helper. After the paid A-side handover, it inserts a deterministic target-reader-specific B-side ritual/read state before constructing B → A and asking the model for the return acknowledgement. This gives the paid return generation the same production-style conversation/trail shape as the deterministic pair matrix without adding another paid model call.
 
 Live reports are written under `reports/` and are gitignored. They still contain review prose and should be treated as review artefacts rather than source files.
+
+The live and human review stages remain responsible for semantic cases that cannot be made into safe blanket lexical rules. For example, a mapped reader must not expose canonical card identity, but common canonical names such as `Death` / `La Muerte`, `Justice` or `Strength` are also ordinary language. Deterministic future-result checks and mapped tarot-vocabulary checks remain strict; potentially ambiguous exact-name prose is reviewed from the collected live strings rather than rejected with a false-positive-prone global regex.
 
 ## Human release review
 
