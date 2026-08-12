@@ -22,8 +22,10 @@ const NARRATOR_FIRST: Readonly<Record<AuditLanguage, RegExp>> = {
   es: /(?<![\p{L}\p{N}])(?:yo|me|mí|mi|mis|mío|mía|míos|mías|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras)(?![\p{L}\p{N}])/iu,
 };
 
-const SPANISH_ENGLISH_INTRUSION = /(?<![\p{L}\p{N}])(?:boundary|boundaries|reader|readers|spread|spreads|deck|card|cards|upright|reversed|question|questions|answer|answers|insight|insights|choice|choices|outcome|outcomes)(?![\p{L}\p{N}])/iu;
-const SPANISH_NONIDIOMATIC = /\binformaci[oó]n\s+intuible\b/iu;
+const SPANISH_ENGLISH_INTRUSION = /(?<![\p{L}\p{N}])(?:boundary|boundaries|reader|readers|spread|spreads|deck|upright|reversed)(?![\p{L}\p{N}])/iu;
+const SPANISH_INTUIBLE = /\binformaci[oó]n\s+intuible\b/iu;
+const SPANISH_CLARITY_CALQUE = /\bsentirte\s+con\s+(?:más|mayor)\s+claridad\b/iu;
+const SPANISH_EXPLOREMOS_CONTIGO = /\bexploremos\s+contigo\b/iu;
 
 export function auditLanguage(code: LangCode): AuditLanguage {
   return code.toLowerCase().startsWith("es") ? "es" : "en";
@@ -62,8 +64,14 @@ export function spanishLanguageIssue(value: string, code: LangCode): string | nu
   if (auditLanguage(code) !== "es") return null;
   const intrusion = SPANISH_ENGLISH_INTRUSION.exec(value)?.[0];
   if (intrusion) return `must remain in natural Spanish and must not contain the English token ${JSON.stringify(intrusion)}`;
-  if (SPANISH_NONIDIOMATIC.test(value)) {
+  if (SPANISH_INTUIBLE.test(value)) {
     return "must use idiomatic Spanish rather than «información intuible»; use a natural construction such as «lo que intuyes»";
+  }
+  if (SPANISH_CLARITY_CALQUE.test(value)) {
+    return "must use idiomatic Spanish rather than «sentirte con más claridad»; use a natural construction such as «tener más claridad» or «verlo con más claridad»";
+  }
+  if (SPANISH_EXPLOREMOS_CONTIGO.test(value)) {
+    return "must avoid the redundant phrase «exploremos contigo»; use «exploremos» or a direct second-person construction";
   }
   return null;
 }
