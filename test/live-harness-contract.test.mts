@@ -15,6 +15,15 @@ test("documented live cell aliases are normalised to the matrix worker contract"
   assert.match(cellRunner, /MATRIX_LANG: lang/u);
 });
 
+test("paid live runners expose periodic progress instead of appearing frozen", () => {
+  assert.match(cellRunner, /still running/u);
+  assert.match(cellRunner, /15_000/u);
+  assert.match(cellRunner, /completed/u);
+  assert.match(matrixRunner, /still running/u);
+  assert.match(matrixRunner, /15_000/u);
+  assert.match(matrixRunner, /completed/u);
+});
+
 test("full live matrix stamps the local commit and covers both supported languages", () => {
   assert.match(matrixRunner, /git["], \["rev-parse", "HEAD"\]/u);
   assert.match(matrixRunner, /"en-GB", "es-ES"/u);
