@@ -74,6 +74,13 @@ function activeTarotPreparation(value: string, code: LangCode): Set<string> {
   return result;
 }
 
+export function repeatsActiveTarotPreparation(left: string, right: string, code: LangCode): boolean {
+  const earlier = activeTarotPreparation(left, code);
+  const current = activeTarotPreparation(right, code);
+  for (const action of earlier) if (current.has(action)) return true;
+  return false;
+}
+
 function repeatsActivePreparationInside(value: string, code: LangCode): boolean {
   const seen = new Set<string>();
   const segments = value.split(/(?<=[.!?;])\s+/u).map(part => part.trim()).filter(Boolean);
@@ -92,14 +99,7 @@ export function meaningfulOverlap(left: string, right: string, code: LangCode): 
   if (!a.size || !b.size) return 0;
   let shared = 0;
   for (const token of a) if (b.has(token)) shared += 1;
-  const lexical = shared / Math.min(a.size, b.size);
-
-  const leftPrep = activeTarotPreparation(left, code);
-  const rightPrep = activeTarotPreparation(right, code);
-  for (const action of leftPrep) {
-    if (rightPrep.has(action)) return Math.max(lexical, 0.8);
-  }
-  return lexical;
+  return shared / Math.min(a.size, b.size);
 }
 
 export function repetitiveProse(value: string, code: LangCode): boolean {
