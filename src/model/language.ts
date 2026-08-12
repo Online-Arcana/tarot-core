@@ -55,13 +55,41 @@ export function hasNarratorFirstPerson(value: string, code: LangCode): boolean {
   return NARRATOR_FIRST[auditLanguage(code)].test(value);
 }
 
+function activeTarotPreparation(value: string, code: LangCode): Set<string> {
+  const result = new Set<string>();
+  if (auditLanguage(code) === "es") {
+    if (/\b(?:calienta|calentar|frota|frotar|entibia|entibiar|templa|templar)\b[^.!?]{0,100}\b(?:baraja|mazo|naipes|cartas)\b|\bdeja\s+que\s+(?:la\s+)?(?:baraja|mazo)\s+(?:se\s+)?caliente\b/iu.test(value)) result.add("warm");
+    if (/\b(?:corta|cortar|recorta|recortar)\b[^.!?]{0,80}\b(?:baraja|mazo|naipes|cartas)\b|\b(?:baraja|mazo|naipes|cartas)\b[^.!?]{0,80}\b(?:corta|cortar|recorta|recortar)\b/iu.test(value)) result.add("cut");
+    if (/\b(?:baraja|barajar|mezcla|mezclar)\b[^.!?]{0,80}\b(?:mazo|naipes|cartas)\b/iu.test(value)) result.add("shuffle");
+  } else {
+    if (/\b(?:warm|warms|rub|rubs|heat|heats)\b[^.!?]{0,100}\b(?:deck|cards?)\b/iu.test(value)) result.add("warm");
+    if (/\b(?:cut|cuts)\b[^.!?]{0,80}\b(?:deck|cards?)\b|\b(?:deck|cards?)\b[^.!?]{0,80}\b(?:cut|cuts)\b/iu.test(value)) result.add("cut");
+    if (/\b(?:shuffle|shuffles|mix|mixes)\b[^.!?]{0,80}\b(?:deck|cards?)\b/iu.test(value)) result.add("shuffle");
+  }
+  return result;
+}
+
+function explicitTarotPreparationReset(value: string, code: LangCode): boolean {
+  return auditLanguage(code) === "es"
+    ? /\b(?:vuelve\s+a|otra\s+vez)\s+(?:calentar|frotar|barajar|mezclar|cortar)\b|\bcomo\s+antes\b[^.!?]{0,100}\b(?:baraja|mazo|naipes|cartas)\b/iu.test(value)
+    : /\b(?:again|once\s+more)\b[^.!?]{0,60}\b(?:warm|rub|shuffle|mix|cut)\b|\b(?:warm|rub|shuffle|mix|cut)(?:s|ting)?\b[^.!?]{0,60}\b(?:again|once\s+more)\b/iu.test(value);
+}
+
 export function meaningfulOverlap(left: string, right: string, code: LangCode): number {
   const a = new Set(contentTokens(left, code));
   const b = new Set(contentTokens(right, code));
   if (!a.size || !b.size) return 0;
   let shared = 0;
   for (const token of a) if (b.has(token)) shared += 1;
-  return shared / Math.min(a.size, b.size);
+  const lexical = shared / Math.min(a.size, b.size);
+
+  const leftPrep = activeTarotPreparation(left, code);
+  const rightPrep = activeTarotPreparation(right, code);
+  let repeatedPreparation = 0;
+  for (const action of leftPrep) if (rightPrep.has(action)) repeatedPreparation += 1;
+  if (repeatedPreparation >= 2) return Math.max(lexical, 0.8);
+  if (repeatedPreparation >= 1 && explicitTarotPreparationReset(right, code)) return Math.max(lexical, 0.8);
+  return lexical;
 }
 
 export function repetitiveProse(value: string, code: LangCode): boolean {

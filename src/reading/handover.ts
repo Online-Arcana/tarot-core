@@ -19,6 +19,23 @@ function words(value: string): number {
   return value.trim().split(/\s+/u).filter(Boolean).length;
 }
 
+function compactSource(value: string, maxWords: number): string {
+  const clean = value.replace(/\s+/gu, " ").trim();
+  if (words(clean) <= maxWords) return clean;
+
+  const sentences = clean.match(/[^.!?]+[.!?]+["'’”)]*/gu) ?? [];
+  const kept: string[] = [];
+  for (const sentence of sentences) {
+    const candidate = [...kept, sentence.trim()].join(" ");
+    if (words(candidate) > maxWords) break;
+    kept.push(sentence.trim());
+  }
+  if (kept.length) return kept.join(" ");
+
+  const clipped = clean.split(/\s+/u).slice(0, maxWords).join(" ").replace(/[,:;\-–—]+$/u, "");
+  return /[.!?]["'’”)]*$/u.test(clipped) ? clipped : `${clipped}.`;
+}
+
 function norm(text: string): string {
   return text.replace(/\s+/gu, " ").trim().toLocaleLowerCase();
 }
@@ -34,7 +51,11 @@ function sourceTranscript(source: Conv): string {
 
 export function groundedHandoverFacts(source: Conv, generatedFacts: readonly string[]): string[] {
   const transcript = sourceTranscript(source);
-  return uniq(generatedFacts).filter(fact => transcript.includes(norm(fact)));
+  const questions = new Set(source.turns.map(turn => norm(turn.question)));
+  return uniq(generatedFacts).filter(fact => {
+    const grounded = norm(fact);
+    return !questions.has(grounded) && transcript.includes(grounded);
+  });
 }
 
 function visit(reader: ReaderId, conv: string, at: string, question: string, note: string): Visit {
@@ -57,7 +78,9 @@ export function handoverResults(source: Conv): HandResult[] {
 export function handoverSummary(source: Conv, referral: Referral): HandoverOut {
   const readings = source.turns.filter(turn => turn.kind === "reading");
   const questions = uniq([...source.turns.map(turn => turn.question), referral.question]);
-  const conclusions = uniq(readings.flatMap(turn => [turn.out.synthesis, turn.out.reading]).slice(-8));
+  const conclusions = uniq(
+    readings.flatMap(turn => [turn.out.synthesis, turn.out.reading]).slice(-8),
+  ).map(value => compactSource(value, 80));
   const cards = uniq(readings.flatMap(turn => turn.draw.cards.map(card => card.name)));
   const latest = readings.at(-1);
   const synthesis = latest?.out.synthesis.trim() ?? "";
@@ -65,7 +88,7 @@ export function handoverSummary(source: Conv, referral: Referral): HandoverOut {
     ? "La conversación sigue abierta y la pregunta derivada todavía necesita una exploración cuidadosa."
     : "The conversation remains open and the referred question still needs careful exploration.";
   return {
-    summary: words(synthesis) >= 8 ? synthesis : openSummary,
+    summary: words(synthesis) >= 8 ? compactSource(synthesis, 160) : openSummary,
     questions,
     conclusions,
     cards,

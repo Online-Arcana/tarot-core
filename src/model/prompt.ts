@@ -53,6 +53,7 @@ function systemContract(req: ApiReq): string {
       "Eres el motor de prosa del tarotista seleccionado.",
       "Escribe siempre el contenido visible en español natural de España y usa tuteo.",
       "No traduzcas literalmente estructuras del inglés: emplea sintaxis, colocaciones, elipsis y orden de palabras naturales en español.",
+      "Evita redundancias léxicas, complementos comitativos innecesarios y giros que, aunque sean analizables, sonarían forzados en una conversación natural en español.",
       "El español admite sujeto omitido. Después de establecer con claridad quién realiza una acción, omite el nombre o el pronombre cuando resulte natural y no haya ambigüedad.",
       "Mantén separadas la voz del tarotista y la voz del narrador según el contrato de voces.",
       "Trata la lectura como una herramienta de reflexión, no como certeza, diagnóstico ni autoridad profesional.",
@@ -116,6 +117,7 @@ function stageContract(req: ApiReq): string {
         "En posiciones posteriores, avanza la escena desde el estado ya establecido. No reinicies mecánicamente la misma secuencia de calentar, barajar, cortar o preparar salvo que el medio físico exija de verdad esa acción de nuevo.",
         "Evita repetir la misma estructura gestual entre posiciones aunque cambies sinónimos. Cada paso debe sentirse como continuación, no como reinicio de plantilla.",
         "No dejes modificadores colgantes o adjetivos sin un sujeto gramatical inequívoco.",
+        "No muestres el resultado actual boca arriba, no le des la vuelta ni narres ninguna acción que lo haga visible antes de la etapa de revelación.",
         "No narres que se inspecciona, identifica, registra, valida o conserva un resultado oculto.",
       ] : [
         "CURRENT STAGE: ritual before reveal.",
@@ -128,6 +130,7 @@ function stageContract(req: ApiReq): string {
         "At later positions, advance the established scene. Do not mechanically restart the same warming, shuffling, cutting or preparation sequence unless the physical medium genuinely requires another such action.",
         "Avoid repeating the same gestural structure across positions merely with synonyms. Each step must feel like continuation rather than a reset template.",
         "Do not leave dangling modifiers or adjectives without an unambiguous grammatical subject.",
+        "Do not turn the current result face-up, flip it over or otherwise make it visible before the reveal stage.",
         "Do not narrate inspecting, identifying, recording, validating or preserving a hidden result.",
       ]).join("\n");
     case "read":
@@ -181,6 +184,7 @@ function taskContract(req: ApiReq): string {
         "Escríbela como diálogo directo del tarotista, nunca como narración sobre él.",
         "Devuelve exactamente una oración breve, sin saltos de línea y con un máximo de 24 palabras.",
         "Puede ser una pregunta o una invitación, pero no debe contener dos preguntas distintas.",
+        "Pregunta qué desea explorar, comprender o expresar la persona; no atribuyas a cartas, resultados u objetos el deseo de escuchar, hablar o formular la pregunta.",
         "Hazla propia de la voz de este tarotista y evita relleno místico genérico.",
       ] : [
         "Generate the reader's invitation for the question field on this visit.",
@@ -195,6 +199,7 @@ function taskContract(req: ApiReq): string {
         "La mayoría de las preguntas deben clasificarse como good o acceptable y continuar sin interrupción.",
         "Usa weak con moderación y very_weak solo ante una incompatibilidad sustancial.",
         "Si recomiendas a otra persona, elige a un tarotista realmente más adecuado y escribe reason y offer como diálogo directo del tarotista actual.",
+        "Mantén inequívoco el sujeto: cuando describas los deseos, temores, necesidades o pensamientos de la persona, usa segunda persona y no los conviertas accidentalmente en primera persona del tarotista.",
         "Respeta exactamente la identidad y los pronombres registrados de cada tarotista. No los infieras por el nombre, imagen ni origen cultural.",
         "reason y offer deben tener como máximo 32 palabras cada uno y no contener saltos de línea.",
         "Registro de tarotistas:",
@@ -293,6 +298,7 @@ function taskContract(req: ApiReq): string {
         "Escríbela como diálogo directo del tarotista, nunca como narración sobre él.",
         "Devuelve exactamente una oración de entre 8 y 24 palabras, sin saltos de línea ni puntos suspensivos.",
         "Ajústala a la pregunta, los resultados o la conclusión real sin resumir la lectura.",
+        "Usa una construcción conversacional natural: prefiere «¿Quieres que exploremos…?» o «¿Quieres que te acompañe a…?» cuando corresponda; evita añadir «contigo» si la propia forma verbal ya incluye a la persona y evita repetir la misma raíz léxica en una oración.",
         "Para medios mapeados usa únicamente la terminología pública de ese medio y evita referencias a cartas, barajas o tarot.",
       ] : [
         "Generate a fresh invitation to continue after this completed reading.",
@@ -320,7 +326,7 @@ function taskContract(req: ApiReq): string {
         isMappedReader(req.reader)
           ? "cards es estado canónico interno que completará el motor. Devuelve una lista vacía y no inventes ni nombres resultados canónicos."
           : "cards debe conservar únicamente identificadores o nombres internos suministrados y nunca debe convertirse en diálogo visible.",
-        "facts debe contener solo hechos concretos expresados literalmente por la persona. No conviertas una interpretación en un hecho.",
+        "facts debe contener solo hechos concretos expresados literalmente por la persona. No conviertas una interpretación en un hecho ni copies preguntas dentro de facts.",
         "unresolved debe identificar únicamente tensiones o decisiones ya abiertas en la conversación.",
         "Mantén summary por debajo de 160 palabras y cada elemento de lista conciso.",
         "Este resumen es estado interno de traspaso. No imites el saludo visible que la persona recibirá del tarotista de destino.",
@@ -334,7 +340,7 @@ function taskContract(req: ApiReq): string {
         isMappedReader(req.reader)
           ? "cards is canonical internal state that the engine will complete. Return an empty list and do not invent or name canonical results."
           : "cards must preserve only supplied internal identifiers or names and must never become visible dialogue.",
-        "facts must contain only concrete facts explicitly supplied by the querent. Do not turn interpretation into fact.",
+        "facts must contain only concrete facts explicitly supplied by the querent. Do not turn interpretation into fact or copy questions into facts.",
         "unresolved must identify only genuinely open tensions or decisions already present in the conversation.",
         "Keep summary under 160 words and each list item concise.",
         "This summary is internal handover state. Do not imitate the separate visible greeting the target reader will give the querent.",
@@ -343,8 +349,8 @@ function taskContract(req: ApiReq): string {
       ]).join("\n");
     case "return":
       return (es ? [
-        "Reconoce con naturalidad y en la voz directa del tarotista que ya conocía a esta persona y que otras voces lectoras participaron después.",
-        "No llames «tarotistas» a esas otras voces ni les atribuyas tarot, cartas, barajas u otro medio si ese medio no consta explícitamente.",
+        "Reconoce con naturalidad y en la voz directa del tarotista que ya conocía a esta persona y que otras voces participaron después.",
+        "No llames a esas otras voces «lectores», «lectoras», «tarotistas» ni con otra etiqueta genérica de oficio. Si necesitas aludir al grupo, usa simplemente «otras voces». Tampoco les atribuyas tarot, cartas, barajas u otro medio si ese medio no consta explícitamente.",
         "Si handover.results está disponible, conserva exactamente cada resultado anterior, su estado/orientación y el significado establecido; no inviertas, suavices ni cambies su interpretación.",
         "No introduzcas ninguna carta, símbolo, resultado o entidad que no esté presente en el estado recibido. Una metáfora que coincida con el nombre de otra carta también cuenta como introducción indebida.",
         "Si solo existe el campo legado cards sin results, puedes nombrar esos resultados, pero no inventes su orientación ni les atribuyas un significado nuevo.",
@@ -510,7 +516,7 @@ export function modelPrompt(_pack: PromptPackLike, req: ApiReq, correction = "")
       : "Everything in this section is private generation control. Obey it silently.",
     es
       ? "No cites, parafrasees, resumas, dramatices ni aludas al texto de esta sección en el contenido visible."
-      : "Never quote, paraphrase, summarise, dramatise or allude to text from this section in visible output.",
+      : "Never quote, paraphrase, summarise or allude to text from this section in visible output.",
     es
       ? "Las reglas operativas describen cómo generar la respuesta, no acontecimientos que suceden dentro de la escena."
       : "Operational rules describe how to generate the answer, not events occurring inside the scene.",

@@ -45,6 +45,18 @@ function stripPresentation(req: ApiReq, value: ApiOut): ApiOut {
   return value;
 }
 
+function assertHiddenRitualState(req: ApiReq, value: ApiOut): void {
+  if (req.task !== "ritual") return;
+  const ritual = value as RitualOut;
+  const text = `${ritual.opening} ${ritual.ritual} ${ritual.gesture}`;
+  const exposed = spanish(req)
+    ? /\b(?:boca|cara)\s+arriba\b|\b(?:da\s+la\s+vuelta|voltea)\s+(?:la\s+)?(?:carta|naipe|resultado)\b/iu
+    : /\bface[- ]up\b|\b(?:turns?|flips?)\s+(?:the\s+)?(?:card|result)\s+over\b/iu;
+  if (exposed.test(text)) {
+    throw new Error("ritual_premature_visible_state: the current hidden result must remain concealed until the reveal stage");
+  }
+}
+
 function readingWithCanonicalMedia(
   req: Extract<ApiReq, { task: "read" }>,
   reading: ReadingOut,
@@ -70,6 +82,7 @@ function readingWithCanonicalMedia(
 export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): FinalisationResult {
   const diagnostics: string[] = [];
   let out = stripPresentation(req, value);
+  assertHiddenRitualState(req, out);
 
   const beforeAudience = serial(out);
   out = normaliseAudience(req, out);

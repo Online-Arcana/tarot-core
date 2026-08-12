@@ -211,12 +211,8 @@ function ensureDirect(value: string, req: ApiReq, maxWords: number): string {
   if (!clean || hasDirectAddress(clean, req.lang)) return clean;
 
   const immersed = spanish(req)
-    ? clean
-      .replace(/\bla pregunta\b/iu, "tu pregunta")
-      .replace(/\b(?:el|la) (?:entorno|habitación|estancia|silencio|escena|mesa|agua|fuego|luz)\b/iu, "tu entorno")
-    : clean
-      .replace(/\bthe question\b/iu, "your question")
-      .replace(/\bthe (?:surroundings|room|silence|scene|table|water|fire|light)\b/iu, "your surroundings");
+    ? clean.replace(/\bla pregunta\b/iu, "tu pregunta")
+    : clean.replace(/\bthe question\b/iu, "your question");
   if (hasDirectAddress(immersed, req.lang)) return immersed;
 
   const prefix = spanish(req) ? "Ante ti, " : "Before you, ";

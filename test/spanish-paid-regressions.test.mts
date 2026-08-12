@@ -182,7 +182,8 @@ test("return prompt receives exact prior result orientation and established mean
   assert.match(prompt, /"side":"reversed"/u);
   assert.match(prompt, /Idealización, promesas poco fiables y evasión emocional/u);
   assert.match(prompt, /no inviertas, suavices ni cambies su interpretación/iu);
-  assert.match(prompt, /No llames «tarotistas» a esas otras voces/iu);
+  assert.match(prompt, /No llames a esas otras voces «lectores», «lectoras», «tarotistas»/iu);
+  assert.match(prompt, /usa simplemente «otras voces»/iu);
 });
 
 test("return audit rejects plural tarot-reader labels for intermediate readers", () => {
