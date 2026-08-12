@@ -7,6 +7,7 @@ import type {
   Draw,
   DrawnCard,
   Hist,
+  QuerentGender,
   ReadTurn,
   SpreadId,
   Task,
@@ -25,11 +26,19 @@ const TASKS = new Set<Task>([
   "return",
 ]);
 const SPREADS = new Set<SpreadId>(["one", "three", "decision", "advice", "celtic"]);
+const QUERENT_GENDERS = new Set<QuerentGender>(["woman", "man", "nonbinary"]);
 
 function text(value: unknown, max: number, empty = false): string | null {
   if (typeof value !== "string" || value.length > max) return null;
   const clean = value.trim();
   return clean || empty ? clean : null;
+}
+
+function gender(value: unknown): QuerentGender | undefined | null {
+  if (value === undefined) return undefined;
+  return typeof value === "string" && QUERENT_GENDERS.has(value as QuerentGender)
+    ? value as QuerentGender
+    : null;
 }
 
 function history(value: unknown): Hist[] | null {
@@ -169,9 +178,16 @@ export function parseReq(value: unknown, allowedLangs: ReadonlySet<string>): Api
   const lang = text(value.lang, 12);
   const reader = value.reader;
   const name = text(value.name, 80, true);
+  const parsedGender = gender(value.gender);
   const hist = history(value.history);
-  if (!lang || !allowedLangs.has(lang) || !isReader(reader) || name === null || !hist) return null;
-  const base = { lang, reader, name, history: hist };
+  if (!lang || !allowedLangs.has(lang) || !isReader(reader) || name === null || parsedGender === null || !hist) return null;
+  const base = {
+    lang,
+    reader,
+    name,
+    ...(parsedGender === undefined ? {} : { gender: parsedGender }),
+    history: hist,
+  };
 
   switch (task) {
     case "invite":
@@ -244,7 +260,16 @@ export function parseReq(value: unknown, allowedLangs: ReadonlySet<string>): Api
       const conv = canonicalConv(value.conv, lang);
       if (!question || !isReader(target) || target === reader || !conv) return null;
       if (conv.reader !== reader || conv.lang !== lang || conv.name !== name) return null;
-      return { task, ...base, question, target, conv };
+      if (parsedGender !== undefined && conv.gender !== undefined && conv.gender !== parsedGender) return null;
+      const effectiveGender = parsedGender ?? conv.gender;
+      return {
+        task,
+        ...base,
+        ...(effectiveGender === undefined ? {} : { gender: effectiveGender }),
+        question,
+        target,
+        conv,
+      };
     }
     case "return": {
       const context: unknown = {
@@ -255,6 +280,7 @@ export function parseReq(value: unknown, allowedLangs: ReadonlySet<string>): Api
         created: "",
         updated: "",
         name,
+        ...(parsedGender === undefined ? {} : { gender: parsedGender }),
         trail: value.trail,
         ...(value.handover === undefined ? {} : { handover: value.handover }),
         turns: [],

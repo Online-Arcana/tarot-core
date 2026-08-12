@@ -24,7 +24,7 @@
     "generate:data": "npm run generate:personas && npm run generate:fallbacks",
     "precheck": "npm run generate:data",
     "check": "tsc -p tsconfig.json --noEmit",
-    "check:live-harness": "node --check scripts/run-live-prose-matrix.mjs && node --check scripts/run-live-prose-cell.mjs && node --check scripts/live-prose-matrix.mjs && node --check scripts/aggregate-live-prose.mjs && node --check scripts/render-live-prose-review.mjs",
+    "check:live-harness": "node --check scripts/run-live-prose-matrix.mjs && node --check scripts/run-live-prose-cell.mjs && node --check scripts/live-prose-matrix.mjs && node --check scripts/aggregate-live-prose.mjs && node --check scripts/render-live-prose-review.mjs && node --check scripts/run-live-chained-smoke.mjs && node --check scripts/live-chained-smoke.mjs",
     "prebuild": "npm run generate:data",
     "build": "tsc -p tsconfig.build.json",
     "test": "node --experimental-strip-types --test test/*.test.mts",
@@ -33,7 +33,8 @@
     "test:live": "npm run build && node scripts/run-live-prose-matrix.mjs",
     "test:live:cell": "npm run build && node scripts/run-live-prose-cell.mjs",
     "test:live:aggregate": "node scripts/aggregate-live-prose.mjs",
-    "test:live:review": "node scripts/render-live-prose-review.mjs"
+    "test:live:review": "node scripts/render-live-prose-review.mjs",
+    "test:live:chain": "npm run build && node scripts/run-live-chained-smoke.mjs"
   },
   "engines": {
     "node": ">=22"

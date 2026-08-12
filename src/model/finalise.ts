@@ -6,7 +6,7 @@ import type {
   RitualOut,
 } from "../contracts/types.js";
 import { attachMedia, isMappedReader, mediaFor } from "../readers/media/runtime.js";
-import { groundedHandoverFacts } from "../reading/handover.js";
+import { groundedHandoverFacts, handoverSummary } from "../reading/handover.js";
 import { futureLeaks, repairFutureLeaks } from "../reading/reveal.js";
 import { addressViewer } from "./viewer-narration.js";
 
@@ -31,24 +31,6 @@ function normaliseAudience(req: ApiReq, value: ApiOut): ApiOut {
     if (serial(next) === before) return next;
     current = next;
   }
-}
-
-function canonicalHandoverQuestions(req: Extract<ApiReq, { task: "handover" }>): string[] {
-  const questions: string[] = [];
-  for (const question of [...req.conv.turns.map(turn => turn.question), req.question]) {
-    const value = question.trim();
-    if (value && !questions.includes(value)) questions.push(value);
-  }
-  return questions;
-}
-
-function canonicalHandoverCards(req: Extract<ApiReq, { task: "handover" }>): string[] {
-  const cards: string[] = [];
-  for (const turn of req.conv.turns) {
-    if (turn.kind !== "reading") continue;
-    for (const card of turn.draw.cards) if (!cards.includes(card.name)) cards.push(card.name);
-  }
-  return cards;
 }
 
 function stripPresentation(req: ApiReq, value: ApiOut): ApiOut {
@@ -80,10 +62,10 @@ function readingWithCanonicalMedia(
  * Prepare generated prose for deterministic audit without attaching public
  * presentation metadata. Narrator audience normalisation and reveal repair
  * happen here so the full audit sees the exact prose that will be returned.
- * Handover questions and card state are rebuilt from the canonical conversation,
- * while generated facts are reduced to exact transcript-grounded facts, so the
- * model never owns deterministic handover state. Mapped reveal repair uses a
- * temporary canonical media view, which is stripped again before the audit boundary.
+ * Handover prose/state is rebuilt from the canonical conversation. The model
+ * may contribute only exact transcript-grounded facts, so a fluent paraphrase
+ * cannot silently change a prior reading. Mapped reveal repair uses a temporary
+ * canonical media view, which is stripped again before the audit boundary.
  */
 export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): FinalisationResult {
   const diagnostics: string[] = [];
@@ -97,13 +79,19 @@ export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): Finalisatio
 
   if (req.task === "handover") {
     const handover = out as HandoverOut;
-    const questions = canonicalHandoverQuestions(req);
-    const cards = canonicalHandoverCards(req);
+    const canonical = handoverSummary(req.conv, {
+      target: req.target,
+      question: req.question,
+      reason: "",
+    });
     const facts = groundedHandoverFacts(req.conv, handover.facts);
-    if (JSON.stringify(handover.questions) !== JSON.stringify(questions)) diagnostics.push("handover_questions_canonicalised");
-    if (JSON.stringify(handover.cards) !== JSON.stringify(cards)) diagnostics.push("handover_cards_canonicalised");
+    if (handover.summary.trim() !== canonical.summary) diagnostics.push("handover_summary_canonicalised");
+    if (JSON.stringify(handover.questions) !== JSON.stringify(canonical.questions)) diagnostics.push("handover_questions_canonicalised");
+    if (JSON.stringify(handover.conclusions) !== JSON.stringify(canonical.conclusions)) diagnostics.push("handover_conclusions_canonicalised");
+    if (JSON.stringify(handover.cards) !== JSON.stringify(canonical.cards)) diagnostics.push("handover_cards_canonicalised");
     if (JSON.stringify(handover.facts) !== JSON.stringify(facts)) diagnostics.push("handover_facts_grounded");
-    out = { ...handover, questions, cards, facts };
+    if (JSON.stringify(handover.unresolved) !== JSON.stringify(canonical.unresolved)) diagnostics.push("handover_unresolved_canonicalised");
+    out = { ...canonical, facts };
   }
 
   if (req.task === "read") {

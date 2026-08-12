@@ -8,6 +8,7 @@ export type ArcanaKind = "minor" | "major";
 export type ReqKind = "reading" | "chat";
 export type RitualPhase = "opening" | "continuation";
 export type Task = "invite" | "fit" | "ritual" | "read" | "chat" | "suggest" | "continue" | "title" | "handover" | "return";
+export type QuerentGender = "woman" | "man" | "nonbinary";
 export type Topic =
   | "love" | "intimacy" | "family" | "grief" | "death" | "change"
   | "career" | "conflict" | "purpose" | "spirituality" | "identity" | "healing";
@@ -223,6 +224,15 @@ export interface Visit {
 
 export interface Trail { id: string; visits: Visit[]; summary: string }
 
+export interface HandResult {
+  id: string;
+  name: string;
+  side: Side;
+  position: number;
+  positionName: string;
+  meaning: string;
+}
+
 export interface Hand {
   from: ReaderId;
   to: ReaderId;
@@ -233,6 +243,8 @@ export interface Hand {
   prevQs: string[];
   conclusions: string[];
   cards: string[];
+  /** Exact result state for new handovers. Optional for legacy saved conversations. */
+  results?: HandResult[];
   facts: string[];
   unresolved: string[];
   ack?: string;
@@ -246,6 +258,8 @@ export interface Conv {
   created: string;
   updated: string;
   name: string;
+  /** Optional for backward compatibility. Missing is treated as neutral/unspecified. */
+  gender?: QuerentGender;
   title?: string;
   trail?: Trail;
   handover?: Hand;
@@ -263,6 +277,8 @@ interface ReqBase {
   lang: LangCode;
   reader: ReaderId;
   name: string;
+  /** Optional for backward compatibility. Missing and nonbinary both require neutral addressing. */
+  gender?: QuerentGender;
   history: Hist[];
   trail?: Trail;
   handover?: Hand;

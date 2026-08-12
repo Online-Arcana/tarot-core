@@ -1,7 +1,7 @@
 import { isReader } from "../readers/ids.js";
 import type {
   ApiOut, ChatOut, ContinueOut, Conv, Draw, DrawnCard, FitOut, Hand,
-  HandoverOut, InviteOut, MediumPresentation, ReadingOut, ReturnOut,
+  HandoverOut, InviteOut, MediumPresentation, QuerentGender, ReadingOut, ReturnOut,
   RitualOut, Stage, SuggestOut, Task, TitleOut, Topic, Trail, Turn, Visit
 } from "./types.js";
 
@@ -9,6 +9,7 @@ const TOPICS = new Set<Topic>([
   "love", "intimacy", "family", "grief", "death", "change",
   "career", "conflict", "purpose", "spirituality", "identity", "healing"
 ]);
+const QUERENT_GENDERS = new Set<QuerentGender>(["woman", "man", "nonbinary"]);
 
 export function rec(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -24,6 +25,10 @@ function strs(value: unknown): value is string[] {
 
 function topic(value: unknown): value is Topic {
   return str(value) && TOPICS.has(value as Topic);
+}
+
+function querentGender(value: unknown): value is QuerentGender {
+  return str(value) && QUERENT_GENDERS.has(value as QuerentGender);
 }
 
 function isMedium(value: unknown): value is MediumPresentation {
@@ -150,15 +155,23 @@ function isTrail(value: unknown): value is Trail {
   return rec(value) && str(value.id) && Array.isArray(value.visits) && value.visits.every(isVisit) && str(value.summary);
 }
 
+function isHandResult(value: unknown): boolean {
+  return rec(value) && str(value.id) && str(value.name) &&
+    (value.side === "upright" || value.side === "reversed") && Number.isInteger(value.position) &&
+    str(value.positionName) && str(value.meaning);
+}
+
 function isHand(value: unknown): value is Hand {
   return rec(value) && isReader(value.from) && isReader(value.to) && str(value.at) && str(value.question) &&
     str(value.reason) && str(value.summary) && strs(value.prevQs) && strs(value.conclusions) &&
-    strs(value.cards) && strs(value.facts) && strs(value.unresolved) && (value.ack === undefined || str(value.ack));
+    strs(value.cards) && (value.results === undefined || (Array.isArray(value.results) && value.results.every(isHandResult))) &&
+    strs(value.facts) && strs(value.unresolved) && (value.ack === undefined || str(value.ack));
 }
 
 export function isConv(value: unknown): value is Conv {
   return rec(value) && value.v === 1 && str(value.id) && str(value.lang) && isReader(value.reader) &&
     str(value.created) && str(value.updated) && str(value.name) &&
+    (value.gender === undefined || querentGender(value.gender)) &&
     (value.title === undefined || str(value.title)) && (value.trail === undefined || isTrail(value.trail)) &&
     (value.handover === undefined || isHand(value.handover)) && Array.isArray(value.turns) && value.turns.every(isTurn);
 }

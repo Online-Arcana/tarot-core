@@ -12,7 +12,8 @@ const STOPWORDS: Readonly<Record<AuditLanguage, ReadonlySet<string>>> = {
 };
 
 const DIRECT_ES = /(?<![\p{L}\p{N}])(?:tú|te|ti|contigo|tu|tus)(?![\p{L}\p{N}])/iu;
-const DIRECT_ES_VERB = /\b(?:eres|estás|tienes|puedes|debes|quieres|necesitas|sientes|ves|miras|escuchas|haces|vas|vienes|llevas|sigues|encuentras|buscas|dejas|tomas|introduces|metes|sacas|extraes|eliges|retiras|mantienes|recibes|reconoces|aceptas|temes|esperas|piensas|crees|notas|preguntas|decides|avanzas|vuelves|regresas|permites|sostienes)\b/iu;
+const DIRECT_ES_VERB = /\b(?:eres|estás|has|tienes|puedes|debes|quieres|necesitas|sientes|ves|miras|escuchas|haces|vas|vienes|llevas|sigues|encuentras|buscas|dejas|tomas|introduces|metes|sacas|extraes|eliges|retiras|mantienes|recibes|reconoces|aceptas|temes|esperas|piensas|crees|notas|preguntas|decides|avanzas|vuelves|regresas|permites|sostienes|comprendes)\b/iu;
+const DIRECT_ES_IMPERATIVE = /(?:^|[.!?;:]["'’”)]*\s+)(?:aclara|acepta|busca|comprende|considera|cuida|deja|detente|dime|elige|escribe|escucha|haz|imagina|mantén|mira|observa|permítete|piensa|pon|pregúntate|recuerda|respira|revisa|separa|toma|confía)\b/iu;
 const DIRECT_EN = /\b(?:you|your|yours|yourself|yourselves)\b/iu;
 const DIRECT_EN_IMPERATIVE = /(?:^|[.!?]["'’”)]*\s+)(?:ask|begin|breathe|bring|check|choose|consider|explore|follow|give|hold|imagine|keep|let|listen|look|name|notice|pause|remember|return|share|sit|speak|stay|take|tell|think|trust|try)\b/iu;
 
@@ -46,7 +47,7 @@ export function contentTokens(value: string, code: LangCode): string[] {
 
 export function hasDirectAddress(value: string, code: LangCode): boolean {
   return auditLanguage(code) === "es"
-    ? DIRECT_ES.test(value) || DIRECT_ES_VERB.test(value)
+    ? DIRECT_ES.test(value) || DIRECT_ES_VERB.test(value) || DIRECT_ES_IMPERATIVE.test(value)
     : DIRECT_EN.test(value) || DIRECT_EN_IMPERATIVE.test(value);
 }
 

@@ -2,7 +2,7 @@
 
 The public domain contracts live in `src/contracts/types.ts`; runtime guards live in `src/contracts/guard.ts`.
 
-The audited core deliberately preserves the browser-facing `ApiReq` and `ApiOut` shapes used by the existing Online Arcana application. Internal reader-profile metadata has evolved, but adopting the audited core does not require an application request/response protocol migration.
+The audited core deliberately preserves the browser-facing `ApiReq` and `ApiOut` shapes used by the existing Online Arcana application. Internal reader-profile metadata has evolved, but adopting the audited core does not require an application request/response protocol migration. New fields described below are additive and optional so existing saved conversations and current clients remain valid.
 
 ## Stable identifiers
 
@@ -44,7 +44,25 @@ mictli
 | `handover` | `question`, target reader, source `conv` | `HandoverOut` |
 | `return` | reader `trail`; optional handover state | `ReturnOut` |
 
-Every request also carries `lang`, `reader`, `name` and `history`. `trail` and `handover` are included where relevant.
+Every request also carries `lang`, `reader`, `name` and `history`. `trail` and `handover` are included where relevant. Requests and conversations may additionally carry `gender`.
+
+## Querent grammatical gender
+
+`gender` is optional and accepts exactly:
+
+```text
+woman
+man
+nonbinary
+```
+
+This field is a grammatical-language hint for the querent, not reader identity metadata and not a licence to infer any other personal characteristic.
+
+Existing callers do not need to add it. When `gender` is missing, the core treats the querent as **grammatically unspecified**. In Spanish, missing gender and `nonbinary` use the same neutral-address fallback: the model must avoid masculine/feminine agreement for the querent and instead use natural rephrasing such as finite verbs, abstract nouns and constructions like `para ti`. Normal tuteo (`tú`, `te`, `ti`, `contigo`, `tu`, `tus`) remains valid because it does not mark gender.
+
+The neutral Spanish contract deliberately does not manufacture forms with `@`, `x`, slashes, parenthetical alternatives or forced `-e` endings. Neutrality is achieved through ordinary Spanish syntax. Deterministic audit rejects common direct gender assumptions when gender is missing or `nonbinary`.
+
+When `woman` or `man` is supplied, corresponding feminine or masculine agreement is permitted where Spanish grammar requires it.
 
 ## Draw compatibility contract
 
@@ -81,6 +99,7 @@ The legacy structural guard accepts three to six suggestion strings for compatib
 
 - conversation ID and language
 - active reader and querent name
+- optional querent grammatical gender
 - creation and update timestamps
 - optional title
 - optional cross-reader `Trail`
@@ -93,9 +112,20 @@ Saved draw prose may originate from an older client or language pack. Model-faci
 
 ## Handovers
 
-`HandoverOut` contains a concise internal summary and five grounded lists: questions, conclusions, cards, facts and unresolved items. `Hand` records the source and target readers, referral reason, grounded context and optional acknowledgement. `Trail` records reader visits across related conversation files.
+`HandoverOut` contains a concise internal summary and five grounded lists: questions, conclusions, cards, facts and unresolved items. The model may propose this shape, but persisted semantic state is rebuilt from the canonical conversation before audit: generated prose cannot rewrite the previous reading into a different conclusion.
 
-The generated handover summary is state, not reader dialogue. Receiving/returning acknowledgements are selected through the target reader persona/fallback path.
+`Hand` records the source and target readers, referral reason, grounded context and optional acknowledgement. New handovers also carry optional `results`, an exact structured snapshot of the latest reading result state:
+
+- canonical result ID and display name
+- `upright` or `reversed` side
+- position number and position name
+- orientation-specific meaning
+
+The legacy `cards: string[]` field remains for old saved conversations. New code prefers `results` when present, so returns and subsequent readers do not have to guess orientation or silently reinterpret an earlier result.
+
+The receiving conversation preserves the querent's optional `gender`, `Trail` and accepted `Hand`. Ordinary reader generation receives that accepted handover as prior context. Vanilla readers receive exact canonical result state; mapped readers receive the equivalent approved public-medium result/state without canonical tarot identifiers leaking across the model boundary.
+
+`Trail` records reader visits across related conversation files. The handover summary is state, not reader dialogue. Receiving/returning acknowledgements are selected through the target reader persona/fallback path.
 
 For mapped readers, canonical card state remains internal while model-facing historical generated prose is translated to approved public mapped entities where it is safe to do so. User-authored questions and facts are never scrubbed.
 
@@ -106,12 +136,14 @@ Important guard/audit invariants include:
 - draws contain one to ten results and supported spread IDs
 - loaded decks use the exact 78 canonical card IDs
 - known reader IDs only
+- optional querent gender is one of the three supported values
 - output fields have the correct primitive shape
 - invitations and continuation lines are single-line and length-limited
 - current generated suggestions contain exactly three questions
 - conversations contain valid turns, trails and handovers
+- new handover result snapshots preserve exact result side and meaning
 - card interpretation count matches the supplied draw
 - mapped public media has the required v3 presentation fields
-- reader/narrator voice, reveal order and mapped-medium boundaries pass deterministic audit
+- reader/narrator voice, querent-gender language, reveal order and mapped-medium boundaries pass deterministic audit
 
 `parseReq` also applies transport length limits and canonicalises supplied draw semantics before the request is used for model generation.

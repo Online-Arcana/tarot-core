@@ -1,6 +1,6 @@
 import { canonicalCardAt, canonicalCards } from "../domain/canonical.js";
 import { mediaFor } from "../readers/media/runtime.js";
-import type { ApiReq, Hand, Hist, LangCode, ReaderId, Trail, Visit } from "../contracts/types.js";
+import type { ApiReq, Hand, HandResult, Hist, LangCode, ReaderId, Trail, Visit } from "../contracts/types.js";
 
 interface CanonicalAlias {
   readonly id: string;
@@ -43,6 +43,30 @@ function publicName(reader: ReaderId, id: string, lang: LangCode): string | null
   return mediaFor(reader, card, lang)?.publicName ?? null;
 }
 
+function publicResult(reader: ReaderId, result: HandResult, lang: LangCode): unknown {
+  // Position semantics are already stored in the handover. mediaFor only needs
+  // canonical identity and exact side to derive the public mapped state.
+  const card = canonicalCardAt(result.id, result.side, 1, "one", lang);
+  const media = mediaFor(reader, card, lang);
+  if (!media) {
+    return {
+      name: spanish(lang) ? "resultado anterior" : "earlier result",
+      state: result.side,
+      position: result.position,
+      positionName: result.positionName,
+      meaning: result.meaning,
+    };
+  }
+  return {
+    name: media.publicName,
+    category: media.publicCategory,
+    state: media.publicState,
+    position: result.position,
+    positionName: result.positionName,
+    meaning: result.meaning,
+  };
+}
+
 function translateCanonicalEntities(value: string, reader: ReaderId, lang: LangCode): string {
   let out = value;
   for (const alias of CANONICAL_ALIASES) {
@@ -77,14 +101,19 @@ function publicGeneratedList(values: readonly string[], reader: ReaderId, lang: 
   });
 }
 
-function publicHand(reader: ReaderId, hand: Hand | undefined, lang: LangCode): unknown {
+export function mappedHandContext(reader: ReaderId, hand: Hand | undefined, lang: LangCode): unknown {
   if (!hand) return null;
-  const results = hand.cards.map(name => {
-    const id = cardIdFromStoredName(name);
-    return id === null
-      ? (spanish(lang) ? "resultado anterior" : "earlier result")
-      : (publicName(reader, id, lang) ?? (spanish(lang) ? "resultado anterior" : "earlier result"));
-  });
+  const results = hand.results?.length
+    ? hand.results.map(result => publicResult(reader, result, lang))
+    : hand.cards.map(name => {
+      const id = cardIdFromStoredName(name);
+      return {
+        name: id === null
+          ? (spanish(lang) ? "resultado anterior" : "earlier result")
+          : (publicName(reader, id, lang) ?? (spanish(lang) ? "resultado anterior" : "earlier result")),
+        state: null,
+      };
+    });
   const reason = publicGenerated(hand.reason, reader, lang);
   const summary = publicGenerated(hand.summary, reader, lang);
   const acknowledgement = hand.ack ? publicGenerated(hand.ack, reader, lang) : null;
@@ -141,7 +170,7 @@ export function mappedHandoverPayload(req: Extract<ApiReq, { task: "handover" }>
     targetReader: req.target,
     referralQuestion: req.question,
     previousTitle: req.conv.title ?? null,
-    previousHandover: publicHand(req.reader, req.conv.handover, req.lang),
+    previousHandover: mappedHandContext(req.reader, req.conv.handover, req.lang),
     trail: req.conv.trail ? publicTrail(req.reader, req.conv.trail, req.lang) : null,
     turns: req.conv.turns.map(turn => {
       if (turn.kind !== "reading") {
@@ -182,7 +211,7 @@ export function mappedReturnPayload(req: Extract<ApiReq, { task: "return" }>): u
     querent: req.name || null,
     reader: req.reader,
     trail: publicTrail(req.reader, req.trail, req.lang),
-    handover: publicHand(req.reader, req.handover, req.lang),
+    handover: mappedHandContext(req.reader, req.handover, req.lang),
     history: publicHistory(req.reader, req.history, req.lang),
   };
 }

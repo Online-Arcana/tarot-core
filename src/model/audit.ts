@@ -19,6 +19,7 @@ import {
   repetitiveProse,
   regexEscape,
 } from "./language.js";
+import { neutralSpanishQuerentIssue } from "./querent-language.js";
 
 export interface AuditIssue {
   readonly code: string;
@@ -49,7 +50,7 @@ const hanging = /(?:…|\.\.\.|[,;:\-–—])\s*$/u;
 const ref = /#\/[A-Za-z0-9_~./-]+/u;
 const operationalNarration = /\b(?:hidden application state|implementation details?|deterministic validation|records? the state|state is recorded|inspection after|reveal order|canonical mapping|JSON schema|application behaviour|spread positions?|marked areas? correspond|nothing is shown early|hidden sign|preserves? (?:its )?exact (?:state|direction)|no second cast|without another cast|counting each area|result number|draw number|phase|continuity control|estado oculto de la aplicación|detalles? de implementación|validación determinista|registra(?:r| el estado)?|estado (?:queda )?registrado|inspección después|orden de revelación|mapeo canónico|comportamiento de la aplicación|posiciones? de la tirada|zonas? marcadas? corresponden?|nada se muestra antes|signo oculto|conserva (?:su )?(?:estado|dirección) exact[oa]|sin otro lanzamiento|contando cada zona|número de resultado|número de extracción|control de continuidad)\b/iu;
 const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?|tarotistas?)\b/iu;
-const genericReader = /\b(?:the reader|the tarot reader|el lector|la lectora|la persona lectora|el tarotista|la tarotista|la persona tarotista)\b/iu;
+const genericReader = /\b(?:the reader|the tarot reader|el lector|la lectora|la persona lectora|el tarotista|la tarotista|tarotistas|la persona tarotista)\b/iu;
 const genericQuerent = /\b(?:the querent|la persona consultante|el consultante|la consultante)\b/iu;
 const explicitQuerentActionEn = /\b(?:you|the querent)\s+(?:lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw|sit|stand|rest)\b/iu;
 const explicitQuerentActionEs = /\b(?:tú|la persona consultante)\s+(?:levantas?|elevas?|tomas?|alcanzas?|tocas?|sostienes?|sacas?|agitas?|lanzas?|colocas?|eliges?|tiras?|sueltas?|giras?|mueves?|mezclas?|retiras?|llevas?|abres?|cierras?|manipulas?|agarras?|dejas?|introduces?|metes?|extraes?)\b/iu;
@@ -76,6 +77,16 @@ const auditSpanishPronounCase = (
   add(issues, "spanish_pronoun_case", path, "must use ti after a preposition and contigo after con, not tú/te or con ti");
 };
 
+const auditQuerentLanguage = (
+  issues: AuditIssue[],
+  path: string,
+  value: string,
+  req: ApiReq,
+): void => {
+  const problem = neutralSpanishQuerentIssue(value, req);
+  if (problem !== null) add(issues, "querent_gender", path, problem);
+};
+
 const auditText = (
   issues: AuditIssue[],
   path: string,
@@ -98,6 +109,7 @@ const auditText = (
   if (rules.question === true && !/\?["'’”)]*$/u.test(text)) add(issues, "question", path, "must be phrased as a question");
   if (ref.test(text)) add(issues, "internal_reference", path, "must not expose an internal JSON reference");
   if (rules.spanishGrammar !== false) auditSpanishPronounCase(issues, path, text, req);
+  auditQuerentLanguage(issues, path, text, req);
   if (repetitiveProse(text, req.lang)) add(issues, "repetitive", path, "must contain natural, non-repetitive wording");
 };
 
@@ -123,6 +135,7 @@ const auditNarratorVoice = (issues: AuditIssue[], path: string, value: string, r
   if (genericQuerent.test(text)) add(issues, "generic_querent", path, "narrator prose must address the viewer directly rather than use a generic querent label");
   if (isMappedReader(req.reader) && mappedTerms.test(text)) add(issues, "canonical_medium", path, "mapped narrator prose must stay inside the reader's public medium");
   auditSpanishPronounCase(issues, path, text, req);
+  auditQuerentLanguage(issues, path, text, req);
   if (operationalNarration.test(text)) add(issues, "operational_narration", path, "must not dramatise implementation, sequencing or state-machine controls");
   if (req.name.trim() && containsWholePhrase(text, req.name, req.lang)) {
     add(issues, "querent_name_narrator", path, "narrator prose must address the querent directly rather than use the querent's proper name");
@@ -165,6 +178,7 @@ const auditReaderVoice = (issues: AuditIssue[], path: string, value: string, req
   const name = profileFor(req.reader).public.name;
   const selfName = new RegExp(`\\b${regexEscape(name)}(?:['’]s)?\\b`, "iu");
   if (genericReader.test(text)) add(issues, "generic_reader", path, "reader-facing prose must use the configured identity rather than a generic role label");
+  auditQuerentLanguage(issues, path, text, req);
   if (selfName.test(withoutMappedEntities(text, req))) {
     add(issues, "reader_third_person", path, `reader dialogue must not refer to ${name} as an outside third-person character`);
   }
@@ -262,6 +276,7 @@ function suppliedCards(req: Extract<ApiReq, { task: "handover" }>): Set<string> 
 function suppliedQuestions(req: Extract<ApiReq, { task: "handover" }>): Set<string> {
   return new Set([req.question, ...req.conv.turns.map(turn => turn.question)].map(clean));
 }
+
 function auditRead(req: Extract<ApiReq, { task: "read" }>, out: ReadingOut, issues: AuditIssue[]): void {
   for (const [field, value] of [
     ["gesture", out.gesture],
@@ -296,6 +311,30 @@ function auditRead(req: Extract<ApiReq, { task: "read" }>, out: ReadingOut, issu
     add(issues, "future_result", `read.cardText[${leak.card}]`, `must not name later unrevealed result ${leak.name}`);
   }
   auditMappedPublicMedium(issues, "read.dialogue", [out.synthesis, out.reading, out.closing, ...out.cardText].join(" "), req, "mapped reading dialogue must stay inside the reader's public medium");
+}
+
+function allowedReturnCards(req: Extract<ApiReq, { task: "return" }>): Set<string> {
+  return new Set(
+    (req.handover?.results?.map(result => result.name) ?? req.handover?.cards ?? [])
+      .map(name => normaliseProse(name, req.lang)),
+  );
+}
+
+function auditVanillaReturnResults(
+  req: Extract<ApiReq, { task: "return" }>,
+  value: string,
+  issues: AuditIssue[],
+): void {
+  if (isMappedReader(req.reader)) return;
+  const allowed = allowedReturnCards(req);
+  for (const id of canonicalCardIds()) {
+    const name = canonicalCardAt(id, "upright", 1, "one", req.lang).name;
+    if (allowed.has(normaliseProse(name, req.lang))) continue;
+    if (containsWholePhrase(value, name, req.lang)) {
+      add(issues, "invented_return_result", "return.text", `must not introduce result ${name} because it is absent from the handed-over reading`);
+      break;
+    }
+  }
 }
 
 export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
@@ -390,6 +429,7 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
       auditText(issues, "return.text", value.text, req, { minWords: 3, maxWords: 95, complete: true, oneLine: true, direct: true });
       auditReaderVoice(issues, "return.text", value.text, req);
       auditMappedPublicMedium(issues, "return.text", value.text, req, "mapped return dialogue must stay in the reader's public medium");
+      auditVanillaReturnResults(req, value.text, issues);
       break;
     }
   }
@@ -409,7 +449,7 @@ export const correctionFromAudit = (
       "El intento anterior no superó la validación determinista.",
       "Devuelve el esquema estricto completo y realiza únicamente las correcciones mínimas necesarias.",
       "Conserva todas las conclusiones válidas, los detalles propios del tarotista y cada campo correcto del intento anterior.",
-      "Completa las oraciones inacabadas, elimina duplicaciones y respeta los límites de longitud, fundamento, voz y orden de revelación.",
+      "Completa las oraciones inacabadas, elimina duplicaciones y respeta los límites de longitud, fundamento, voz, género gramatical y orden de revelación.",
       ...findings.map(message => `- ${message}`),
       ...(candidate === undefined ? [] : [`Candidato anterior: ${JSON.stringify(candidate)}`]),
     ].join("\n");

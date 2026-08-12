@@ -3,6 +3,7 @@ import test from "node:test";
 import { canonicalCardAt } from "../dist/domain/canonical.js";
 import { finaliseModelOutDetailed } from "../dist/model/finalise.js";
 import { modelPayload, modelPrompt } from "../dist/model/prompt.js";
+import { mediaFor } from "../dist/readers/media/runtime.js";
 
 const pack = { prompt: { reading: "reading", chat: "chat" } };
 const fool = canonicalCardAt("major-fool", "upright", 1, "one", "en-GB");
@@ -172,4 +173,62 @@ test("mapped return input translates exact generated entities, drops ambiguous l
   assert.equal(payload.handover.facts[0], "The person explicitly said they are afraid of death and collect tarot cards.");
   assert.match(text, /Viracocha/u);
   assert.doesNotMatch(text, /major-fool|"orientation"|"cardId"|"upright"/u);
+});
+
+test("mapped return preserves the exact reversed result as the mapped public state", () => {
+  const reversed = canonicalCardAt("cups-knight", "reversed", 2, "three", "es-ES");
+  const upright = canonicalCardAt("cups-knight", "upright", 2, "three", "es-ES");
+  const reversedMedia = mediaFor("amaru", reversed, "es-ES");
+  const uprightMedia = mediaFor("amaru", upright, "es-ES");
+  assert.ok(reversedMedia);
+  assert.ok(uprightMedia);
+  assert.notEqual(reversedMedia.publicState, uprightMedia.publicState, "fixture must exercise an orientation-dependent mapped state");
+
+  const req = {
+    task: "return",
+    lang: "es-ES",
+    reader: "amaru",
+    name: "Alex",
+    history: [],
+    trail: {
+      id: "trail-reversed",
+      summary: "La decisión sigue abierta.",
+      visits: [
+        { reader: "amaru", conv: "old", at: "2026-08-11T18:00:00.000Z", question: "¿Qué cambia?", note: "" },
+        { reader: "selena", conv: "middle", at: "2026-08-11T18:05:00.000Z", question: "¿Qué cambia?", note: "" },
+        { reader: "amaru", conv: "return", at: "2026-08-11T18:10:00.000Z", question: "¿Qué cambia?", note: "" },
+      ],
+    },
+    handover: {
+      from: "selena",
+      to: "amaru",
+      at: "2026-08-11T18:10:00.000Z",
+      question: "¿Qué cambia?",
+      reason: "Continuar la reflexión.",
+      summary: "La lectura pide cautela ante la idealización.",
+      prevQs: ["¿Qué cambia?"],
+      conclusions: ["Conviene distinguir deseo de idealización."],
+      cards: ["Caballero de Copas"],
+      results: [{
+        id: reversed.id,
+        name: reversed.name,
+        side: reversed.side,
+        position: reversed.pos,
+        positionName: reversed.posName,
+        meaning: reversed.meaning,
+      }],
+      facts: [],
+      unresolved: ["Distinguir deseo de idealización."],
+    },
+  };
+
+  const payload = modelPayload(req);
+  assert.equal(payload.handover.results.length, 1);
+  assert.equal(payload.handover.results[0].name, reversedMedia.publicName);
+  assert.equal(payload.handover.results[0].state, reversedMedia.publicState);
+  assert.equal(payload.handover.results[0].meaning, reversed.meaning);
+  assert.notEqual(payload.handover.results[0].state, uprightMedia.publicState);
+
+  const text = JSON.stringify(payload);
+  assert.doesNotMatch(text, /cups-knight|Caballero de Copas|"reversed"|"upright"/u);
 });

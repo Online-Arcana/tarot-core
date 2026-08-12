@@ -38,6 +38,7 @@ const source = {
   created: "2026-08-11T18:00:00.000Z",
   updated: "2026-08-11T18:05:00.000Z",
   name: "Alex",
+  gender: "nonbinary",
   turns: [{
     id: "turn-reading",
     kind: "reading",
@@ -59,6 +60,7 @@ const handoverReq = {
   lang: "en-GB",
   reader: "selena",
   name: "Alex",
+  gender: "nonbinary",
   history: [],
   question: referral.question,
   target: referral.target,
@@ -75,9 +77,9 @@ test("deterministic handover summary derives questions and cards only from suppl
   assert.deepEqual(summary.facts, []);
 });
 
-test("pre-audit handover keeps transcript-grounded facts and removes internal metadata", () => {
+test("pre-audit handover grounds all semantic state and keeps only transcript-grounded facts", () => {
   const generated = {
-    summary: "The decision remains open, with caution around commitment and consequences.",
+    summary: "Invented handover prose that changes the earlier reading.",
     questions: ["Invented question?"],
     conclusions: ["A new synthesis can remain part of the structured handover."],
     cards: ["Death"],
@@ -86,24 +88,31 @@ test("pre-audit handover keeps transcript-grounded facts and removes internal me
       "Source reader is Selena.",
       "Target reader is Brennos.",
       "trail id is internal-trail-id",
-      "synthesis and answer provided in input_data reflect prior guidance",
     ],
-    unresolved: ["Which consequence matters most if the role is accepted?"],
+    unresolved: ["An invented unresolved issue."],
   };
 
   const prepared = prepareModelOutDetailed(handoverReq, generated);
+  assert.equal(prepared.out.summary, readingOut.synthesis);
   assert.deepEqual(prepared.out.questions, [
     "Should I take the new role?",
     "What consequence should I weigh most carefully?",
   ]);
+  assert.deepEqual(prepared.out.conclusions, [readingOut.synthesis, readingOut.reading]);
   assert.deepEqual(prepared.out.cards, ["The Fool"]);
   assert.deepEqual(prepared.out.facts, ["The reading points to a cautious beginning that keeps options open."]);
-  assert.ok(prepared.diagnostics.includes("handover_questions_canonicalised"));
-  assert.ok(prepared.diagnostics.includes("handover_cards_canonicalised"));
-  assert.ok(prepared.diagnostics.includes("handover_facts_grounded"));
+  assert.deepEqual(prepared.out.unresolved, [referral.question]);
+  for (const diagnostic of [
+    "handover_summary_canonicalised",
+    "handover_questions_canonicalised",
+    "handover_conclusions_canonicalised",
+    "handover_cards_canonicalised",
+    "handover_facts_grounded",
+    "handover_unresolved_canonicalised",
+  ]) assert.ok(prepared.diagnostics.includes(diagnostic), diagnostic);
 });
 
-test("persisted generated handover cannot invent questions, cards or facts", () => {
+test("persisted generated handover preserves gender and exact result state without semantic invention", () => {
   const generated = {
     summary: "The decision remains open, with caution around commitment and consequences.",
     questions: ["An invented question that the user never asked?"],
@@ -118,16 +127,27 @@ test("persisted generated handover cannot invent questions, cards or facts", () 
 
   const next = handoverConv(source, referral, "conv-next", "2026-08-11T18:10:00.000Z", generated);
   assert.ok(next.handover);
+  assert.equal(next.gender, "nonbinary");
   assert.deepEqual(next.handover.prevQs, [
     "Should I take the new role?",
     "What consequence should I weigh most carefully?",
   ]);
   assert.deepEqual(next.handover.cards, ["The Fool"]);
+  assert.deepEqual(next.handover.results, [{
+    id: "major-fool",
+    name: "The Fool",
+    side: "upright",
+    position: 1,
+    positionName: "Message",
+    meaning: "Beginnings and openness.",
+  }]);
+  assert.deepEqual(next.handover.conclusions, [readingOut.synthesis, readingOut.reading]);
+  assert.deepEqual(next.handover.unresolved, [referral.question]);
   assert.deepEqual(next.handover.facts, ["The reading points to a cautious beginning that keeps options open."]);
   assert.equal(next.handover.facts.includes("Alex has already accepted the job offer."), false);
   assert.equal(next.handover.cards.includes("Death"), false);
   assert.equal(next.handover.prevQs.includes("An invented question that the user never asked?"), false);
-  assert.ok(next.handover.conclusions.includes("A new synthesis can remain part of the structured handover."));
+  assert.equal(next.handover.conclusions.includes("A new synthesis can remain part of the structured handover."), false);
   assert.equal(next.reader, "brennos");
   assert.equal(next.turns.length, 0);
 });
