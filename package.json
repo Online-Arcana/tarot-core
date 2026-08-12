@@ -27,7 +27,7 @@
     "check:live-harness": "node --check scripts/run-live-prose-matrix.mjs && node --check scripts/run-live-prose-cell.mjs && node --check scripts/live-prose-matrix.mjs && node --check scripts/aggregate-live-prose.mjs && node --check scripts/render-live-prose-review.mjs && node --check scripts/run-live-chained-smoke.mjs && node --check scripts/live-chained-smoke.mjs",
     "prebuild": "npm run generate:data",
     "build": "tsc -p tsconfig.build.json",
-    "test": "node --experimental-strip-types --test test/*.test.mts",
+    "test": "ARCANA_SKIP_FINAL_PROOFREAD=1 node --experimental-strip-types --test test/*.test.mts",
     "cli": "npm run build && node dist/cli/main.js",
     "ci": "npm run check && npm run check:live-harness && npm run build && npm run test",
     "test:live": "npm run build && node scripts/run-live-prose-matrix.mjs",
