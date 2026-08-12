@@ -150,7 +150,10 @@ export function finalProofreadShape(req: ApiReq, out: ApiOut) {
     }),
     value => {
       if (!record(value) || !Array.isArray(value.edits)) throw new Error("Final proofread must return an edits array");
-      const seen = new Set<string>();
+      const seenSpans = new Set<string>();
+      const patchedPaths = new Set<string>();
+      const decontaminatedPaths = new Set<string>();
+      const patchRanges = new Map<string, Array<readonly [number, number]>>();
       const edits = value.edits.map((item, index): ProofreadEdit => {
         if (!record(item)) throw new Error(`Final proofread edit ${index} must be an object`);
         const keys = Object.keys(item).sort().join(",");
@@ -165,6 +168,9 @@ export function finalProofreadShape(req: ApiReq, out: ApiOut) {
         if (original === undefined) throw new Error(`Final proofread edit ${index} has an unavailable path`);
 
         if (mode === "patch") {
+          if (decontaminatedPaths.has(path)) {
+            throw new Error(`Final proofread edit ${index} cannot patch a decontaminated field`);
+          }
           if (before.length > 240 || after.length > 320 || Math.abs(after.length - before.length) > 120) {
             throw new Error(`Final proofread edit ${index} is too large for a surgical correction`);
           }
@@ -174,16 +180,31 @@ export function finalProofreadShape(req: ApiReq, out: ApiOut) {
           if (original.length > 80 && before.length > original.length * 0.6) {
             throw new Error(`Final proofread edit ${index} spans too much of the original field`);
           }
-        } else if (before !== original) {
-          throw new Error(`Final proofread edit ${index} must supply the entire contaminated field in decontamination mode`);
+          if (occurrences(original, before) !== 1) {
+            throw new Error(`Final proofread edit ${index} must identify one exact original span in ${path}`);
+          }
+          const at = original.indexOf(before);
+          const end = at + before.length;
+          const ranges = patchRanges.get(path) ?? [];
+          if (ranges.some(([start, finish]) => at < finish && end > start)) {
+            throw new Error(`Final proofread edit ${index} overlaps an earlier edit in ${path}`);
+          }
+          ranges.push([at, end]);
+          patchRanges.set(path, ranges);
+          const key = `${path}\u0000${before}`;
+          if (seenSpans.has(key)) throw new Error(`Final proofread edit ${index} duplicates an earlier exact span`);
+          seenSpans.add(key);
+          patchedPaths.add(path);
+        } else {
+          if (patchedPaths.has(path) || decontaminatedPaths.has(path)) {
+            throw new Error(`Final proofread edit ${index} cannot decontaminate a field that already has edits`);
+          }
+          if (before !== original) {
+            throw new Error(`Final proofread edit ${index} must supply the entire contaminated field in decontamination mode`);
+          }
+          decontaminatedPaths.add(path);
         }
 
-        if (occurrences(original, before) !== 1) {
-          throw new Error(`Final proofread edit ${index} must identify one exact original span in ${path}`);
-        }
-        const key = `${path}\u0000${mode}`;
-        if (seen.has(key)) throw new Error(`Final proofread edit ${index} duplicates an earlier edit for ${path}`);
-        seen.add(key);
         return { mode, path, before, after };
       });
       return { edits };
@@ -206,12 +227,16 @@ export function finalProofreadPrompt(
     "The text has already passed automated audits. That does NOT prove it is correct. Find human-visible defects those audits can miss.",
     "NORMAL RULE: use mode=patch and change only the smallest exact substring that is actually broken.",
     "Never rewrite, paraphrase, embellish or replace correct prose merely because you prefer different wording.",
+    "A different natural wording is NOT a defect. Do not make preference-only substitutions such as changing 'keeping your agency clear' to 'keeping your agency intact', or 'a step you will test' to 'a step you will put to the test', when the original is already grammatical, natural and immersive.",
     "Never change meaning, interpretation, advice, facts, result identity/state/orientation, chronology, scene state, imagery, tone, reader personality or emphasis for an ordinary correction.",
     "Never add new facts, symbolism, tarot meaning, cultural claims, physical properties, actions, dialogue, advice or conclusions.",
-    "When correcting continuity or physical-scene defects, restore only state or actions already established by the reference context or prior theatre. Remove or minimally replace the contradictory or reset phrase; do not invent different choreography, props or events.",
+    "When correcting continuity or physical-scene defects, restore only state or actions already established by the canonical reader profile, reference context or prior theatre. Remove or minimally replace the contradictory or reset phrase; do not invent different choreography, props or events.",
+    "Canonical reader identity, mannerisms, ritual objects and prior theatre outrank an accidental contradiction in editable prose. Never solve a contradiction by reassigning a reader-owned object or mannerism to the querent merely because one bad sentence suggests it. Correct the accidental sentence back to the established owner/state.",
+    "When you correct a grammatical subject or actor, reread the entire sentence and related fields. Fix every dependent verb, pronoun or possessive needed for grammatical agreement. Never leave a mixed subject such as 'You ... places her ... lifts her'.",
     "If a field is already correct, natural and immersive, leave it completely untouched by returning no edit for it.",
     "VOICE OWNERSHIP IS FIXED. field_roles tells you who owns each field. narrator fields are external third-person scene prose; reader_dialogue fields are the selected reader speaking directly; handover_state fields are grounded continuity state; title is only a title. Judge each field inside its assigned voice. Never move prose between fields or convert narrator prose into reader speech or reader speech into narration.",
-    "For mode=patch: before must be one SHORT exact substring copied verbatim from that field and after must contain only its minimal correction. Do not use an entire field or paragraph as before.",
+    "Inspect all editable fields together for cross-field continuity. A correction in one field must not create a contradiction with another field in the same output.",
+    "For mode=patch: before must be one SHORT exact substring copied verbatim from that field and after must contain only its minimal correction. You may return multiple distinct, non-overlapping patch edits for the same field when several separate defects need correction. Do not use an entire field or paragraph as before.",
     "ONE EXCEPTION: PRIVATE-CONTEXT DECONTAMINATION. If private prompt, schema, validator, audit, model, implementation, internal state/control language or private gender-handling instructions have leaked into a visible field, first use a normal patch if removing/correcting the leaked span leaves coherent intended prose.",
     "Only when that private leakage has contaminated or displaced the field so badly that surgical removal cannot recover coherent customer-visible prose may you use mode=decontaminate. In that mode, before MUST be the entire exact contaminated field and after may reconstruct ONLY that one field from the reference context.",
     "Decontamination is permission to reinvent wording only because the contaminated field is no longer trustworthy. It is NOT permission to invent content. Preserve the intended meaning, established facts, result state/orientation, chronology, scene continuity, imagery that is still supported, reader identity/personality, voice ownership and task purpose. Add nothing that the canonical context does not support.",
