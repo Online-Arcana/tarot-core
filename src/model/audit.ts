@@ -116,8 +116,8 @@ const auditNarratorVoice = (issues: AuditIssue[], path: string, value: string, r
   if (isMappedReader(req.reader) && mappedTerms.test(text)) add(issues, "canonical_medium", path, "mapped narrator prose must stay inside the reader's public medium");
   auditSpanishPronounCase(issues, path, text, req);
   if (operationalNarration.test(text)) add(issues, "operational_narration", path, "must not dramatise implementation, sequencing or state-machine controls");
-  if (auditLanguage(req.lang) === "es" && req.name.trim() && containsWholePhrase(text, req.name, req.lang)) {
-    add(issues, "querent_name_narrator", path, "Spanish narrator prose must address the querent grammatically rather than use the querent's proper name");
+  if (req.name.trim() && containsWholePhrase(text, req.name, req.lang)) {
+    add(issues, "querent_name_narrator", path, "narrator prose must address the querent directly rather than use the querent's proper name");
   }
 };
 
@@ -186,7 +186,7 @@ const auditDuplicates = (issues: AuditIssue[], entries: readonly { path: string;
 function currentCard(req: Extract<ApiReq, { task: "ritual" }>) {
   return req.draw?.cards[req.card] ?? req.drawn;
 }
-function ritualText(out: RitualOut): string { return clean([out.gesture, out.opening, out.ritual].join(" ")); }
+function ritualText(out: RitualOut): string { return clean([out.opening, out.ritual, out.gesture].join(" ")); }
 function anyWhole(value: string, phrases: readonly string[], lang: string): boolean {
   return phrases.some(phrase => containsWholePhrase(value, phrase, lang));
 }
@@ -312,7 +312,7 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
     }
     case "ritual": {
       const value = out as RitualOut;
-      auditTheatre(issues, "ritual.theatre", [value.gesture, value.opening, value.ritual], req);
+      auditTheatre(issues, "ritual.theatre", [value.opening, value.ritual, value.gesture], req);
       auditNarratorVoice(issues, "ritual.gesture", value.gesture, req);
       auditNarratorVoice(issues, "ritual.opening", value.opening, req);
       auditNarratorVoice(issues, "ritual.ritual", value.ritual, req);
@@ -379,7 +379,7 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
     }
     case "return": {
       const value = out as Extract<ApiOut, { text: string }>;
-      auditText(issues, "return.text", value.text, req, { minWords: 3, maxWords: 80, complete: true, oneLine: true, direct: true });
+      auditText(issues, "return.text", value.text, req, { minWords: 3, maxWords: 90, complete: true, oneLine: true, direct: true });
       auditReaderVoice(issues, "return.text", value.text, req);
       auditMappedPublicMedium(issues, "return.text", value.text, req, "mapped return dialogue must stay in the reader's public medium");
       break;
