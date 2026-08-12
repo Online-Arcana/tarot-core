@@ -226,9 +226,9 @@ function ensureDirect(value: string, req: ApiReq, maxWords: number): string {
 
 function ritual(req: Extract<ApiReq, { task: "ritual" }>, out: RitualOut): RitualOut {
   const parts: [string, string, string] = [
-    audience(out.gesture, req),
     audience(out.opening, req),
     audience(out.ritual, req),
+    audience(out.gesture, req),
   ];
   const combined = parts.join(" ").replace(/\s+/gu, " ").trim();
   if (!hasDirectAddress(combined, req.lang)) {
@@ -241,7 +241,7 @@ function ritual(req: Extract<ApiReq, { task: "ritual" }>, out: RitualOut): Ritua
       parts[0] = ensureDirect(parts[0], req, 130 - count(parts[1]) - count(parts[2]));
     }
   }
-  return { ...out, gesture: parts[0], opening: parts[1], ritual: parts[2] };
+  return { ...out, opening: parts[0], ritual: parts[1], gesture: parts[2] };
 }
 
 function reading(req: Extract<ApiReq, { task: "read" }>, out: ReadingOut): ReadingOut {
