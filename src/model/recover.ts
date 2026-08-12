@@ -136,7 +136,7 @@ const theatreCandidate = (
   if (parts.some((part) => !part)) return null;
   const combined = parts.join(" ");
   const count = words(combined);
-  if (count < 36 || count > 110 || /[\r\n]/u.test(combined) || !terminal.test(combined) || hanging.test(combined)) {
+  if (count < 36 || count > 130 || /[\r\n]/u.test(combined) || !terminal.test(combined) || hanging.test(combined)) {
     return null;
   }
   return parts;
@@ -378,7 +378,7 @@ const reconstructCandidate = (
     case "handover": return handover(req, candidates);
     case "return": return {
       text: proseFrom(candidates, "text", fallback.returning, {
-        minWords: 3, maxWords: 90, direct: true,
+        minWords: 3, maxWords: 95, direct: true,
       }, req.lang),
     };
   }
