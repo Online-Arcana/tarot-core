@@ -139,6 +139,7 @@ export function finalProofreadShape(req: ApiReq, out: ApiOut) {
           throw new Error(`Final proofread edit ${index} is too large for a surgical correction`);
         }
         const original = fields[path];
+        if (original === undefined) throw new Error(`Final proofread edit ${index} has an unavailable path`);
         if (original.length > 24 && before === original) {
           throw new Error(`Final proofread edit ${index} attempts to replace an entire field`);
         }
@@ -192,11 +193,21 @@ export function finalProofreadPrompt(
 }
 
 function replaceAtPath(target: ApiOut, edit: ProofreadEdit): void {
-  const parts = [...edit.path.matchAll(/([^.\[\]]+)|\[(\d+)\]/gu)].map(match =>
-    match[2] === undefined ? match[1] : Number(match[2]));
+  const parts: Array<string | number> = [];
+  for (const match of edit.path.matchAll(/([^.\[\]]+)|\[(\d+)\]/gu)) {
+    if (match[2] !== undefined) parts.push(Number(match[2]));
+    else if (match[1] !== undefined) parts.push(match[1]);
+  }
+  if (parts.length < 2) throw new Error(`Final proofread path ${edit.path} is invalid`);
+
   let current: any = target;
-  for (let index = 1; index < parts.length - 1; index += 1) current = current[parts[index]];
+  for (let index = 1; index < parts.length - 1; index += 1) {
+    const part = parts[index];
+    if (part === undefined) throw new Error(`Final proofread path ${edit.path} is invalid`);
+    current = current[part];
+  }
   const key = parts[parts.length - 1];
+  if (key === undefined) throw new Error(`Final proofread path ${edit.path} is invalid`);
   const original = current[key];
   if (typeof original !== "string") throw new Error(`Final proofread path ${edit.path} no longer points to text`);
   const at = original.indexOf(edit.before);
