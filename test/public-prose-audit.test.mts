@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { auditModelOut } from "../dist/model/audit.js";
+import { modelPrompt } from "../dist/model/run.js";
+
+const pack = { prompt: { reading: "legacy", chat: "legacy" } };
 
 function base(task, reader = "amaru", lang = "en-GB") {
   return { task, lang, reader, name: "Alex", history: [] };
@@ -11,16 +14,19 @@ function has(audit, code, path) {
 }
 
 test("mapped invitations reject canonical tarot-medium language", () => {
+  const req = base("invite");
   const audit = auditModelOut(
-    base("invite"),
+    req,
     { text: "Bring your question and let the cards show what deserves your attention." },
   );
   assert.equal(has(audit, "canonical_medium", "invite.text"), true, audit.errors.join("\n"));
+  assert.match(modelPrompt(pack, req), /distinct public medium.*neutral terms/isu);
 });
 
 test("mapped fit prose rejects Spanish tarotista language", () => {
+  const req = base("fit", "amaru", "es-ES");
   const audit = auditModelOut(
-    base("fit", "amaru", "es-ES"),
+    req,
     {
       level: "acceptable",
       topic: "change",
@@ -31,14 +37,17 @@ test("mapped fit prose rejects Spanish tarotista language", () => {
   );
   assert.equal(has(audit, "canonical_medium", "fit.reason"), true, audit.errors.join("\n"));
   assert.equal(has(audit, "generic_reader", "fit.reason"), true, audit.errors.join("\n"));
+  assert.match(modelPrompt(pack, req), /medio público propio.*términos neutrales/isu);
 });
 
 test("mapped titles reject canonical tarot-medium language", () => {
+  const req = base("title");
   const audit = auditModelOut(
-    base("title"),
+    req,
     { title: "Cards Around a Turning Point" },
   );
   assert.equal(has(audit, "canonical_medium", "title.title"), true, audit.errors.join("\n"));
+  assert.match(modelPrompt(pack, req), /distinct public medium.*do not introduce tarot/isu);
 });
 
 test("generic reader labels are rejected from reader dialogue", () => {
