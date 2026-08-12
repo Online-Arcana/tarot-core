@@ -1,101 +1,86 @@
-# Testing and maintenance
+# Testing
 
-The `.mts` files under `test/` are active acceptance tests. They are run by `npm test` and by the repository CI gate.
-
-## Required commands
+The deterministic suite is the release gate for code and data behaviour. It runs without model API calls.
 
 ```bash
-npm run check
-npm run build
-npm test
+npm ci
 npm run ci
 ```
 
-- `check` regenerates canonical derived data and type-checks the maintained TypeScript source without emitting files.
-- `build` regenerates canonical derived data and emits the library into `dist/`.
-- `test` runs the Node test suite against the built package surface.
-- `ci` runs typecheck, the zero-network live-harness syntax gate, build and the complete deterministic test suite.
+`npm run ci` performs:
 
-Generated `dist/`, `src/readers/personas.generated.json` and `src/model/fallbacks.generated.json` are not authoritative source. Persona prose belongs in `src/readers/personas/*.xml`; emergency fallback and shared recovery-atmosphere prose belongs in `src/model/fallbacks.xml`.
+1. persona/fallback data generation and TypeScript type checking
+2. zero-network syntax checks for the local paid live-test harness
+3. a clean build
+4. the full Node test suite
 
-## Deterministic release matrix
+The suite covers canonical deck/spread validation, exact request canonicalisation, reader personas, mapped media, ritual participation, prompt language/voice contracts, output schema, deterministic audit, narrow Spanish narrator correction, reconstruction, fallback behaviour, reveal ordering, public metadata, handover/return state, and compatibility with the existing application post-processing.
 
-`test/release-matrix.test.mts` exercises the complete core pipeline across:
+Both untrusted wire input and direct typed library requests are covered. `parseReq` proves the HTTP/persistence boundary replaces compatibility prose with canonical semantics, while `canonicaliseApiReq`, public `modelPrompt` and `runModelSession` tests prove a direct caller cannot bypass that trust boundary by constructing an `ApiReq` manually.
 
-- all 8 readers
-- English and Spanish
-- all 5 canonical spreads
-- invite, fit, every ritual, read, chat, suggest, continue, title, handover and return
+## Exhaustive deterministic matrices
 
-The matrix checks final audit validity, mapped-medium payload hygiene and finalisation idempotence. It supplements focused tests for canonical data, mapped ritual recovery, Spanish language edge cases, future-result leakage, fallbacks, persona loading, request canonicalisation, shared-code data ownership and compatibility with the unchanged Online Arcana post-processing sequence.
+The suite includes the following matrix-style gates:
 
-The deterministic matrix is a required engineering gate, but it is not a substitute for live-model or human review.
+- all eight readers × both supported languages × all five spreads through deterministic reconstruction/finalisation
+- all seven mapped readers × every canonical card × both languages through public presentation validation
+- every mapped reader/spread combination audited before presentation metadata is attached
+- every distinct reader handover pair in both languages, followed by a production-style target reading and A → B → A return
+- ten sequential ritual reveals for every reader in both languages
 
-## Live-model release gate
+The handover matrix uses the real `handoverConv()` state transitions. It verifies receiving/returning conversations begin empty, the trail is correct, canonical card state remains internal, and mapped model input does not leak tarot identity.
 
-The paid live matrix is intentionally a **local** test. It is not a GitHub Actions job and expects the API key only in the local environment where the test is being run.
+## Specific regression classes
 
-Run it only after `npm run ci` is green, from a clean checkout of the exact commit being considered for release:
+There are explicit tests for the failure classes that triggered this audit, including:
+
+- Spanish `sus` not being misread as second-person address
+- Unicode-safe accented `tú`/`mí` token boundaries
+- malformed generated Spanish such as `para tú` / `con ti`
+- valid `para ti`, `contigo` and `de tú a tú`
+- Spanish narrator first-person leakage (`me`, `mi`, `mis`, `mí`, `conmigo`, `nos`, etc.)
+- conservative name → subject/object/prepositional/possessive audience transformation
+- reader dialogue never passing through narrator audience transformation
+- Spanish pro-drop in mapped querent participation
+- English output never receiving Spanish audience transformation
+- user-authored handover questions remaining opaque to grammar correction
+- `Death` / `La Muerte` named in the user's own question not becoming a false future-result leak
+- future mapped public result names being repaired before their reveal
+- exact three-item suggestions
+- mapped generated prose being rejected rather than regex-scrubbed by presentation
+- public media metadata containing no archival/operational controls
+- deleted v2 duplicate ritual/card-index authorities not reappearing
+- rank×suit meaning synthesis remaining unavailable
+- reconstruction diagnostics remaining visible to CLI/library callers
+- application post-processing remaining idempotent after core finalisation
+
+## Local live prose matrix
+
+The paid model validation is deliberately not a GitHub Action. Run it from a clean local checkout of the exact commit being reviewed, with the API key supplied only in your local environment.
 
 ```bash
 export OPENAI_API_KEY='...'
 npm run test:live
-```
-
-`npm run test:live` refuses to make paid model calls from a dirty working tree, including when there are untracked non-ignored files. It records the local Git `HEAD` in every per-cell report, builds the audited core, runs all 16 reader/language cells locally with two cells in parallel by default, aggregates their results and writes a human-review pack.
-
-Aggregation is also checkout-bound. A release summary passes only when the current working tree is clean, all 16 reports contain one identical commit and that commit matches the checkout being aggregated. This prevents a complete-looking summary from mixing stale cells, testing uncommitted code under a misleading SHA, or approving reports produced by another revision.
-
-Override local parallelism with `MATRIX_PARALLEL`, for example:
-
-```bash
-MATRIX_PARALLEL=1 npm run test:live
-```
-
-The complete matrix covers 8 readers × 2 languages × 5 spreads, for 80 complete readings and 1040 task calls. It records accepted output, model source, parse/shape retries, deterministic audit findings and raw Responses API attempts.
-
-Outputs are written under `reports/`:
-
-- `reports/live-prose/<reader>-<language>.json`: per-cell final prose, diagnostics, raw attempts and tested commit
-- `reports/live-prose-summary.json`: aggregate counters, tested commit, checkout provenance and hard gates
-- `reports/live-prose-summary.md`: compact aggregate summary
-- `reports/live-prose-review.md`: accepted prose laid out for manual reading, including tested commit and orchestration diagnostics
-
-The release expectations are:
-
-- all 80 readings complete
-- zero task failures
-- zero final audit failures
-- zero emergency fallback uses
-- zero generic-reader labels
-- zero querent-name narrator leaks
-- zero narrator/reader voice leaks
-- zero mapped canonical-medium leaks
-- zero future-result leaks
-- zero repetition failures
-- zero placeholder risk
-
-Escalation, parse retries, narrow Spanish corrections and reconstruction are retained as diagnostics. Unexpected reconstruction should be close to zero and must be reviewed even when the hard gates pass.
-
-For a single reader/language cell while investigating a failure:
-
-```bash
-MATRIX_READER=selena MATRIX_LANG=es-ES npm run test:live:cell
-```
-
-The single-cell command uses the same clean-checkout requirement and records the local Git `HEAD`, so its JSON can later participate safely in commit-bound aggregation.
-
-Existing reports can be re-aggregated or re-rendered without making model calls:
-
-```bash
 npm run test:live:aggregate
 npm run test:live:review
 ```
 
-`test:live:aggregate` compares the reports with the current local `HEAD` and requires a clean checkout. Reports from another commit deliberately fail the aggregate gate rather than being mistaken for current evidence.
+For a single reader/language cell:
 
-## Human review gate
+```bash
+LIVE_READER=selena LIVE_LANG=en-GB npm run test:live:cell
+```
 
-Machine checks cannot certify that character voice, natural Spanish, natural English or culturally sensitive material is genuinely good. Persona prose, canonical card prose and all seven mapped cultural systems retain an explicit human review requirement. Automated validation must never be presented as cultural-specialist approval.
+The wrappers refuse to run when the worktree contains non-ignored changes. Every report is stamped with the local `git rev-parse HEAD`; aggregation rejects mixed/stale commit reports and requires all sixteen reader/language cells to describe the same tested commit.
 
-Use `reports/live-prose-review.md` to read the accepted output in reader/language/spread order. The corresponding JSON files contain rejected/raw attempts and provenance when a passage needs deeper diagnosis.
+The full matrix exercises 80 complete readings: eight readers × two languages × five spreads. It collects the generated prose for invite, fit, every ritual, read/card text, synthesis, closing/note, chat, suggestions, continue, title, handover and return, along with model provenance, audit/correction/reconstruction diagnostics and placeholder-risk counters.
+
+The A → B → A return fixture uses the real `handoverConv()` helper so the paid matrix follows the same conversation/trail shape as production without adding an extra model call.
+
+Live reports are written under `reports/` and are gitignored. They still contain review prose and should be treated as review artefacts rather than source files.
+
+## Human release review
+
+A green deterministic suite is necessary but not sufficient for release. The paid matrix must be read by a human in both languages before the core/main/app pointer is moved.
+
+The content data also deliberately records human review as outstanding. Deterministic tests can prove structural parity, canonical IDs, language/voice constraints and absence of prohibited leakage, but they cannot certify nuanced cultural accuracy, persona naturalness or the quality of tarot interpretations.
