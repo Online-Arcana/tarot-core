@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { canonicalSpread } from "../dist/domain/canonical.js";
 import { auditModelOut } from "../dist/model/audit.js";
 import { modelPrompt, runModelSession } from "../dist/model/run.js";
 import { presentMappedRitual } from "../dist/readers/media/output.js";
 import { mediaFor, mediumRitualFor } from "../dist/readers/media/runtime.js";
 
 const pack = { prompt: { reading: "Interpret the supplied cards directly.", chat: "Answer directly." } };
+const canonicalOne = canonicalSpread("one", "en-GB");
 const card = {
   pos: 1,
   posName: "The present",
@@ -93,13 +95,17 @@ function promptFrom(body) {
   return input[0].content;
 }
 
+function assertCanonicalOneContext(prompt) {
+  assert.ok(prompt.includes(canonicalOne.purpose));
+  assert.ok(prompt.includes(canonicalOne.pos[0].meaning));
+  assert.doesNotMatch(prompt, /Answer what is active now|At the centre/u);
+}
+
 test("ritual prompt carries full reading context without exposing the hidden result", () => {
   const req = ritualReq("brennos", ["Brennos first set the iron shield beside the flame and let the room become quiet."]);
   const prompt = modelPrompt(pack, req);
 
-  assert.match(prompt, /Answer what is active now/u);
-  assert.match(prompt, /What is active now/u);
-  assert.match(prompt, /At the centre/u);
+  assertCanonicalOneContext(prompt);
   assert.match(prompt, /Brennos first set the iron shield/u);
   assert.match(prompt, /fire-scarred table|iron shield/iu);
   assert.doesNotMatch(prompt, /"itemName":"Epona"|"name":"The Fool"|"suit":"major"/u);
@@ -175,8 +181,7 @@ test("read audit rejects duplicate theatre ownership", () => {
 test("Selena ritual receives the same reading and continuity context", () => {
   const req = ritualReq("selena", ["Selena placed the naipes between both hands while the first question settled."]);
   const prompt = modelPrompt(pack, req);
-  assert.match(prompt, /Answer what is active now/u);
-  assert.match(prompt, /What is active now/u);
+  assertCanonicalOneContext(prompt);
   assert.match(prompt, /Selena placed the naipes/u);
   assert.equal(mediaFor("selena", card, "en-GB"), null);
 });
