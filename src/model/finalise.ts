@@ -22,6 +22,16 @@ function serial(value: ApiOut): string {
   return JSON.stringify(value);
 }
 
+function normaliseAudience(req: ApiReq, value: ApiOut): ApiOut {
+  let current = value;
+  while (true) {
+    const before = serial(current);
+    const next = addressViewer(req, current);
+    if (serial(next) === before) return next;
+    current = next;
+  }
+}
+
 function canonicalHandoverCards(req: Extract<ApiReq, { task: "handover" }>): string[] {
   const cards: string[] = [];
   for (const turn of req.conv.turns) {
@@ -58,10 +68,10 @@ function readingWithCanonicalMedia(
 
 /**
  * Prepare generated prose for deterministic audit without attaching public
- * presentation metadata. Spanish narrator audience normalisation and reveal
- * repair happen here so the full audit sees the exact prose that will be
- * returned. Handover card state is rebuilt from the canonical conversation for
- * every reader, so the model never owns that deterministic field. Mapped reveal
+ * presentation metadata. Narrator audience normalisation and reveal repair
+ * happen here so the full audit sees the exact prose that will be returned.
+ * Handover card state is rebuilt from the canonical conversation for every
+ * reader, so the model never owns that deterministic field. Mapped reveal
  * repair uses a temporary canonical media view, which is stripped again before
  * the audit boundary.
  */
@@ -69,10 +79,10 @@ export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): Finalisatio
   const diagnostics: string[] = [];
   let out = stripPresentation(req, value);
 
-  if (spanish(req)) {
-    const before = serial(out);
-    out = addressViewer(req, out);
-    if (serial(out) !== before) diagnostics.push("spanish_audience_normalised");
+  const beforeAudience = serial(out);
+  out = normaliseAudience(req, out);
+  if (serial(out) !== beforeAudience) {
+    diagnostics.push(spanish(req) ? "spanish_audience_normalised" : "english_audience_normalised");
   }
 
   if (req.task === "handover") {
