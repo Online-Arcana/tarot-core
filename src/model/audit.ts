@@ -48,8 +48,8 @@ const terminal = /[.!?]["'’”)]*$/u;
 const hanging = /(?:…|\.\.\.|[,;:\-–—])\s*$/u;
 const ref = /#\/[A-Za-z0-9_~./-]+/u;
 const operationalNarration = /\b(?:hidden application state|implementation details?|deterministic validation|records? the state|state is recorded|inspection after|reveal order|canonical mapping|JSON schema|application behaviour|spread positions?|marked areas? correspond|nothing is shown early|hidden sign|preserves? (?:its )?exact (?:state|direction)|no second cast|without another cast|counting each area|result number|draw number|phase|continuity control|estado oculto de la aplicación|detalles? de implementación|validación determinista|registra(?:r| el estado)?|estado (?:queda )?registrado|inspección después|orden de revelación|mapeo canónico|comportamiento de la aplicación|posiciones? de la tirada|zonas? marcadas? corresponden?|nada se muestra antes|signo oculto|conserva (?:su )?(?:estado|dirección) exact[oa]|sin otro lanzamiento|contando cada zona|número de resultado|número de extracción|control de continuidad)\b/iu;
-const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?)\b/iu;
-const genericReader = /\b(?:the reader|the tarot reader|el lector|la lectora|la persona lectora)\b/iu;
+const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?|tarotistas?)\b/iu;
+const genericReader = /\b(?:the reader|the tarot reader|el lector|la lectora|la persona lectora|el tarotista|la tarotista|la persona tarotista)\b/iu;
 const explicitQuerentActionEn = /\b(?:you|the querent)\s+(?:lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw|sit|stand|rest)\b/iu;
 const explicitQuerentActionEs = /\b(?:tú|la persona consultante)\s+(?:levantas?|elevas?|tomas?|alcanzas?|tocas?|sostienes?|sacas?|agitas?|lanzas?|colocas?|eliges?|tiras?|sueltas?|giras?|mueves?|mezclas?|retiras?|llevas?|abres?|cierras?|manipulas?|agarras?|dejas?|introduces?|metes?|extraes?)\b/iu;
 const invalidSpanishPronounCase = /(?<![\p{L}\p{N}])(?:(?:a|ante|contra|desde|hacia|para|por|sin|sobre|tras)\s+(?:tú|te)|con\s+(?:tú|ti|te))(?![\p{L}\p{N}])/iu;
@@ -112,6 +112,7 @@ const auditTheatre = (issues: AuditIssue[], path: string, parts: readonly string
 const auditNarratorVoice = (issues: AuditIssue[], path: string, value: string, req: ApiReq): void => {
   const text = clean(value);
   if (hasNarratorFirstPerson(text, req.lang)) add(issues, "narrator_first_person", path, "narrator prose must remain in third person");
+  if (genericReader.test(text)) add(issues, "generic_reader", path, "narrator prose must use the configured reader identity rather than a generic role label");
   auditSpanishPronounCase(issues, path, text, req);
   if (operationalNarration.test(text)) add(issues, "operational_narration", path, "must not dramatise implementation, sequencing or state-machine controls");
   if (auditLanguage(req.lang) === "es" && req.name.trim() && containsWholePhrase(text, req.name, req.lang)) {
@@ -151,11 +152,23 @@ function withoutMappedEntities(value: string, req: ApiReq): string {
 }
 
 const auditReaderVoice = (issues: AuditIssue[], path: string, value: string, req: ApiReq): void => {
+  const text = clean(value);
   const name = profileFor(req.reader).public.name;
   const selfName = new RegExp(`\\b${regexEscape(name)}(?:['’]s)?\\b`, "iu");
-  if (selfName.test(withoutMappedEntities(value, req))) {
+  if (genericReader.test(text)) add(issues, "generic_reader", path, "reader-facing prose must use the configured identity rather than a generic role label");
+  if (selfName.test(withoutMappedEntities(text, req))) {
     add(issues, "reader_third_person", path, `reader dialogue must not refer to ${name} as an outside third-person character`);
   }
+};
+
+const auditMappedPublicMedium = (
+  issues: AuditIssue[],
+  path: string,
+  value: string,
+  req: ApiReq,
+  message: string,
+): void => {
+  if (isMappedReader(req.reader) && mappedTerms.test(value)) add(issues, "canonical_medium", path, message);
 };
 
 const auditDuplicates = (issues: AuditIssue[], entries: readonly { path: string; value: string }[], req: ApiReq): void => {
@@ -273,21 +286,27 @@ function auditRead(req: Extract<ApiReq, { task: "read" }>, out: ReadingOut, issu
   for (const leak of futureLeaks(req.draw, out, req.lang, req.question)) {
     add(issues, "future_result", `read.cardText[${leak.card}]`, `must not name later unrevealed result ${leak.name}`);
   }
-  if (isMappedReader(req.reader) && mappedTerms.test([out.synthesis, out.reading, out.closing, ...out.cardText].join(" "))) {
-    add(issues, "canonical_medium", "read.dialogue", "mapped reading dialogue must stay inside the reader's public medium");
-  }
+  auditMappedPublicMedium(issues, "read.dialogue", [out.synthesis, out.reading, out.closing, ...out.cardText].join(" "), req, "mapped reading dialogue must stay inside the reader's public medium");
 }
 
 export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
   const issues: AuditIssue[] = [];
   switch (req.task) {
-    case "invite": auditText(issues, "invite.text", (out as Extract<ApiOut, { text: string }>).text, req, { minWords: 3, maxWords: 24, complete: true, oneLine: true, oneSentence: true }); break;
+    case "invite": {
+      const value = out as Extract<ApiOut, { text: string }>;
+      auditText(issues, "invite.text", value.text, req, { minWords: 3, maxWords: 24, complete: true, oneLine: true, oneSentence: true });
+      auditReaderVoice(issues, "invite.text", value.text, req);
+      auditMappedPublicMedium(issues, "invite.text", value.text, req, "mapped invitation must use public-medium or neutral reading terminology");
+      break;
+    }
     case "fit": {
       const value = out as Extract<ApiOut, { reason: string }>;
       auditText(issues, "fit.reason", value.reason, req, { minWords: 2, maxWords: 32, complete: true, oneLine: true, oneSentence: true, direct: true });
       auditText(issues, "fit.offer", value.offer, req, { minWords: 2, maxWords: 32, complete: true, oneLine: true, oneSentence: true, direct: true });
       auditReaderVoice(issues, "fit.reason", value.reason, req);
       auditReaderVoice(issues, "fit.offer", value.offer, req);
+      auditMappedPublicMedium(issues, "fit.reason", value.reason, req, "mapped fit prose must use public-medium or neutral reading terminology");
+      auditMappedPublicMedium(issues, "fit.offer", value.offer, req, "mapped fit prose must use public-medium or neutral reading terminology");
       break;
     }
     case "ritual": {
@@ -307,7 +326,7 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
       auditNarratorVoice(issues, "chat.gesture", value.gesture, req);
       auditText(issues, "chat.response", value.response, req, { minWords: 8, maxWords: 600, complete: true, direct: true });
       auditReaderVoice(issues, "chat.response", value.response, req);
-      if (isMappedReader(req.reader) && mappedTerms.test(value.response)) add(issues, "canonical_medium", "chat.response", "mapped follow-up dialogue must stay in the reader's public medium");
+      auditMappedPublicMedium(issues, "chat.response", value.response, req, "mapped follow-up dialogue must stay in the reader's public medium");
       break;
     }
     case "suggest": {
@@ -315,20 +334,21 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
       if (value.suggestions.length !== 3) add(issues, "suggestion_count", "suggest.suggestions", "must contain exactly three questions");
       value.suggestions.forEach((item, index) => auditText(issues, `suggest.suggestions[${index}]`, item, req, { minWords: 3, maxWords: 24, complete: true, oneLine: true, oneSentence: true, question: true }));
       auditDuplicates(issues, value.suggestions.map((item, index) => ({ path: `suggest.suggestions[${index}]`, value: item })), req);
-      if (isMappedReader(req.reader) && mappedTerms.test(value.suggestions.join(" "))) add(issues, "canonical_medium", "suggest.suggestions", "mapped suggestions must use public medium or neutral reading terminology");
+      auditMappedPublicMedium(issues, "suggest.suggestions", value.suggestions.join(" "), req, "mapped suggestions must use public medium or neutral reading terminology");
       break;
     }
     case "continue": {
       const value = out as Extract<ApiOut, { text: string }>;
       auditText(issues, "continue.text", value.text, req, { minWords: 8, maxWords: 24, complete: true, oneLine: true, oneSentence: true, direct: true });
       auditReaderVoice(issues, "continue.text", value.text, req);
-      if (isMappedReader(req.reader) && mappedTerms.test(value.text)) add(issues, "canonical_medium", "continue.text", "mapped continuation must use public medium or neutral reading terminology");
+      auditMappedPublicMedium(issues, "continue.text", value.text, req, "mapped continuation must use public medium or neutral reading terminology");
       break;
     }
     case "title": {
       const value = out as Extract<ApiOut, { title: string }>;
       auditText(issues, "title.title", value.title, req, { minWords: 3, maxWords: 8, oneLine: true });
       if (/tarot reading/iu.test(value.title)) add(issues, "stock_title", "title.title", "must not use the phrase Tarot Reading");
+      auditMappedPublicMedium(issues, "title.title", value.title, req, "mapped title must use public-medium or neutral reading terminology");
       break;
     }
     case "handover": {
@@ -355,7 +375,7 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
       const value = out as Extract<ApiOut, { text: string }>;
       auditText(issues, "return.text", value.text, req, { minWords: 3, maxWords: 80, complete: true, oneLine: true, direct: true });
       auditReaderVoice(issues, "return.text", value.text, req);
-      if (isMappedReader(req.reader) && mappedTerms.test(value.text)) add(issues, "canonical_medium", "return.text", "mapped return dialogue must stay in the reader's public medium");
+      auditMappedPublicMedium(issues, "return.text", value.text, req, "mapped return dialogue must stay in the reader's public medium");
       break;
     }
   }
