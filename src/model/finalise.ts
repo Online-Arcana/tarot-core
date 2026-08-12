@@ -32,6 +32,15 @@ function normaliseAudience(req: ApiReq, value: ApiOut): ApiOut {
   }
 }
 
+function canonicalHandoverQuestions(req: Extract<ApiReq, { task: "handover" }>): string[] {
+  const questions: string[] = [];
+  for (const question of [...req.conv.turns.map(turn => turn.question), req.question]) {
+    const value = question.trim();
+    if (value && !questions.includes(value)) questions.push(value);
+  }
+  return questions;
+}
+
 function canonicalHandoverCards(req: Extract<ApiReq, { task: "handover" }>): string[] {
   const cards: string[] = [];
   for (const turn of req.conv.turns) {
@@ -70,10 +79,10 @@ function readingWithCanonicalMedia(
  * Prepare generated prose for deterministic audit without attaching public
  * presentation metadata. Narrator audience normalisation and reveal repair
  * happen here so the full audit sees the exact prose that will be returned.
- * Handover card state is rebuilt from the canonical conversation for every
- * reader, so the model never owns that deterministic field. Mapped reveal
- * repair uses a temporary canonical media view, which is stripped again before
- * the audit boundary.
+ * Handover questions and card state are rebuilt from the canonical conversation
+ * for every reader, so the model never owns those deterministic fields. Mapped
+ * reveal repair uses a temporary canonical media view, which is stripped again
+ * before the audit boundary.
  */
 export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): FinalisationResult {
   const diagnostics: string[] = [];
@@ -87,9 +96,11 @@ export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): Finalisatio
 
   if (req.task === "handover") {
     const handover = out as HandoverOut;
+    const questions = canonicalHandoverQuestions(req);
     const cards = canonicalHandoverCards(req);
+    if (JSON.stringify(handover.questions) !== JSON.stringify(questions)) diagnostics.push("handover_questions_canonicalised");
     if (JSON.stringify(handover.cards) !== JSON.stringify(cards)) diagnostics.push("handover_cards_canonicalised");
-    out = { ...handover, cards };
+    out = { ...handover, questions, cards };
   }
 
   if (req.task === "read") {
