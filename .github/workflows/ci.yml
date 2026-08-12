@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - agent/core-prose-audit
+      - agent/core-prose-audit-staging
   pull_request:
     branches:
       - main
