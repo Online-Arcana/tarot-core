@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { prepareModelOutDetailed } from "../dist/model/finalise.js";
 import { repetitiveProse, repeatsActiveTarotPreparation } from "../dist/model/language.js";
 import { narrowCorrectionPrompt } from "../dist/model/narrow-correction.js";
 import { neutralSpanishQuerentIssue } from "../dist/model/querent-language.js";
@@ -51,6 +52,28 @@ test("one repeated active tarot-preparation action is enough to identify a scene
   const firstCut = "Selena corta el mazo con un gesto deliberado y deja la carta central oculta.";
   const resetCut = "Apoya la palma sobre la carta central sin descubrirla; vuelve a cortar con un gesto seguro antes de continuar.";
   assert.equal(repeatsActiveTarotPreparation(firstCut, resetCut, "es-ES"), true);
+});
+
+test("production finalisation rejects a repeated vanilla tarot preparation step", () => {
+  const ritualReq = {
+    task: "ritual",
+    lang: "es-ES",
+    reader: "selena",
+    name: "Alex",
+    history: [],
+    question,
+    spread: "three",
+    card: 1,
+    priorRituals: ["Selena calienta la baraja entre las palmas y la deja preparada sobre el terciopelo antes de la primera revelación."],
+  };
+  assert.throws(
+    () => prepareModelOutDetailed(ritualReq, {
+      opening: "Selena mantiene la vela encendida y dirige la atención hacia ti mientras retoma la lectura.",
+      ritual: "Sin mostrar el resultado, desliza la baraja hacia el centro y la calienta nuevamente entre las palmas.",
+      gesture: "Después retira las manos y deja el siguiente lugar preparado ante ti.",
+    }),
+    /ritual_repeated_preparation:1/u,
+  );
 });
 
 test("retrospective preparation state remains valid continuity rather than an active reset", () => {
