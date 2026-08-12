@@ -153,6 +153,13 @@ function readingData(medium: MediumPresentation, position: number): unknown {
   };
 }
 
+function mappedPublicLanguage(req: ApiReq): string {
+  if (!isMappedReader(req.reader) || req.task === "handover") return "";
+  return language(req.lang) === "es"
+    ? "Este tarotista usa un medio público propio para esta lectura. En el contenido visible usa únicamente ese medio o términos neutrales como «lectura», «resultado» o «mensaje»; no introduzcas tarot, tarotistas genéricos, cartas, naipes ni barajas."
+    : "This reader uses a distinct public medium for this reading. In visible content use only that medium or neutral terms such as 'reading', 'result' or 'message'; do not introduce tarot, generic tarot-reader labels, cards or decks.";
+}
+
 export function mediaPrompt(req: ApiReq): string {
   if (req.task === "ritual") {
     const context = mediumRitualFor(req.reader, req.lang);
@@ -197,22 +204,24 @@ export function mediaPrompt(req: ApiReq): string {
         : "Use the reader's public name when it is necessary to name them. Do not use 'the reader', deck, card, cards or tarot.",
     ].filter(Boolean).join("\n");
   }
-  if (req.task !== "read" || !allMedia(req)) return "";
-  return language(req.lang) === "es"
-    ? [
-      "Permanece por completo en personaje y dentro de la escena.",
-      "Conserva exactamente el significado suministrado y exprésalo mediante el objeto visible asignado.",
-      "Nombra únicamente el objeto, sus rasgos, su estado y lo que el tarotista entiende de ellos.",
-      "No sustituyas, combines ni vuelvas a sortear ningún objeto. No nombres el resultado canónico ni expliques cómo se eligió la equivalencia.",
-      "Usa el nombre público del tarotista cuando haga falta nombrarlo. No uses «el lector», «la lectora», baraja, carta, naipes ni tarot.",
-    ].join("\n")
-    : [
-      "Remain fully in character and inside the scene.",
-      "Preserve the supplied meaning exactly and express it through the assigned visible item.",
-      "Name only the item, its features, its state and what the reader understands from them.",
-      "Do not substitute, combine or reroll any item. Do not name the canonical result or explain how the equivalence was chosen.",
-      "Use the reader's public name when it is necessary to name them. Do not use 'the reader', deck, card, cards or tarot.",
-    ].join("\n");
+  if (req.task === "read" && allMedia(req)) {
+    return language(req.lang) === "es"
+      ? [
+        "Permanece por completo en personaje y dentro de la escena.",
+        "Conserva exactamente el significado suministrado y exprésalo mediante el objeto visible asignado.",
+        "Nombra únicamente el objeto, sus rasgos, su estado y lo que el tarotista entiende de ellos.",
+        "No sustituyas, combines ni vuelvas a sortear ningún objeto. No nombres el resultado canónico ni expliques cómo se eligió la equivalencia.",
+        "Usa el nombre público del tarotista cuando haga falta nombrarlo. No uses «el lector», «la lectora», baraja, carta, naipes ni tarot.",
+      ].join("\n")
+      : [
+        "Remain fully in character and inside the scene.",
+        "Preserve the supplied meaning exactly and express it through the assigned visible item.",
+        "Name only the item, its features, its state and what the reader understands from them.",
+        "Do not substitute, combine or reroll any item. Do not name the canonical result or explain how the equivalence was chosen.",
+        "Use the reader's public name when it is necessary to name them. Do not use 'the reader', deck, card, cards or tarot.",
+      ].join("\n");
+  }
+  return mappedPublicLanguage(req);
 }
 
 export function mediaPayload(req: ApiReq): unknown | null {
