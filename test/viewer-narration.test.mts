@@ -44,6 +44,68 @@ test("ritual narration addresses the viewer as you without changing reader prono
   assert.match(text, /her gaze/u);
 });
 
+test("English absolute possessive becomes yours rather than broken your", () => {
+  const req = {
+    task: "chat",
+    lang: "en-GB",
+    reader: "selena",
+    name: "Alex",
+    question: "What is changing?",
+    history: [],
+  };
+  const out = {
+    gesture: "Selena turns one ring slowly as the candlelight catches its gold edge. Her gaze stays with Alex’s, attentive rather than pressing, while the room settles around the question and she leaves enough silence for the uncertainty to remain visible without taking over the table.",
+    response: "Stay with me while we look at what remains uncertain.",
+  };
+
+  const value = addressViewer(req, out);
+  assert.match(value.gesture, /with yours, attentive/iu);
+  assert.doesNotMatch(value.gesture, /with your,/iu);
+});
+
+test("English generic querent labels become direct viewer references in narrator prose", () => {
+  const req = {
+    task: "ritual",
+    lang: "en-GB",
+    reader: "selena",
+    name: "Alex",
+    question: "What is changing?",
+    history: [],
+    spread: "one",
+    card: 0,
+  };
+  const out = {
+    opening: "Selena settles at the table and holds the querent's question in the candlelit quiet.",
+    ritual: "She turns one ring slowly and asks the querent to remain with the uncertainty without rushing it.",
+    gesture: "Her hands return to the deck while the room becomes still.",
+  };
+
+  const value = addressViewer(req, out);
+  const text = `${value.opening} ${value.ritual} ${value.gesture}`;
+  assert.doesNotMatch(text, /\bquerent\b/iu);
+  assert.match(text, /your question/iu);
+  assert.match(text, /asks you to remain/iu);
+});
+
+test("English direct-immersion prefix keeps a following continuation naturally lower-case", () => {
+  const req = {
+    task: "chat",
+    lang: "en-GB",
+    reader: "selena",
+    name: "Alex",
+    question: "What is changing?",
+    history: [],
+  };
+  const out = {
+    gesture: "With one deliberate cut, Selena squares the deck and lets the candlelit room settle around the table while her rings catch a last thread of gold and the silence remains open long enough for the question to breathe without being pushed towards an answer.",
+    response: "Stay with me while we look at what remains uncertain.",
+  };
+
+  const value = addressViewer(req, out);
+  assert.match(value.gesture, /^Before you, with one deliberate cut/iu);
+  assert.doesNotMatch(value.gesture, /^Before you, With/u);
+});
+
 test("ritual narration adds direct immersion when the model omits the viewer", () => {
   const req = {
     task: "ritual",
