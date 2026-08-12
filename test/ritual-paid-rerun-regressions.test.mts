@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { prepareModelOutDetailed } from "../dist/model/finalise.js";
-import { meaningfulOverlap } from "../dist/model/language.js";
+import { repeatsActiveTarotPreparation } from "../dist/model/language.js";
 
 const req = {
   task: "ritual",
@@ -19,12 +19,12 @@ const first = "Selena mantiene la vela encendida mientras calienta la baraja ent
 
 test("explicit volver a calentar is substantial reuse of established tarot preparation", () => {
   const reset = "La vela sigue ardiendo mientras Selena vuelve a calentar la baraja entre las palmas y después deja una carta junto a la posición marcada.";
-  assert.ok(meaningfulOverlap(first, reset, "es-ES") >= 0.72);
+  assert.equal(repeatsActiveTarotPreparation(first, reset, "es-ES"), true);
 });
 
 test("retrospective continuity does not count as repeating the preparation action", () => {
   const continuation = "Selena siente la baraja todavía caliente tras haberla frotado y cortado; acerca la siguiente carta a su posición y retira las manos.";
-  assert.ok(meaningfulOverlap(first, continuation, "es-ES") < 0.72);
+  assert.equal(repeatsActiveTarotPreparation(first, continuation, "es-ES"), false);
 });
 
 test("pre-reveal ritual cannot place the hidden result boca arriba", () => {
