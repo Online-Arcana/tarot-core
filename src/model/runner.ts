@@ -62,7 +62,7 @@ export const DEFAULT_MODEL_TIERS: ModelTiers = {
 };
 
 const FINAL_PROOFREAD_MODEL = "gpt-5.6-luna";
-const FINAL_PROOFREAD_EFFORTS = ["low", "high", "xhigh"] as const;
+const FINAL_PROOFREAD_EFFORTS = ["low", "high", "max"] as const;
 
 export interface ModelCfg {
   readonly apiKey: string;
