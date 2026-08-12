@@ -140,6 +140,8 @@ export function narrowCorrectionPrompt(
       ? [`El nombre privado de la persona consultante es ${JSON.stringify(req.name)} y no debe aparecer en el texto corregido.`]
       : []),
     querentLanguageContract(req),
+    "Cada campo solicitado ha sido rechazado por una regla concreta. No devuelvas sin cambios una forma que siga causando ese rechazo; modifica únicamente la expresión mínima necesaria para corregirla.",
+    "Ejemplos de neutralización natural cuando corresponda: «qué no quieres sacrificar» en vez de «qué no estás dispuesto/dispuesta a sacrificar»; «contigo» o «en tu propia experiencia» en vez de «contigo mismo/misma»; «exploremos» en vez de «exploremos juntos/juntas»; «ceder espacio» o «reducir tu voz» en vez de «hacerte más pequeño/pequeña».",
     "Conserva exactamente el significado, la voz, los hechos, las cartas o resultados, su orientación, el orden de ideas y todos los detalles que no causan el problema gramatical.",
     "Si falta tratamiento directo, reescribe solo lo imprescindible para dirigirte naturalmente a la persona en segunda persona.",
     "Si hay un cambio accidental de sujeto entre la voz del tarotista y la persona consultante, conserva la intención y corrige únicamente esa concordancia.",

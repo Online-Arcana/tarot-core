@@ -31,24 +31,28 @@ export function querentLanguageContract(req: ApiReq): string {
       ? "GÉNERO GRAMATICAL DE LA PERSONA: no binario / ninguno de los dos."
       : "GÉNERO GRAMATICAL DE LA PERSONA: no especificado.",
     "No infieras el género por el nombre, la pregunta, la voz, las relaciones ni ningún otro indicio.",
-    "Usa español natural y neutral respecto al género de la persona: evita adjetivos, participios o sustantivos con concordancia masculina o femenina cuando se refieran directamente a ella.",
-    "Reformula con verbos conjugados, sustantivos abstractos o construcciones sin marca de género. Ejemplos: «¿sientes que puedes avanzar?» en vez de «¿estás preparado/preparada?»; «puede encontrarte con cansancio» en vez de «puede encontrarte cansado/cansada»; «sentir que te eligen» en vez de «sentirte elegido/elegida»; «para ti» o «en tu propia experiencia» en vez de «a ti mismo/misma».",
-    "Mantén el tuteo normal: tú, te, ti, contigo, tu y tus no marcan género y son apropiados.",
+    "Usa español natural y neutral respecto al género de la persona: evita adjetivos, participios, reflexivos o formas colectivas con concordancia masculina o femenina cuando se refieran directamente a ella o a un grupo que la incluya.",
+    "Reformula con verbos conjugados, sustantivos abstractos o construcciones sin marca de género. Ejemplos: «¿sientes que puedes avanzar?» en vez de «¿estás preparado/preparada?»; «puede encontrarte con cansancio» en vez de «puede encontrarte cansado/cansada»; «sentir que te eligen» en vez de «sentirte elegido/elegida»; «para ti» o «en tu propia experiencia» en vez de «a ti mismo/misma»; «exploremos» en vez de «exploremos juntos/juntas».",
+    "Mantén el tuteo normal: tú, te, ti, contigo, tu y tus no marcan género y son apropiados. Lo que debe evitarse es añadirles una concordancia como «tú mismo», «contigo misma» o equivalente.",
     "No uses @, x, barras, paréntesis, duplicaciones tipo «preparado/a» ni terminaciones inclusivas forzadas en -e. La neutralidad debe lograrse mediante redacción natural.",
   ].join("\n");
 }
 
-const GENDERED_PREDICATE = "(?:preparad[oa]|dispuest[oa]|cansad[oa]|agotad[oa]|list[oa]|segur[oa]|tranquil[oa]|elegid[oa]|vist[oa]|acompañad[oa]|atrapad[oa]|convencid[oa]|confundid[oa]|obligad[oa]|escuchad[oa]|sol[oa])";
+const GENDERED_PREDICATE = "(?:preparad[oa]|dispuest[oa]|cansad[oa]|agotad[oa]|list[oa]|segur[oa]|tranquil[oa]|elegid[oa]|vist[oa]|acompañad[oa]|atrapad[oa]|convencid[oa]|confundid[oa]|obligad[oa]|escuchad[oa]|sol[oa]|pequeñ[oa])";
+const GENDERED_GROUP = "(?:junt[oa]s)";
 
 const DIRECT_NEUTRAL_FORBIDDEN = new RegExp([
-  String.raw`\ba\s+ti\s+(?:mism[oa]|sol[oa])\b`,
-  String.raw`\b(?:estás|estas|te\s+sientes|sentirte|encontrarte|verte|notarte|quedarte|mantenerte)\s+${GENDERED_PREDICATE}\b`,
-  String.raw`\b(?:ser|sentirte)\s+(?:vist[oa]|elegid[oa]|acompañad[oa]|obligad[oa]|escuchad[oa])\b`,
-  String.raw`\bte\s+(?:mantiene|deja|encuentra|ve|nota|percibe|considera|imagina)\s+${GENDERED_PREDICATE}\b`,
-  String.raw`\b(?:sigues|quedas|pareces|resultas)\s+${GENDERED_PREDICATE}\b`,
+  String.raw`\b(?:tú|ti|contigo)\s+mism[oa]\b`,
+  String.raw`\b(?:a|de|para|por|sobre|hacia)\s+ti\s+mism[oa]\b`,
+  String.raw`\bentre\s+amb[oa]s(?=\s*(?:[,.;:!?]|$))`,
+  String.raw`\b(?:exploremos|miremos|veamos|pensemos|revisemos|hablemos|sigamos|trabajemos|avancemos|continuemos|podemos|vamos)\s+${GENDERED_GROUP}\b`,
+  String.raw`\b(?:estás|estas|te\s+sientes|sentirte|encontrarte|verte|notarte|quedarte|mantenerte|hacerte|volverte|dejarte)\s+(?:más\s+|menos\s+)?${GENDERED_PREDICATE}\b`,
+  String.raw`\b(?:quieres|necesitas|puedes|debes|mereces|esperas)\s+ser\s+(?:vist[oa]|elegid[oa]|acompañad[oa]|obligad[oa]|escuchad[oa])\b`,
+  String.raw`\bte\s+(?:mantiene|deja|encuentra|ve|nota|percibe|considera|imagina)\s+(?:más\s+|menos\s+)?${GENDERED_PREDICATE}\b`,
+  String.raw`\b(?:sigues|quedas|pareces|resultas)\s+(?:más\s+|menos\s+)?${GENDERED_PREDICATE}\b`,
 ].join("|"), "iu");
 
-const INCLUSIVE_STEM = "(?:preparad|dispuest|cansad|agotad|list|segur|tranquil|elegid|vist|acompañad|atrapad|convencid|confundid|obligad|escuchad|sol)";
+const INCLUSIVE_STEM = "(?:preparad|dispuest|cansad|agotad|list|segur|tranquil|elegid|vist|acompañad|atrapad|convencid|confundid|obligad|escuchad|sol|pequeñ)";
 const ARTIFICIAL_INCLUSIVE = new RegExp(
   String.raw`\b${INCLUSIVE_STEM}(?:[@x]|o\/a|a\/o|o\(a\)|a\(o\))\b`,
   "iu",

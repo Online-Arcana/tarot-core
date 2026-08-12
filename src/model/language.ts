@@ -58,21 +58,39 @@ export function hasNarratorFirstPerson(value: string, code: LangCode): boolean {
 function activeTarotPreparation(value: string, code: LangCode): Set<string> {
   const result = new Set<string>();
   if (auditLanguage(code) === "es") {
-    if (/\b(?:calienta|calentar|frota|frotar|entibia|entibiar|templa|templar)\b[^.!?]{0,100}\b(?:baraja|mazo|naipes|cartas)\b|\bdeja\s+que\s+(?:la\s+)?(?:baraja|mazo)\s+(?:se\s+)?caliente\b/iu.test(value)) result.add("warm");
-    if (/\b(?:corta|cortar|recorta|recortar)\b[^.!?]{0,80}\b(?:baraja|mazo|naipes|cartas)\b|\b(?:baraja|mazo|naipes|cartas)\b[^.!?]{0,80}\b(?:corta|cortar|recorta|recortar)\b/iu.test(value)) result.add("cut");
-    if (/\b(?:baraja|barajar|mezcla|mezclar)\b[^.!?]{0,80}\b(?:mazo|naipes|cartas)\b/iu.test(value)) result.add("shuffle");
+    const tarotObject = "(?:baraja|mazo|naipes|cartas)";
+    const warmAction = "(?:calienta|calentar|frota|frotar|entibia|entibiar|templa|templar)";
+    const cutAction = "(?:corta|cortar|recorta|recortar)";
+    const shuffleAction = "(?:baraja|barajar|mezcla|mezclar)";
+
+    if (new RegExp(String.raw`\b${warmAction}\b[^.!?]{0,100}\b${tarotObject}\b|\b${tarotObject}\b[^.!?]{0,100}\b(?:la\s+|lo\s+)?${warmAction}\b|\bdeja\s+que\s+(?:la\s+)?(?:baraja|mazo)\s+(?:se\s+)?caliente\b|\b(?:vuelve\s+a\s+calentar|calienta\s+(?:nuevamente|otra\s+vez|de\s+nuevo))\b`, "iu").test(value)) result.add("warm");
+    if (new RegExp(String.raw`\b${cutAction}\b[^.!?]{0,80}\b${tarotObject}\b|\b${tarotObject}\b[^.!?]{0,80}\b(?:la\s+|lo\s+)?${cutAction}\b|\b(?:vuelve\s+a\s+cortar|corta\s+(?:nuevamente|otra\s+vez|de\s+nuevo))\b`, "iu").test(value)) result.add("cut");
+    if (new RegExp(String.raw`\b${shuffleAction}\b[^.!?]{0,80}\b${tarotObject}\b|\b${tarotObject}\b[^.!?]{0,80}\b(?:la\s+|lo\s+)?${shuffleAction}\b|\b(?:vuelve\s+a\s+(?:barajar|mezclar)|(?:baraja|mezcla)\s+(?:nuevamente|otra\s+vez|de\s+nuevo))\b`, "iu").test(value)) result.add("shuffle");
   } else {
-    if (/\b(?:warm|warms|rub|rubs|heat|heats)\b[^.!?]{0,100}\b(?:deck|cards?)\b/iu.test(value)) result.add("warm");
-    if (/\b(?:cut|cuts)\b[^.!?]{0,80}\b(?:deck|cards?)\b|\b(?:deck|cards?)\b[^.!?]{0,80}\b(?:cut|cuts)\b/iu.test(value)) result.add("cut");
-    if (/\b(?:shuffle|shuffles|mix|mixes)\b[^.!?]{0,80}\b(?:deck|cards?)\b/iu.test(value)) result.add("shuffle");
+    if (/\b(?:warm|warms|rub|rubs|heat|heats)\b[^.!?]{0,100}\b(?:deck|cards?)\b|\b(?:deck|cards?)\b[^.!?]{0,100}\b(?:warm|warms|rub|rubs|heat|heats)\b|\b(?:warm|rub|heat)(?:s|ing)?\b[^.!?]{0,60}\b(?:again|once\s+more)\b/iu.test(value)) result.add("warm");
+    if (/\b(?:cut|cuts)\b[^.!?]{0,80}\b(?:deck|cards?)\b|\b(?:deck|cards?)\b[^.!?]{0,80}\b(?:cut|cuts)\b|\b(?:cut|cuts|cutting)\b[^.!?]{0,60}\b(?:again|once\s+more)\b/iu.test(value)) result.add("cut");
+    if (/\b(?:shuffle|shuffles|mix|mixes)\b[^.!?]{0,80}\b(?:deck|cards?)\b|\b(?:deck|cards?)\b[^.!?]{0,80}\b(?:shuffle|shuffles|mix|mixes)\b|\b(?:shuffle|mix)(?:s|ing)?\b[^.!?]{0,60}\b(?:again|once\s+more)\b/iu.test(value)) result.add("shuffle");
   }
   return result;
 }
 
-function explicitTarotPreparationReset(value: string, code: LangCode): boolean {
-  return auditLanguage(code) === "es"
-    ? /\b(?:vuelve\s+a|otra\s+vez)\s+(?:calentar|frotar|barajar|mezclar|cortar)\b|\bcomo\s+antes\b[^.!?]{0,100}\b(?:baraja|mazo|naipes|cartas)\b/iu.test(value)
-    : /\b(?:again|once\s+more)\b[^.!?]{0,60}\b(?:warm|rub|shuffle|mix|cut)\b|\b(?:warm|rub|shuffle|mix|cut)(?:s|ting)?\b[^.!?]{0,60}\b(?:again|once\s+more)\b/iu.test(value);
+export function repeatsActiveTarotPreparation(left: string, right: string, code: LangCode): boolean {
+  const earlier = activeTarotPreparation(left, code);
+  const current = activeTarotPreparation(right, code);
+  for (const action of earlier) if (current.has(action)) return true;
+  return false;
+}
+
+function repeatsActivePreparationInside(value: string, code: LangCode): boolean {
+  const seen = new Set<string>();
+  const segments = value.split(/(?<=[.!?;])\s+/u).map(part => part.trim()).filter(Boolean);
+  for (const segment of segments) {
+    for (const action of activeTarotPreparation(segment, code)) {
+      if (seen.has(action)) return true;
+      seen.add(action);
+    }
+  }
+  return false;
 }
 
 export function meaningfulOverlap(left: string, right: string, code: LangCode): number {
@@ -81,18 +99,12 @@ export function meaningfulOverlap(left: string, right: string, code: LangCode): 
   if (!a.size || !b.size) return 0;
   let shared = 0;
   for (const token of a) if (b.has(token)) shared += 1;
-  const lexical = shared / Math.min(a.size, b.size);
-
-  const leftPrep = activeTarotPreparation(left, code);
-  const rightPrep = activeTarotPreparation(right, code);
-  let repeatedPreparation = 0;
-  for (const action of leftPrep) if (rightPrep.has(action)) repeatedPreparation += 1;
-  if (repeatedPreparation >= 2) return Math.max(lexical, 0.8);
-  if (repeatedPreparation >= 1 && explicitTarotPreparationReset(right, code)) return Math.max(lexical, 0.8);
-  return lexical;
+  return shared / Math.min(a.size, b.size);
 }
 
 export function repetitiveProse(value: string, code: LangCode): boolean {
+  if (repeatsActivePreparationInside(value, code)) return true;
+
   const all = lexicalTokens(value, code);
   if (all.length < 12) return false;
   let repeatedRun = 1;

@@ -8,6 +8,7 @@ import type {
 import { attachMedia, isMappedReader, mediaFor } from "../readers/media/runtime.js";
 import { groundedHandoverFacts, handoverSummary } from "../reading/handover.js";
 import { futureLeaks, repairFutureLeaks } from "../reading/reveal.js";
+import { repeatsActiveTarotPreparation } from "./language.js";
 import { addressViewer } from "./viewer-narration.js";
 
 export interface FinalisationResult {
@@ -45,15 +46,28 @@ function stripPresentation(req: ApiReq, value: ApiOut): ApiOut {
   return value;
 }
 
+function ritualText(value: ApiOut): string {
+  const ritual = value as RitualOut;
+  return `${ritual.opening} ${ritual.ritual} ${ritual.gesture}`.replace(/\s+/gu, " ").trim();
+}
+
 function assertHiddenRitualState(req: ApiReq, value: ApiOut): void {
   if (req.task !== "ritual") return;
-  const ritual = value as RitualOut;
-  const text = `${ritual.opening} ${ritual.ritual} ${ritual.gesture}`;
+  const text = ritualText(value);
   const exposed = spanish(req)
     ? /\b(?:boca|cara)\s+arriba\b|\b(?:da\s+la\s+vuelta|voltea)\s+(?:la\s+)?(?:carta|naipe|resultado)\b/iu
     : /\bface[- ]up\b|\b(?:turns?|flips?)\s+(?:the\s+)?(?:card|result)\s+over\b/iu;
   if (exposed.test(text)) {
     throw new Error("ritual_premature_visible_state: the current hidden result must remain concealed until the reveal stage");
+  }
+}
+
+function assertRitualPreparationContinuity(req: ApiReq, value: ApiOut): void {
+  if (req.task !== "ritual" || isMappedReader(req.reader)) return;
+  const current = ritualText(value);
+  for (const [index, previous] of (req.priorRituals ?? []).entries()) {
+    if (!repeatsActiveTarotPreparation(previous, current, req.lang)) continue;
+    throw new Error(`ritual_repeated_preparation:${index + 1}: continue the existing scene instead of warming, cutting or shuffling the tarot deck again`);
   }
 }
 
@@ -83,6 +97,7 @@ export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): Finalisatio
   const diagnostics: string[] = [];
   let out = stripPresentation(req, value);
   assertHiddenRitualState(req, out);
+  assertRitualPreparationContinuity(req, out);
 
   const beforeAudience = serial(out);
   out = normaliseAudience(req, out);
