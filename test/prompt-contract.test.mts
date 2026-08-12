@@ -23,6 +23,26 @@ const chat = (reader, lang) => ({
   question: lang === "es-ES" ? "¿Y ahora qué hago?" : "What should I do now?",
 });
 
+const ritual = (lang) => ({
+  task: "ritual",
+  lang,
+  reader: "selena",
+  name: "Kitty",
+  history: [],
+  question: lang === "es-ES" ? "¿Qué está cambiando?" : "What is changing?",
+  spread: "one",
+  card: 0,
+});
+
+const returning = (lang) => ({
+  task: "return",
+  lang,
+  reader: "selena",
+  name: "Kitty",
+  history: [],
+  trail: { id: "trail", summary: "", visits: [] },
+});
+
 test("Spanish generation receives a Spanish es-ES tuteo and pro-drop contract", () => {
   const prompt = modelPrompt(pack, invite("mictli", "es-ES"));
   assert.match(prompt, /español natural de España/iu);
@@ -66,11 +86,34 @@ test("mapped chat contract forbids canonical tarot terminology", () => {
   assert.match(spanish, /No introduzcas cartas, barajas, tarot ni resultados canónicos/iu);
 });
 
-test("Spanish narrator contract forbids generic reader labels and permits natural pro-drop", () => {
+test("Spanish narrator contract forbids generic reader and querent labels and permits natural pro-drop", () => {
   const prompt = modelPrompt(pack, chat("selena", "es-ES"));
   assert.match(prompt, /sujeto omitido propio del español/iu);
   assert.match(prompt, /«el lector», «la lectora» o «la persona lectora»/u);
+  assert.match(prompt, /«la persona consultante», «el consultante» o «la consultante»/u);
   assert.match(prompt, /No repitas Selena ni su pronombre en cada oración/iu);
+});
+
+test("English narrator contract uses direct viewer address rather than generic querent labels", () => {
+  const prompt = modelPrompt(pack, chat("selena", "en-GB"));
+  assert.match(prompt, /do not use the querent's proper name or generic labels such as "the querent"/iu);
+  assert.match(prompt, /Address the person naturally as you or your/iu);
+});
+
+test("ritual generation contract matches the 130-word deterministic ceiling in both languages", () => {
+  const en = modelPrompt(pack, ritual("en-GB"));
+  const es = modelPrompt(pack, ritual("es-ES"));
+  assert.match(en, /36 to 130 words/iu);
+  assert.doesNotMatch(en, /36 to 110 words/iu);
+  assert.match(es, /36 y 130 palabras/iu);
+  assert.doesNotMatch(es, /36 y 110 palabras/iu);
+});
+
+test("return generation contract states the 95-word one-paragraph ceiling in both languages", () => {
+  const en = modelPrompt(pack, returning("en-GB"));
+  const es = modelPrompt(pack, returning("es-ES"));
+  assert.match(en, /one paragraph with no line breaks and no more than 95 words/iu);
+  assert.match(es, /un solo párrafo sin saltos de línea, de no más de 95 palabras/iu);
 });
 
 test("legacy systemPrompt is only a neutral language compatibility hint", () => {
