@@ -97,7 +97,7 @@ test("English direct-immersion prefix keeps a following continuation naturally l
     history: [],
   };
   const out = {
-    gesture: "With one deliberate cut, Selena squares the deck and lets the candlelit room settle around the table while her rings catch a last thread of gold and the silence remains open long enough for the question to breathe without being pushed towards an answer.",
+    gesture: "With one deliberate cut, Selena squares the deck beneath candlelight while her rings catch a last thread of gold and silence remains open long enough for a measured pause to breathe without being pushed towards an answer or hurried into a conclusion.",
     response: "Stay with me while we look at what remains uncertain.",
   };
 
