@@ -62,6 +62,7 @@ export const DEFAULT_MODEL_TIERS: ModelTiers = {
 };
 
 const FINAL_PROOFREAD_MODEL = "gpt-5.6-luna";
+const FINAL_PROOFREAD_EFFORTS = ["low", "high", "xhigh"] as const;
 
 export interface ModelCfg {
   readonly apiKey: string;
@@ -174,14 +175,17 @@ function sendOpts(cfg: ModelCfg, model: string) {
   };
 }
 
-function proofreadOpts(cfg: ModelCfg) {
+function proofreadOpts(
+  cfg: ModelCfg,
+  effort: typeof FINAL_PROOFREAD_EFFORTS[number],
+) {
   return sendOpts({
     ...cfg,
     body: {
       ...cfg.body,
       store: false,
       max_output_tokens: 2500,
-      reasoning: { effort: "low" },
+      reasoning: { effort },
     },
   }, FINAL_PROOFREAD_MODEL);
 }
@@ -238,7 +242,8 @@ async function proofreadAccepted(
   const basePrompt = finalProofreadPrompt(req, visible, generationContext);
   let previousFailure = "";
 
-  for (let attempt = 0; attempt < 2; attempt += 1) {
+  for (let attempt = 0; attempt < FINAL_PROOFREAD_EFFORTS.length; attempt += 1) {
+    const effort = FINAL_PROOFREAD_EFFORTS[attempt]!;
     try {
       const recovery = attempt === 0 ? "" : [
         "",
@@ -250,7 +255,7 @@ async function proofreadAccepted(
       const patch = await ai.run(
         finalProofreadShape(req, visible),
         [{ role: "system", content: `${basePrompt}${recovery}` }],
-        proofreadOpts(cfg),
+        proofreadOpts(cfg, effort),
         "arcana_final_proofread",
       );
 
@@ -260,7 +265,9 @@ async function proofreadAccepted(
         }
         return accepted(
           visibleAudit,
-          attempt === 0 ? diagnostics : [...diagnostics, "final_proofread_recovered"],
+          attempt === 0
+            ? diagnostics
+            : [...diagnostics, "final_proofread_recovered", `final_proofread_effort:${effort}`],
           source,
           primaryModel,
           escalationModel,
@@ -278,7 +285,7 @@ async function proofreadAccepted(
         checked,
         [
           ...diagnostics,
-          ...(attempt === 0 ? [] : ["final_proofread_recovered"]),
+          ...(attempt === 0 ? [] : ["final_proofread_recovered", `final_proofread_effort:${effort}`]),
           `final_proofread_edits:${patch.edits.length}`,
         ],
         source,
@@ -289,6 +296,30 @@ async function proofreadAccepted(
     } catch (cause: unknown) {
       previousFailure = message(cause);
     }
+  }
+
+  if (cfg.guaranteeOutput === true) {
+    const reconstructed = reconstructModelOutDetailed(req, []);
+    const prepared = prepareModelOutDetailed(req, reconstructed.out);
+    const fallbackAudit = auditModelOut(req, prepared.out);
+    if (!fallbackAudit.valid) {
+      throw new Error(`final_proofread_fallback_invalid: ${fallbackAudit.errors.join(" | ")}`);
+    }
+    return accepted(
+      fallbackAudit,
+      [
+        ...diagnostics,
+        ...reconstructed.auditErrors,
+        ...prepared.diagnostics,
+        "final_proofread_fallback",
+        `final_proofread_failures:${FINAL_PROOFREAD_EFFORTS.length}`,
+        `final_proofread_unavailable:${previousFailure}`,
+      ],
+      "reconstructed",
+      primaryModel,
+      escalationModel,
+      ai.id,
+    );
   }
 
   throw new Error(`final_proofread_unavailable: ${previousFailure}`);
