@@ -234,62 +234,64 @@ async function proofreadAccepted(
     return accepted(visibleAudit, diagnostics, source, primaryModel, escalationModel, ai.id);
   }
 
-  let patch;
-  try {
-    const generationContext = buildModelPrompt(pack, req);
-    patch = await ai.run(
-      finalProofreadShape(req, visible),
-      [{ role: "system", content: finalProofreadPrompt(req, visible, generationContext) }],
-      proofreadOpts(cfg),
-      "arcana_final_proofread",
-    );
-  } catch (cause: unknown) {
-    const diagnostic = `final_proofread_unavailable: ${message(cause)}`;
-    if (cfg.guaranteeOutput === true && visibleAudit.valid) {
+  const generationContext = buildModelPrompt(pack, req);
+  const basePrompt = finalProofreadPrompt(req, visible, generationContext);
+  let previousFailure = "";
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const recovery = attempt === 0 ? "" : [
+        "",
+        "FINAL GATE RECOVERY.",
+        `Your previous correction attempt was rejected by the gate: ${previousFailure}`,
+        "Re-audit the ORIGINAL editable fields above. Return a fresh edits object that obeys the same correction-only rules.",
+        "Do not defend or repeat the rejected edit. Make the smallest valid correction necessary, or return no edits only if the original customer-visible prose is genuinely correct.",
+      ].join("\n");
+      const patch = await ai.run(
+        finalProofreadShape(req, visible),
+        [{ role: "system", content: `${basePrompt}${recovery}` }],
+        proofreadOpts(cfg),
+        "arcana_final_proofread",
+      );
+
+      if (patch.edits.length === 0) {
+        if (!visibleAudit.valid) {
+          throw new Error(`final_proofread_missed_invalid_output: ${visibleAudit.errors.join(" | ")}`);
+        }
+        return accepted(
+          visibleAudit,
+          attempt === 0 ? diagnostics : [...diagnostics, "final_proofread_recovered"],
+          source,
+          primaryModel,
+          escalationModel,
+          ai.id,
+        );
+      }
+
+      const edited = applyFinalProofread(visible, patch);
+      const checked = auditModelOut(req, edited);
+      if (!checked.valid) {
+        throw new Error(`final_proofread_rejected: ${checked.errors.join(" | ")}`);
+      }
+
       return accepted(
-        visibleAudit,
-        [...diagnostics, diagnostic],
+        checked,
+        [
+          ...diagnostics,
+          ...(attempt === 0 ? [] : ["final_proofread_recovered"]),
+          `final_proofread_edits:${patch.edits.length}`,
+        ],
         source,
         primaryModel,
         escalationModel,
         ai.id,
       );
+    } catch (cause: unknown) {
+      previousFailure = message(cause);
     }
-    throw new Error(diagnostic);
   }
 
-  if (patch.edits.length === 0) {
-    if (!visibleAudit.valid) {
-      throw new Error(`final_proofread_missed_invalid_output: ${visibleAudit.errors.join(" | ")}`);
-    }
-    return accepted(visibleAudit, diagnostics, source, primaryModel, escalationModel, ai.id);
-  }
-
-  const edited = applyFinalProofread(visible, patch);
-  const checked = auditModelOut(req, edited);
-  if (!checked.valid) {
-    const diagnostic = `final_proofread_rejected: ${checked.errors.join(" | ")}`;
-    if (visibleAudit.valid) {
-      return accepted(
-        visibleAudit,
-        [...diagnostics, diagnostic],
-        source,
-        primaryModel,
-        escalationModel,
-        ai.id,
-      );
-    }
-    throw new Error(diagnostic);
-  }
-
-  return accepted(
-    checked,
-    [...diagnostics, `final_proofread_edits:${patch.edits.length}`],
-    source,
-    primaryModel,
-    escalationModel,
-    ai.id,
-  );
+  throw new Error(`final_proofread_unavailable: ${previousFailure}`);
 }
 
 const failures = (
