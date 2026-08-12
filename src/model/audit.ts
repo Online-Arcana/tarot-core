@@ -12,11 +12,13 @@ import { futureLeaks } from "../reading/reveal.js";
 import {
   auditLanguage,
   containsWholePhrase,
+  contentTokens,
   hasDirectAddress,
   hasNarratorFirstPerson,
   meaningfulOverlap,
   normaliseProse,
   repetitiveProse,
+  repeatsActiveTarotPreparation,
   regexEscape,
 } from "./language.js";
 import { neutralSpanishQuerentIssue } from "./querent-language.js";
@@ -45,156 +47,119 @@ interface TextRules {
   readonly spanishGrammar?: boolean;
 }
 
-const terminal = /[.!?]["'’”)]*$/u;
-const hanging = /(?:…|\.\.\.|[,;:\-–—])\s*$/u;
-const ref = /#\/[A-Za-z0-9_~./-]+/u;
-const operationalNarration = /\b(?:hidden application state|implementation details?|deterministic validation|records? the state|state is recorded|inspection after|reveal order|canonical mapping|JSON schema|application behaviour|spread positions?|marked areas? correspond|nothing is shown early|hidden sign|preserves? (?:its )?exact (?:state|direction)|no second cast|without another cast|counting each area|result number|draw number|phase|continuity control|estado oculto de la aplicación|detalles? de implementación|validación determinista|registra(?:r| el estado)?|estado (?:queda )?registrado|inspección después|orden de revelación|mapeo canónico|comportamiento de la aplicación|posiciones? de la tirada|zonas? marcadas? corresponden?|nada se muestra antes|signo oculto|conserva (?:su )?(?:estado|dirección) exact[oa]|sin otro lanzamiento|contando cada zona|número de resultado|número de extracción|control de continuidad)\b/iu;
-const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?|tarotistas?)\b/iu;
-const genericReader = /\b(?:the reader|the tarot reader|el lector|la lectora|la persona lectora|el tarotista|la tarotista|tarotistas|la persona tarotista)\b/iu;
-const genericQuerent = /\b(?:the querent|la persona consultante|el consultante|la consultante)\b/iu;
-const explicitQuerentActionEn = /\b(?:you|the querent)\s+(?:lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw|sit|stand|rest)\b/iu;
-const explicitQuerentActionEs = /\b(?:tú|la persona consultante)\s+(?:levantas?|elevas?|tomas?|alcanzas?|tocas?|sostienes?|sacas?|agitas?|lanzas?|colocas?|eliges?|tiras?|sueltas?|giras?|mueves?|mezclas?|retiras?|llevas?|abres?|cierras?|manipulas?|agarras?|dejas?|introduces?|metes?|extraes?)\b/iu;
-const invalidSpanishPronounCase = /(?<![\p{L}\p{N}])(?:(?:a|ante|contra|desde|hacia|para|por|sin|sobre|tras)\s+(?:tú|te)|con\s+(?:tú|ti|te))(?![\p{L}\p{N}])/iu;
-const validTuATu = /(?<![\p{L}\p{N}])de\s+tú\s+a\s+tú(?![\p{L}\p{N}])/giu;
+const genericReader = /\b(?:the\s+reader|a\s+reader|your\s+reader|reader's|readers|el\s+lector|la\s+lectora|los\s+lectores|las\s+lectoras|un\s+lector|una\s+lectora|tu\s+lector(?:a)?|tarotista|tarotistas)\b/iu;
+const genericQuerent = /\b(?:the\s+querent|a\s+querent|querent's|querents|el\s+consultante|la\s+consultante|los\s+consultantes|las\s+consultantes|un\s+consultante|una\s+consultante|la\s+persona\s+consultante|persona\s+consultante)\b/iu;
+const mappedTerms = /\b(?:tarot|tarotista|tarotistas|arcano|arcanos|arcana|baraja|mazo|naipes?|carta|cartas|upright|reversed|invertid[oa]s?|derech[oa]s?|posición\s+(?:vertical|invertida))\b/iu;
+const futureResultTerms = /\b(?:next\s+card|following\s+card|later\s+card|future\s+card|next\s+result|following\s+result|later\s+result|siguiente\s+carta|próxima\s+carta|carta\s+siguiente|carta\s+posterior|siguiente\s+resultado|próximo\s+resultado|resultado\s+siguiente|resultado\s+posterior)\b/iu;
+const explicitQuerentActionEn = /\byou\s+(?:reach|draw|withdraw|take|pull|cast|release|scatter|throw|shake|tilt|light|watch|observe)\b/iu;
+const explicitQuerentActionEs = /\b(?:tú\s+)?(?:introduces|metes|sacas|extraes|tomas|retiras|lanzas|sueltas|esparces|arrojas|agitas|inclinas|enciendes|observas|miras)\b/iu;
+const forbiddenPreRevealFaceUp = /\b(?:face[- ]up|turns?\s+(?:it|the\s+(?:card|result))\s+face[- ]up|flips?\s+(?:it|the\s+(?:card|result))\s+over|boca\s+arriba|cara\s+arriba|la\s+voltea|la\s+gira|le\s+da\s+la\s+vuelta)\b/iu;
 
-export const words = (value: string): number => value.trim().split(/\s+/u).filter(Boolean).length;
-const clean = (value: string): string => value.replace(/\s+/gu, " ").trim();
+function clean(value: string): string { return value.replace(/\s+/gu, " ").trim(); }
+function words(value: string): number { return clean(value).split(/\s+/u).filter(Boolean).length; }
+function oneSentence(value: string): boolean {
+  const text = clean(value);
+  if (!text) return false;
+  const punctuation = text.match(/[.!?]+(?=(?:["'’”)]*)?(?:\s|$))/gu) ?? [];
+  return punctuation.length === 1;
+}
+function completeSentence(value: string): boolean {
+  const text = clean(value);
+  return Boolean(text) && !/[…]$/u.test(text) && /[.!?]["'’”)]*$/u.test(text);
+}
+function add(issues: AuditIssue[], code: string, path: string, message: string): void {
+  issues.push({ code, path, message });
+}
+function exactQuerentName(value: string, req: ApiReq): boolean {
+  const name = clean(req.name);
+  if (!name || name.length < 2) return false;
+  return new RegExp(`(^|[^\\p{L}\\p{N}])${regexEscape(name)}(?=$|[^\\p{L}\\p{N}])`, "iu").test(value);
+}
+function narratorNameAllowed(path: string): boolean {
+  return path.startsWith("handover.") || path === "return.text";
+}
 
-const add = (issues: AuditIssue[], code: string, path: string, message: string): void => {
-  issues.push({ code, path, message: `${path}: ${message}` });
-};
-
-const auditSpanishPronounCase = (
-  issues: AuditIssue[],
-  path: string,
-  value: string,
-  req: ApiReq,
-): void => {
+function auditSpanishPronounCase(issues: AuditIssue[], path: string, value: string, req: ApiReq): void {
   if (auditLanguage(req.lang) !== "es") return;
-  const text = clean(value).replace(validTuATu, "");
-  if (!invalidSpanishPronounCase.test(text)) return;
-  if (issues.some(issue => issue.code === "spanish_pronoun_case" && issue.path === path)) return;
-  add(issues, "spanish_pronoun_case", path, "must use ti after a preposition and contigo after con, not tú/te or con ti");
-};
+  if (/\b(?:para|por|hacia|sobre|sin|según|ante|contra|tras|desde|hasta|entre)\s+(?:tú|te)\b/iu.test(value)) {
+    add(issues, "spanish_pronoun_case", path, "must use ti after an ordinary Spanish preposition");
+  }
+  if (/\bcon\s+(?:ti|tú|te)\b/iu.test(value)) {
+    add(issues, "spanish_pronoun_case", path, "must use contigo rather than con ti/con tú/con te");
+  }
+}
 
-const auditQuerentLanguage = (
-  issues: AuditIssue[],
-  path: string,
-  value: string,
-  req: ApiReq,
-): void => {
-  const problem = neutralSpanishQuerentIssue(value, req);
-  if (problem !== null) add(issues, "querent_gender", path, problem);
-};
-
-const auditText = (
+function auditText(
   issues: AuditIssue[],
   path: string,
   value: string,
   req: ApiReq,
   rules: TextRules = {},
-): void => {
-  const text = clean(value);
-  const count = words(text);
-  if (!text) add(issues, "empty", path, "must not be empty");
+): void {
+  const count = words(value);
   if (rules.minWords !== undefined && count < rules.minWords) add(issues, "too_short", path, `must contain at least ${rules.minWords} words`);
-  if (rules.maxWords !== undefined && count > rules.maxWords) add(issues, "too_long", path, `must contain at most ${rules.maxWords} words`);
-  if (rules.oneLine === true && /[\r\n]/u.test(value)) add(issues, "line_break", path, "must not contain line breaks");
-  if (rules.complete === true && (!terminal.test(text) || hanging.test(text))) add(issues, "incomplete", path, "must end as a complete sentence without truncation or an ellipsis");
-  if (rules.oneSentence === true) {
-    const endings = text.match(/[.!?]["'’”)]*(?=\s|$)/gu)?.length ?? 0;
-    if (endings !== 1) add(issues, "sentence_count", path, "must contain exactly one complete sentence");
-  }
-  if (rules.direct === true && !hasDirectAddress(text, req.lang)) add(issues, "direct_address", path, "must address the person directly");
-  if (rules.question === true && !/\?["'’”)]*$/u.test(text)) add(issues, "question", path, "must be phrased as a question");
-  if (ref.test(text)) add(issues, "internal_reference", path, "must not expose an internal JSON reference");
-  if (rules.spanishGrammar !== false) auditSpanishPronounCase(issues, path, text, req);
-  auditQuerentLanguage(issues, path, text, req);
-  if (repetitiveProse(text, req.lang)) add(issues, "repetitive", path, "must contain natural, non-repetitive wording");
-};
+  if (rules.maxWords !== undefined && count > rules.maxWords) add(issues, "too_long", path, `must contain no more than ${rules.maxWords} words`);
+  if (rules.complete && !completeSentence(value)) add(issues, "incomplete", path, "must end as a complete sentence without truncation or an ellipsis");
+  if (rules.oneLine && /[\r\n]/u.test(value)) add(issues, "line_break", path, "must remain on one line");
+  if (rules.oneSentence && !oneSentence(value)) add(issues, "sentence_count", path, "must contain exactly one complete sentence");
+  if (rules.direct && !hasDirectAddress(value, req.lang)) add(issues, "direct_address", path, "must address the person directly");
+  if (rules.question && !/\?["'’”)]*$/u.test(clean(value))) add(issues, "question", path, "must be phrased as a question");
+  if (rules.spanishGrammar !== false) auditSpanishPronounCase(issues, path, value, req);
+  const genderIssue = neutralSpanishQuerentIssue(value, req);
+  if (genderIssue) add(issues, genderIssue.includes("first person") ? "reader_subject_drift" : "querent_gender", path, genderIssue);
+}
 
-const auditTheatre = (
+function auditNarratorVoice(issues: AuditIssue[], path: string, value: string, req: ApiReq): void {
+  if (!clean(value)) return;
+  auditText(issues, path, value, req);
+  if (hasNarratorFirstPerson(value, req.lang)) add(issues, "narrator_first_person", path, "narrator prose must not speak as the reader in first person");
+  if (!narratorNameAllowed(path) && exactQuerentName(value, req)) add(issues, "querent_name_narrator", path, "narrator prose must address the viewer directly rather than name the querent");
+  if (genericQuerent.test(value)) add(issues, "generic_querent", path, "narrator prose must address the viewer directly rather than use a generic querent label");
+  if (genericReader.test(value)) add(issues, "generic_reader", path, "narrator prose must use the reader's configured identity rather than a generic role label");
+}
+
+function readerSelfReference(req: ApiReq, value: string): boolean {
+  const name = profileFor(req.reader).public.name;
+  if (!containsWholePhrase(value, name, req.lang)) return false;
+  if (isMappedReader(req.reader)) {
+    const contract = mediumAuditContract(req.reader, req.lang);
+    if (contract?.grounding.some(item => containsWholePhrase(item, name, req.lang) && containsWholePhrase(value, item, req.lang))) return false;
+  }
+  return true;
+}
+function auditReaderVoice(issues: AuditIssue[], path: string, value: string, req: ApiReq): void {
+  auditText(issues, path, value, req);
+  if (readerSelfReference(req, value)) add(issues, "reader_third_person", path, `reader dialogue must not refer to ${profileFor(req.reader).public.name} as an outside third-person character`);
+  if (genericReader.test(value)) add(issues, "generic_reader", path, "reader dialogue must use the configured reader identity rather than a generic role label");
+}
+
+function auditMappedPublicMedium(issues: AuditIssue[], path: string, value: string, req: ApiReq, message: string): void {
+  if (!isMappedReader(req.reader)) return;
+  if (mappedTerms.test(value)) add(issues, "canonical_medium", path, message);
+}
+
+function auditTheatre(
   issues: AuditIssue[],
   path: string,
-  parts: readonly string[],
+  fields: readonly string[],
   req: ApiReq,
   maxWords = 110,
-): void => {
-  const text = clean(parts.join(" "));
-  const count = words(text);
-  if (count < 36 || count > maxWords) add(issues, "theatre_length", path, `combined theatre must contain 36 to ${maxWords} words`);
-  if (/[\r\n]/u.test(text)) add(issues, "theatre_line_break", path, "combined theatre must be one paragraph");
-  if (!terminal.test(text) || hanging.test(text)) add(issues, "theatre_incomplete", path, "combined theatre must end naturally as a complete sentence");
-  if (repetitiveProse(text, req.lang)) add(issues, "theatre_repetitive", path, "combined theatre must contain natural, non-repetitive wording");
-};
-
-const auditNarratorVoice = (issues: AuditIssue[], path: string, value: string, req: ApiReq): void => {
-  const text = clean(value);
-  if (hasNarratorFirstPerson(text, req.lang)) add(issues, "narrator_first_person", path, "narrator prose must remain in third person");
-  if (genericReader.test(text)) add(issues, "generic_reader", path, "narrator prose must use the configured reader identity rather than a generic role label");
-  if (genericQuerent.test(text)) add(issues, "generic_querent", path, "narrator prose must address the viewer directly rather than use a generic querent label");
-  if (isMappedReader(req.reader) && mappedTerms.test(text)) add(issues, "canonical_medium", path, "mapped narrator prose must stay inside the reader's public medium");
-  auditSpanishPronounCase(issues, path, text, req);
-  auditQuerentLanguage(issues, path, text, req);
-  if (operationalNarration.test(text)) add(issues, "operational_narration", path, "must not dramatise implementation, sequencing or state-machine controls");
-  if (req.name.trim() && containsWholePhrase(text, req.name, req.lang)) {
-    add(issues, "querent_name_narrator", path, "narrator prose must address the querent directly rather than use the querent's proper name");
-  }
-};
-
-const mappedEntityCache = new Map<string, readonly string[]>();
-
-function mappedEntityNames(req: ApiReq): readonly string[] {
-  if (!isMappedReader(req.reader)) return [];
-  const key = `${req.reader}:${auditLanguage(req.lang)}`;
-  const cached = mappedEntityCache.get(key);
-  if (cached) return cached;
-  const names = new Set<string>();
-  for (const id of canonicalCardIds()) {
-    const card = canonicalCardAt(id, "upright", 1, "one", req.lang);
-    const media = mediaFor(req.reader, card, req.lang);
-    if (!media) continue;
-    if (media.publicName?.trim()) names.add(media.publicName.trim());
-    if (media.itemName.trim()) names.add(media.itemName.trim());
-  }
-  const sorted = [...names].sort((a, b) => b.length - a.length);
-  mappedEntityCache.set(key, sorted);
-  return sorted;
+): void {
+  const value = clean(fields.join(" "));
+  const count = words(value);
+  if (count < 5) add(issues, "too_short", path, "must contain at least 5 words of scene prose");
+  if (count > maxWords) add(issues, "too_long", path, `must contain no more than ${maxWords} words`);
+  if (!completeSentence(value)) add(issues, "incomplete", path, "must end as complete prose without truncation");
+  if (!hasDirectAddress(value, req.lang)) add(issues, "direct_address", path, "must address the person directly");
+  if (repetitiveProse(value, req.lang)) add(issues, "repetition", path, "must not repeat the same words or preparation actions mechanically");
+  if (req.task === "ritual" && forbiddenPreRevealFaceUp.test(value)) add(issues, "premature_reveal", path, "must keep the hidden result concealed until the separate reveal step");
 }
 
-function withoutMappedEntities(value: string, req: ApiReq): string {
-  let output = clean(value);
-  for (const name of mappedEntityNames(req)) {
-    output = output.replace(
-      new RegExp(`(?<![\\p{L}\\p{N}])${regexEscape(name)}(?![\\p{L}\\p{N}])`, "giu"),
-      " ",
-    );
-  }
-  return clean(output);
-}
-
-const auditReaderVoice = (issues: AuditIssue[], path: string, value: string, req: ApiReq): void => {
-  const text = clean(value);
-  const name = profileFor(req.reader).public.name;
-  const selfName = new RegExp(`\\b${regexEscape(name)}(?:['’]s)?\\b`, "iu");
-  if (genericReader.test(text)) add(issues, "generic_reader", path, "reader-facing prose must use the configured identity rather than a generic role label");
-  auditQuerentLanguage(issues, path, text, req);
-  if (selfName.test(withoutMappedEntities(text, req))) {
-    add(issues, "reader_third_person", path, `reader dialogue must not refer to ${name} as an outside third-person character`);
-  }
-};
-
-const auditMappedPublicMedium = (
+function auditDuplicates(
   issues: AuditIssue[],
-  path: string,
-  value: string,
+  entries: readonly { path: string; value: string }[],
   req: ApiReq,
-  message: string,
-): void => {
-  if (isMappedReader(req.reader) && mappedTerms.test(value)) add(issues, "canonical_medium", path, message);
-};
-
-const auditDuplicates = (issues: AuditIssue[], entries: readonly { path: string; value: string }[], req: ApiReq): void => {
+): void {
   const seen = new Map<string, string>();
   for (const entry of entries) {
     if (words(entry.value) < 8) continue;
@@ -203,7 +168,7 @@ const auditDuplicates = (issues: AuditIssue[], entries: readonly { path: string;
     if (earlier !== undefined) add(issues, "duplicate", entry.path, `duplicates ${earlier}`);
     else seen.set(key, entry.path);
   }
-};
+}
 
 function currentCard(req: Extract<ApiReq, { task: "ritual" }>) {
   return req.draw?.cards[req.card] ?? req.drawn;
@@ -216,10 +181,26 @@ function actionPresent(value: string, verbs: readonly string[], objects: readonl
   return anyWhole(value, verbs, lang) && anyWhole(value, objects, lang);
 }
 
+function mappedContinuityComparable(req: Extract<ApiReq, { task: "ritual" }>, value: string): string {
+  if (!isMappedReader(req.reader)) return value;
+  const context = mediumRitualFor(req.reader, req.lang);
+  if (!context) return value;
+  const fixed = new Set(
+    [context.chance, context.continuation ?? "", context.concealment]
+      .flatMap(part => contentTokens(part, req.lang)),
+  );
+  return contentTokens(value, req.lang).filter(token => !fixed.has(token)).join(" ");
+}
+
 function auditRitualContinuity(req: Extract<ApiReq, { task: "ritual" }>, out: RitualOut, issues: AuditIssue[]): void {
   const value = ritualText(out);
   for (const [index, previous] of (req.priorRituals ?? []).entries()) {
-    if (normaliseProse(previous, req.lang) === normaliseProse(value, req.lang) || meaningfulOverlap(previous, value, req.lang) >= 0.72) {
+    const exactRepeat = normaliseProse(previous, req.lang) === normaliseProse(value, req.lang);
+    const repeatedTarotPreparation = !isMappedReader(req.reader) && repeatsActiveTarotPreparation(previous, value, req.lang);
+    const previousComparable = mappedContinuityComparable(req, previous);
+    const currentComparable = mappedContinuityComparable(req, value);
+    const repeatedVariableProse = meaningfulOverlap(previousComparable, currentComparable, req.lang) >= 0.72;
+    if (exactRepeat || repeatedTarotPreparation || repeatedVariableProse) {
       add(issues, "ritual_reuse", "ritual.theatre", `must continue the scene without substantially repeating prior ritual ${index + 1}`);
       break;
     }
@@ -421,45 +402,19 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
       const allowedCards = suppliedCards(req);
       value.cards.forEach((card, index) => { if (!allowedCards.has(card)) add(issues, "invented_card", `handover.cards[${index}]`, "must be an exact card name from the supplied conversation"); });
       const allowedQuestions = suppliedQuestions(req);
-      value.questions.forEach((question, index) => { if (!allowedQuestions.has(clean(question))) add(issues, "invented_question", `handover.questions[${index}]`, "must be an exact question supplied by the user"); });
+      value.questions.forEach((question, index) => { if (!allowedQuestions.has(clean(question))) add(issues, "invented_question", `handover.questions[${index}]`, "must be an exact question from the supplied conversation"); });
       break;
     }
     case "return": {
       const value = out as Extract<ApiOut, { text: string }>;
-      auditText(issues, "return.text", value.text, req, { minWords: 3, maxWords: 95, complete: true, oneLine: true, direct: true });
+      auditText(issues, "return.text", value.text, req, { minWords: 8, maxWords: 95, complete: true, oneLine: true, direct: true });
       auditReaderVoice(issues, "return.text", value.text, req);
-      auditMappedPublicMedium(issues, "return.text", value.text, req, "mapped return dialogue must stay in the reader's public medium");
       auditVanillaReturnResults(req, value.text, issues);
+      auditMappedPublicMedium(issues, "return.text", value.text, req, "mapped return must remain inside the reader's public medium rather than canonical tarot terminology");
       break;
     }
+    default:
+      break;
   }
-  const errors = [...new Set(issues.map(issue => issue.message))];
-  return { valid: issues.length === 0, value: out, issues, errors };
-};
-
-export const correctionFromAudit = (
-  candidate: ApiOut | undefined,
-  audit: ModelAudit | undefined,
-  failure: string | undefined,
-  lang = "en-GB",
-): string => {
-  const findings = audit?.errors ?? (failure === undefined ? [] : [failure]);
-  if (auditLanguage(lang) === "es") {
-    return [
-      "El intento anterior no superó la validación determinista.",
-      "Devuelve el esquema estricto completo y realiza únicamente las correcciones mínimas necesarias.",
-      "Conserva todas las conclusiones válidas, los detalles propios del tarotista y cada campo correcto del intento anterior.",
-      "Completa las oraciones inacabadas, elimina duplicaciones y respeta los límites de longitud, fundamento, voz, género gramatical y orden de revelación.",
-      ...findings.map(message => `- ${message}`),
-      ...(candidate === undefined ? [] : [`Candidato anterior: ${JSON.stringify(candidate)}`]),
-    ].join("\n");
-  }
-  return [
-    "The previous attempt did not pass deterministic validation.",
-    "Return the complete strict schema and make only the smallest necessary corrections.",
-    "Preserve every sound conclusion, reader-specific detail and valid field from the previous candidate.",
-    "Complete unfinished sentences, remove duplication, and obey exact length, grounding, voice and reveal-order constraints.",
-    ...findings.map(message => `- ${message}`),
-    ...(candidate === undefined ? [] : [`Previous candidate: ${JSON.stringify(candidate)}`]),
-  ].join("\n");
+  return { valid: issues.length === 0, value: out, issues, errors: issues.map(issue => `${issue.path}: ${issue.message}`) } as ModelAudit;
 };
