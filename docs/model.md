@@ -121,7 +121,7 @@ Checks include:
 - mapped-medium grounding and participation contracts
 - single-cast continuation rules
 - generic reader labels
-- canonical tarot-medium leaks in mapped dialogue
+- canonical tarot-medium leaks across mapped visible prose
 - duplicate substantive prose
 - internal JSON-reference leakage
 - later unrevealed result names in earlier interpretations, with user-question exemptions
