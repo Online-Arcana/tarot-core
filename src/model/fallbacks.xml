@@ -4,7 +4,7 @@
     <field id="invite.text">Tell me what you would like this reading to explore.</field>
     <field id="fit.reason">Your question can be explored thoughtfully here.</field>
     <field id="fit.offer">You can continue here, and the reading will stay focused on your question.</field>
-    <field id="ritual.gesture">{reader} lets the room grow quiet around you and gives your question a moment to settle.</field>
+    <field id="ritual.gesture">{reader} keeps the deck before you, takes the card for this position and leaves it face down without revealing it.</field>
     <field id="ritual.opening">A measured pause leaves enough space for the next movement to begin without forcing an answer.</field>
     <field id="ritual.ritual">When the moment is ready, the next result can be revealed and considered with care.</field>
     <field id="ritual.atmosphere.0">A narrow band of lamplight drifts across the floor near you and fades beneath the table.</field>
@@ -46,7 +46,7 @@
     <field id="invite.text">Cuéntame qué te gustaría explorar en esta lectura.</field>
     <field id="fit.reason">Tu pregunta puede explorarse aquí con cuidado.</field>
     <field id="fit.offer">Puedes continuar aquí y la lectura se mantendrá centrada en tu pregunta.</field>
-    <field id="ritual.gesture">{reader} deja que la estancia se aquiete a tu alrededor y da un momento para que tu pregunta se asiente.</field>
+    <field id="ritual.gesture">{reader} mantiene la baraja ante ti, toma la carta que corresponde a esta posición y la deja boca abajo sin revelarla.</field>
     <field id="ritual.opening">Una pausa medida deja espacio suficiente para que comience el siguiente movimiento sin forzar una respuesta.</field>
     <field id="ritual.ritual">Cuando llegue el momento, el siguiente resultado podrá revelarse y contemplarse con atención.</field>
     <field id="ritual.atmosphere.0">Una franja estrecha de luz cruza el suelo cerca de ti y se apaga bajo la mesa.</field>
