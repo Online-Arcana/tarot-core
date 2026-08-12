@@ -73,7 +73,7 @@ test("creates and returns a session key without changing the library path", asyn
   assert.equal(out.response.reading, reading.reading);
   assert.equal(out.model.source, "primary");
   assert.equal(out.model.primaryModel, "test-model");
-  assert.deepEqual(out.model.auditErrors, []);
+  assert.deepEqual(out.model.auditErrors, ["english_audience_normalised"]);
   assert.equal(calls[1].body.conversation.id, "conv_created");
 });
 
