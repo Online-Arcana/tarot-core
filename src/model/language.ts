@@ -74,6 +74,40 @@ function activeTarotPreparation(value: string, code: LangCode): Set<string> {
   return result;
 }
 
+function explicitTarotPreparationReset(value: string, code: LangCode): boolean {
+  if (auditLanguage(code) === "es") {
+    const tarotObject = "(?:baraja|mazo|naipes|cartas?)";
+    const infinitive = "(?:calentar(?:la|lo)?|frotar(?:la|lo)?|entibiar(?:la|lo)?|templar(?:la|lo)?|barajar(?:la|lo)?|mezclar(?:la|lo)?|cortar(?:la|lo)?|recortar(?:la|lo)?)";
+    const finite = "(?:calienta|frota|entibia|templa|baraja|mezcla|corta|recorta)";
+    const marker = "(?:nuevamente|otra\\s+vez|de\\s+nuevo)";
+    const reset = [
+      `vuelve\\s+a\\s+${infinitive}`,
+      `${finite}(?:la|lo)?\\s+${marker}`,
+      `${finite}\\s+(?:(?:la|el)\\s+)?${tarotObject}\\s+${marker}`,
+      `${marker}\\s+${finite}(?:la|lo)?`,
+      `${marker}\\s+${finite}\\s+(?:(?:la|el)\\s+)?${tarotObject}`,
+    ].join("|");
+    return new RegExp(
+      String.raw`\b${tarotObject}\b[^.!?]{0,140}\b(?:${reset})\b|\b(?:${reset})\b[^.!?]{0,140}\b${tarotObject}\b`,
+      "iu",
+    ).test(value);
+  }
+
+  const tarotObject = "(?:deck|cards?)";
+  const action = "(?:warm(?:s|ing)?|rub(?:s|bing)?|heat(?:s|ing)?|shuffle(?:s|ing)?|mix(?:es|ing)?|cut(?:s|ting)?)";
+  const marker = "(?:again|once\\s+more)";
+  const reset = [
+    `${marker}\\s+(?:(?:she|he|they)\\s+)?${action}`,
+    `${action}\\s+${marker}`,
+    `${action}\\s+(?:(?:the\\s+)?${tarotObject}|it)\\s+${marker}`,
+    `(?:makes?|performs?)\\s+(?:another|a\\s+second)\\s+(?:cut|shuffle)`,
+  ].join("|");
+  return new RegExp(
+    String.raw`\b${tarotObject}\b[^.!?]{0,140}\b(?:${reset})\b|\b(?:${reset})\b[^.!?]{0,140}\b${tarotObject}\b`,
+    "iu",
+  ).test(value);
+}
+
 export function repeatsActiveTarotPreparation(left: string, right: string, code: LangCode): boolean {
   const earlier = activeTarotPreparation(left, code);
   const current = activeTarotPreparation(right, code);
@@ -82,6 +116,7 @@ export function repeatsActiveTarotPreparation(left: string, right: string, code:
 }
 
 function repeatsActivePreparationInside(value: string, code: LangCode): boolean {
+  if (explicitTarotPreparationReset(value, code)) return true;
   const seen = new Set<string>();
   const segments = value.split(/(?<=[.!?;])\s+/u).map(part => part.trim()).filter(Boolean);
   for (const segment of segments) {

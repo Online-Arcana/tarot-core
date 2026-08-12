@@ -91,6 +91,20 @@ test("one ritual cannot repeat its own active warm-and-cut preparation across fi
   assert.equal(repetitiveProse(theatre, "es-ES"), true);
 });
 
+test("explicit intra-ritual tarot reset is rejected without depending on sentence boundaries", () => {
+  const spanish = "Selena apoya la palma sobre la carta central sin descubrirla; vuelve a cortar con un gesto seguro antes de continuar hacia la siguiente posición.";
+  const enclitic = "Selena calienta la baraja entre las palmas, deja que el silencio se asiente y vuelve a calentarla antes de colocarla sobre el terciopelo.";
+  const english = "Selena warms the deck between both palms, lets the silence settle, then warms it again before placing it back on the velvet.";
+  assert.equal(repetitiveProse(spanish, "es-ES"), true);
+  assert.equal(repetitiveProse(enclitic, "es-ES"), true);
+  assert.equal(repetitiveProse(english, "en-GB"), true);
+});
+
+test("mapped-medium repetition is not mistaken for a tarot preparation reset", () => {
+  const mapped = "Amaru vuelve a mezclar los cordones ocultos dentro del recipiente y ofrece el recipiente otra vez para que continúe la extracción prevista.";
+  assert.equal(repetitiveProse(mapped, "es-ES"), false);
+});
+
 test("narrow Spanish correction explicitly requires changing the rejected expression", () => {
   const out = { text: "¿Quieres que exploremos juntos el siguiente paso práctico?" };
   const prompt = narrowCorrectionPrompt(req, out, ["continue.text"]);
