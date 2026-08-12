@@ -6,6 +6,8 @@ import {
   canonicalSpread,
 } from "../dist/domain/canonical.js";
 import { auditModelOut } from "../dist/model/audit.js";
+import { finaliseModelOutDetailed } from "../dist/model/finalise.js";
+import { reconstructModelOutDetailed } from "../dist/model/recover.js";
 import { runModelSession } from "../dist/model/run.js";
 import { handoverConv } from "../dist/reading/handover.js";
 
@@ -223,6 +225,48 @@ async function runTask(label, req) {
   }
 }
 
+function deterministicOut(req, label) {
+  const reconstructed = reconstructModelOutDetailed(req, []);
+  const out = finaliseModelOutDetailed(req, reconstructed.out).out;
+  const audit = auditModelOut(req, out);
+  if (!audit.valid) throw new Error(`${label}: deterministic target fixture failed audit: ${audit.errors.join(" | ")}`);
+  return out;
+}
+
+function deterministicTargetReading(targetReader, draw, prefix) {
+  const targetBase = { lang, reader: targetReader, name: querent, history: [] };
+  const priorRituals = [];
+  for (let card = 0; card < draw.cards.length; card += 1) {
+    const ritualReq = {
+      ...targetBase,
+      task: "ritual",
+      question: baseQuestion,
+      spread: draw.id,
+      card,
+      drawn: draw.cards[card],
+      draw,
+      priorRituals: [...priorRituals],
+    };
+    const ritual = deterministicOut(ritualReq, `${prefix}/target-fixture/ritual/${card + 1}`);
+    priorRituals.push([ritual.gesture, ritual.opening, ritual.ritual].join(" ").trim());
+  }
+  const readReq = {
+    ...targetBase,
+    task: "read",
+    question: baseQuestion,
+    draw,
+    ritualTheatre: priorRituals,
+  };
+  return {
+    id: `${prefix}-target-reading`,
+    kind: "reading",
+    at: "2026-08-11T18:18:00.000Z",
+    question: baseQuestion,
+    draw,
+    out: deterministicOut(readReq, `${prefix}/target-fixture/read`),
+  };
+}
+
 function drawFor(spreadId, spreadIndex) {
   const spread = canonicalSpread(spreadId, lang);
   const offset = (readerIndex * 17 + langIndex * 29 + spreadIndex * 11) % cardIds.length;
@@ -339,8 +383,13 @@ for (let spreadIndex = 0; spreadIndex < spreads.length; spreadIndex += 1) {
       "2026-08-11T18:15:00.000Z",
       entry.tasks.handover.out,
     );
+    const targetReadConv = {
+      ...targetConv,
+      updated: "2026-08-11T18:18:00.000Z",
+      turns: [deterministicTargetReading(target, draw, prefix)],
+    };
     const returnedConv = handoverConv(
-      targetConv,
+      targetReadConv,
       { target: reader, question: baseQuestion, reason: referralReason },
       `${prefix}-return`,
       "2026-08-11T18:20:00.000Z",
