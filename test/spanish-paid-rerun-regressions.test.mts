@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { auditModelOut, words } from "../dist/model/audit.js";
 import { canonicalCardAt, canonicalSpread } from "../dist/domain/canonical.js";
-import { meaningfulOverlap } from "../dist/model/language.js";
+import { repeatsActiveTarotPreparation } from "../dist/model/language.js";
 import { runModelSession } from "../dist/model/run.js";
 import { addressViewer } from "../dist/model/viewer-narration.js";
 import { handoverSummary } from "../dist/reading/handover.js";
@@ -179,10 +179,10 @@ test("reader-dialogue gender and direct-address faults use one field-only Spanis
   assert.doesNotMatch(patch.input[0].content, new RegExp(primary.reading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"));
 });
 
-test("repeating active warm-and-cut preparation counts as substantial ritual reuse", () => {
+test("repeating active warm-and-cut preparation counts as semantic ritual reuse", () => {
   const first = "Selena calienta la baraja entre las palmas y después corta el mazo con un gesto deliberado antes de dejarlo sobre el terciopelo.";
   const reset = "Selena vuelve a centrar la escena, calienta la baraja entre ambas manos y corta el mazo otra vez antes de la siguiente posición.";
   const continuation = "Selena siente la baraja todavía caliente tras haberla frotado y cortado; acerca la siguiente carta a su posición y retira las manos.";
-  assert.ok(meaningfulOverlap(first, reset, "es-ES") >= 0.72);
-  assert.ok(meaningfulOverlap(first, continuation, "es-ES") < 0.72);
+  assert.equal(repeatsActiveTarotPreparation(first, reset, "es-ES"), true);
+  assert.equal(repeatsActiveTarotPreparation(first, continuation, "es-ES"), false);
 });
