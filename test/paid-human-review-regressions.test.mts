@@ -113,3 +113,93 @@ test("fit recovery preserves canonical topic and routing when only prose is brok
   assert.equal(recovered.out.topic, "change");
   assert.equal(recovered.out.recommend, null);
 });
+
+test("Spanish visible prose rejects leaked gender-handling instructions", () => {
+  const req = { ...base, task: "continue" };
+  const audit = auditModelOut(req, {
+    text: "¿Quieres que sigamos con el siguiente paso sin añadir una marca de género a tu propia decisión?",
+  });
+  assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "querent_gender" && issue.path === "continue.text"));
+});
+
+test("English visible prose rejects leaked gender-handling instructions", () => {
+  const req = {
+    ...base,
+    lang: "en-GB",
+    question: "What do I need to understand about the change I am considering?",
+    task: "continue",
+  };
+  const audit = auditModelOut(req, {
+    text: "Would you like to explore the next step without adding a gender marker to your decision?",
+  });
+  assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "querent_gender" && issue.path === "continue.text"));
+});
+
+test("Spanish invitation cannot switch the querent question into reader first person", () => {
+  const req = { ...base, task: "invite" };
+  const audit = auditModelOut(req, {
+    text: "Alex, ¿qué deseo explorar, comprender o expresar en esta lectura de hoy?",
+  });
+  assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "querent_gender" && issue.path === "invite.text"));
+});
+
+test("English invitation cannot switch the querent question into reader first person", () => {
+  const req = {
+    ...base,
+    lang: "en-GB",
+    question: "What do I need to understand about the change I am considering?",
+    task: "invite",
+  };
+  const audit = auditModelOut(req, {
+    text: "Alex, what do I want to explore, understand or express in this reading today?",
+  });
+  assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "querent_gender" && issue.path === "invite.text"));
+});
+
+test("Spanish first-person suggestions remain neutral when querent gender is missing", () => {
+  const req = { ...base, task: "suggest" };
+  const audit = auditModelOut(req, {
+    suggestions: [
+      "¿Qué información concreta necesito confirmar antes de avanzar?",
+      "¿Qué necesito para sentirme respaldado mientras pruebo este cambio?",
+      "¿Qué paso pequeño puedo dar sin perder mi capacidad de elegir?",
+    ],
+  });
+  assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "querent_gender" && issue.path === "suggest.suggestions[1]"));
+});
+
+test("English prose cannot invent a binary querent identity when gender is missing", () => {
+  const req = {
+    ...base,
+    lang: "en-GB",
+    question: "What do I need to understand about the change I am considering?",
+    task: "continue",
+  };
+  const audit = auditModelOut(req, {
+    text: "Would you like to explore how you are a woman facing this change and what you need next?",
+  });
+  assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "querent_gender" && issue.path === "continue.text"));
+});
+
+test("Spanish ritual audit rejects awkward literal phrasing from the paid rerun", () => {
+  const req = {
+    ...base,
+    task: "ritual",
+    spread: "decision",
+    card: 0,
+    priorRituals: [],
+  };
+  const audit = auditModelOut(req, {
+    opening: "Selena inclina la cabeza hacia la vela que ya arde y deja que la luz dorada deslumbre el terciopelo mientras atiende a tu pregunta.",
+    ritual: "Sostiene la baraja entre las palmas, la corta una vez y deja una carta boca abajo sobre la mesa sin romper el silencio que acompaña este momento.",
+    gesture: "Hace girar un anillo y termina con un leve acariciar del borde de la carta oculta antes de apartar la mano.",
+  });
+  assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "querent_gender" && (issue.path === "ritual.opening" || issue.path === "ritual.gesture")));
+});
