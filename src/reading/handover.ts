@@ -11,12 +11,26 @@ function local<T>(value: { en: T; es: T }, code: string): T {
   return code.toLowerCase().startsWith("es") ? value.es : value.en;
 }
 
-function uniq(items: string[], max = 12): string[] {
+function uniq(items: readonly string[], max = 12): string[] {
   return [...new Set(items.map(x => x.trim()).filter(Boolean))].slice(0, max);
 }
 
 function norm(text: string): string {
   return text.replace(/\s+/gu, " ").trim().toLocaleLowerCase();
+}
+
+function sourceTranscript(source: Conv): string {
+  return norm(source.turns.flatMap(turn => [
+    turn.question,
+    turn.kind === "reading"
+      ? `${turn.out.synthesis} ${turn.out.reading}`
+      : turn.out.response
+  ]).join(" "));
+}
+
+export function groundedHandoverFacts(source: Conv, generatedFacts: readonly string[]): string[] {
+  const transcript = sourceTranscript(source);
+  return uniq(generatedFacts).filter(fact => transcript.includes(norm(fact)));
 }
 
 function visit(reader: ReaderId, conv: string, at: string, question: string, note: string): Visit {
@@ -43,13 +57,7 @@ function grounded(source: Conv, referral: Referral, generated?: HandoverOut): Ha
   const fallback = handoverSummary(source, referral);
   if (!generated) return fallback;
 
-  const transcript = norm(source.turns.flatMap(turn => [
-    turn.question,
-    turn.kind === "reading"
-      ? `${turn.out.synthesis} ${turn.out.reading}`
-      : turn.out.response
-  ]).join(" "));
-  const facts = uniq(generated.facts).filter(fact => transcript.includes(norm(fact)));
+  const facts = groundedHandoverFacts(source, generated.facts);
 
   return {
     summary: generated.summary.trim() || fallback.summary,
