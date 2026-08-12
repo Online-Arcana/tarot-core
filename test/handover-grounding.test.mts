@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { prepareModelOutDetailed } from "../dist/model/finalise.js";
 import { handoverConv, handoverSummary } from "../dist/reading/handover.js";
 
 const readingOut = {
@@ -53,6 +54,17 @@ const referral = {
   reason: "A consequence-focused perspective may help.",
 };
 
+const handoverReq = {
+  task: "handover",
+  lang: "en-GB",
+  reader: "selena",
+  name: "Alex",
+  history: [],
+  question: referral.question,
+  target: referral.target,
+  conv: source,
+};
+
 test("deterministic handover summary derives questions and cards only from supplied state", () => {
   const summary = handoverSummary(source, referral);
   assert.deepEqual(summary.questions, [
@@ -61,6 +73,34 @@ test("deterministic handover summary derives questions and cards only from suppl
   ]);
   assert.deepEqual(summary.cards, ["The Fool"]);
   assert.deepEqual(summary.facts, []);
+});
+
+test("pre-audit handover keeps transcript-grounded facts and removes internal metadata", () => {
+  const generated = {
+    summary: "The decision remains open, with caution around commitment and consequences.",
+    questions: ["Invented question?"],
+    conclusions: ["A new synthesis can remain part of the structured handover."],
+    cards: ["Death"],
+    facts: [
+      "The reading points to a cautious beginning that keeps options open.",
+      "Source reader is Selena.",
+      "Target reader is Brennos.",
+      "trail id is internal-trail-id",
+      "synthesis and answer provided in input_data reflect prior guidance",
+    ],
+    unresolved: ["Which consequence matters most if the role is accepted?"],
+  };
+
+  const prepared = prepareModelOutDetailed(handoverReq, generated);
+  assert.deepEqual(prepared.out.questions, [
+    "Should I take the new role?",
+    "What consequence should I weigh most carefully?",
+  ]);
+  assert.deepEqual(prepared.out.cards, ["The Fool"]);
+  assert.deepEqual(prepared.out.facts, ["The reading points to a cautious beginning that keeps options open."]);
+  assert.ok(prepared.diagnostics.includes("handover_questions_canonicalised"));
+  assert.ok(prepared.diagnostics.includes("handover_cards_canonicalised"));
+  assert.ok(prepared.diagnostics.includes("handover_facts_grounded"));
 });
 
 test("persisted generated handover cannot invent questions, cards or facts", () => {
