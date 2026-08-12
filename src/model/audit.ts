@@ -12,12 +12,14 @@ import { futureLeaks } from "../reading/reveal.js";
 import {
   auditLanguage,
   containsWholePhrase,
+  hasActiveTarotPreparation,
   hasDirectAddress,
   hasNarratorFirstPerson,
   meaningfulOverlap,
   normaliseProse,
   repetitiveProse,
   regexEscape,
+  spanishLanguageIssue,
 } from "./language.js";
 import { neutralSpanishQuerentIssue } from "./querent-language.js";
 
@@ -77,6 +79,16 @@ const auditSpanishPronounCase = (
   add(issues, "spanish_pronoun_case", path, "must use ti after a preposition and contigo after con, not tú/te or con ti");
 };
 
+const auditSpanishLanguage = (
+  issues: AuditIssue[],
+  path: string,
+  value: string,
+  req: ApiReq,
+): void => {
+  const problem = spanishLanguageIssue(value, req.lang);
+  if (problem !== null) add(issues, "spanish_language", path, problem);
+};
+
 const auditQuerentLanguage = (
   issues: AuditIssue[],
   path: string,
@@ -108,7 +120,10 @@ const auditText = (
   if (rules.direct === true && !hasDirectAddress(text, req.lang)) add(issues, "direct_address", path, "must address the person directly");
   if (rules.question === true && !/\?["'’”)]*$/u.test(text)) add(issues, "question", path, "must be phrased as a question");
   if (ref.test(text)) add(issues, "internal_reference", path, "must not expose an internal JSON reference");
-  if (rules.spanishGrammar !== false) auditSpanishPronounCase(issues, path, text, req);
+  if (rules.spanishGrammar !== false) {
+    auditSpanishPronounCase(issues, path, text, req);
+    auditSpanishLanguage(issues, path, text, req);
+  }
   auditQuerentLanguage(issues, path, text, req);
   if (repetitiveProse(text, req.lang)) add(issues, "repetitive", path, "must contain natural, non-repetitive wording");
 };
@@ -135,6 +150,7 @@ const auditNarratorVoice = (issues: AuditIssue[], path: string, value: string, r
   if (genericQuerent.test(text)) add(issues, "generic_querent", path, "narrator prose must address the viewer directly rather than use a generic querent label");
   if (isMappedReader(req.reader) && mappedTerms.test(text)) add(issues, "canonical_medium", path, "mapped narrator prose must stay inside the reader's public medium");
   auditSpanishPronounCase(issues, path, text, req);
+  auditSpanishLanguage(issues, path, text, req);
   auditQuerentLanguage(issues, path, text, req);
   if (operationalNarration.test(text)) add(issues, "operational_narration", path, "must not dramatise implementation, sequencing or state-machine controls");
   if (req.name.trim() && containsWholePhrase(text, req.name, req.lang)) {
@@ -178,6 +194,7 @@ const auditReaderVoice = (issues: AuditIssue[], path: string, value: string, req
   const name = profileFor(req.reader).public.name;
   const selfName = new RegExp(`\\b${regexEscape(name)}(?:['’]s)?\\b`, "iu");
   if (genericReader.test(text)) add(issues, "generic_reader", path, "reader-facing prose must use the configured identity rather than a generic role label");
+  auditSpanishLanguage(issues, path, text, req);
   auditQuerentLanguage(issues, path, text, req);
   if (selfName.test(withoutMappedEntities(text, req))) {
     add(issues, "reader_third_person", path, `reader dialogue must not refer to ${name} as an outside third-person character`);
@@ -372,6 +389,9 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
       const value = out as Extract<ApiOut, { response: string }>;
       auditTheatre(issues, "chat.gesture", [value.gesture], req);
       auditNarratorVoice(issues, "chat.gesture", value.gesture, req);
+      if (!isMappedReader(req.reader) && hasActiveTarotPreparation(value.gesture, req.lang)) {
+        add(issues, "followup_tarot_reset", "chat.gesture", "follow-up theatre must continue from the completed reading without warming, cutting or shuffling the tarot deck again");
+      }
       auditText(issues, "chat.response", value.response, req, { minWords: 8, maxWords: 600, complete: true, direct: true });
       auditReaderVoice(issues, "chat.response", value.response, req);
       auditMappedPublicMedium(issues, "chat.response", value.response, req, "mapped follow-up dialogue must stay in the reader's public medium");
