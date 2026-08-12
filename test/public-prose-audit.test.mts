@@ -10,7 +10,7 @@ function base(task, reader = "amaru", lang = "en-GB") {
   return { task, lang, reader, name: "Alex", history: [] };
 }
 
-function titleReq() {
+function readingTurn() {
   const spread = canonicalSpread("one", "en-GB");
   const draw = {
     id: spread.id,
@@ -19,25 +19,26 @@ function titleReq() {
     cards: [canonicalCardAt("major-fool", "upright", 1, spread.id, "en-GB")],
   };
   return {
-    ...base("title"),
-    turn: {
-      id: "title-fixture",
-      kind: "reading",
-      at: "2026-08-11T18:00:00.000Z",
-      question: "What should I understand?",
-      draw,
-      out: {
-        gesture: "",
-        opening: "",
-        link: "",
-        cardText: ["Viracocha asks you to meet this beginning with attention before deciding how quickly to move."],
-        synthesis: "This beginning asks you to combine openness with enough care to recognise what is actually changing." ,
-        reading: "You can take a first step while keeping it small enough to revise as the situation becomes clearer around you.",
-        closing: "Move with attention and keep your choices flexible.",
-        note: "Amaru leaves the cord resting beside the vessel.",
-      },
+    id: "public-prose-fixture",
+    kind: "reading",
+    at: "2026-08-11T18:00:00.000Z",
+    question: "What should I understand?",
+    draw,
+    out: {
+      gesture: "",
+      opening: "",
+      link: "",
+      cardText: ["Viracocha asks you to meet this beginning with attention before deciding how quickly to move."],
+      synthesis: "This beginning asks you to combine openness with enough care to recognise what is actually changing.",
+      reading: "You can take a first step while keeping it small enough to revise as the situation becomes clearer around you.",
+      closing: "Move with attention and keep your choices flexible.",
+      note: "Amaru leaves the cord resting beside the vessel.",
     },
   };
+}
+
+function titleReq() {
+  return { ...base("title"), turn: readingTurn() };
 }
 
 function has(audit, code, path) {
@@ -98,4 +99,44 @@ test("generic reader labels are rejected from Spanish narrator prose", () => {
     },
   );
   assert.equal(has(audit, "generic_reader", "chat.gesture"), true, audit.errors.join("\n"));
+});
+
+test("mapped read narrator notes reject tarot-medium language", () => {
+  const turn = readingTurn();
+  const req = {
+    ...base("read"),
+    question: turn.question,
+    draw: turn.draw,
+  };
+  const audit = auditModelOut(req, {
+    ...turn.out,
+    note: "Amaru leaves the cards resting beside the vessel as the room settles.",
+  });
+  assert.equal(has(audit, "canonical_medium", "read.note"), true, audit.errors.join("\n"));
+});
+
+test("mapped chat narrator gestures reject tarot-medium language", () => {
+  const req = { ...base("chat"), question: "What should I consider next?" };
+  const audit = auditModelOut(req, {
+    gesture: "Amaru lets the room settle while the earlier cards remain untouched beside the vessel. His hands rest against the stone, the light stays steady over the table, and a deliberate silence gives your follow-up enough space to become distinct before he turns his attention back toward you.",
+    response: "You can begin with the part that still feels uncertain and compare it with what your circumstances already make clear.",
+  });
+  assert.equal(has(audit, "canonical_medium", "chat.gesture"), true, audit.errors.join("\n"));
+});
+
+test("suggestions reject generic reader-role labels", () => {
+  const req = { ...base("suggest"), turn: readingTurn() };
+  const audit = auditModelOut(req, {
+    suggestions: [
+      "What would the reader want you to notice next?",
+      "What practical change deserves your attention now?",
+      "What part of this result still feels unresolved?",
+    ],
+  });
+  assert.equal(has(audit, "generic_reader", "suggest.suggestions[0]"), true, audit.errors.join("\n"));
+});
+
+test("titles reject generic reader-role labels", () => {
+  const audit = auditModelOut(titleReq(), { title: "The Reader at a Threshold" });
+  assert.equal(has(audit, "generic_reader", "title.title"), true, audit.errors.join("\n"));
 });
