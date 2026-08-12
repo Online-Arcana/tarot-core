@@ -6,6 +6,7 @@ import type {
   RitualOut,
 } from "../contracts/types.js";
 import { attachMedia, isMappedReader, mediaFor } from "../readers/media/runtime.js";
+import { groundedHandoverFacts } from "../reading/handover.js";
 import { futureLeaks, repairFutureLeaks } from "../reading/reveal.js";
 import { addressViewer } from "./viewer-narration.js";
 
@@ -79,10 +80,10 @@ function readingWithCanonicalMedia(
  * Prepare generated prose for deterministic audit without attaching public
  * presentation metadata. Narrator audience normalisation and reveal repair
  * happen here so the full audit sees the exact prose that will be returned.
- * Handover questions and card state are rebuilt from the canonical conversation
- * for every reader, so the model never owns those deterministic fields. Mapped
- * reveal repair uses a temporary canonical media view, which is stripped again
- * before the audit boundary.
+ * Handover questions and card state are rebuilt from the canonical conversation,
+ * while generated facts are reduced to exact transcript-grounded facts, so the
+ * model never owns deterministic handover state. Mapped reveal repair uses a
+ * temporary canonical media view, which is stripped again before the audit boundary.
  */
 export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): FinalisationResult {
   const diagnostics: string[] = [];
@@ -98,9 +99,11 @@ export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): Finalisatio
     const handover = out as HandoverOut;
     const questions = canonicalHandoverQuestions(req);
     const cards = canonicalHandoverCards(req);
+    const facts = groundedHandoverFacts(req.conv, handover.facts);
     if (JSON.stringify(handover.questions) !== JSON.stringify(questions)) diagnostics.push("handover_questions_canonicalised");
     if (JSON.stringify(handover.cards) !== JSON.stringify(cards)) diagnostics.push("handover_cards_canonicalised");
-    out = { ...handover, questions, cards };
+    if (JSON.stringify(handover.facts) !== JSON.stringify(facts)) diagnostics.push("handover_facts_grounded");
+    out = { ...handover, questions, cards, facts };
   }
 
   if (req.task === "read") {
