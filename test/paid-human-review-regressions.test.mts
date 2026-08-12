@@ -71,3 +71,28 @@ test("vanilla ritual recovery keeps a concrete hidden-card action", () => {
   assert.match(recovered.out.gesture, /boca abajo/iu);
   assert.doesNotMatch(recovered.out.gesture, /calienta|corta|baraja de nuevo|vuelve a barajar/iu);
 });
+
+test("fit recovery preserves canonical topic and routing when only prose is broken", () => {
+  const req = { ...base, task: "fit" };
+  const recovered = reconstructModelOutDetailed(req, [
+    {
+      level: "good",
+      topic: "change",
+      recommend: "selena",
+      reason: "La pregunta se alinea con temas de identidad y cambio emocional. Selena ofrece una lectura cálida.",
+      offer: "selena",
+    },
+    {
+      level: "good",
+      topic: "change",
+      recommend: "selena",
+      reason: "Tu pregunta se alinea con identidad y cambio emocional; puedo ayudarte a explorar qué deseo, temor y necesidad están influyendo en tu decisión.",
+      offer: "Podemos mirar ese cambio con calidez y honestidad, sin olvidar que la elección final sigue siendo tuya.",
+    },
+  ]);
+  assert.equal(recovered.emergencyFallback, false);
+  assert.equal(recovered.out.level, "good");
+  assert.equal(recovered.out.topic, "change");
+  assert.equal(recovered.out.recommend, null);
+  assert.notEqual(recovered.out.reason, "Tu pregunta puede explorarse aquí con cuidado.");
+});
