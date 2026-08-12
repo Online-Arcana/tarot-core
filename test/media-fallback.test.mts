@@ -109,9 +109,9 @@ test("successful mapped ritual preserves LLM substance, normalises audience and 
   })));
 
   assert.equal(result.source, "primary");
-  assert.equal(result.out.gesture, mappedRitual.gesture);
+  assert.equal(result.out.gesture, `${mappedRitual.gesture} The stillness gathers around you.`);
   assert.equal(result.out.opening, mappedRitual.opening);
-  assert.equal(result.out.ritual, `${mappedRitual.ritual} The stillness gathers around you.`);
+  assert.equal(result.out.ritual, mappedRitual.ritual);
   assert.ok(result.auditErrors.includes("english_audience_normalised"));
   assert.ok(result.out.medium);
   assert.equal(result.out.medium.version, 3);
