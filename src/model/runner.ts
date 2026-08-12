@@ -181,7 +181,7 @@ function proofreadOpts(cfg: ModelCfg) {
       ...cfg.body,
       store: false,
       max_output_tokens: 2500,
-      reasoning: { effort: "none" },
+      reasoning: { effort: "low" },
     },
   }, FINAL_PROOFREAD_MODEL);
 }
@@ -225,37 +225,37 @@ async function proofreadAccepted(
   primaryModel: string,
   escalationModel: string,
 ): Promise<ModelResult> {
-  let finalAudit = audit;
-  const finalDiagnostics = [...diagnostics];
+  if (process.env.ARCANA_SKIP_FINAL_PROOFREAD === "1" || Object.keys(proofreadFields(req, audit.value)).length === 0) {
+    return accepted(req, audit, diagnostics, source, primaryModel, escalationModel, ai.id);
+  }
 
-  if (process.env.ARCANA_SKIP_FINAL_PROOFREAD !== "1" && Object.keys(proofreadFields(req, audit.value)).length > 0) {
-    try {
-      const generationContext = buildModelPrompt(pack, req);
-      const patch = await ai.run(
-        finalProofreadShape(req, audit.value),
-        [{ role: "system", content: finalProofreadPrompt(req, audit.value, generationContext) }],
-        proofreadOpts(cfg),
-        "arcana_final_proofread",
-      );
-      if (patch.edits.length > 0) {
-        const edited = applyFinalProofread(audit.value, patch);
-        const checked = auditModelOut(req, edited);
-        if (checked.valid) {
-          finalAudit = checked;
-          finalDiagnostics.push(`final_proofread_edits:${patch.edits.length}`);
-        } else {
-          finalDiagnostics.push(`final_proofread_rejected:${checked.errors.join(" | ")}`);
-        }
-      }
-    } catch (cause: unknown) {
-      finalDiagnostics.push(`final_proofread_unavailable:${message(cause)}`);
-    }
+  let patch;
+  try {
+    const generationContext = buildModelPrompt(pack, req);
+    patch = await ai.run(
+      finalProofreadShape(req, audit.value),
+      [{ role: "system", content: finalProofreadPrompt(req, audit.value, generationContext) }],
+      proofreadOpts(cfg),
+      "arcana_final_proofread",
+    );
+  } catch (cause: unknown) {
+    throw new Error(`final_proofread_unavailable: ${message(cause)}`);
+  }
+
+  if (patch.edits.length === 0) {
+    return accepted(req, audit, diagnostics, source, primaryModel, escalationModel, ai.id);
+  }
+
+  const edited = applyFinalProofread(audit.value, patch);
+  const checked = auditModelOut(req, edited);
+  if (!checked.valid) {
+    throw new Error(`final_proofread_rejected: ${checked.errors.join(" | ")}`);
   }
 
   return accepted(
     req,
-    finalAudit,
-    finalDiagnostics,
+    checked,
+    [...diagnostics, `final_proofread_edits:${patch.edits.length}`],
     source,
     primaryModel,
     escalationModel,
