@@ -14,6 +14,14 @@ if (dirty) {
   throw new Error(`Paid live prose cell requires a clean working tree. Commit or remove local changes before testing ${commit}.`);
 }
 
+const startedAt = Date.now();
+const elapsed = () => Math.max(0, Math.round((Date.now() - startedAt) / 1000));
+console.log(`[live] starting ${reader}/${lang} on ${commit.slice(0, 12)}; the worker may spend time inside individual model calls.`);
+const heartbeat = setInterval(() => {
+  console.log(`[live] ${reader}/${lang} still running (${elapsed()}s elapsed)`);
+}, 15_000);
+heartbeat.unref();
+
 const child = spawn(process.execPath, ["scripts/live-prose-matrix.mjs"], {
   stdio: "inherit",
   env: {
@@ -24,8 +32,14 @@ const child = spawn(process.execPath, ["scripts/live-prose-matrix.mjs"], {
     GITHUB_SHA: commit,
   },
 });
-child.on("exit", code => { process.exitCode = code ?? 1; });
+child.on("exit", code => {
+  clearInterval(heartbeat);
+  if ((code ?? 1) === 0) console.log(`[live] ${reader}/${lang} completed (${elapsed()}s elapsed)`);
+  else console.error(`[live] ${reader}/${lang} exited with code ${code ?? 1} (${elapsed()}s elapsed)`);
+  process.exitCode = code ?? 1;
+});
 child.on("error", error => {
+  clearInterval(heartbeat);
   console.error(error);
   process.exitCode = 1;
 });
