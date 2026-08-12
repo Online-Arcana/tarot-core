@@ -50,6 +50,7 @@ const ref = /#\/[A-Za-z0-9_~./-]+/u;
 const operationalNarration = /\b(?:hidden application state|implementation details?|deterministic validation|records? the state|state is recorded|inspection after|reveal order|canonical mapping|JSON schema|application behaviour|spread positions?|marked areas? correspond|nothing is shown early|hidden sign|preserves? (?:its )?exact (?:state|direction)|no second cast|without another cast|counting each area|result number|draw number|phase|continuity control|estado oculto de la aplicación|detalles? de implementación|validación determinista|registra(?:r| el estado)?|estado (?:queda )?registrado|inspección después|orden de revelación|mapeo canónico|comportamiento de la aplicación|posiciones? de la tirada|zonas? marcadas? corresponden?|nada se muestra antes|signo oculto|conserva (?:su )?(?:estado|dirección) exact[oa]|sin otro lanzamiento|contando cada zona|número de resultado|número de extracción|control de continuidad)\b/iu;
 const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?|tarotistas?)\b/iu;
 const genericReader = /\b(?:the reader|the tarot reader|el lector|la lectora|la persona lectora|el tarotista|la tarotista|la persona tarotista)\b/iu;
+const genericQuerent = /\b(?:the querent|la persona consultante|el consultante|la consultante)\b/iu;
 const explicitQuerentActionEn = /\b(?:you|the querent)\s+(?:lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw|sit|stand|rest)\b/iu;
 const explicitQuerentActionEs = /\b(?:tú|la persona consultante)\s+(?:levantas?|elevas?|tomas?|alcanzas?|tocas?|sostienes?|sacas?|agitas?|lanzas?|colocas?|eliges?|tiras?|sueltas?|giras?|mueves?|mezclas?|retiras?|llevas?|abres?|cierras?|manipulas?|agarras?|dejas?|introduces?|metes?|extraes?)\b/iu;
 const invalidSpanishPronounCase = /(?<![\p{L}\p{N}])(?:(?:a|ante|contra|desde|hacia|para|por|sin|sobre|tras)\s+(?:tú|te)|con\s+(?:tú|ti|te))(?![\p{L}\p{N}])/iu;
@@ -100,10 +101,16 @@ const auditText = (
   if (repetitiveProse(text, req.lang)) add(issues, "repetitive", path, "must contain natural, non-repetitive wording");
 };
 
-const auditTheatre = (issues: AuditIssue[], path: string, parts: readonly string[], req: ApiReq): void => {
+const auditTheatre = (
+  issues: AuditIssue[],
+  path: string,
+  parts: readonly string[],
+  req: ApiReq,
+  maxWords = 110,
+): void => {
   const text = clean(parts.join(" "));
   const count = words(text);
-  if (count < 36 || count > 110) add(issues, "theatre_length", path, "combined theatre must contain 36 to 110 words");
+  if (count < 36 || count > maxWords) add(issues, "theatre_length", path, `combined theatre must contain 36 to ${maxWords} words`);
   if (/[\r\n]/u.test(text)) add(issues, "theatre_line_break", path, "combined theatre must be one paragraph");
   if (!terminal.test(text) || hanging.test(text)) add(issues, "theatre_incomplete", path, "combined theatre must end naturally as a complete sentence");
   if (repetitiveProse(text, req.lang)) add(issues, "theatre_repetitive", path, "combined theatre must contain natural, non-repetitive wording");
@@ -113,6 +120,7 @@ const auditNarratorVoice = (issues: AuditIssue[], path: string, value: string, r
   const text = clean(value);
   if (hasNarratorFirstPerson(text, req.lang)) add(issues, "narrator_first_person", path, "narrator prose must remain in third person");
   if (genericReader.test(text)) add(issues, "generic_reader", path, "narrator prose must use the configured reader identity rather than a generic role label");
+  if (genericQuerent.test(text)) add(issues, "generic_querent", path, "narrator prose must address the viewer directly rather than use a generic querent label");
   if (isMappedReader(req.reader) && mappedTerms.test(text)) add(issues, "canonical_medium", path, "mapped narrator prose must stay inside the reader's public medium");
   auditSpanishPronounCase(issues, path, text, req);
   if (operationalNarration.test(text)) add(issues, "operational_narration", path, "must not dramatise implementation, sequencing or state-machine controls");
@@ -312,7 +320,7 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
     }
     case "ritual": {
       const value = out as RitualOut;
-      auditTheatre(issues, "ritual.theatre", [value.opening, value.ritual, value.gesture], req);
+      auditTheatre(issues, "ritual.theatre", [value.opening, value.ritual, value.gesture], req, 130);
       auditNarratorVoice(issues, "ritual.gesture", value.gesture, req);
       auditNarratorVoice(issues, "ritual.opening", value.opening, req);
       auditNarratorVoice(issues, "ritual.ritual", value.ritual, req);
@@ -379,7 +387,7 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
     }
     case "return": {
       const value = out as Extract<ApiOut, { text: string }>;
-      auditText(issues, "return.text", value.text, req, { minWords: 3, maxWords: 90, complete: true, oneLine: true, direct: true });
+      auditText(issues, "return.text", value.text, req, { minWords: 3, maxWords: 95, complete: true, oneLine: true, direct: true });
       auditReaderVoice(issues, "return.text", value.text, req);
       auditMappedPublicMedium(issues, "return.text", value.text, req, "mapped return dialogue must stay in the reader's public medium");
       break;
