@@ -14,10 +14,13 @@ Shape validation alone is not enough for card/spread data because a structurally
 
 - `loadCards` requires the exact canonical 78-card ID set and rejects generated rank×suit recipes.
 - `parseReq` validates transport shape/lengths and canonicalises draw semantics from stable IDs, orientation, spread ID and position.
+- `runModelSession` and the public `modelPrompt` helper independently canonicalise typed `ApiReq` values before schema selection, prompting, audit, correction or recovery. Bypassing transport parsing therefore does not make compatibility prose semantically authoritative.
 - client/pack card names, suits, meanings, spread purpose and position prose are not trusted as model facts.
 - `OpenAISchema` enforces strict structured model output shape.
 - `auditModelOut` and core finalisation enforce language, voice, reveal-order, mapped-medium and presentation invariants after parsing.
 - `handoverConv` and handover auditing restrict generated state against source conversation material.
+
+`parseReq` should still be used for unknown JSON arriving from a network, file or persistence boundary because typed request canonicalisation is not a substitute for structural validation of untrusted values.
 
 Mapped systems also separate archival/research fields from public `MediumPresentation`; research notes are not copied into client-visible output merely because they are present in a map archive.
 
