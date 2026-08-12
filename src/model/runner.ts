@@ -10,6 +10,12 @@ import {
   correctionFromAudit,
   type ModelAudit,
 } from "./audit.js";
+import {
+  applyFinalProofread,
+  finalProofreadPrompt,
+  finalProofreadShape,
+  proofreadFields,
+} from "./final-proofread.js";
 import { prepareModelOutDetailed } from "./finalise.js";
 import {
   mergeNarratorCorrection,
@@ -54,6 +60,8 @@ export const DEFAULT_MODEL_TIERS: ModelTiers = {
   longPrimary: "gpt-5.6-luna",
   longEscalation: "gpt-5.6-luna",
 };
+
+const FINAL_PROOFREAD_MODEL = "gpt-5.6-luna";
 
 export interface ModelCfg {
   readonly apiKey: string;
@@ -166,6 +174,18 @@ function sendOpts(cfg: ModelCfg, model: string) {
   };
 }
 
+function proofreadOpts(cfg: ModelCfg) {
+  return sendOpts({
+    ...cfg,
+    body: {
+      ...cfg.body,
+      store: false,
+      max_output_tokens: 2500,
+      reasoning: { effort: "none" },
+    },
+  }, FINAL_PROOFREAD_MODEL);
+}
+
 function errorBody(cause: unknown): string {
   if (!dict(cause) || typeof cause.body !== "string") return "";
   return cause.body.replace(/\s+/gu, " ").trim().slice(0, 4_000);
@@ -193,6 +213,55 @@ const accepted = (
   auditErrors: [...new Set([...audit.errors, ...diagnostics])],
   ...(sessionKey === undefined ? {} : { sessionKey }),
 });
+
+async function proofreadAccepted(
+  ai: OpenAISchema<ApiOut>,
+  pack: ModelPack,
+  req: ApiReq,
+  cfg: ModelCfg,
+  audit: ModelAudit,
+  diagnostics: readonly string[],
+  source: ModelResult["source"],
+  primaryModel: string,
+  escalationModel: string,
+): Promise<ModelResult> {
+  let finalAudit = audit;
+  const finalDiagnostics = [...diagnostics];
+
+  if (process.env.ARCANA_SKIP_FINAL_PROOFREAD !== "1" && Object.keys(proofreadFields(req, audit.value)).length > 0) {
+    try {
+      const generationContext = buildModelPrompt(pack, req);
+      const patch = await ai.run(
+        finalProofreadShape(req, audit.value),
+        [{ role: "system", content: finalProofreadPrompt(req, audit.value, generationContext) }],
+        proofreadOpts(cfg),
+        "arcana_final_proofread",
+      );
+      if (patch.edits.length > 0) {
+        const edited = applyFinalProofread(audit.value, patch);
+        const checked = auditModelOut(req, edited);
+        if (checked.valid) {
+          finalAudit = checked;
+          finalDiagnostics.push(`final_proofread_edits:${patch.edits.length}`);
+        } else {
+          finalDiagnostics.push(`final_proofread_rejected:${checked.errors.join(" | ")}`);
+        }
+      }
+    } catch (cause: unknown) {
+      finalDiagnostics.push(`final_proofread_unavailable:${message(cause)}`);
+    }
+  }
+
+  return accepted(
+    req,
+    finalAudit,
+    finalDiagnostics,
+    source,
+    primaryModel,
+    escalationModel,
+    ai.id,
+  );
+}
 
 const failures = (
   primaryAudit: ModelAudit | undefined,
@@ -241,7 +310,17 @@ export async function runModelSession(
     primaryFailure = message(cause);
   }
   if (primaryAudit?.valid === true) {
-    return accepted(req, primaryAudit, primaryDiagnostics, "primary", primaryModel, escalationModel, ai.id);
+    return proofreadAccepted(
+      ai,
+      pack,
+      req,
+      cfg,
+      primaryAudit,
+      primaryDiagnostics,
+      "primary",
+      primaryModel,
+      escalationModel,
+    );
   }
 
   const narrow = spanishNarratorCorrection(req, primaryAudit);
@@ -276,7 +355,17 @@ export async function runModelSession(
     escalationFailure = message(cause);
   }
   if (escalationAudit?.valid === true) {
-    return accepted(req, escalationAudit, escalationDiagnostics, "escalation", primaryModel, escalationModel, ai.id);
+    return proofreadAccepted(
+      ai,
+      pack,
+      req,
+      cfg,
+      escalationAudit,
+      escalationDiagnostics,
+      "escalation",
+      primaryModel,
+      escalationModel,
+    );
   }
 
   const errors = failures(primaryAudit, primaryFailure, escalationAudit, escalationFailure);
@@ -291,20 +380,23 @@ export async function runModelSession(
     if (!finalAudit.valid) {
       throw new Error(`reconstructed_output_invalid: ${finalAudit.errors.join(" | ")}`);
     }
-    return {
-      out: attachMedia(req, finalAudit.value),
-      source: "reconstructed",
-      primaryModel,
-      escalationModel,
-      auditErrors: [...new Set([
+    return proofreadAccepted(
+      ai,
+      pack,
+      req,
+      cfg,
+      finalAudit,
+      [...new Set([
         ...errors,
         ...primaryDiagnostics,
         ...escalationDiagnostics,
         ...reconstructed.auditErrors,
         ...prepared.diagnostics,
       ])],
-      ...(ai.id === undefined ? {} : { sessionKey: ai.id }),
-    };
+      "reconstructed",
+      primaryModel,
+      escalationModel,
+    );
   } catch (cause: unknown) {
     const diagnostic = `reconstruction_exception: ${message(cause)}`;
     throw new ModelOutputError(primaryModel, escalationModel, [...errors, diagnostic]);
