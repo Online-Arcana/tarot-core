@@ -116,7 +116,7 @@ test("handover questions are canonical deterministic state before audit", () => 
   assert.equal(audit.valid, true, audit.errors.join(" | "));
 });
 
-test("a concise 80s-word return is accepted without deterministic reconstruction", () => {
+test("an 84-word return is accepted without deterministic reconstruction", () => {
   const req = {
     task: "return",
     lang: "en-GB",
@@ -126,8 +126,9 @@ test("a concise 80s-word return is accepted without deterministic reconstruction
     trail: { id: "trail", summary: "", visits: [] },
   };
   const out = {
-    text: "Alex, we’ve met before, and you’ve spoken with other readers since; now you return to consider what has endured. Justice asks you to weigh fairness and truth without reducing your choice to a rigid ledger. The Moon suggests that longing and uncertainty may coexist, so let clarity arrive in its own time. Four of Wands invites a practical vision of how this change might settle into daily life and trusted relationships.",
+    text: "Alex, we have met here before, and other readers have joined the conversation since. What remains clear is your wish to move forward without abandoning the parts of your life that still deserve care. The earlier reading points towards possibility, patience, and practical honesty. Keep testing what feels true against what is actually available, let uncertainty give you information rather than commands, and choose the next step that protects both your curiosity and your footing while the larger shape of the change becomes clearer.",
   };
   const audit = auditModelOut(req, out);
+  assert.equal(out.text.trim().split(/\s+/u).length, 84);
   assert.equal(audit.valid, true, audit.errors.join(" | "));
 });
