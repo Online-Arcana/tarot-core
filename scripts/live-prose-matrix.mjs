@@ -170,7 +170,7 @@ async function runTask(label, req) {
       body: bodyFor(req.task),
     });
     const calls = report.network.slice(networkStart);
-    const expectedCalls = result.source === "primary" ? 1 : 2;
+    const expectedCalls = (result.source === "primary" ? 1 : 2) + 1;
     const retries = Math.max(0, calls.length - expectedCalls);
     const audit = auditModelOut(req, result.out);
     report.summary.tasks += 1;
