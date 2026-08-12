@@ -198,7 +198,6 @@ const message = (cause: unknown): string => {
 };
 
 const accepted = (
-  req: ApiReq,
   audit: ModelAudit,
   diagnostics: readonly string[],
   source: ModelResult["source"],
@@ -206,7 +205,7 @@ const accepted = (
   escalationModel: string,
   sessionKey: string | undefined,
 ): ModelResult => ({
-  out: attachMedia(req, audit.value),
+  out: audit.value,
   source,
   primaryModel,
   escalationModel,
@@ -225,35 +224,65 @@ async function proofreadAccepted(
   primaryModel: string,
   escalationModel: string,
 ): Promise<ModelResult> {
-  if (process.env.ARCANA_SKIP_FINAL_PROOFREAD === "1" || Object.keys(proofreadFields(req, audit.value)).length === 0) {
-    return accepted(req, audit, diagnostics, source, primaryModel, escalationModel, ai.id);
+  const visible = attachMedia(req, audit.value);
+  const visibleAudit = auditModelOut(req, visible);
+
+  if (process.env.ARCANA_SKIP_FINAL_PROOFREAD === "1" || Object.keys(proofreadFields(req, visible)).length === 0) {
+    if (!visibleAudit.valid) {
+      throw new Error(`post_media_output_invalid: ${visibleAudit.errors.join(" | ")}`);
+    }
+    return accepted(visibleAudit, diagnostics, source, primaryModel, escalationModel, ai.id);
   }
 
   let patch;
   try {
     const generationContext = buildModelPrompt(pack, req);
     patch = await ai.run(
-      finalProofreadShape(req, audit.value),
-      [{ role: "system", content: finalProofreadPrompt(req, audit.value, generationContext) }],
+      finalProofreadShape(req, visible),
+      [{ role: "system", content: finalProofreadPrompt(req, visible, generationContext) }],
       proofreadOpts(cfg),
       "arcana_final_proofread",
     );
   } catch (cause: unknown) {
-    throw new Error(`final_proofread_unavailable: ${message(cause)}`);
+    const diagnostic = `final_proofread_unavailable: ${message(cause)}`;
+    if (cfg.guaranteeOutput === true && visibleAudit.valid) {
+      return accepted(
+        visibleAudit,
+        [...diagnostics, diagnostic],
+        source,
+        primaryModel,
+        escalationModel,
+        ai.id,
+      );
+    }
+    throw new Error(diagnostic);
   }
 
   if (patch.edits.length === 0) {
-    return accepted(req, audit, diagnostics, source, primaryModel, escalationModel, ai.id);
+    if (!visibleAudit.valid) {
+      throw new Error(`final_proofread_missed_invalid_output: ${visibleAudit.errors.join(" | ")}`);
+    }
+    return accepted(visibleAudit, diagnostics, source, primaryModel, escalationModel, ai.id);
   }
 
-  const edited = applyFinalProofread(audit.value, patch);
+  const edited = applyFinalProofread(visible, patch);
   const checked = auditModelOut(req, edited);
   if (!checked.valid) {
-    throw new Error(`final_proofread_rejected: ${checked.errors.join(" | ")}`);
+    const diagnostic = `final_proofread_rejected: ${checked.errors.join(" | ")}`;
+    if (visibleAudit.valid) {
+      return accepted(
+        visibleAudit,
+        [...diagnostics, diagnostic],
+        source,
+        primaryModel,
+        escalationModel,
+        ai.id,
+      );
+    }
+    throw new Error(diagnostic);
   }
 
   return accepted(
-    req,
     checked,
     [...diagnostics, `final_proofread_edits:${patch.edits.length}`],
     source,
