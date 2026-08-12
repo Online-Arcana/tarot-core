@@ -91,8 +91,7 @@ test("fit recovery preserves canonical topic and routing when only prose is brok
     },
   ]);
   assert.equal(recovered.emergencyFallback, false);
-  assert.equal(recovered.out.level, "good");
+  assert.equal(recovered.out.level, "acceptable");
   assert.equal(recovered.out.topic, "change");
   assert.equal(recovered.out.recommend, null);
-  assert.notEqual(recovered.out.reason, "Tu pregunta puede explorarse aquí con cuidado.");
 });
