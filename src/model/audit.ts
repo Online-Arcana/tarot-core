@@ -113,6 +113,7 @@ const auditNarratorVoice = (issues: AuditIssue[], path: string, value: string, r
   const text = clean(value);
   if (hasNarratorFirstPerson(text, req.lang)) add(issues, "narrator_first_person", path, "narrator prose must remain in third person");
   if (genericReader.test(text)) add(issues, "generic_reader", path, "narrator prose must use the configured reader identity rather than a generic role label");
+  if (isMappedReader(req.reader) && mappedTerms.test(text)) add(issues, "canonical_medium", path, "mapped narrator prose must stay inside the reader's public medium");
   auditSpanishPronounCase(issues, path, text, req);
   if (operationalNarration.test(text)) add(issues, "operational_narration", path, "must not dramatise implementation, sequencing or state-machine controls");
   if (auditLanguage(req.lang) === "es" && req.name.trim() && containsWholePhrase(text, req.name, req.lang)) {
@@ -332,7 +333,11 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
     case "suggest": {
       const value = out as Extract<ApiOut, { suggestions: string[] }>;
       if (value.suggestions.length !== 3) add(issues, "suggestion_count", "suggest.suggestions", "must contain exactly three questions");
-      value.suggestions.forEach((item, index) => auditText(issues, `suggest.suggestions[${index}]`, item, req, { minWords: 3, maxWords: 24, complete: true, oneLine: true, oneSentence: true, question: true }));
+      value.suggestions.forEach((item, index) => {
+        const path = `suggest.suggestions[${index}]`;
+        auditText(issues, path, item, req, { minWords: 3, maxWords: 24, complete: true, oneLine: true, oneSentence: true, question: true });
+        if (genericReader.test(item)) add(issues, "generic_reader", path, "suggestions must not use a generic reader-role label");
+      });
       auditDuplicates(issues, value.suggestions.map((item, index) => ({ path: `suggest.suggestions[${index}]`, value: item })), req);
       auditMappedPublicMedium(issues, "suggest.suggestions", value.suggestions.join(" "), req, "mapped suggestions must use public medium or neutral reading terminology");
       break;
@@ -348,6 +353,7 @@ export const auditModelOut = (req: ApiReq, out: ApiOut): ModelAudit => {
       const value = out as Extract<ApiOut, { title: string }>;
       auditText(issues, "title.title", value.title, req, { minWords: 3, maxWords: 8, oneLine: true });
       if (/tarot reading/iu.test(value.title)) add(issues, "stock_title", "title.title", "must not use the phrase Tarot Reading");
+      if (genericReader.test(value.title)) add(issues, "generic_reader", "title.title", "title must not use a generic reader-role label");
       auditMappedPublicMedium(issues, "title.title", value.title, req, "mapped title must use public-medium or neutral reading terminology");
       break;
     }
