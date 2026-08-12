@@ -8,7 +8,7 @@ const threeSpread = canonicalSpread("three", "en-GB");
 const cards = [
   canonicalCardAt("major-fool", "upright", 1, "three", "en-GB"),
   canonicalCardAt("major-magician", "reversed", 2, "three", "en-GB"),
-  canonicalCardAt("major-high-priestess", "upright", 3, "three", "en-GB"),
+  canonicalCardAt("major-priestess", "upright", 3, "three", "en-GB"),
 ];
 const draw = {
   id: threeSpread.id,
