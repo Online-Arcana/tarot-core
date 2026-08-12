@@ -103,17 +103,29 @@ function englishViewerReferences(value: string): string {
     .replace(/\b(?:himself|herself|themselves)\b/giu, "yourself");
 }
 
-function englishSentenceAudience(sentence: string, name: string): string {
-  if (!name) return sentence;
-  const namePattern = new RegExp(`\\b${escape(name)}(?:['’]s)?\\b`, "iu");
-  const match = namePattern.exec(sentence);
-  if (!match || match.index === undefined) return sentence;
+function englishGenericAudience(sentence: string): string {
+  let output = sentence.replace(/\bthe querent['’]s\b/giu, "your");
+  const match = /\bthe querent\b/iu.exec(output);
+  if (!match || match.index === undefined) return output;
+  const before = output.slice(0, match.index);
+  const after = output.slice(match.index + match[0].length);
+  return `${before}you${englishAgreement(englishViewerReferences(after))}`;
+}
 
-  const before = sentence.slice(0, match.index);
-  const after = sentence.slice(match.index + match[0].length);
+function englishSentenceAudience(sentence: string, name: string): string {
+  const generic = englishGenericAudience(sentence);
+  if (!name) return generic;
+  const namePattern = new RegExp(`\\b${escape(name)}(?:['’]s)?\\b`, "iu");
+  const match = namePattern.exec(generic);
+  if (!match || match.index === undefined) return generic;
+
+  const before = generic.slice(0, match.index);
+  const after = generic.slice(match.index + match[0].length);
   const possessive = /['’]s$/iu.test(match[0]);
   const referred = englishViewerReferences(after);
-  return `${before}${possessive ? "your" : "you"}${possessive ? referred : englishAgreement(referred)}`;
+  if (!possessive) return `${before}you${englishAgreement(referred)}`;
+  const absolute = /^\s*(?:$|[,.;:!?\)\]”’])/u.test(referred);
+  return `${before}${absolute ? "yours" : "your"}${referred}`;
 }
 
 function spanishSubject(sentence: string, name: string): string {
@@ -177,7 +189,7 @@ function spanishSentenceAudience(sentence: string, name: string): string {
 
 function audience(value: string, req: ApiReq): string {
   const name = req.name.trim();
-  if (!name || !value.trim()) return value;
+  if (!value.trim()) return value;
   return value.replace(/[^.!?]+(?:[.!?]+|$)/gu, sentence =>
     spanish(req) ? spanishSentenceAudience(sentence, name) : englishSentenceAudience(sentence, name)
   );
@@ -185,6 +197,13 @@ function audience(value: string, req: ApiReq): string {
 
 function count(value: string): number {
   return value.trim().split(/\s+/u).filter(Boolean).length;
+}
+
+function englishContinuation(value: string): string {
+  return value.replace(
+    /^(A|An|The|Her|His|Their|With|Without|After|Before|While|As|When|Once|Then)\b/u,
+    word => word.toLocaleLowerCase("en-GB"),
+  );
 }
 
 function ensureDirect(value: string, req: ApiReq, maxWords: number): string {
@@ -201,7 +220,8 @@ function ensureDirect(value: string, req: ApiReq, maxWords: number): string {
   if (hasDirectAddress(immersed, req.lang)) return immersed;
 
   const prefix = spanish(req) ? "Ante ti, " : "Before you, ";
-  return count(clean) + count(prefix) <= maxWords ? `${prefix}${clean}` : clean;
+  const continuation = spanish(req) ? clean : englishContinuation(clean);
+  return count(clean) + count(prefix) <= maxWords ? `${prefix}${continuation}` : clean;
 }
 
 function ritual(req: Extract<ApiReq, { task: "ritual" }>, out: RitualOut): RitualOut {
@@ -215,10 +235,10 @@ function ritual(req: Extract<ApiReq, { task: "ritual" }>, out: RitualOut): Ritua
     const suffix = spanish(req)
       ? "La quietud se reúne a tu alrededor."
       : "The stillness gathers around you.";
-    if (count(combined) + count(suffix) <= 110) {
+    if (count(combined) + count(suffix) <= 130) {
       parts[2] = `${parts[2].trim()} ${suffix}`.trim();
     } else {
-      parts[0] = ensureDirect(parts[0], req, 110 - count(parts[1]) - count(parts[2]));
+      parts[0] = ensureDirect(parts[0], req, 130 - count(parts[1]) - count(parts[2]));
     }
   }
   return { ...out, gesture: parts[0], opening: parts[1], ritual: parts[2] };
