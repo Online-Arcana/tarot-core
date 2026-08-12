@@ -1,11 +1,13 @@
 import type {
   ApiOut,
   ApiReq,
+  FitOut,
   HandoverOut,
   ReadingOut,
   RitualOut,
 } from "../contracts/types.js";
 import { attachMedia, isMappedReader, mediaFor } from "../readers/media/runtime.js";
+import { resolveFit } from "../reading/fit.js";
 import { groundedHandoverFacts, handoverSummary } from "../reading/handover.js";
 import { futureLeaks, repairFutureLeaks } from "../reading/reveal.js";
 import { repeatsActiveTarotPreparation } from "./language.js";
@@ -88,6 +90,8 @@ function readingWithCanonicalMedia(
  * Prepare generated prose for deterministic audit without attaching public
  * presentation metadata. Narrator audience normalisation and reveal repair
  * happen here so the full audit sees the exact prose that will be returned.
+ * Fit routing is canonicalised from shared reader data before prose audit so a
+ * model cannot recommend the current reader to themselves or override routing.
  * Handover prose/state is rebuilt from the canonical conversation. The model
  * may contribute only exact transcript-grounded facts, so a fluent paraphrase
  * cannot silently change a prior reading. Mapped reveal repair uses a temporary
@@ -98,6 +102,14 @@ export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): Finalisatio
   let out = stripPresentation(req, value);
   assertHiddenRitualState(req, out);
   assertRitualPreparationContinuity(req, out);
+
+  if (req.task === "fit") {
+    const resolved = resolveFit(req.reader, req.question, req.lang, out as FitOut);
+    if (resolved !== null) {
+      if (serial(resolved) !== serial(out)) diagnostics.push("fit_routing_canonicalised");
+      out = resolved;
+    }
+  }
 
   const beforeAudience = serial(out);
   out = normaliseAudience(req, out);
