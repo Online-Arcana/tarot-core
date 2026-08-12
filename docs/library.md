@@ -36,6 +36,8 @@ if (!req) throw new Error("Invalid request");
 
 That means legacy/browser descriptive fields are accepted for protocol compatibility but are not trusted as semantic input.
 
+Use `parseReq` for unknown JSON from HTTP, files or persistence. Direct typed callers do not need to call it solely to replace semantic prose: `runModelSession` and the public `modelPrompt` helper independently canonicalise `ApiReq` card/spread state before the model boundary. This is deliberately redundant so bypassing transport parsing cannot make caller-authored meanings authoritative.
+
 ## Run a structured model task
 
 ```ts
@@ -57,13 +59,14 @@ console.log(result.out, result.source, result.auditErrors);
 
 The model layer:
 
-1. constructs the shared bilingual prompt from core-owned contracts/persona/media data
-2. requests a task-specific strict structured schema
-3. retries parse/shape failure within the configured retry budget
-4. finalises and deterministically audits the primary candidate
-5. uses constrained escalation or the minimal Spanish narrator correction lane when applicable
-6. performs audited deterministic reconstruction when `guaranteeOutput` is enabled and both generated stages fail
-7. returns provenance through `source`, model names and `auditErrors`
+1. canonicalises typed request semantics from stable IDs
+2. constructs the shared bilingual prompt from core-owned contracts/persona/media data
+3. requests a task-specific strict structured schema
+4. retries parse/shape failure within the configured retry budget
+5. finalises and deterministically audits the primary candidate
+6. uses constrained escalation or the minimal Spanish narrator correction lane when applicable
+7. performs audited deterministic reconstruction when `guaranteeOutput` is enabled and both generated stages fail
+8. returns provenance through `source`, model names and `auditErrors`
 
 `runModel` is the convenience form when the caller needs only `ApiOut`. `runModelSession` is preferred when provenance or managed OpenAI conversation state matters.
 
