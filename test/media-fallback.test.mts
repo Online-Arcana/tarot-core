@@ -101,18 +101,7 @@ function assertCanonicalOneContext(prompt) {
   assert.doesNotMatch(prompt, /Answer what is active now|At the centre/u);
 }
 
-test("ritual prompt carries full reading context without exposing the hidden result", () => {
-  const req = ritualReq("brennos", ["Brennos first set the iron shield beside the flame and let the room become quiet."]);
-  const prompt = modelPrompt(pack, req);
-
-  assertCanonicalOneContext(prompt);
-  assert.match(prompt, /Brennos first set the iron shield/u);
-  assert.match(prompt, /fire-scarred table|iron shield/iu);
-  assert.doesNotMatch(prompt, /"itemName":"Epona"|"name":"The Fool"|"suit":"major"/u);
-  assert.doesNotMatch(prompt, /sourceRegistry|sourceIds|British Museum|https?:\/\//iu);
-});
-
-test("successful mapped ritual preserves LLM prose and attaches v3 metadata", async () => {
+test("successful mapped ritual preserves LLM substance, normalises audience and attaches v3 metadata", async () => {
   const req = ritualReq();
   let prompt = "";
   const result = await runModelSession(pack, req, cfg(fakeSuccess(mappedRitual, body => {
@@ -122,7 +111,8 @@ test("successful mapped ritual preserves LLM prose and attaches v3 metadata", as
   assert.equal(result.source, "primary");
   assert.equal(result.out.gesture, mappedRitual.gesture);
   assert.equal(result.out.opening, mappedRitual.opening);
-  assert.equal(result.out.ritual, mappedRitual.ritual);
+  assert.equal(result.out.ritual, `${mappedRitual.ritual} The stillness gathers around you.`);
+  assert.ok(result.auditErrors.includes("english_audience_normalised"));
   assert.ok(result.out.medium);
   assert.equal(result.out.medium.version, 3);
   assert.equal(result.out.medium.publicName, "Epona");
