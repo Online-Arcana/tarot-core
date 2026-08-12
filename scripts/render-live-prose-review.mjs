@@ -4,6 +4,9 @@ import { join } from "node:path";
 const inputDir = process.env.MATRIX_INPUT_DIR?.trim() || "reports/live-prose";
 const output = process.env.MATRIX_REVIEW_MD?.trim() || "reports/live-prose-review.md";
 
+const deck = JSON.parse(await readFile("src/data/deck.json", "utf8"));
+const cardsById = new Map((deck.cards ?? []).map(card => [card.id, card]));
+
 const files = (await readdir(inputDir)).filter(name => name.endsWith(".json")).sort();
 const reports = [];
 for (const name of files) {
@@ -15,6 +18,15 @@ const clean = value => String(value ?? "").replaceAll("```", "` ` `").trim();
 const field = (title, value) => value === undefined || value === null || value === ""
   ? ""
   : `\n**${title}**\n\n${clean(value)}\n`;
+
+function canonicalDrawReference(draw, lang) {
+  const key = String(lang).toLowerCase().startsWith("es") ? "es" : "en";
+  return (draw ?? []).map(item => {
+    const card = cardsById.get(item.id);
+    const name = card?.[key]?.name ?? item.id;
+    return `${item.position}. ${name} [${item.id}; ${item.side}]`;
+  }).join("\n");
+}
 
 function taskBlock(title, task) {
   if (!task) return "";
@@ -47,12 +59,13 @@ function taskBlock(title, task) {
   }
 }
 
-let markdown = "# Live prose human-review pack\n\nThis file contains the accepted final prose from the paid 80-reading matrix. Review naturalness, reader voice, narrator/reader ownership, Spanish grammar, mapped-medium language and cultural appropriateness. Automated audit success is not cultural approval.\n";
+let markdown = "# Live prose human-review pack\n\nThis file contains the accepted final prose from the paid 80-reading matrix. Review naturalness, reader voice, narrator/reader ownership, Spanish grammar, mapped-medium language and cultural appropriateness. Automated audit success is not cultural approval. For mapped readers, compare the generated prose with the clearly marked internal canonical draw reference and flag any canonical card identity that leaks into visible prose without being justified by the user's own question.\n";
 
 for (const report of reports) {
   markdown += `\n# ${report.reader} · ${report.lang}\n\nTested commit: \`${clean(report.commit ?? "MISSING")}\`\n`;
   for (const spread of report.spreads) {
     markdown += `\n## ${spread.spread}\n`;
+    markdown += field("Internal canonical draw reference — review only, not public output", canonicalDrawReference(spread.draw, report.lang));
     markdown += taskBlock("Invite", spread.tasks.invite);
     markdown += taskBlock("Fit", spread.tasks.fit);
     for (let index = 0; index < (spread.tasks.rituals?.length ?? 0); index += 1) markdown += taskBlock(`Ritual ${index + 1}`, spread.tasks.rituals[index]);
