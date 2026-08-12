@@ -79,7 +79,7 @@ function voiceContract(req: ApiReq): string {
       `Cuando haga falta, establece primero a ${name} como sujeto mediante su nombre o el pronombre configurado. Una vez que el sujeto sea inequívoco, usa con naturalidad el sujeto omitido propio del español.`,
       `No repitas ${name} ni su pronombre en cada oración. Tampoco sustituyas su identidad por etiquetas genéricas como «el lector», «la lectora» o «la persona lectora».`,
       "El narrador nunca habla en primera persona y no usa yo, me, mí, conmigo, mi, mis, nosotros, nosotras, nos, nuestro ni nuestra para sí mismo.",
-      "En los campos del narrador, no uses el nombre propio de la persona consultante. Dirígete a ella mediante tuteo natural cuando la gramática lo requiera: tú, te, ti, contigo, tu o tus.",
+      "En los campos del narrador, no uses el nombre propio ni etiquetas genéricas para la persona consultante como «la persona consultante», «el consultante» o «la consultante». Dirígete a ella mediante tuteo natural cuando la gramática lo requiera: tú, te, ti, contigo, tu o tus.",
       `TAROTISTA: ${name} habla directamente a la persona consultante. En su propio diálogo no se refiere a sí mismo por su nombre ni mediante pronombres de tercera persona. Cuando necesite autorreferencia, usa la primera persona natural.`,
       "Los campos del narrador contienen solo prosa de escena. Los campos del tarotista contienen solo diálogo hablado.",
       "No añadas comillas, nombres de hablante, encabezados ni acotaciones dentro de ninguna de las dos voces.",
@@ -92,6 +92,7 @@ function voiceContract(req: ApiReq): string {
     `Establish ${name} clearly as the acting subject before any omission could become ambiguous.`,
     `Do not replace ${name} with generic labels such as "the reader" or "the tarot reader" in visible narrator prose.`,
     "The narrator never uses I, me, my, myself, we, us, our or ourselves for itself.",
+    "In narrator fields, do not use the querent's proper name or generic labels such as \"the querent\". Address the person naturally as you or your.",
     `READER: ${name} speaks directly to the querent. Reader dialogue never uses ${name}'s name or third-person pronouns to refer to ${name}. When self-reference is needed, use natural first person.`,
     "Narrator fields contain scene prose only. Reader fields contain spoken dialogue only.",
     "Do not put quotation marks, speaker labels, headings or stage directions inside either voice.",
@@ -203,7 +204,7 @@ function taskContract(req: ApiReq): string {
         "Si existe escena anterior, continúa desde ella sin repetir su redacción, estructura ni preparación inicial.",
         "gesture, opening y ritual pertenecen exclusivamente al narrador en tercera persona.",
         "El narrador no usa primera persona, no habla como el tarotista, no informa del cumplimiento de reglas y no describe estado interno de la aplicación.",
-        "La suma de gesture, opening y ritual debe tener entre 36 y 110 palabras, leerse de forma continua como un párrafo y terminar con una oración completa.",
+        "La suma de gesture, opening y ritual debe tener entre 36 y 130 palabras, leerse de forma continua como un párrafo y terminar con una oración completa.",
         "No truncues el párrafo ni termines con puntos suspensivos.",
         "No nombres, insinúes, interpretes ni predigas el resultado oculto.",
         "No finjas que el resultado oculto ya ha sido identificado, interpretado o colocado.",
@@ -214,7 +215,7 @@ function taskContract(req: ApiReq): string {
         "When prior theatre exists, continue from it without repeating its wording, structure or initial preparation.",
         "gesture, opening and ritual belong exclusively to the third-person narrator.",
         "The narrator does not use first person, speak as the reader, report rule compliance or describe internal application state.",
-        "The combined gesture, opening and ritual fields must contain 36 to 110 words, read continuously as one paragraph and end with a complete sentence.",
+        "The combined gesture, opening and ritual fields must contain 36 to 130 words, read continuously as one paragraph and end with a complete sentence.",
         "Do not truncate the paragraph or end with an ellipsis.",
         "Do not name, imply, interpret or predict the hidden result.",
         "Do not pretend the hidden result has already been identified, interpreted or placed.",
@@ -327,8 +328,8 @@ function taskContract(req: ApiReq): string {
       ]).join("\n");
     case "return":
       return es
-        ? "Reconoce con naturalidad y en la voz directa del tarotista que ya conocía a esta persona y que otros tarotistas participaron después. Usa un solo párrafo breve y mantén la terminología pública del medio cuando corresponda."
-        : "Acknowledge naturally in the reader's direct voice that this reader has met the querent before and other readers participated afterwards. Use one short paragraph and keep to the public medium terminology where applicable.";
+        ? "Reconoce con naturalidad y en la voz directa del tarotista que ya conocía a esta persona y que otros tarotistas participaron después. Devuelve un solo párrafo sin saltos de línea, de no más de 95 palabras, y mantén la terminología pública del medio cuando corresponda."
+        : "Acknowledge naturally in the reader's direct voice that this reader has met the querent before and other readers participated afterwards. Return one paragraph with no line breaks and no more than 95 words, and keep to the public medium terminology where applicable.";
   }
 }
 
