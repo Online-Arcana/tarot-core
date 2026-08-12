@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { canonicalCardAt, canonicalSpread } from "../dist/domain/canonical.js";
 import { auditModelOut } from "../dist/model/audit.js";
 import { modelPrompt } from "../dist/model/run.js";
 
@@ -7,6 +8,36 @@ const pack = { prompt: { reading: "legacy", chat: "legacy" } };
 
 function base(task, reader = "amaru", lang = "en-GB") {
   return { task, lang, reader, name: "Alex", history: [] };
+}
+
+function titleReq() {
+  const spread = canonicalSpread("one", "en-GB");
+  const draw = {
+    id: spread.id,
+    name: spread.name,
+    purpose: spread.purpose,
+    cards: [canonicalCardAt("major-fool", "upright", 1, spread.id, "en-GB")],
+  };
+  return {
+    ...base("title"),
+    turn: {
+      id: "title-fixture",
+      kind: "reading",
+      at: "2026-08-11T18:00:00.000Z",
+      question: "What should I understand?",
+      draw,
+      out: {
+        gesture: "",
+        opening: "",
+        link: "",
+        cardText: ["Viracocha asks you to meet this beginning with attention before deciding how quickly to move."],
+        synthesis: "This beginning asks you to combine openness with enough care to recognise what is actually changing." ,
+        reading: "You can take a first step while keeping it small enough to revise as the situation becomes clearer around you.",
+        closing: "Move with attention and keep your choices flexible.",
+        note: "Amaru leaves the cord resting beside the vessel.",
+      },
+    },
+  };
 }
 
 function has(audit, code, path) {
@@ -41,7 +72,7 @@ test("mapped fit prose rejects Spanish tarotista language", () => {
 });
 
 test("mapped titles reject canonical tarot-medium language", () => {
-  const req = base("title");
+  const req = titleReq();
   const audit = auditModelOut(
     req,
     { title: "Cards Around a Turning Point" },
