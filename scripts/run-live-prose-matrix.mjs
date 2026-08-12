@@ -41,12 +41,21 @@ async function worker() {
     if (index >= jobs.length) return;
     const job = jobs[index];
     console.log(`\n=== LIVE MATRIX ${index + 1}/${jobs.length}: ${job.reader} ${job.lang} ===\n`);
+    const startedAt = Date.now();
+    const heartbeat = setInterval(() => {
+      const seconds = Math.max(0, Math.round((Date.now() - startedAt) / 1000));
+      console.log(`[live] ${job.reader}/${job.lang} still running (${seconds}s elapsed)`);
+    }, 15_000);
+    heartbeat.unref();
     const code = await run(process.execPath, ["scripts/live-prose-matrix.mjs"], {
       ...matrixEnv,
       MATRIX_READER: job.reader,
       MATRIX_LANG: job.lang,
       MATRIX_OUT_DIR: outDir,
     });
+    clearInterval(heartbeat);
+    const seconds = Math.max(0, Math.round((Date.now() - startedAt) / 1000));
+    console.log(`[live] ${job.reader}/${job.lang} ${code === 0 ? "completed" : `exited with code ${code}`} (${seconds}s elapsed)`);
     if (code !== 0) failed = true;
   }
 }
