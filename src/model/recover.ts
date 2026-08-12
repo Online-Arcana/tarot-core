@@ -356,10 +356,10 @@ const reconstructCandidate = (
     case "ritual": {
       const theatre = theatreFrom(
         candidates,
-        ["gesture", "opening", "ritual"],
-        [fallback.ritualGesture, fallback.ritualOpening, fallback.ritual],
+        ["opening", "ritual", "gesture"],
+        [fallback.ritualOpening, fallback.ritual, fallback.ritualGesture],
       );
-      return { gesture: theatre[0], opening: theatre[1], ritual: theatre[2] };
+      return { opening: theatre[0], ritual: theatre[1], gesture: theatre[2] };
     }
     case "read": return read(req, candidates);
     case "chat": return {
@@ -378,7 +378,7 @@ const reconstructCandidate = (
     case "handover": return handover(req, candidates);
     case "return": return {
       text: proseFrom(candidates, "text", fallback.returning, {
-        minWords: 3, maxWords: 80, direct: true,
+        minWords: 3, maxWords: 90, direct: true,
       }, req.lang),
     };
   }
