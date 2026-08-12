@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { meaningfulOverlap, repetitiveProse } from "../dist/model/language.js";
+import { repetitiveProse, repeatsActiveTarotPreparation } from "../dist/model/language.js";
 import { narrowCorrectionPrompt } from "../dist/model/narrow-correction.js";
 import { neutralSpanishQuerentIssue } from "../dist/model/querent-language.js";
 
@@ -46,17 +46,17 @@ test("explicit grammatical gender still permits matching Spanish agreement", () 
 test("one repeated active tarot-preparation action is enough to identify a scene reset", () => {
   const firstWarm = "Selena calienta la baraja entre las palmas y después la deja sobre el terciopelo.";
   const resetWarm = "Sin mostrar la carta, desliza la baraja hacia ti y la calienta nuevamente entre las palmas.";
-  assert.ok(meaningfulOverlap(firstWarm, resetWarm, "es-ES") >= 0.72);
+  assert.equal(repeatsActiveTarotPreparation(firstWarm, resetWarm, "es-ES"), true);
 
   const firstCut = "Selena corta el mazo con un gesto deliberado y deja la carta central oculta.";
   const resetCut = "Apoya la palma sobre la carta central sin descubrirla; vuelve a cortar con un gesto seguro antes de continuar.";
-  assert.ok(meaningfulOverlap(firstCut, resetCut, "es-ES") >= 0.72);
+  assert.equal(repeatsActiveTarotPreparation(firstCut, resetCut, "es-ES"), true);
 });
 
 test("retrospective preparation state remains valid continuity rather than an active reset", () => {
   const first = "Selena calienta la baraja entre las palmas y corta el mazo antes de dejarlo sobre el terciopelo.";
   const continuation = "La baraja sigue tibia tras haberla calentado y cortado; Selena acerca la siguiente carta a su posición sin reiniciar la preparación.";
-  assert.ok(meaningfulOverlap(first, continuation, "es-ES") < 0.72);
+  assert.equal(repeatsActiveTarotPreparation(first, continuation, "es-ES"), false);
 });
 
 test("one ritual cannot repeat its own active warm-and-cut preparation across fields", () => {
