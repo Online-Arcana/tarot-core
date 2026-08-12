@@ -45,6 +45,24 @@ test("Spanish suggestions reject the non-idiomatic información intuible calque"
   assert.ok(audit.issues.some(issue => issue.code === "spanish_language" && issue.path === "suggest.suggestions[1]"));
 });
 
+test("Spanish prose rejects the paid sentirse con claridad calque", () => {
+  const req = { ...base, task: "invite" };
+  const audit = auditModelOut(req, {
+    text: "¿Qué deseas explorar, comprender o expresar en esta lectura para sentirte con más claridad?",
+  });
+  assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "spanish_language" && issue.path === "invite.text"));
+});
+
+test("Spanish continuation rejects the redundant exploremos contigo phrasing", () => {
+  const req = { ...base, task: "continue" };
+  const audit = auditModelOut(req, {
+    text: "¿Quieres que exploremos contigo cuál paso concreto dar ahora para que nazca del deseo y no del miedo?",
+  });
+  assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "spanish_language" && issue.path === "continue.text"));
+});
+
 test("follow-up theatre cannot cut or reshuffle the completed tarot reading", () => {
   const req = { ...base, task: "chat" };
   const audit = auditModelOut(req, {
