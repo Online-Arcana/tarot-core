@@ -7,6 +7,7 @@ import type {
   RitualOut,
 } from "../contracts/types.js";
 import { attachMedia, mediaFor } from "../readers/media/runtime.js";
+import { resolveFit } from "../reading/fit.js";
 import { futureNameInText, futureResultNames } from "../reading/reveal.js";
 import { auditModelOut, words } from "./audit.js";
 import { fallbackFor } from "./fallback.js";
@@ -250,16 +251,28 @@ const fit = (
 ): FitOut => {
   const fallback = fallbackFor(req.lang, req.reader);
   const candidate = [...candidates].reverse().find((value) => value !== undefined && "level" in value) as FitOut | undefined;
-  return {
+  const semanticBase: FitOut = {
     level: candidate?.level ?? "acceptable",
     topic: candidate?.topic ?? "identity",
     recommend: candidate?.recommend ?? null,
-    reason: proseFrom(candidates, "reason", fallback.fitReason, {
+    reason: fallback.fitReason,
+    offer: fallback.fitOffer,
+  };
+  const canonical = resolveFit(req.reader, req.question, req.lang, semanticBase) ?? semanticBase;
+  const output: FitOut = {
+    ...canonical,
+    reason: proseFrom(candidates, "reason", canonical.reason || fallback.fitReason, {
       minWords: 2, maxWords: 32, direct: true, oneSentence: true,
     }, req.lang),
-    offer: proseFrom(candidates, "offer", fallback.fitOffer, {
+    offer: proseFrom(candidates, "offer", canonical.offer || fallback.fitOffer, {
       minWords: 2, maxWords: 32, direct: true, oneSentence: true,
     }, req.lang),
+  };
+  if (auditModelOut(req, output).valid) return output;
+  return {
+    ...canonical,
+    reason: canonical.reason || fallback.fitReason,
+    offer: canonical.offer || fallback.fitOffer,
   };
 };
 
