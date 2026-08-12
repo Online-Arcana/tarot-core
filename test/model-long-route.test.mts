@@ -29,7 +29,7 @@ test("long tasks audit Luna then ask Luna once for a constrained correction", as
       return response({ gesture: "A short gesture.", response: "You can consider the question carefully." });
     }
     return response({
-      gesture: "The reader rests a hand beside the spread and studies the arrangement without rushing you. A quiet pause gives your follow-up question room to settle, while the earlier cards remain visible as context for the answer that follows.",
+      gesture: "Selena rests a hand beside the spread and studies the arrangement without rushing you. A quiet pause gives your follow-up question room to settle, while the earlier cards remain visible as context for the answer that follows.",
       response: "You can return to the clearest pattern in the reading, compare it with what you already know, and decide which practical step deserves your attention first.",
     });
   };
