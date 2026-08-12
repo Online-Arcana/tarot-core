@@ -78,7 +78,7 @@ const mappedReadOut = {
   note: "Amaru deja ambos cordones sobre la piedra frente a Javier y guarda silencio.",
 };
 
-test("core finalisation applies audience immersion only to Spanish narrator fields", () => {
+test("core finalisation applies audience immersion to narrator fields in both languages", () => {
   const spanish = finaliseModelOutDetailed(spanishRitualReq, ritualOut);
   const theatre = `${spanish.out.gesture} ${spanish.out.opening} ${spanish.out.ritual}`;
   assert.doesNotMatch(theatre, /Javier/u);
@@ -87,13 +87,15 @@ test("core finalisation applies audience immersion only to Spanish narrator fiel
 
   const englishReq = { ...spanishRitualReq, lang: "en-GB", question: "What is changing?" };
   const englishOut = {
-    gesture: "Selena looks towards Javier while the candle moves across the table and the room becomes quieter around the question.",
-    opening: "She leaves enough space for the moment to settle before touching the deck again or changing the arrangement.",
-    ritual: "The next result stays covered while Selena watches Javier and waits for every small movement in the room to become still.",
+    gesture: "Selena looks towards Javier while the candle moves across Javier's side of the table and the room becomes quieter around the question.",
+    opening: "She leaves enough space for Javier to settle before touching the deck again or changing the arrangement.",
+    ritual: "The next result stays covered while Selena watches Javier and waits for every small movement around Javier to become still.",
   };
   const english = finaliseModelOutDetailed(englishReq, englishOut);
-  assert.match(`${english.out.gesture} ${english.out.opening} ${english.out.ritual}`, /Javier/u);
-  assert.doesNotMatch(english.diagnostics.join(" "), /audience/iu);
+  const englishTheatre = `${english.out.gesture} ${english.out.opening} ${english.out.ritual}`;
+  assert.doesNotMatch(englishTheatre, /Javier/u);
+  assert.match(englishTheatre, /\byou\b|\byour\b/u);
+  assert.ok(english.diagnostics.includes("english_audience_normalised"));
 });
 
 test("pre-audit preparation repairs prose without retaining presentation metadata", () => {
