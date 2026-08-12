@@ -97,7 +97,7 @@ function explicitTarotPreparationReset(value: string, code: LangCode): boolean {
   const action = "(?:warm(?:s|ing)?|rub(?:s|bing)?|heat(?:s|ing)?|shuffle(?:s|ing)?|mix(?:es|ing)?|cut(?:s|ting)?)";
   const marker = "(?:again|once\\s+more)";
   const reset = [
-    `${marker}\\s+(?:(?:she|he|they|Selena)\\s+)?${action}`,
+    `${marker}\\s+(?:(?:she|he|they)\\s+)?${action}`,
     `${action}\\s+${marker}`,
     `${action}\\s+(?:(?:the\\s+)?${tarotObject}|it)\\s+${marker}`,
     `(?:makes?|performs?)\\s+(?:another|a\\s+second)\\s+(?:cut|shuffle)`,
