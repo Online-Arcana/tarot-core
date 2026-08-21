@@ -4,9 +4,11 @@ import {
   RESERVE_VARIANTS_PER_BUCKET,
   allowedReserveSlot,
   chooseReserveVariant,
+  findReserveBucket,
   renderReserveVariant,
   reserveSlots,
   validateReserveBucket,
+  validateReserveCorpus,
 } from "../dist/model/reserve-corpus.js";
 
 function bucket(count = RESERVE_VARIANTS_PER_BUCKET) {
@@ -72,6 +74,69 @@ test("reserve selection is reproducible for one context but varies across contex
 
   const ids = new Set(Array.from({ length: 64 }, (_, index) => chooseReserveVariant(source, `context-${index}`).id));
   assert.ok(ids.size > 1, "different deterministic contexts should exercise more than one authored variant");
+});
+
+test("reserve lookup prefers explicit context and never fuzzily crosses reader or language", () => {
+  const general = bucket();
+  general.key = {
+    reader: "selena",
+    lang: "en-GB",
+    task: "ritual",
+    spread: "any",
+    position: "any",
+    phase: "any",
+    gender: "any",
+  };
+  general.variants = general.variants.map((variant, index) => ({ ...variant, id: `general-${index + 1}` }));
+  const specific = bucket();
+  const corpus = { version: 1, buckets: [general, specific] };
+  assert.equal(validateReserveCorpus(corpus).length, 0);
+
+  const found = findReserveBucket(corpus, {
+    reader: "selena",
+    lang: "en-GB",
+    task: "ritual",
+    spread: "one",
+    position: 1,
+    phase: "opening",
+    gender: "woman",
+  });
+  assert.equal(found, specific);
+  assert.equal(findReserveBucket(corpus, {
+    reader: "mictli",
+    lang: "en-GB",
+    task: "ritual",
+    spread: "one",
+    position: 1,
+    phase: "opening",
+  }), null);
+  assert.equal(findReserveBucket(corpus, {
+    reader: "selena",
+    lang: "es-ES",
+    task: "ritual",
+    spread: "one",
+    position: 1,
+    phase: "opening",
+  }), null);
+});
+
+test("ambiguous equally specific reserve buckets fail instead of choosing arbitrarily", () => {
+  const first = bucket();
+  const second = bucket();
+  second.variants = second.variants.map((variant, index) => ({ ...variant, id: `duplicate-context-${index + 1}` }));
+  const corpus = { version: 1, buckets: [first, second] };
+  assert.ok(validateReserveCorpus(corpus).some(error => /duplicate reserve bucket/u.test(error)));
+  assert.throws(
+    () => findReserveBucket(corpus, {
+      reader: "selena",
+      lang: "en-GB",
+      task: "ritual",
+      spread: "one",
+      position: 1,
+      phase: "opening",
+    }),
+    /ambiguous deterministic reserve bucket/u,
+  );
 });
 
 test("reserve rendering fails closed when an authored slot has no runtime value", () => {
