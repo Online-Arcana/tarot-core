@@ -5,7 +5,7 @@ import {
   canonicalCardIds,
   canonicalSpread,
 } from "../dist/domain/canonical.js";
-import { auditModelOut } from "../dist/model/audit.js";
+import { contextualAuditModelOut } from "../dist/model/contextual-audit.js";
 import { finaliseModelOutDetailed } from "../dist/model/finalise.js";
 import { modelPayload } from "../dist/model/prompt.js";
 import { reconstructModelOutDetailed } from "../dist/model/recover.js";
@@ -139,6 +139,23 @@ function countIssue(issue) {
   if (issue.code === "duplicate" || issue.code === "repetitive" || issue.code === "theatre_repetitive" || issue.code === "ritual_reuse") report.summary.repetitionIssues += 1;
 }
 
+function semanticCallCount(result) {
+  let expected = 1;
+  const diagnostics = result.auditErrors;
+  if (diagnostics.some(value => value.startsWith("atomic_review:") || value.startsWith("atomic_review_exception:"))) expected += 1;
+  if (diagnostics.some(value => value.includes("broad_correction"))) expected += 1;
+  if (diagnostics.some(value => value.startsWith("contextual_review:") || value === "delivery_path:contextual_atomic_revision")) expected += 1;
+  return expected;
+}
+
+function usedAtomicRevision(result) {
+  return result.auditErrors.some(value =>
+    value === "delivery_path:atomic_revision" ||
+    value === "delivery_path:contextual_atomic_revision" ||
+    value.startsWith("atomic_review:edits:") ||
+    value.startsWith("contextual_review:edits:"));
+}
+
 async function runTask(label, req) {
   currentTask = label;
   const networkStart = report.network.length;
@@ -153,9 +170,8 @@ async function runTask(label, req) {
       body: bodyFor(req.task),
     });
     const calls = report.network.slice(networkStart);
-    const expectedCalls = (result.source === "primary" ? 1 : 2) + 1;
-    const retries = Math.max(0, calls.length - expectedCalls);
-    const audit = auditModelOut(req, result.out);
+    const retries = Math.max(0, calls.length - semanticCallCount(result));
+    const audit = contextualAuditModelOut(req, result.out);
 
     report.summary.tasks += 1;
     report.summary[result.source] += 1;
@@ -164,7 +180,7 @@ async function runTask(label, req) {
     if (req.task === "read") report.summary.readTasks += 1;
     if (req.task === "handover") report.summary.handoverTasks += 1;
     if (result.auditErrors.includes("emergency_fallback_used")) report.summary.emergencyFallback += 1;
-    if (result.auditErrors.some(value => value.includes("narrow_spanish_narrator_correction:"))) report.summary.narrowCorrections += 1;
+    if (usedAtomicRevision(result)) report.summary.narrowCorrections += 1;
     for (const issue of audit.issues) countIssue(issue);
     if (!audit.valid) report.summary.placeholderRisk += 1;
 
@@ -245,7 +261,7 @@ function drawFromPlan(plan) {
 function deterministicOut(req, label) {
   const reconstructed = reconstructModelOutDetailed(req, []);
   const out = finaliseModelOutDetailed(req, reconstructed.out).out;
-  const audit = auditModelOut(req, out);
+  const audit = contextualAuditModelOut(req, out);
   if (!audit.valid) throw new Error(`${label}: deterministic seed fixture failed audit: ${audit.errors.join(" | ")}`);
   return out;
 }
