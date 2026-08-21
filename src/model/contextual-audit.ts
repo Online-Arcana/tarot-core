@@ -99,10 +99,15 @@ function fields(req: ApiReq, out: ApiOut): readonly AuditField[] {
   }
 }
 
-function oppositeReaderPronoun(ctx: AuditContext): RegExp {
+function oppositeReaderPronoun(ctx: AuditContext): string {
   const spanish = auditLanguage(ctx.language) === "es";
-  if (spanish) return ctx.reader.gender === "woman" ? /\bél\b/iu : /\bella\b/iu;
-  return ctx.reader.gender === "woman" ? /\bhe\b/iu : /\bshe\b/iu;
+  if (spanish) return ctx.reader.gender === "woman" ? "él" : "ella";
+  return ctx.reader.gender === "woman" ? "he" : "she";
+}
+
+function readerPronounDriftEvidence(ctx: AuditContext, value: string): string | null {
+  const opposite = oppositeReaderPronoun(ctx);
+  return containsWholePhrase(value, opposite, ctx.language) ? opposite : null;
 }
 
 const FEMALE_DIRECT = /\b(?:estás|te\s+sientes|sentirte|encontrarte|verte|notarte|quedarte|mantenerte|hacerte|volverte|dejarte|sigues|quedas|pareces|resultas)\s+(?:más\s+|menos\s+)?(?:preparada|dispuesta|cansada|agotada|lista|segura|tranquila|elegida|vista|acompañada|respaldada|apoyada|atrapada|convencida|confundida|obligada|escuchada|sola|pequeña)\b/iu;
@@ -228,7 +233,7 @@ function contextualFindings(
     const role = auditRole(ctx, field.path);
 
     if (role === "narrator") {
-      const drift = oppositeReaderPronoun(ctx).exec(text)?.[0] ?? null;
+      const drift = readerPronounDriftEvidence(ctx, text);
       if (drift) {
         add(
           issues,
