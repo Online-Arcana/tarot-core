@@ -108,7 +108,7 @@
         {
           "id": "selena-es-ritual-opening-01",
           "fields": {
-            "opening": "La luz de las velas se refleja en los anillos de Selena mientras hace girar uno despacio y deja que tu pregunta se asiente entre ambos sin empujarla hacia una respuesta.",
+            "opening": "La luz de las velas se refleja en los anillos de Selena mientras hace girar uno despacio y deja que tu pregunta se asiente en el espacio compartido sin empujarla hacia una respuesta.",
             "ritual": "Calienta la baraja de tarot entre las dos palmas y la deja sobre el terciopelo oscuro, junto a la posición «{{position.name}}», manteniendo oculta la carta siguiente.",
             "gesture": "Selena sostiene tu mirada un instante antes de bajar los ojos hacia la baraja, dejando suficiente silencio para que la revelación llegue a su debido momento."
           }
@@ -156,7 +156,7 @@
         {
           "id": "selena-es-ritual-opening-07",
           "fields": {
-            "opening": "La llama se refleja en los anillos de Selena mientras mantiene las manos quietas durante un momento y deja que tu pregunta ocupe el espacio silencioso entre los dos.",
+            "opening": "La llama se refleja en los anillos de Selena mientras mantiene las manos quietas durante un momento y deja que tu pregunta ocupe el espacio silencioso sobre la mesa.",
             "ritual": "Calienta la baraja de tarot, la corta una vez con mano firme y la coloca junto a la posición «{{position.name}}», con la carta siguiente todavía completamente oculta.",
             "gesture": "Selena inclina ligeramente la cabeza, como si percibiera una vacilación, pero no la interrumpe y te deja espacio mientras el terciopelo y la luz cálida sostienen la escena."
           }
@@ -172,7 +172,7 @@
         {
           "id": "selena-es-ritual-opening-09",
           "fields": {
-            "opening": "La luz de las velas se reúne sobre el paño oscuro mientras Selena escucha sin llenar la pausa, con el pulgar recorriendo lentamente un anillo y tu pregunta clara entre ambos.",
+            "opening": "La luz de las velas se reúne sobre el paño oscuro mientras Selena escucha sin llenar la pausa, con el pulgar recorriendo lentamente un anillo y tu pregunta clara en el espacio compartido.",
             "ritual": "Toma la baraja de tarot entre las dos manos, la calienta y la corta una vez junto a la posición «{{position.name}}», conservando la carta oculta tal como ha quedado.",
             "gesture": "Selena se acerca un poco, como reconociendo el peso del momento, y después vuelve a dejarte espacio para que la revelación pueda hablar por sí misma."
           }
