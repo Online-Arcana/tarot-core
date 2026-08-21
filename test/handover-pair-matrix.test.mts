@@ -38,7 +38,7 @@ function oneCardDraw(lang) {
 function readingFixture(reader, lang) {
   const q = question(lang);
   const draw = oneCardDraw(lang);
-  const base = { lang, reader, name: "Javier", history: [] };
+  const base = { lang, reader, name: "Alex", history: [] };
   const ritualReq = {
     ...base,
     task: "ritual",
@@ -80,7 +80,7 @@ for (const lang of languages) {
       const sourceFixture = fixtures.get(source);
       assert.ok(sourceFixture);
       const { q, draw, turn } = sourceFixture;
-      const name = "Javier";
+      const name = "Alex";
       const base = { lang, reader: source, name, history: [] };
       const trail = {
         id: `${source}-${lang}-trail`,
