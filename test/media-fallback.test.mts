@@ -22,7 +22,7 @@ const card = {
 const draw = { id: "one", name: "One", purpose: "Answer what is active now", cards: [card] };
 
 function base(task, reader = "brennos") {
-  return { task, lang: "en-GB", reader, name: "Javi", history: [] };
+  return { task, lang: "en-GB", reader, name: "Alex", history: [] };
 }
 
 function ritualReq(reader = "brennos", priorRituals = []) {
