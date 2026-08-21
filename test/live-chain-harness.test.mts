@@ -44,6 +44,19 @@ test("chain returns from Mictli to Selena without paying for another Selena read
   assert.match(worker, /targetReader: "brennos"/u);
 });
 
+test("chained paid reports use the same contextual audit contract as production", () => {
+  assert.match(worker, /contextualAuditModelOut/u);
+  assert.doesNotMatch(worker, /from "\.\.\/dist\/model\/audit\.js"/u);
+  assert.match(worker, /delivery_path:contextual_atomic_revision/u);
+  assert.match(worker, /delivery_path:atomic_revision/u);
+  assert.doesNotMatch(worker, /narrow_spanish_narrator_correction/u);
+});
+
+test("chained retry accounting separates semantic repair calls from transport retries", () => {
+  assert.match(worker, /function semanticCallCount\(result\)/u);
+  assert.match(worker, /Math\.max\(0, calls\.length - semanticCallCount\(result\)\)/u);
+});
+
 test("bilingual chain uses one seed and compares identical reader plans", () => {
   assert.match(runner, /\["en-GB", "es-ES"\]/u);
   assert.match(runner, /CHAIN_SEED/u);
