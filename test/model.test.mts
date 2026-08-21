@@ -10,7 +10,6 @@ import {
   runModelSession,
 } from "../dist/model/run.js";
 import { auditModelOut } from "../dist/model/audit.js";
-import { canonicalCardAt, canonicalSpread } from "../dist/domain/canonical.js";
 
 const pack = {
   meta: { code: "en-GB", name: "English", flag: "gb", dir: "ltr" },
@@ -20,51 +19,18 @@ const req = {
   task: "invite",
   lang: "en-GB",
   reader: "selena",
-  name: "Kitty",
+  name: "Alex",
   history: [],
 };
 
-const response = (value) => new Response(JSON.stringify({ output_text: JSON.stringify(value) }), {
+const response = value => new Response(JSON.stringify({ output_text: JSON.stringify(value) }), {
   status: 200,
   headers: { "content-type": "application/json" },
 });
 
-const recoverySpread = canonicalSpread("one", "en-GB");
-const recoveryCard = canonicalCardAt("major-fool", "upright", 1, recoverySpread.id, "en-GB");
-const recoveryReq = {
-  task: "read",
-  lang: "en-GB",
-  reader: "selena",
-  name: "the reader",
-  history: [],
-  question: "What should I understand about this change?",
-  draw: {
-    id: recoverySpread.id,
-    name: recoverySpread.name,
-    purpose: recoverySpread.purpose,
-    cards: [recoveryCard],
-  },
-  ritualTheatre: [],
-};
-const badReading = {
-  gesture: "",
-  opening: "",
-  link: "",
-  cardText: ["This is too brief."],
-  synthesis: "This is too brief.",
-  reading: "This is too brief.",
-  closing: "This is too brief.",
-  note: "Still.",
-};
-const goodReading = {
-  gesture: "",
-  opening: "",
-  link: "",
-  cardText: ["You encounter this beginning as an invitation to recognise movement without treating uncertainty as a reason to stop."],
-  synthesis: "You can hold the beginning and the uncertainty together while deciding what evidence matters most to your next step.",
-  reading: "You can move carefully without demanding certainty, testing the opportunity against your circumstances and keeping the next decision small enough to revise if new information changes the picture.",
-  closing: "You can keep the next step deliberate and reversible.",
-  note: "Selena leaves the card in place while the room settles around you.",
+const cleanInvite = { text: "Tell me what you want to explore, and I will listen." };
+const longInvite = {
+  text: "Tell me what you want to explore today, and I will stay with your question carefully while we make enough room for every uncertainty to become visible before the reading begins.",
 };
 
 test("builds a strict shape without embedding application routing", () => {
@@ -113,12 +79,12 @@ test("normalises reasoning effort for supported model contracts", () => {
   assert.deepEqual(modelRequestBody("gpt-5.6-luna", requestedMedium).reasoning, { effort: "medium" });
 });
 
-test("uses Luna cheap effort for normal customer-visible generation", async () => {
+test("uses Luna cheap effort for clean customer-visible generation", async () => {
   const calls = [];
   const fetch = async (url, init) => {
     const body = JSON.parse(init.body);
     calls.push({ url: String(url), body });
-    return response({ text: "Speak, and I will listen." });
+    return response(cleanInvite);
   };
 
   const result = await runModelSession(pack, req, {
@@ -129,18 +95,50 @@ test("uses Luna cheap effort for normal customer-visible generation", async () =
     body: { store: false, reasoning: { effort: "high" }, max_output_tokens: 120 },
   });
 
-  assert.equal(result.out.text, "Speak, and I will listen.");
+  assert.deepEqual(result.out, cleanInvite);
   assert.equal(result.source, "primary");
   assert.equal(calls.length, 1);
   assert.equal(calls[0].body.model, "gpt-5.6-luna");
   assert.equal(calls[0].body.reasoning.effort, "none");
+  assert.ok(result.auditErrors.includes("delivery_path:primary_clean"));
 });
 
-test("uses contextual deterministic reconstruction before another model call", async () => {
+test("non-local prose findings use one medium corrective generation before delivery", async () => {
+  const calls = [];
+  const replies = [longInvite, cleanInvite];
+  const fetch = async (_url, init) => {
+    const body = JSON.parse(init.body);
+    calls.push(body);
+    const next = replies.shift();
+    if (next === undefined) throw new Error("unexpected extra model call");
+    return response(next);
+  };
+
+  assert.equal(auditModelOut(req, longInvite).valid, false);
+  const result = await runModelSession(pack, req, {
+    apiKey: "test",
+    conversation: false,
+    fetch,
+    guaranteeOutput: true,
+    retries: 0,
+    body: {},
+  });
+
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls.map(call => call.model), ["gpt-5.6-luna", "gpt-5.6-luna"]);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "medium"]);
+  assert.match(calls[1].input[0].content, /previous attempt did not pass deterministic validation/iu);
+  assert.equal(result.source, "escalation");
+  assert.deepEqual(result.out, cleanInvite);
+  assert.ok(result.auditErrors.includes("delivery_path:broad_correction"));
+});
+
+test("imperfect usable LLM prose is delivered instead of deterministic prose", async () => {
   const calls = [];
   const fetch = async (_url, init) => {
-    calls.push(JSON.parse(init.body));
-    return response({ text: Array.from({ length: 30 }, () => "word").join(" ") });
+    const body = JSON.parse(init.body);
+    calls.push(body);
+    return response(longInvite);
   };
 
   const result = await runModelSession(pack, req, {
@@ -148,75 +146,38 @@ test("uses contextual deterministic reconstruction before another model call", a
     conversation: false,
     fetch,
     guaranteeOutput: true,
+    retries: 0,
     body: {},
   });
 
-  assert.equal(result.source, "reconstructed");
-  assert.equal(auditModelOut(req, result.out).valid, true);
-  assert.match(result.out.text, /desire|heart|want|feel|longing/iu);
-  assert.doesNotMatch(result.out.text, /the reader|generic/iu);
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].model, "gpt-5.6-luna");
-  assert.equal(calls[0].reasoning.effort, "none");
-});
-
-test("uses Luna cheap repair only after contextual reconstruction also fails audit", async () => {
-  const calls = [];
-  const fetch = async (_url, init) => {
-    const body = JSON.parse(init.body);
-    calls.push(body);
-    return response(calls.length === 1 ? badReading : goodReading);
-  };
-
-  const result = await runModelSession(pack, recoveryReq, {
-    apiKey: "test",
-    conversation: false,
-    fetch,
-    guaranteeOutput: true,
-    body: { store: false, max_output_tokens: 1400 },
-  });
-
-  assert.equal(result.source, "escalation");
-  assert.equal(auditModelOut(recoveryReq, result.out).valid, true);
   assert.equal(calls.length, 2);
-  assert.ok(calls.every(call => call.model === "gpt-5.6-luna"));
-  assert.ok(calls.every(call => call.reasoning.effort === "none"));
-  assert.match(calls[1].input[0].content, /previous attempt did not pass deterministic validation/iu);
-  assert.match(calls[1].input[0].content, /I’ll leave you with this/iu);
-  assert.match(calls[1].input[0].content, /What should I understand about this change\?/u);
-  assert.ok(result.auditErrors.includes("recovery_path:luna_cheap_repair"));
+  assert.equal(result.source, "primary");
+  assert.deepEqual(result.out, longInvite);
+  assert.equal(auditModelOut(req, result.out).valid, false);
+  assert.ok(result.auditErrors.includes("delivery_path:imperfect_llm"));
+  assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
 });
 
-test("uses Luna medium as terminal recovery and performs no audit afterwards", async () => {
+test("deterministic reserve is an availability path only when no usable model candidate exists", async () => {
   const calls = [];
-  const terminal = { ...goodReading, closing: "You can keep this in view" };
   const fetch = async (_url, init) => {
-    const body = JSON.parse(init.body);
-    calls.push(body);
-    if (calls.length === 1) return response(badReading);
-    if (calls.length === 2) return response(badReading);
-    return response(terminal);
+    calls.push(JSON.parse(init.body));
+    throw new Error("model unavailable");
   };
 
-  const result = await runModelSession(pack, recoveryReq, {
+  const result = await runModelSession(pack, req, {
     apiKey: "test",
     conversation: false,
     fetch,
     guaranteeOutput: true,
-    body: { store: false, max_output_tokens: 1400 },
+    retries: 0,
+    body: {},
   });
 
-  assert.equal(result.source, "escalation");
-  assert.equal(calls.length, 3);
-  assert.deepEqual(calls.map(call => call.model), ["gpt-5.6-luna", "gpt-5.6-luna", "gpt-5.6-luna"]);
-  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "none", "medium"]);
-  assert.match(calls[2].input[0].content, /TERMINAL PROSE RECOVERY/u);
-  assert.match(calls[2].input[0].content, /Deterministic candidate:/u);
-  assert.match(calls[2].input[0].content, /Cheap Luna candidate:/u);
-  assert.match(calls[2].input[0].content, /What should I understand about this change\?/u);
-  assert.equal(result.out.closing, terminal.closing);
-  assert.equal(auditModelOut(recoveryReq, result.out).valid, false, "terminal output must be returned without another deterministic audit gate");
-  assert.ok(result.auditErrors.includes("recovery_path:luna_medium_terminal"));
+  assert.equal(calls.length, 2);
+  assert.equal(result.source, "reconstructed");
+  assert.ok(result.out.text.trim().length > 0);
+  assert.ok(result.auditErrors.some(value => value.includes("availability_path:deterministic_reserve")));
 });
 
 test("keeps OpenAI error response details in deterministic failure diagnostics", async () => {
@@ -231,6 +192,7 @@ test("keeps OpenAI error response details in deterministic failure diagnostics",
       apiKey: "test",
       conversation: false,
       fetch,
+      retries: 0,
       body: { reasoning: { effort: "none" } },
     }),
     error => error instanceof ModelOutputError &&
@@ -238,11 +200,11 @@ test("keeps OpenAI error response details in deterministic failure diagnostics",
   );
 });
 
-test("non-guaranteed core callers keep a bounded Luna repair path", async () => {
+test("non-guaranteed core callers keep a bounded Luna correction path", async () => {
   const calls = [];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
-    return response({ text: "broken" });
+    return response(longInvite);
   };
 
   await assert.rejects(
@@ -250,6 +212,7 @@ test("non-guaranteed core callers keep a bounded Luna repair path", async () => 
       apiKey: "test",
       conversation: false,
       fetch,
+      retries: 0,
       body: {},
     }),
     error => error instanceof ModelOutputError &&
@@ -257,15 +220,14 @@ test("non-guaranteed core callers keep a bounded Luna repair path", async () => 
       error.escalationModel === "gpt-5.6-luna",
   );
   assert.equal(calls.length, 2);
-  assert.ok(calls.every(call => call.model === "gpt-5.6-luna"));
-  assert.ok(calls.every(call => call.reasoning.effort === "none"));
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "medium"]);
 });
 
 test("passes an existing conversation id through to openai-schema", async () => {
   let request;
   const fetch = async (_url, init) => {
     request = JSON.parse(init.body);
-    return response({ text: "Speak, and I will listen." });
+    return response(cleanInvite);
   };
 
   await runModel(pack, req, {
