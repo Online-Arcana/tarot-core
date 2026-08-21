@@ -16,8 +16,7 @@ import { auditLanguage, containsWholePhrase } from "./language.js";
 import { auditRole, buildAuditContext, type AuditContext } from "./audit-context.js";
 import {
   contractActionEvidence,
-  mediumObjectEvidence,
-  querentPhysicalActionEvidence,
+  querentMediumActionEvidence,
 } from "./audit-sensors.js";
 import {
   auditModelOut as baseAuditModelOut,
@@ -181,16 +180,14 @@ function ritualFindings(
 
   if (ctx.ritual.actor === "reader") {
     for (const field of ritualFields) {
-      const actionEvidence = querentPhysicalActionEvidence(field.value, ctx.language);
-      if (!actionEvidence) continue;
-      const objectEvidence = mediumObjectEvidence(field.value, ctx.ritual.objects, ctx.language);
-      if (!objectEvidence) continue;
+      const evidence = querentMediumActionEvidence(field.value, ctx.ritual.objects, ctx.language);
+      if (!evidence) continue;
       add(
         issues,
         "invented_participation",
         field.path,
         "the prose appears to assign a reader-operated medium action to the querent",
-        `${actionEvidence} … ${objectEvidence}`,
+        evidence,
         `keep ${ctx.reader.name} as the actor for the configured ${expectedAction} ritual; preserve any unrelated direct address`,
       );
     }
