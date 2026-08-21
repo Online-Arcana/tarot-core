@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { auditModelOut } from "../dist/model/audit.js";
+import { contextualAuditModelOut } from "../dist/model/contextual-audit.js";
 import { ritualParticipation } from "../dist/readers/media/participation.js";
 
 const drawn = {
@@ -20,7 +20,7 @@ function request(reader) {
     task: "ritual",
     lang: "en-GB",
     reader,
-    name: "Javier",
+    name: "Alex",
     history: [],
     question: "What now?",
     spread: "one",
@@ -32,7 +32,7 @@ function request(reader) {
 }
 
 function audit(reader, out) {
-  return auditModelOut(request(reader), out);
+  return contextualAuditModelOut(request(reader), out);
 }
 
 test("ritual participation is loaded from the canonical ritual data", () => {
