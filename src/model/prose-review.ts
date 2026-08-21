@@ -12,6 +12,10 @@ const REVIEWABLE_CODES = new Set([
   "generic_reader",
   "spanish_pronoun_case",
   "spanish_language",
+  "missing_participation",
+  "invented_participation",
+  "repeated_cast",
+  "medium_grounding",
 ]);
 
 const FIXED_PATHS = new Set([
