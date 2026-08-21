@@ -26,7 +26,7 @@ for (const lang of languages) {
         purpose: lang === "es-ES" ? "Centrar la cuestión" : "Focus the question",
         cards: [card],
       };
-      const base = { lang, reader, name: "Javier", history: [] };
+      const base = { lang, reader, name: "Alex", history: [] };
       const ritualReq = {
         ...base,
         task: "ritual",
