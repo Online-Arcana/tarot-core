@@ -1,6 +1,6 @@
 # Testing
 
-The deterministic suite is the release gate for code and data behaviour. It runs without model API calls.
+The normal deterministic suite is the code/data release gate and runs without model API calls.
 
 ```bash
 npm ci
@@ -10,56 +10,105 @@ npm run ci
 `npm run ci` performs:
 
 1. persona/fallback data generation and TypeScript type checking
-2. zero-network syntax checks for the local paid live-test harness
+2. zero-network syntax checks for the local paid-live harness scripts
 3. a clean build
 4. the full Node test suite
 
-The suite covers canonical deck/spread validation, exact request canonicalisation, reader personas, mapped media, ritual participation, prompt language/voice contracts, output schema, deterministic audit, narrow Spanish narrator correction, reconstruction, fallback behaviour, reveal ordering, public metadata, handover/return state, and compatibility with the existing application post-processing.
+The suite covers canonical deck/spread validation, exact request canonicalisation, reader personas, mapped media, ritual participation, prompt language/voice contracts, output schema, base and contextual auditing, atomic prose review, deterministic availability reconstruction, reveal ordering, public metadata, handover/return state and compatibility with the existing application boundary.
 
 Both untrusted wire input and direct typed library requests are covered. `parseReq` proves the HTTP/persistence boundary replaces compatibility prose with canonical semantics, while `canonicaliseApiReq`, public `modelPrompt` and `runModelSession` tests prove a direct caller cannot bypass that trust boundary by constructing an `ApiReq` manually.
 
+## Audit architecture tests
+
+Contextual audit tests are intentionally written as **state pairs**, not only as lists of bad phrases. The same wording is exercised under different requests to prove that the verdict comes from current state rather than a global blacklist.
+
+Examples include:
+
+- a masculine reader pronoun is a drift for Selena but not for Mictli
+- the same masculine Spanish agreement is invalid for a woman querent but valid for a man querent
+- Ngaru and Amaru require querent-operated draws while Brennos/Nahid/Ame use reader-operated actions
+- natural Spanish pro-drop such as `Introduces la mano ... extraes una concha` satisfies the Ngaru contract without an explicit `tú`
+- `Agitas el escudo` is suspicious when Brennos owns the current shield action
+- an unrelated querent hand movement followed by Brennos operating the shield is not treated as the same action
+- opening versus continuation ritual state changes revealed/hidden result context and single-cast rules
+- the package-root `auditModelOut` includes request-context findings that the low-level `model/audit` subpath intentionally does not
+
+The lexical/regex layer has its own bounded sensor tests. A sensor match is not sufficient evidence of a semantic error unless the current `AuditContext` activates the corresponding rule.
+
+## Atomic revision tests
+
+Tests cover both Spanish and English local correction paths. They verify that:
+
+- only affected paths are editable
+- the reviewer receives original prose and current generation context
+- contextual-only review receives compiled audit context plus structured `code`, `path`, `evidence`, `expected` and `repairScope` metadata
+- an exact small patch is merged into the original candidate
+- untouched fields remain byte-for-byte unchanged
+- the revised candidate is re-audited
+- an over-broad/invalid revision is rejected
+- the reviewer may dismiss a heuristic false positive by returning no edits
+- usable LLM prose is preferred over deterministic prose after bounded quality-repair attempts
+- deterministic reconstruction is used only when no usable parsed model candidate exists and guaranteed output is enabled
+
+The primary realistic immersion regression is a querent proper-name leak in narrator prose. The auditor identifies the forbidden reference and the reviewer chooses the natural second-person repair from context. Low-level malformed forms such as invalid Spanish prepositional pronoun case remain useful sensor regressions, but they are not the model architecture’s canonical correction example and are never repaired by a deterministic audience transformer.
+
+## Privacy-safe fixtures
+
+Public tests must not copy user-specific names from development conversations into source fixtures.
+
+`test/privacy-fixtures.test.mts` allows only a small explicit set of invented request identities (`Alex`, `Robin`, `Morgan`, `Sam`, `Taylor`) and fails generically if a request-like test fixture uses another literal name. The failure message deliberately does not echo the rejected value.
+
+When adding a regression from a real incident:
+
+- preserve the technical failure shape
+- replace personal names, account data and other identifying literals with invented fixtures
+- do not use a developer’s public alias as test data merely because it is public elsewhere
+- keep exact user-authored prose only when the wording itself is essential to the regression and contains no identifying information
+
 ## Exhaustive deterministic matrices
 
-The suite includes the following matrix-style gates:
+The suite includes matrix-style gates for:
 
-- all eight readers × both supported languages × all five spreads through deterministic reconstruction/finalisation
+- all eight readers × both supported languages × all five spreads through deterministic availability reconstruction/finalisation
 - all seven mapped readers × every canonical card × both languages through public presentation validation
 - every mapped reader/spread combination audited before presentation metadata is attached
 - every distinct reader handover pair in both languages, followed by a production-style target reading and A → B → A return
-- ten sequential ritual reveals for every reader in both languages
+- ten sequential deterministic ritual reveals for every reader in both languages
 
-The handover matrix uses the real `handoverConv()` state transitions. It verifies receiving/returning conversations begin empty, the trail is correct, canonical card state remains internal, and mapped model input does not leak tarot identity.
+These matrices validate the deterministic reserve corpus and canonical state machinery. They do **not** mean production should choose deterministic prose when a usable model candidate merely has a quality finding.
 
-Mapped-medium enforcement is applied to every user-visible prose family rather than only the main reading dialogue. Ritual narration, read notes, chat gestures/responses, invite, fit, suggestions, continuation, titles and return acknowledgements are all rejected if they fall back into canonical tarot/card vocabulary for a mapped reader. Generic role labels such as `the reader`, `el lector`, `la lectora` and generic `tarotista` wording are rejected from the visible voice paths where they would replace the configured reader identity.
+The handover matrix uses the real `handoverConv()` transitions. It verifies receiving/returning conversations begin empty, trails are correct, canonical card state remains internal and mapped model input does not leak canonical tarot identity.
+
+Mapped-medium structural enforcement spans all user-visible prose families rather than only main reading dialogue. Ritual narration, read notes, chat gestures/responses, invite, fit, suggestions, continuation, titles and returns are checked for public-medium boundaries and generic-role leakage.
 
 ## Specific regression classes
 
-There are explicit tests for the failure classes that triggered this audit, including:
+Important regression families include:
 
-- Spanish `sus` not being misread as second-person address
-- Unicode-safe accented `tú`/`mí` token boundaries
-- malformed generated Spanish such as `para tú` / `con ti`
-- valid `para ti`, `contigo` and `de tú a tú`
-- Spanish narrator first-person leakage (`me`, `mi`, `mis`, `mí`, `conmigo`, `nos`, etc.)
-- conservative name → subject/object/prepositional/possessive audience transformation
-- reader dialogue never passing through narrator audience transformation
-- Spanish pro-drop in mapped querent participation
-- English output never receiving Spanish audience transformation
-- user-authored handover questions remaining opaque to grammar correction
-- `Death` / `La Muerte` named in the user's own question not becoming a false future-result leak
-- future mapped public result names being repaired before their reveal
+- Unicode-safe accented Spanish token boundaries
+- direct-address recognition without confusing possessives such as `sus`
+- valid and invalid Spanish prepositional pronoun forms as bounded language sensors
+- narrator first-person leakage
+- querent proper-name leakage from narrator-owned fields
+- reader/querent grammatical-gender drift
+- reader self-reference and generic reader/querent labels
+- Spanish pro-drop in legitimate querent-operated mapped rituals
+- context-derived mapped actor ownership
+- single-cast continuation state
+- exact user-authored handover questions remaining opaque to generated-prose correction
+- `Death` / `La Muerte` supplied by the user not becoming false future-result leaks
+- future mapped public-result names being repaired before reveal
 - exact three-item suggestions
-- mapped generated prose being rejected rather than regex-scrubbed by presentation
-- mapped narrator and short utility prose remaining in public-medium/neutral vocabulary
+- mapped generated prose being rejected rather than scrubbed by presentation code
 - public media metadata containing no archival/operational controls
-- deleted v2 duplicate ritual/card-index authorities not reappearing
-- rank×suit meaning synthesis remaining unavailable
-- reconstruction diagnostics remaining visible to CLI/library callers
-- application post-processing remaining idempotent after core finalisation
+- deleted duplicate mapping authorities not reappearing
+- direct typed requests receiving canonical card/spread semantics
+- application compatibility transforms being no-ops/idempotent after core finalisation
+- root/public audit using contextual semantics while the base-audit subpath stays explicitly low-level
 
-## Local live prose matrix
+## Local paid prose matrix
 
-The paid model validation is deliberately not a GitHub Action. Run it from a clean local checkout of the exact commit being reviewed, with the API key supplied only in your local environment.
+Paid model validation is deliberately separate from normal CI. Run it from a clean local checkout of the exact commit under review with the API key only in the local environment.
 
 ```bash
 export OPENAI_API_KEY='...'
@@ -68,24 +117,22 @@ npm run test:live:aggregate
 npm run test:live:review
 ```
 
-For a single reader/language cell:
+For one reader/language cell:
 
 ```bash
 LIVE_READER=selena LIVE_LANG=en-GB npm run test:live:cell
 ```
 
-The wrappers refuse to run when the worktree contains non-ignored changes. Every report is stamped with the local `git rev-parse HEAD`; aggregation rejects mixed/stale commit reports and requires all sixteen reader/language cells to describe the same tested commit.
+The wrappers refuse dirty worktrees. Reports are stamped with the tested commit; aggregation rejects mixed/stale provenance and requires all expected cells to describe the same commit.
 
-The full matrix exercises 80 complete readings: eight readers × two languages × five spreads. It collects the generated prose for invite, fit, every ritual, read/card text, synthesis, closing/note, chat, suggestions, continue, title, handover and return, along with model provenance, audit/correction/reconstruction diagnostics and placeholder-risk counters.
+The full matrix exercises complete reader/language/spread flows and collects generated prose, model provenance, audit/review/recovery diagnostics and placeholder-risk counters. The A → B → A fixture uses real `handoverConv()` state and deterministic target-side state where needed to avoid adding unrelated paid calls.
 
-The A → B → A return fixture uses the real `handoverConv()` helper. After the paid A-side handover, it inserts a deterministic target-reader-specific B-side ritual/read state before constructing B → A and asking the model for the return acknowledgement. This gives the paid return generation the same production-style conversation/trail shape as the deterministic pair matrix without adding another paid model call.
+`runModelSession()` is the production authority for paid generation and therefore applies contextual review. The long-lived live-report workers still contain a low-level post-run `model/audit` import for reporting; that report-only audit must be migrated to the canonical contextual auditor before the paid matrix is treated as the final release gate. Until then, production behaviour is contextual but report counters may undercount contextual-only findings.
 
-Live reports are written under `reports/` and are gitignored. They still contain review prose and should be treated as review artefacts rather than source files.
-
-The live and human review stages remain responsible for semantic cases that cannot be made into safe blanket lexical rules. For example, a mapped reader must not expose canonical card identity, but common canonical names such as `Death` / `La Muerte`, `Justice` or `Strength` are also ordinary language. Deterministic future-result checks and mapped tarot-vocabulary checks remain strict; potentially ambiguous exact-name prose is reviewed from the collected live strings rather than rejected with a false-positive-prone global regex.
+Live reports are written below `reports/` and are gitignored. They contain generated review prose and should be treated as review artefacts rather than source files.
 
 ## Human release review
 
-A green deterministic suite is necessary but not sufficient for release. The paid matrix must be read by a human in both languages before the core/main/app pointer is moved.
+A green deterministic suite is necessary but not sufficient for a prose release. Paid output must be read by humans in both supported languages before a core/main/application pointer is moved.
 
-The content data also deliberately records human review as outstanding. Deterministic tests can prove structural parity, canonical IDs, language/voice constraints and absence of prohibited leakage, but they cannot certify nuanced cultural accuracy, persona naturalness or the quality of tarot interpretations.
+Automated checks can prove structural parity, state ownership, canonical IDs, bounded language/voice constraints and absence of known leakage. They cannot certify nuanced cultural accuracy, persona naturalness or interpretation quality.
