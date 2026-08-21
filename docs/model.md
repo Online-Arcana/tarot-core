@@ -1,146 +1,207 @@
 # Model orchestration
 
-The model layer converts a validated, core-canonicalised `ApiReq` into the unchanged `ApiOut` contract used by Online Arcana. Generation is bilingual, reader-aware and medium-aware, but card and spread facts always come from core-owned canonical data rather than client prose.
+The model layer converts a validated, core-canonicalised `ApiReq` into the unchanged `ApiOut` contract used by Online Arcana. Generation is bilingual, reader-aware and medium-aware. Card, spread, reader, ritual and reveal facts come from core-owned canonical data rather than client prose.
 
 ## Pipeline
 
 ```text
 canonical request
-    -> reader persona + mapped medium data when applicable
-    -> shared bilingual prompt builder
-    -> strict structured-output parse/shape retry
-    -> primary candidate
-    -> pre-audit core preparation
-       (Spanish narrator audience normalisation + reveal safety + mapped handover state)
-    -> deterministic audit
+    -> build prompt from reader + querent + task + ritual/reveal state
+    -> strict structured-output generation
+    -> deterministic preparation of facts/state only
+    -> structural/base audit
+    -> if a local finding is repairable:
+         atomic LLM review of only the affected prose field(s)
+         -> merge exact patch into original candidate
+         -> prepare + audit again
+    -> otherwise one bounded broader corrective model attempt
+    -> if any usable LLM candidate exists:
+         deliver the best model candidate
+       else, when guaranteeOutput is enabled:
+         deterministic contextual availability reserve
     -> attach public mapped-media presentation data
-    -> constrained escalation or narrow Spanish narrator correction when needed
-    -> pre-audit core preparation
-    -> deterministic audit
-    -> attach public mapped-media presentation data
-    -> deterministic reconstruction when guaranteed output is enabled
-    -> pre-audit core preparation
-    -> final deterministic audit
-    -> attach public mapped-media presentation data
-    -> unchanged ApiOut
+    -> request-context audit of otherwise-valid model prose
+    -> if a contextual-only finding is repairable:
+         atomic LLM review with compiled audit context + finding metadata
+         -> merge exact patch
+         -> contextual re-audit
+    -> unchanged ApiOut contract
 ```
 
-The model runner never relies on presentation attachment to make generated prose valid. `prepareModelOutDetailed()` performs the prose-changing finalisation steps before the last audit and deliberately returns no mapped `media` or `medium` presentation metadata. Only after that candidate passes the ordinary audit does the runner call `attachMedia()`.
+The important ordering rule is that **quality failures do not route usable model prose to deterministic prose**. Deterministic reconstruction is an availability reserve for cases where generation does not yield a usable parsed candidate. A minor voice, gender, identity or ritual-actor defect is handled by model correction while preserving the original response.
 
-`finaliseModelOutDetailed()` remains the compatibility helper for direct callers: it performs the same preparation and then attaches public presentation metadata. Both preparation and public finalisation are idempotent, so the existing application may still run its compatibility post-processing without changing an already-finalised result.
+`prepareModelOutDetailed()` canonicalises facts and state the core already knows. It may repair deterministic reveal/handover state, but it does not rewrite narrator perspective, audience, grammar or style. Public mapped `media`/`medium` presentation metadata is attached only after the prose candidate has passed the relevant audit stage.
+
+`finaliseModelOutDetailed()` remains the compatibility helper for direct callers: it performs preparation and presentation attachment. Preparation and public finalisation are idempotent.
 
 ## Model lanes
 
-Tasks use three independently configurable lanes:
+The current default lanes all use GPT-5.6 Luna:
 
 ```text
-ordinary short tasks: gpt-5-nano    -> audit -> gpt-5.6-luna -> audit -> recovery
-ritual:               gpt-5-mini    -> audit -> gpt-5.6-luna -> audit -> recovery
-read / chat:           gpt-5.6-luna -> audit -> gpt-5.6-luna -> audit -> recovery
+ordinary short tasks: gpt-5.6-luna
+ritual:               gpt-5.6-luna
+read / chat:           gpt-5.6-luna
 ```
 
-`DEFAULT_MODEL_TIERS` keeps primary and escalation assignments separate even when two roles currently use the same model. Callers may override the individual roles through `models` without changing task classification.
+`DEFAULT_MODEL_TIERS` still keeps primary and escalation roles independently configurable. Normal generation and atomic review use cheap reasoning effort; the bounded broader corrective attempt uses medium effort. Callers may override individual model roles through `ModelCfg.models` without changing task classification.
 
-The structured-output parse/shape retry budget defaults to one retry when the caller omits `retries`.
+The structured-output parse/shape retry budget defaults to one retry when callers omit `retries`.
 
-## Language and voice contracts
+## Language and voice contract
 
-English output is requested as natural British English. Spanish output is requested as natural Spain Spanish with tuteo and normal Spanish subject omission where the acting subject is already clear.
+English visible prose is requested as natural British English. Spanish visible prose is requested as natural Spain Spanish with tuteo and normal subject omission when the conjugation already establishes the actor.
 
-Narrator and reader voices are separate:
+Narrator and reader voices have different ownership:
 
-- narrator fields describe the reader, movement, setting and ritual from outside
-- reader fields are direct speech to the person receiving the reading
-- reader dialogue is never passed through the narrator audience transform
-- structured reader identity and pronoun metadata are private prompt data, not visible prose
-- generic visible labels such as `the reader`, `el lector` and `la lectora` are rejected where a configured reader identity is required
+- narrator fields are external third-person scene prose describing the reader, movement, setting and ritual
+- narrator fields address the person receiving the reading naturally in second person where grammar requires it
+- reader-dialogue fields are the selected reader speaking directly and may use first person for self-reference
+- a reader is established by configured identity when needed, then natural discourse and Spanish pro-drop are allowed
+- narrator prose never uses the querent's proper name as a substitute for second-person immersion
+- generic labels such as `the reader`, `the querent`, `el lector`, `la lectora` or `la persona consultante` are not substitutes for the configured voices
+- structured identity notation and private prompt metadata must never become visible prose
 
-Mapped readers receive the same base bilingual contract as the vanilla reader. Their physical medium augments the shared prompt rather than replacing the language or voice rules.
+Mapped readers receive the same language and voice contract. Their public medium augments the prompt rather than replacing those rules.
 
-## Configuration
+There is **no deterministic audience transformer** in the production path. The legacy `addressViewer()` symbol remains only as a deprecated identity compatibility shim and returns prose unchanged. Perspective and grammar are authored by the model, audited, and corrected narrowly when necessary.
+
+## Immutable request audit context
+
+The contextual auditor compiles an immutable `AuditContext` for every request. It contains the state that determines what is valid for this specific reading, including:
+
+- language and task
+- configured reader identity, grammatical gender/pronouns, voice, manner and limits
+- current querent name and optional grammatical gender
+- field ownership such as narrator, reader dialogue, handover state or title
+- mapped ritual mode, actor, action, verbs, objects, grounding and medium
+- opening versus continuation phase
+- prior ritual theatre
+- current spread position
+- revealed and still-hidden results
+- conversation/history count
+
+The same surface wording can therefore receive different findings under different requests. A second-person physical action can be correct for Ngaru or Amaru because their current ritual contract assigns the draw to the querent, while a second-person action on Brennos's shield can be suspicious because Brennos owns that medium action.
+
+No global mutable audit state is used. Each request builds its own context, which keeps concurrent readings isolated.
+
+## Sensors versus semantic verdicts
+
+Regex, tokenisation and lexical matching are allowed as bounded **sensors**. They may observe evidence such as:
+
+- a configured proper name appearing in a narrator-owned field
+- a generic reader/querent label
+- a first-person narrator marker
+- a known Spanish case or language defect
+- a second-person physical verb applied locally to a mapped medium object
+- a contract verb/object or grounding phrase
+- operational/internal terminology
+- canonical tarot terminology in mapped public prose
+
+A sensor observation is not, by itself, semantic truth. The contextual layer combines evidence with `AuditContext` before creating a request-specific finding.
+
+For example, the ritual actor sensor requires a plausible local verb-to-medium-object relation. It does not treat an unrelated movement by the querent and a reader-owned object elsewhere in the field as one action. The resulting observation is then checked against the current ritual actor contract.
+
+## Structured contextual findings
+
+Contextual findings retain the legacy `AuditIssue` fields and may additionally carry machine-readable repair metadata:
 
 ```ts
-interface ModelCfg {
-  apiKey: string;
-  body: Dict & { model?: string };
-  models?: {
-    shortPrimary?: string;
-    shortEscalation?: string;
-    ritualPrimary?: string;
-    ritualEscalation?: string;
-    longPrimary?: string;
-    longEscalation?: string;
-  };
-  escalationModel?: string;
-  guaranteeOutput?: boolean;
-  conversation: boolean;
-  conversationId?: string;
-  fetch?: Fetch;
-  retries?: number;
-  retryDelayMs?: number;
+interface ContextualAuditIssue extends AuditIssue {
+  evidence?: string;
+  expected?: string;
+  repairScope?: "local";
 }
 ```
 
-Guaranteed recovery is opt-in for general library consumers. When `guaranteeOutput` is false, both failed audited model stages produce `ModelOutputError`. Customer-facing Online Arcana calls enable guaranteed recovery so ordinary generation failures are reconstructed into an audited result instead of being exposed directly to the browser.
+A finding therefore says what was observed and which current invariant appears to be violated, without dictating the replacement prose.
 
-## Prompt and payload construction
+A representative finding is conceptually:
 
-`modelPrompt` combines:
+```json
+{
+  "code": "querent_name_narrator",
+  "path": "ritual.opening",
+  "evidence": "Alex",
+  "expected": "address the current querent naturally in second person",
+  "repairScope": "local"
+}
+```
 
-1. the shared language contract
-2. structured reader identity and XML-generated persona material
-3. task and stage contracts
-4. mapped-medium context where applicable
-5. the task payload
-6. correction findings only when a correction call is required
+The auditor does **not** decide that a particular name must mechanically become `you`, `your`, `tú`, `te`, `ti`, `contigo`, `tu` or a dropped subject. The reviewer sees the original sentence and current context and chooses the smallest grammatical correction.
 
-For mapped readers, model-facing result identity uses public mapped entities rather than canonical card IDs, canonical card names or orientation words. Handover and return history use the same boundary rule. Exact known canonical entities in historical generated prose can be translated to public mapped entities; ambiguous legacy generated prose that still depends on generic tarot-medium vocabulary is omitted rather than semantically rewritten. User-authored questions and facts are never scrubbed or altered by that boundary.
+## Atomic LLM revision
 
-## Structured schemas
+`finalProofreadShape()` constrains prose correction to exact edits. For ordinary corrections, each edit identifies one short exact `before` span and a minimal `after` replacement. Oversized or whole-field rewrites are rejected.
 
-`outputShape` builds one strict schema per normal task. Read schemas require exactly one `cardText` entry per drawn result, suggestions require exactly three strings, and fit/handover fields are structurally constrained before prose auditing begins.
+For audit-triggered review:
 
-Spanish narrator grammar correction has a separate minimal schema. If the only failures are narrator-owned Spanish grammar issues that can be isolated safely, currently a leaked querent proper name or an invalid tuteo pronoun case such as `para tú` or `con ti`, Luna receives only the affected narrator string or strings and may return only those exact keys. Unaffected reader dialogue and other valid fields are not sent for regeneration and remain byte-for-byte unchanged. The merged candidate then passes normal preparation and the ordinary audit again before presentation metadata is attached.
+1. only reviewable local findings are selected
+2. only affected prose paths are editable
+3. the reviewer receives the original field text
+4. it receives canonical generation context
+5. contextual-only review also receives `<compiled_audit_context>` and structured `<compiled_audit_findings>`
+6. the reviewer may return no edits when a heuristic finding is a false positive
+7. any returned patch is merged into the original candidate
+8. unrelated fields remain unchanged
+9. the revised candidate is audited again
+10. an invalid or over-broad contextual revision is rejected and the original usable LLM candidate is preserved
 
-The deterministic audience transform handles grammatical roles it can establish safely, including subject conjugation, `te` for recognised object roles, `ti` after recognised prepositions, `contigo` after `con`, and `tu`/`tus` for recognised possession. It never performs a blind proper-name-to-`tú` replacement. Uncertain roles remain unchanged for audit and constrained correction.
+The reviewer is explicitly a reviser, not a second author. It must preserve meaning, facts, result state/orientation, chronology, scene state, reader personality, imagery, emphasis and all unrelated wording.
 
-## Deterministic audit
+The older Spanish-specific narrow-correction helpers remain available for compatibility and regression coverage, but the production review selector is language-agnostic.
 
-`auditModelOut` is a collection of deterministic language-aware checks. It is not a dependency parser and is not described as an NLP parser.
+## Ritual participation
 
-Checks include:
+Mapped ritual semantics are owned by `src/readers/media/rituals.json` and exposed through the media runtime. The registry supplies actor, action, language-specific verbs, objects, grounding and ritual mode.
 
-- required word and line limits
+Examples:
+
+- Ngaru: querent-operated `draw-from-container`
+- Amaru: querent-operated `draw-from-container`
+- Brennos: reader-operated `reader-shake-release`
+- Yejide: reader-operated cast
+- Ame: reader-operated single cast
+- Nahid: reader-operated observation
+
+Natural Spanish pro-drop is part of the authored contract. Phrases such as `Introduces la mano sin mirar y extraes una concha` do not require an explicit `tú` to establish the querent as actor.
+
+The contextual ritual auditor currently covers local findings such as missing required participation, apparent invented querent participation in a reader-operated medium, repeated single-cast action during continuation and missing medium grounding. These findings are review signals tied to the current registry state, not universal grammar rules.
+
+## Structural/base audit
+
+The lower-level `model/audit` module remains responsible for structural and bounded language checks such as:
+
+- required field, count, line and word constraints
 - complete sentence endings
-- direct-address evidence where required
-- Spanish narrator first-person and querent-name leakage
-- Spanish tuteo pronoun case, including `ti` after ordinary prepositions and `contigo` after `con`, while preserving legitimate phrases such as `de tú a tú`
-- narrator/reader voice ownership
-- exact suggestion and interpretation counts
-- theatre paragraph bounds and continuity overlap
-- mapped-medium grounding and participation contracts
-- single-cast continuation rules
-- generic reader labels
-- canonical tarot-medium leaks across mapped visible prose
-- duplicate substantive prose
-- internal JSON-reference leakage
-- later unrevealed result names in earlier interpretations, with user-question exemptions
-- exact supplied handover cards and questions
-- title, summary and list limits
+- direct-address evidence where the task requires it
+- narrator/reader field ownership
+- generic labels and obvious operational/internal prose
+- mapped canonical-medium leakage
+- duplicate/repetitive prose
+- hidden/future result leakage
+- exact handover cards/questions
+- title/list bounds
+- known language defects
 
-Spanish pronoun token checks use Unicode-aware boundaries so accented forms such as standalone `tú` and `mí` are recognised correctly without matching longer words such as `túnel`.
+The package-root `auditModelOut` is the canonical public auditor and points to the contextual audit layer. Direct imports from `model/audit` intentionally expose the lower-level base auditor for internal/compatibility use.
 
-Approved mapped entity names are distinguished from reader self-reference. For example, a public result whose proper name contains the reader's name is not rejected merely because the strings overlap.
+Some legacy mapped ritual checks still exist in the base module while migration finishes. New semantic actor decisions belong in the contextual layer and new tests should target the package-root/contextual auditor rather than extending those legacy regex rules.
 
 ## Recovery and fallbacks
 
-When both model stages fail and `guaranteeOutput` is true, deterministic reconstruction attempts to preserve usable fields from the candidates and fill only unresolved material from canonical fallbacks.
+When `guaranteeOutput` is false, a bounded failed model path produces `ModelOutputError`.
 
-`src/model/fallbacks.xml` is the authoritative fallback source. `scripts/generate-fallbacks.mjs` validates it and emits the ignored runtime data file `src/model/fallbacks.generated.json`; `fallback.ts` is a typed loader, not a separately authored prose catalogue.
+When `guaranteeOutput` is true:
 
-Mapped ritual choreography is owned by `src/readers/media/rituals.json`. `ritual-recovery.ts` selects complete authored ritual sentences and complete shared atmosphere sentences from canonical data, then validates the assembled candidate. It contains no reader-specific ritual prose and does not interpolate arbitrary sensory fragments into grammatical sentence slots.
+- if parsed model candidates exist, the runner prefers the best usable LLM candidate after bounded repair attempts
+- it does not replace prose merely because deterministic heuristics still dislike it
+- if no usable parsed model candidate exists because generation/structured output is unavailable, the core may use deterministic contextual reconstruction
+- legacy/bare/panic reserves exist only behind that availability path
 
-Reconstruction exceptions are not swallowed. `reconstructModelOutDetailed` returns diagnostics for successful reconstruction, and a reconstruction exception or invalid final recovery becomes a `ModelOutputError` diagnostic instead of pretending that a fallback succeeded.
+`src/model/fallbacks.xml` is the authoritative shared fallback source. `scripts/generate-fallbacks.mjs` validates it and emits generated runtime data.
+
+Mapped ritual choreography is owned by `src/readers/media/rituals.json`. `ritual-recovery.ts` selects authored ritual and atmosphere material from canonical data instead of creating reader choreography in TypeScript.
 
 ## Result provenance
 
@@ -157,10 +218,19 @@ type ModelResult = {
 };
 ```
 
-`auditErrors` also carries non-customer-facing preparation and correction diagnostics. It is observability data and must never be rendered as reading prose.
+`auditErrors` is non-customer-facing observability data. It can include preparation, audit, review, delivery and availability-path diagnostics and must never be rendered as reading prose.
 
 ## Release gates
 
-A green unit suite is not enough for a prose release. The deterministic release matrix covers all 8 readers, both languages, all 5 spreads and all applicable tasks. After that gate is green, the paid live matrix is run locally across 80 complete reader/language/spread combinations and preserves generated strings and provenance for human review.
+The normal CI path is deterministic and does not require an API key:
 
-Automated validation does not constitute cultural-specialist or prose approval. Human review remains required before the audited core replaces the application pin.
+```text
+npm run check
+npm run check:live-harness
+npm run build
+npm run test
+```
+
+The deterministic release matrix covers all configured readers, both languages, all supported spreads and applicable task/state combinations. Paid live matrices are separate local release gates and require `OPENAI_API_KEY`; they preserve generated strings and provenance for human review.
+
+A paid report is not cultural or prose approval by itself. Human review remains required before release.
