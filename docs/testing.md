@@ -127,7 +127,7 @@ The wrappers refuse dirty worktrees. Reports are stamped with the tested commit;
 
 The full matrix exercises complete reader/language/spread flows and collects generated prose, model provenance, audit/review/recovery diagnostics and placeholder-risk counters. The A → B → A fixture uses real `handoverConv()` state and deterministic target-side state where needed to avoid adding unrelated paid calls.
 
-`runModelSession()` is the production authority for paid generation and therefore applies contextual review. The long-lived live-report workers still contain a low-level post-run `model/audit` import for reporting; that report-only audit must be migrated to the canonical contextual auditor before the paid matrix is treated as the final release gate. Until then, production behaviour is contextual but report counters may undercount contextual-only findings.
+`runModelSession()` is the production authority for paid generation and applies contextual review. Both paid worker scripts also use `contextualAuditModelOut()` for their final report audit and deterministic seed/target fixtures, so report counters and hard gates use the same request-context semantics as production. Their retry accounting distinguishes semantic reviewer/correction calls from transport or parse retries. The existing `narrowCorrections` report field is retained for report-schema compatibility but now counts language-agnostic atomic revisions, including contextual atomic revisions.
 
 Live reports are written below `reports/` and are gitignored. They contain generated review prose and should be treated as review artefacts rather than source files.
 
