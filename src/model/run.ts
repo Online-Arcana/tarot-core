@@ -1,2 +1,2 @@
 export * from "./runner.js";
-export { runModel, runModelSession } from "./contextual-runner.js";
+export { runModel, runModelSession, validModelOut } from "./contextual-runner.js";
