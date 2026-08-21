@@ -1,4 +1,5 @@
-import authored from "./reserve-corpus-data.json" with { type: "json" };
+import opening from "./reserve-corpus-data.json" with { type: "json" };
+import continuation from "./reserve/selena-ritual-continuation.json" with { type: "json" };
 import {
   findReserveBucket,
   validateReserveCorpus,
@@ -6,7 +7,13 @@ import {
   type ReserveLookupKey,
 } from "./reserve-corpus.js";
 
-const CORPUS = authored as unknown as ReserveCorpus;
+const CORPUS = {
+  version: 1,
+  buckets: [
+    ...(opening as unknown as ReserveCorpus).buckets,
+    ...(continuation as unknown as ReserveCorpus).buckets,
+  ],
+} as const satisfies ReserveCorpus;
 const ERRORS = validateReserveCorpus(CORPUS);
 if (ERRORS.length) {
   throw new Error(`deterministic reserve corpus is invalid: ${ERRORS.join("; ")}`);
