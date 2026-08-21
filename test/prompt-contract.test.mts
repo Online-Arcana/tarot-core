@@ -10,7 +10,7 @@ const invite = (reader, lang) => ({
   task: "invite",
   lang,
   reader,
-  name: "Kitty",
+  name: "Alex",
   history: [],
 });
 
@@ -18,7 +18,7 @@ const chat = (reader, lang) => ({
   task: "chat",
   lang,
   reader,
-  name: "Kitty",
+  name: "Alex",
   history: [],
   question: lang === "es-ES" ? "¿Y ahora qué hago?" : "What should I do now?",
 });
@@ -27,7 +27,7 @@ const ritual = (lang) => ({
   task: "ritual",
   lang,
   reader: "selena",
-  name: "Kitty",
+  name: "Alex",
   history: [],
   question: lang === "es-ES" ? "¿Qué está cambiando?" : "What is changing?",
   spread: "one",
@@ -38,7 +38,7 @@ const returning = (lang) => ({
   task: "return",
   lang,
   reader: "selena",
-  name: "Kitty",
+  name: "Alex",
   history: [],
   trail: { id: "trail", summary: "", visits: [] },
 });
