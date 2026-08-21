@@ -8,6 +8,7 @@ export type ArcanaKind = "minor" | "major";
 export type ReqKind = "reading" | "chat";
 export type RitualPhase = "opening" | "continuation";
 export type Task = "invite" | "fit" | "ritual" | "read" | "chat" | "suggest" | "continue" | "title" | "handover" | "return";
+export type QuerentGender = "woman" | "man" | "nonbinary";
 export type Topic =
   | "love" | "intimacy" | "family" | "grief" | "death" | "change"
   | "career" | "conflict" | "purpose" | "spirituality" | "identity" | "healing";
@@ -39,22 +40,39 @@ export interface DrawPack {
   spreads: readonly SpreadDef[];
 }
 
+export interface ReaderPronouns {
+  subject: string;
+  object: string;
+  possessiveDeterminer: string;
+  possessive: string;
+  reflexive: string;
+}
+
+export interface ReaderIdentity {
+  name: string;
+  gender: "woman" | "man";
+  pronouns: Local<ReaderPronouns>;
+}
+
 export interface ReaderProfile {
   id: ReaderId;
+  review: "human-cultural-and-prose-review-required";
+  identity: ReaderIdentity;
   public: {
     name: string;
     role: Local<string>;
     blurb: Local<string>;
+    waiting: Local<string>;
   };
   fit: { strong: Topic[]; capable: Topic[]; weak: Topic[] };
   persona: {
-    voice: string[];
-    outlook: string[];
-    manner: string[];
-    ritual: string[];
-    scene: string[];
-    limits: string[];
-    avoid: string[];
+    voice: Local<string[]>;
+    outlook: Local<string[]>;
+    manner: Local<string[]>;
+    ritual: Local<string[]>;
+    scene: Local<string[]>;
+    limits: Local<string[]>;
+    avoid: Local<string[]>;
     intro: Local<string>;
     portrait: Local<string>;
     invite: Local<string[]>;
@@ -206,6 +224,15 @@ export interface Visit {
 
 export interface Trail { id: string; visits: Visit[]; summary: string }
 
+export interface HandResult {
+  id: string;
+  name: string;
+  side: Side;
+  position: number;
+  positionName: string;
+  meaning: string;
+}
+
 export interface Hand {
   from: ReaderId;
   to: ReaderId;
@@ -216,6 +243,8 @@ export interface Hand {
   prevQs: string[];
   conclusions: string[];
   cards: string[];
+  /** Exact result state for new handovers. Optional for legacy saved conversations. */
+  results?: HandResult[];
   facts: string[];
   unresolved: string[];
   ack?: string;
@@ -229,6 +258,8 @@ export interface Conv {
   created: string;
   updated: string;
   name: string;
+  /** Optional for backward compatibility. Missing is treated as neutral/unspecified. */
+  gender?: QuerentGender;
   title?: string;
   trail?: Trail;
   handover?: Hand;
@@ -246,6 +277,8 @@ interface ReqBase {
   lang: LangCode;
   reader: ReaderId;
   name: string;
+  /** Optional for backward compatibility. Missing and nonbinary both require neutral addressing. */
+  gender?: QuerentGender;
   history: Hist[];
   trail?: Trail;
   handover?: Hand;

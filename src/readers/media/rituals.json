@@ -1,0 +1,253 @@
+{
+  "version": 1,
+  "review": "human-cultural-and-prose-review-required",
+  "actions": {
+    "draw-from-container": {
+      "actor": "querent",
+      "verbs": {
+        "en": ["reach", "draw", "withdraw", "take", "pull"],
+        "es": ["introduces", "metes", "sacas", "extraes", "tomas", "retiras"]
+      }
+    },
+    "reader-draw-from-container": {
+      "actor": "reader",
+      "verbs": {
+        "en": ["draws", "withdraws", "takes", "lifts"],
+        "es": ["extrae", "saca", "toma", "levanta"]
+      }
+    },
+    "reader-cast": {
+      "actor": "reader",
+      "verbs": {
+        "en": ["casts", "releases", "scatters", "throws"],
+        "es": ["lanza", "suelta", "esparce", "arroja"]
+      }
+    },
+    "reader-shake-release": {
+      "actor": "reader",
+      "verbs": {
+        "en": ["shakes", "tilts", "releases"],
+        "es": ["agita", "inclina", "suelta"]
+      }
+    },
+    "reader-observe-pattern": {
+      "actor": "reader",
+      "verbs": {
+        "en": ["lights", "watches", "observes", "waits"],
+        "es": ["enciende", "observa", "mira", "espera"]
+      }
+    }
+  },
+  "readers": {
+    "brennos": {
+      "ritualMode": "per-result",
+      "medium": { "en": "individually carved bones", "es": "huesos tallados individualmente" },
+      "concealment": {
+        "en": "The carved bones remain hidden inside a shallow iron shield.",
+        "es": "Los huesos tallados permanecen ocultos dentro de un escudo de hierro poco profundo."
+      },
+      "participation": { "actor": "reader", "action": "reader-shake-release" },
+      "openingAction": {
+        "en": "Brennos shakes the shield until one bone escapes the rim and strikes the fire-scarred table.",
+        "es": "Brennos agita el escudo hasta que un hueso supera el borde y golpea la mesa marcada por el fuego."
+      },
+      "continuationAction": {
+        "en": "Brennos gathers the remaining hidden bones back into the shield and repeats the measured shake for the next result.",
+        "es": "Brennos reúne los huesos que siguen ocultos en el escudo y repite el movimiento medido para el siguiente resultado."
+      },
+      "states": {
+        "upright": { "en": "The bone rests wholly between the burnt cracks.", "es": "El hueso queda por completo entre las grietas quemadas." },
+        "reversed": { "en": "The bone touches or crosses a burnt crack.", "es": "El hueso toca o cruza una grieta quemada." }
+      },
+      "sensoryPalette": {
+        "en": ["iron shield", "bones striking iron", "one bone escaping", "impact on the table", "burnt cracks"],
+        "es": ["escudo de hierro", "huesos golpeando el hierro", "un hueso que escapa", "impacto sobre la mesa", "grietas quemadas"]
+      },
+      "grounding": {
+        "en": ["bone", "bones", "shield", "iron", "burnt crack", "fire-scarred table"],
+        "es": ["hueso", "huesos", "escudo", "hierro", "grieta", "mesa marcada por el fuego"]
+      },
+      "actionObjects": { "en": ["bone", "bones", "shield"], "es": ["hueso", "huesos", "escudo"] }
+    },
+    "yejide": {
+      "ritualMode": "per-result",
+      "medium": { "en": "large individually carved seeds", "es": "semillas grandes talladas individualmente" },
+      "concealment": {
+        "en": "The carved seeds remain hidden in an opaque woven bag.",
+        "es": "Las semillas talladas permanecen ocultas en una bolsa tejida opaca."
+      },
+      "participation": { "actor": "reader", "action": "reader-cast" },
+      "openingAction": {
+        "en": "Yejide reaches into the bag without looking, takes a concealed handful and casts it so that one seed separates from the rest.",
+        "es": "Yejide introduce la mano en la bolsa sin mirar, toma un puñado oculto y lo lanza para que una semilla se separe de las demás."
+      },
+      "continuationAction": {
+        "en": "Yejide returns the unchosen seeds to the opaque bag, takes another concealed handful and casts again until one seed separates.",
+        "es": "Yejide devuelve las semillas no elegidas a la bolsa opaca, toma otro puñado oculto y vuelve a lanzarlo hasta que una semilla se separa."
+      },
+      "states": {
+        "upright": { "en": "The chosen seed settles with its carving visible.", "es": "La semilla elegida queda con la talla visible." },
+        "reversed": { "en": "The chosen seed settles with its carving against the surface and is turned only after the movement has ended.", "es": "La semilla elegida queda con la talla contra la superficie y se gira solo después de que termina el movimiento." }
+      },
+      "sensoryPalette": {
+        "en": ["opaque woven bag", "concealed handful", "seeds striking the table", "one seed separating", "brief stillness"],
+        "es": ["bolsa tejida opaca", "puñado oculto", "semillas golpeando la mesa", "una semilla que se separa", "breve quietud"]
+      },
+      "grounding": {
+        "en": ["seed", "seeds", "woven bag", "carving", "handful"],
+        "es": ["semilla", "semillas", "bolsa tejida", "talla", "puñado"]
+      },
+      "actionObjects": { "en": ["seed", "seeds", "handful"], "es": ["semilla", "semillas", "puñado"] }
+    },
+    "ngaru": {
+      "ritualMode": "per-result",
+      "medium": { "en": "painted seashells", "es": "conchas marinas pintadas" },
+      "concealment": {
+        "en": "Painted shells remain hidden inside an opaque sea-worn bag.",
+        "es": "Las conchas pintadas permanecen ocultas dentro de una bolsa opaca desgastada por el mar."
+      },
+      "participation": { "actor": "querent", "action": "draw-from-container" },
+      "openingAction": {
+        "en": "Ngaru steadies and offers the opaque sea-worn bag. You reach in without looking and withdraw one shell by touch alone.",
+        "es": "Ngaru sostiene y ofrece la bolsa opaca desgastada por el mar. Introduces la mano sin mirar y extraes una concha guiándote solo por el tacto."
+      },
+      "continuationAction": {
+        "en": "Ngaru steadies the opaque bag again. You reach in without looking and withdraw one more shell by touch alone.",
+        "es": "Ngaru vuelve a sostener la bolsa opaca. Introduces la mano sin mirar y extraes otra concha guiándote solo por el tacto."
+      },
+      "states": {
+        "upright": { "en": "The shell carries its painting on the outer curved surface.", "es": "La concha lleva la pintura en la superficie exterior curvada." },
+        "reversed": { "en": "The shell carries its painting on the inner hollow surface.", "es": "La concha lleva la pintura en la superficie interior cóncava." }
+      },
+      "sensoryPalette": {
+        "en": ["sea-worn opaque bag", "shells shifting beneath cloth", "blind reach", "one shell withdrawn", "cool shell texture"],
+        "es": ["bolsa opaca desgastada por el mar", "conchas moviéndose bajo la tela", "mano que busca sin mirar", "una concha extraída", "textura fría de la concha"]
+      },
+      "grounding": {
+        "en": ["shell", "shells", "bag", "sea-worn", "painted", "cool shell"],
+        "es": ["concha", "conchas", "bolsa", "desgastada por el mar", "pintada", "textura fría"]
+      },
+      "actionObjects": { "en": ["shell", "seashell", "bag"], "es": ["concha", "concha marina", "bolsa"] }
+    },
+    "ame": {
+      "ritualMode": "single-cast",
+      "medium": { "en": "sakura, hasu, fuji and ajisai petals on collected rainwater", "es": "pétalos de sakura, hasu, fuji y ajisai sobre agua de lluvia recogida" },
+      "concealment": {
+        "en": "Ame holds one gathered handful of sakura, hasu, fuji and ajisai petals above a shallow basin of collected rainwater.",
+        "es": "Ame sostiene un puñado de pétalos de sakura, hasu, fuji y ajisai sobre una cuenca poco profunda de agua de lluvia recogida."
+      },
+      "participation": { "actor": "reader", "action": "reader-cast" },
+      "openingAction": {
+        "en": "Ame casts the full handful once across the basin, where the mixed petals touch the water and settle into separate areas.",
+        "es": "Ame lanza una sola vez el puñado completo sobre la cuenca, donde los pétalos mezclados tocan el agua y se posan en zonas separadas."
+      },
+      "continuationAction": {
+        "en": "Ame studies another area of the same basin while the petals from the first cast continue to rest or drift.",
+        "es": "Ame observa otra zona de la misma cuenca mientras los pétalos del primer lanzamiento continúan reposando o derivando."
+      },
+      "states": {
+        "upright": { "en": "The relevant petals have become still on the rainwater.", "es": "Los pétalos pertinentes han quedado quietos sobre el agua de lluvia." },
+        "reversed": { "en": "The relevant petals continue to drift across the rainwater.", "es": "Los pétalos pertinentes continúan a la deriva sobre el agua de lluvia." }
+      },
+      "sensoryPalette": {
+        "en": ["shallow basin", "rainwater", "mixed petals", "petals touching water", "drifting petals"],
+        "es": ["cuenca poco profunda", "agua de lluvia", "pétalos mezclados", "pétalos tocando el agua", "pétalos a la deriva"]
+      },
+      "grounding": {
+        "en": ["petal", "petals", "basin", "rainwater", "water"],
+        "es": ["pétalo", "pétalos", "cuenca", "agua de lluvia", "agua"]
+      },
+      "actionObjects": { "en": ["petals", "handful", "basin"], "es": ["pétalos", "puñado", "cuenca"] }
+    },
+    "amaru": {
+      "ritualMode": "per-result",
+      "medium": { "en": "knotted cords drawn from an opaque vessel", "es": "cordones anudados extraídos de un recipiente opaco" },
+      "concealment": {
+        "en": "The knotted cords remain hidden inside a tall opaque vessel while Amaru mixes them by touch.",
+        "es": "Los cordones anudados permanecen ocultos dentro de un recipiente alto y opaco mientras Amaru los mezcla al tacto."
+      },
+      "participation": { "actor": "querent", "action": "draw-from-container" },
+      "openingAction": {
+        "en": "Amaru mixes the hidden cords by touch and offers the opaque vessel. You reach in without looking and draw one cord by the first end encountered.",
+        "es": "Amaru mezcla los cordones ocultos al tacto y ofrece el recipiente opaco. Introduces la mano sin mirar y extraes un cordón por el primer extremo que encuentras."
+      },
+      "continuationAction": {
+        "en": "Amaru mixes the remaining hidden cords and offers the vessel again. You reach in without looking and draw one more cord by the first end encountered.",
+        "es": "Amaru vuelve a mezclar los cordones que permanecen ocultos y ofrece el recipiente. Introduces la mano sin mirar y extraes otro cordón por el primer extremo que encuentras."
+      },
+      "states": {
+        "upright": { "en": "The cord emerges from its marked front end.", "es": "El cordón emerge por su extremo frontal marcado." },
+        "reversed": { "en": "The cord emerges from its marked rear end.", "es": "El cordón emerge por su extremo posterior marcado." }
+      },
+      "sensoryPalette": {
+        "en": ["tall opaque vessel", "hidden cords", "cords moving under Amaru's hand", "one end emerging first", "knots settling on stone"],
+        "es": ["recipiente alto y opaco", "cordones ocultos", "cordones moviéndose bajo la mano de Amaru", "un extremo que emerge primero", "nudos posándose sobre la piedra"]
+      },
+      "grounding": {
+        "en": ["cord", "cords", "vessel", "knot", "knots", "opaque"],
+        "es": ["cordón", "cordones", "recipiente", "nudo", "nudos", "opaco"]
+      },
+      "actionObjects": { "en": ["cord", "cords", "vessel"], "es": ["cordón", "cordones", "recipiente"] }
+    },
+    "nahid": {
+      "ritualMode": "per-result",
+      "medium": { "en": "incense-smoke patterns", "es": "patrones de humo de incienso" },
+      "concealment": {
+        "en": "Heat, air currents and the changing ember keep the next smoke shape indistinct until it gathers.",
+        "es": "El calor, las corrientes de aire y la brasa cambiante mantienen indistinta la siguiente forma de humo hasta que se reúne."
+      },
+      "participation": { "actor": "reader", "action": "reader-observe-pattern" },
+      "openingAction": {
+        "en": "Nahid lights the incense and waits without forcing the smoke while the first curls respond to the room's air.",
+        "es": "Nahid enciende el incienso y espera sin forzar el humo mientras las primeras volutas responden al aire de la estancia."
+      },
+      "continuationAction": {
+        "en": "Nahid lets the ember burn undisturbed and follows the next smoke pattern as the room's air reshapes it.",
+        "es": "Nahid deja que la brasa arda sin intervenir y sigue el siguiente patrón de humo mientras el aire de la estancia lo transforma."
+      },
+      "states": {
+        "upright": { "en": "The smoke shape gathers and becomes clear.", "es": "La forma de humo se reúne y se vuelve clara." },
+        "reversed": { "en": "The smoke shape separates while it is becoming clear.", "es": "La forma de humo se separa mientras se vuelve clara." }
+      },
+      "sensoryPalette": {
+        "en": ["incense", "flame", "ember", "smoke", "air current", "smoke shape"],
+        "es": ["incienso", "llama", "brasa", "humo", "corriente de aire", "forma de humo"]
+      },
+      "grounding": {
+        "en": ["incense", "smoke", "ember", "air", "curl", "shape"],
+        "es": ["incienso", "humo", "brasa", "aire", "voluta", "forma"]
+      },
+      "actionObjects": { "en": ["incense", "smoke", "ember"], "es": ["incienso", "humo", "brasa"] }
+    },
+    "mictli": {
+      "ritualMode": "per-result",
+      "medium": { "en": "carved stone disks", "es": "discos de piedra tallados" },
+      "concealment": {
+        "en": "The carved stone disks remain hidden in a dark covered vessel.",
+        "es": "Los discos de piedra tallados permanecen ocultos dentro de un recipiente oscuro y cubierto."
+      },
+      "participation": { "actor": "reader", "action": "reader-draw-from-container" },
+      "openingAction": {
+        "en": "Mictli mixes the disks beneath the cover and draws one without exposing its carving.",
+        "es": "Mictli mezcla los discos bajo la cubierta y extrae uno sin exponer su talla."
+      },
+      "continuationAction": {
+        "en": "Mictli returns his hand beneath the cover, mixes the remaining disks and draws the next one without exposing its carving.",
+        "es": "Mictli vuelve a introducir la mano bajo la cubierta, mezcla los discos restantes y extrae el siguiente sin exponer su talla."
+      },
+      "states": {
+        "upright": { "en": "The disk rests aligned with the line cut into the table.", "es": "El disco queda alineado con la línea tallada en la mesa." },
+        "reversed": { "en": "The disk rests turned across the line cut into the table.", "es": "El disco queda girado sobre la línea tallada en la mesa." }
+      },
+      "sensoryPalette": {
+        "en": ["covered stone vessel", "stone grinding against stone", "one disk drawn unseen", "weight settling on the table", "silence after stone stops"],
+        "es": ["recipiente de piedra cubierto", "piedra rozando contra piedra", "un disco extraído sin verlo", "peso posándose sobre la mesa", "silencio cuando la piedra se detiene"]
+      },
+      "grounding": {
+        "en": ["stone", "disk", "disks", "covered vessel", "carving", "line"],
+        "es": ["piedra", "disco", "discos", "recipiente cubierto", "talla", "línea"]
+      },
+      "actionObjects": { "en": ["disk", "disks", "vessel"], "es": ["disco", "discos", "recipiente"] }
+    }
+  }
+}

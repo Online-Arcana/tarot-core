@@ -71,11 +71,11 @@ test("public ritual palettes contain no operational language", () => {
   }
 });
 
-test("ritual routes to gpt-5-mini while ordinary short tasks remain nano", () => {
+test("ritual and ordinary short tasks both route to Luna by default", () => {
   const cfg = { apiKey: "test", body: {}, conversation: false };
   const base = { lang: "en-GB", reader: "selena", name: "Kitty", history: [] };
-  assert.equal(modelRoute({ ...base, task: "ritual", question: "Question", spread: "one", card: 0 }, cfg)[0], "gpt-5-mini");
-  assert.equal(modelRoute({ ...base, task: "invite" }, cfg)[0], "gpt-5-nano");
+  assert.equal(modelRoute({ ...base, task: "ritual", question: "Question", spread: "one", card: 0 }, cfg)[0], "gpt-5.6-luna");
+  assert.equal(modelRoute({ ...base, task: "invite" }, cfg)[0], "gpt-5.6-luna");
 });
 
 test("voice audit rejects operational narration and reader self-narration", () => {
@@ -111,4 +111,39 @@ test("voice audit rejects operational narration and reader self-narration", () =
   });
   assert.equal(chat.valid, false);
   assert.ok(chat.issues.some(issue => issue.code === "reader_third_person"));
+});
+
+test("reader voice audit allows approved mapped entity names that contain the reader name", () => {
+  for (const lang of ["en-GB", "es-ES"]) {
+    const hierophant = card("major-hierophant");
+    const entity = required(mediaFor("ame", hierophant, lang));
+    assert.equal(entity.publicName, "Ame-no-Uzume");
+    const req = {
+      task: "read",
+      lang,
+      reader: "ame",
+      name: "Kitty",
+      history: [],
+      question: lang === "es-ES" ? "¿Qué necesito comprender?" : "What do I need to understand?",
+      draw: { id: "one", name: "One", purpose: "Focus", cards: [hierophant] },
+    };
+    const out = {
+      gesture: "",
+      opening: "",
+      link: "",
+      cardText: [lang === "es-ES"
+        ? "Ame-no-Uzume te invita a observar este momento con atención antes de decidir qué merece movimiento."
+        : "Ame-no-Uzume asks you to observe this moment carefully before deciding what deserves movement."],
+      synthesis: lang === "es-ES"
+        ? "Puedes mantener la apertura sin perder de vista lo que ya reconoces en tu situación."
+        : "You can remain open without losing sight of what you already recognise in your situation.",
+      reading: lang === "es-ES"
+        ? "Puedes avanzar con cuidado, comprobando cada paso en tu propia experiencia antes de convertir una impresión en una conclusión firme."
+        : "You can move carefully, checking each step against your own experience before turning an impression into a firm conclusion.",
+      closing: lang === "es-ES" ? "Conserva lo que te resulte útil." : "Keep what feels useful to you.",
+      note: lang === "es-ES" ? "La estancia queda tranquila ante ti." : "The room remains quiet before you.",
+    };
+    const audit = auditModelOut(req, out);
+    assert.equal(audit.valid, true, audit.errors.join("\n"));
+  }
 });

@@ -20,17 +20,14 @@ const response = value => new Response(JSON.stringify({ output_text: JSON.string
   headers: { "content-type": "application/json" },
 });
 
-test("long tasks audit Luna then ask Luna once for a constrained correction", async () => {
+test("long tasks use contextual reconstruction before paying for a Luna repair", async () => {
   const calls = [];
   const fetch = async (_url, init) => {
     const body = JSON.parse(init.body);
     calls.push(body);
-    if (calls.length === 1) {
-      return response({ gesture: "A short gesture.", response: "You can consider the question carefully." });
-    }
     return response({
-      gesture: "The reader rests a hand beside the spread and studies the arrangement without rushing you. A quiet pause gives your follow-up question room to settle, while the earlier cards remain visible as context for the answer that follows.",
-      response: "You can return to the clearest pattern in the reading, compare it with what you already know, and decide which practical step deserves your attention first.",
+      gesture: "Selena leaves the completed reading undisturbed while the next question settles between you.",
+      response: "The reader considers the question carefully.",
     });
   };
 
@@ -42,10 +39,11 @@ test("long tasks audit Luna then ask Luna once for a constrained correction", as
     body: { store: false, max_output_tokens: 1400 },
   });
 
-  assert.equal(result.source, "escalation");
-  assert.equal(calls.length, 2);
+  assert.equal(result.source, "reconstructed");
+  assert.equal(calls.length, 1);
   assert.equal(calls[0].model, "gpt-5.6-luna");
-  assert.equal(calls[1].model, "gpt-5.6-luna");
-  assert.match(calls[1].input[0].content, /chat\.gesture/u);
-  assert.match(calls[1].input[0].content, /deterministic NLP validation/u);
+  assert.equal(calls[0].reasoning.effort, "none");
+  assert.match(calls[0].input[0].content, /CURRENT STAGE: follow-up conversation/iu);
+  assert.match(calls[0].input[0].content, /NARRATOR:/u);
+  assert.match(calls[0].input[0].content, /READER:/u);
 });

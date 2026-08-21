@@ -1,1 +1,1187 @@
-{"$schema":"../medium-map.schema.json","version":2,"status":{"state":"source-backed-draft","runtimeIntegrated":true,"culturalSpecialistReviewRequired":true,"note":{"en":"The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.","es":"Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."}},"reader":"amaru","readerName":{"en":"Amaru","es":"Amaru"},"culture":{"en":"Inka khipu structures and documented Andean religious traditions","es":"Estructuras khipu y tradiciones religiosas andinas documentadas"},"medium":{"en":"one knotted cord drawn from an opaque vessel","es":"un cordón anudado extraído de un recipiente opaco"},"canonicalDeck":{"name":{"en":"Online Arcana naipes","es":"Naipes de Online Arcana"},"cardCount":78,"orientationValues":["upright","reversed"],"mappingRule":{"en":"Exactly one fixed medium result per canonical card; the public state is selected by the canonical orientation.","es":"Exactamente un resultado fijo del medio por cada naipe canónico; el estado público se selecciona mediante la orientación canónica."}},"presentation":{"rankMode":"count","majorMode":"compound-cord","states":{"upright":{"en":"front","es":"frente"},"reversed":{"en":"rear","es":"reverso"}},"families":{"wands":{"en":"Buff","es":"Beige"},"cups":{"en":"Indigo","es":"Índigo"},"swords":{"en":"Black","es":"Negro"},"pentacles":{"en":"Brown","es":"Marrón"}}},"ritual":{"concealment":{"en":"All knotted cords remain hidden inside a tall opaque vessel.","es":"Todos los cordones anudados permanecen ocultos dentro de un recipiente alto y opaco."},"chance":{"en":"Amaru mixes the cords by touch and pulls one without seeing its colour or knots.","es":"Amaru mezcla los cordones al tacto y extrae uno sin ver su color ni sus nudos."},"upright":{"en":"The cord emerges from its marked front end.","es":"El cordón emerge por su extremo frontal marcado."},"reversed":{"en":"The cord emerges from its marked rear end.","es":"El cordón emerge por su extremo posterior marcado."},"beats":{"en":["opaque vessel","mixing cords by touch","one cord drawn unseen","front or rear end emerging","knots laid out without changing direction"],"es":["recipiente opaco","mezcla de cordones al tacto","extracción a ciegas de un cordón","salida del extremo frontal o posterior","extensión de los nudos sin cambiar la dirección"]}},"sourceRegistry":[{"id":"bm-khipu","title":"British Museum: Inca khipu with methodically arranged cords","url":"https://www.britishmuseum.org/collection/object/E_Am1907-0319-286","note":"Documents primary, pendant and subsidiary cords, colours, knot number, direction and sequence."},{"id":"bm-khipu-colour","title":"British Museum: multicoloured possible khipu","url":"https://www.britishmuseum.org/collection/object/E_Am1914-0731-60","note":"Documents cream, brown, indigo and black yarn groups."},{"id":"met-paccha","title":"Metropolitan Museum: Inca paccha ritual vessel","url":"https://www.metmuseum.org/art/collection/search/314954","note":"Documents an Inca ritual vessel and Pachamama context."},{"id":"smarthistory-inca","title":"Smarthistory: The Inka, an introduction","url":"https://smarthistory.org/inka-intro2/","note":"Historical overview of Inka culture and religion."},{"id":"inca-religion","title":"World History Encyclopedia: Inca religion","url":"https://www.worldhistory.org/Inca_Religion/","note":"Secondary overview of Inka deities and cosmology; specialist review remains required."}],"culturalElementRegistry":[{"id":"family-wands","name":{"en":"Buff","es":"Beige"},"sourceIds":["bm-khipu","bm-khipu-colour"],"sensitivity":"ordinary"},{"id":"family-cups","name":{"en":"Indigo","es":"Índigo"},"sourceIds":["bm-khipu","bm-khipu-colour"],"sensitivity":"ordinary"},{"id":"family-swords","name":{"en":"Black","es":"Negro"},"sourceIds":["bm-khipu","bm-khipu-colour"],"sensitivity":"ordinary"},{"id":"family-pentacles","name":{"en":"Brown","es":"Marrón"},"sourceIds":["bm-khipu","bm-khipu-colour"],"sensitivity":"ordinary"},{"id":"major-viracocha","name":{"en":"Viracocha","es":"Viracocha"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-inti","name":{"en":"Inti","es":"Inti"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-mama-quilla","name":{"en":"Mama Quilla","es":"Mama Quilla"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-illapa","name":{"en":"Illapa","es":"Illapa"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-pachamama","name":{"en":"Pachamama","es":"Pachamama"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-mama-cocha","name":{"en":"Mama Cocha","es":"Mama Cocha"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-pachacamac","name":{"en":"Pachacamac","es":"Pachacámac"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-kon","name":{"en":"Kon","es":"Kon"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-pariacaca","name":{"en":"Pariacaca","es":"Pariacaca"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-catequil","name":{"en":"Catequil","es":"Catequil"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-supay","name":{"en":"Supay","es":"Supay"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-amaru","name":{"en":"Amaru","es":"Amaru"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-the-apus","name":{"en":"The Apus","es":"Los apus"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-chasca","name":{"en":"Chasca","es":"Chasca"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-mama-sara","name":{"en":"Mama Sara","es":"Mama Sara"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-urcuchillay","name":{"en":"Urcuchillay","es":"Urcuchillay"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-cavillaca","name":{"en":"Cavillaca","es":"Cavillaca"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-vichama","name":{"en":"Vichama","es":"Vichama"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-ayar-manco","name":{"en":"Ayar Manco","es":"Ayar Manco"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-ayar-cachi","name":{"en":"Ayar Cachi","es":"Ayar Cachi"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-mama-ocllo","name":{"en":"Mama Ocllo","es":"Mama Ocllo"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"},{"id":"major-the-huaca","name":{"en":"The Huaca","es":"La huaca"},"sourceIds":["smarthistory-inca","inca-religion"],"sensitivity":"specialist-review"}],"major":[{"itemName":{"en":"Viracocha","es":"Viracocha"},"culturalElementIds":["major-viracocha"],"itemDescription":{"en":"A compound buff and indigo cord with single knots representing Viracocha.","es":"Un cordón compuesto beige y índigo con nudos simples que representa a Viracocha."}},{"itemName":{"en":"Inti","es":"Inti"},"culturalElementIds":["major-inti"],"itemDescription":{"en":"A compound indigo and black cord with long knots representing Inti.","es":"Un cordón compuesto índigo y negro con nudos largos que representa a Inti."}},{"itemName":{"en":"Mama Quilla","es":"Mama Quilla"},"culturalElementIds":["major-mama-quilla"],"itemDescription":{"en":"A compound black and brown cord with figure-eight knots representing Mama Quilla.","es":"Un cordón compuesto negro y marrón con nudos en forma de ocho que representa a Mama Quilla."}},{"itemName":{"en":"Illapa","es":"Illapa"},"culturalElementIds":["major-illapa"],"itemDescription":{"en":"A compound brown and buff cord with subsidiary cords representing Illapa.","es":"Un cordón compuesto marrón y beige con cordones subsidiarios que representa a Illapa."}},{"itemName":{"en":"Pachamama","es":"Pachamama"},"culturalElementIds":["major-pachamama"],"itemDescription":{"en":"A compound buff and indigo cord with single knots representing Pachamama.","es":"Un cordón compuesto beige y índigo con nudos simples que representa a Pachamama."}},{"itemName":{"en":"Mama Cocha","es":"Mama Cocha"},"culturalElementIds":["major-mama-cocha"],"itemDescription":{"en":"A compound indigo and brown cord with long knots representing Mama Cocha.","es":"Un cordón compuesto índigo y marrón con nudos largos que representa a Mama Cocha."}},{"itemName":{"en":"Pachacamac","es":"Pachacámac"},"culturalElementIds":["major-pachacamac"],"itemDescription":{"en":"A compound black and buff cord with figure-eight knots representing Pachacamac.","es":"Un cordón compuesto negro y beige con nudos en forma de ocho que representa a Pachacámac."}},{"itemName":{"en":"Kon","es":"Kon"},"culturalElementIds":["major-kon"],"itemDescription":{"en":"A compound brown and indigo cord with subsidiary cords representing Kon.","es":"Un cordón compuesto marrón y índigo con cordones subsidiarios que representa a Kon."}},{"itemName":{"en":"Pariacaca","es":"Pariacaca"},"culturalElementIds":["major-pariacaca"],"itemDescription":{"en":"A compound buff and black cord with single knots representing Pariacaca.","es":"Un cordón compuesto beige y negro con nudos simples que representa a Pariacaca."}},{"itemName":{"en":"Catequil","es":"Catequil"},"culturalElementIds":["major-catequil"],"itemDescription":{"en":"A compound indigo and brown cord with long knots representing Catequil.","es":"Un cordón compuesto índigo y marrón con nudos largos que representa a Catequil."}},{"itemName":{"en":"Supay","es":"Supay"},"culturalElementIds":["major-supay"],"itemDescription":{"en":"A compound black and indigo cord with figure-eight knots representing Supay.","es":"Un cordón compuesto negro y índigo con nudos en forma de ocho que representa a Supay."}},{"itemName":{"en":"Amaru","es":"Amaru"},"culturalElementIds":["major-amaru"],"itemDescription":{"en":"A compound brown and black cord with subsidiary cords representing Amaru.","es":"Un cordón compuesto marrón y negro con cordones subsidiarios que representa a Amaru."}},{"itemName":{"en":"The Apus","es":"Los apus"},"culturalElementIds":["major-the-apus"],"itemDescription":{"en":"A compound buff and brown cord with single knots representing The Apus.","es":"Un cordón compuesto beige y marrón con nudos simples que representa a Los apus."}},{"itemName":{"en":"Chasca","es":"Chasca"},"culturalElementIds":["major-chasca"],"itemDescription":{"en":"A compound indigo and buff cord with long knots representing Chasca.","es":"Un cordón compuesto índigo y beige con nudos largos que representa a Chasca."}},{"itemName":{"en":"Mama Sara","es":"Mama Sara"},"culturalElementIds":["major-mama-sara"],"itemDescription":{"en":"A compound black and indigo cord with figure-eight knots representing Mama Sara.","es":"Un cordón compuesto negro y índigo con nudos en forma de ocho que representa a Mama Sara."}},{"itemName":{"en":"Urcuchillay","es":"Urcuchillay"},"culturalElementIds":["major-urcuchillay"],"itemDescription":{"en":"A compound brown and buff cord with subsidiary cords representing Urcuchillay.","es":"Un cordón compuesto marrón y beige con cordones subsidiarios que representa a Urcuchillay."}},{"itemName":{"en":"Cavillaca","es":"Cavillaca"},"culturalElementIds":["major-cavillaca"],"itemDescription":{"en":"A compound buff and indigo cord with single knots representing Cavillaca.","es":"Un cordón compuesto beige y índigo con nudos simples que representa a Cavillaca."}},{"itemName":{"en":"Vichama","es":"Vichama"},"culturalElementIds":["major-vichama"],"itemDescription":{"en":"A compound indigo and black cord with long knots representing Vichama.","es":"Un cordón compuesto índigo y negro con nudos largos que representa a Vichama."}},{"itemName":{"en":"Ayar Manco","es":"Ayar Manco"},"culturalElementIds":["major-ayar-manco"],"itemDescription":{"en":"A compound black and brown cord with figure-eight knots representing Ayar Manco.","es":"Un cordón compuesto negro y marrón con nudos en forma de ocho que representa a Ayar Manco."}},{"itemName":{"en":"Ayar Cachi","es":"Ayar Cachi"},"culturalElementIds":["major-ayar-cachi"],"itemDescription":{"en":"A compound brown and buff cord with subsidiary cords representing Ayar Cachi.","es":"Un cordón compuesto marrón y beige con cordones subsidiarios que representa a Ayar Cachi."}},{"itemName":{"en":"Mama Ocllo","es":"Mama Ocllo"},"culturalElementIds":["major-mama-ocllo"],"itemDescription":{"en":"A compound buff and indigo cord with single knots representing Mama Ocllo.","es":"Un cordón compuesto beige y índigo con nudos simples que representa a Mama Ocllo."}},{"itemName":{"en":"The Huaca","es":"La huaca"},"culturalElementIds":["major-the-huaca"],"itemDescription":{"en":"A compound indigo and black cord with long knots representing The Huaca.","es":"Un cordón compuesto índigo y negro con nudos largos que representa a La huaca."}}],"minor":{"wands":[{"itemName":{"en":"1 Buff Knot","es":"1 nudo beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"2 Buff Knots","es":"2 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"3 Buff Knots","es":"3 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"4 Buff Knots","es":"4 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"5 Buff Knots","es":"5 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"6 Buff Knots","es":"6 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"7 Buff Knots","es":"7 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"8 Buff Knots","es":"8 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"9 Buff Knots","es":"9 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"10 Buff Knots","es":"10 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"11 Buff Knots","es":"11 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"12 Buff Knots","es":"12 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"13 Buff Knots","es":"13 nudos beige"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"14 Buff Knots","es":"14 nudos beige"},"culturalElementIds":["family-wands"]}],"cups":[{"itemName":{"en":"1 Indigo Knot","es":"1 nudo índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"2 Indigo Knots","es":"2 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"3 Indigo Knots","es":"3 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"4 Indigo Knots","es":"4 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"5 Indigo Knots","es":"5 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"6 Indigo Knots","es":"6 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"7 Indigo Knots","es":"7 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"8 Indigo Knots","es":"8 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"9 Indigo Knots","es":"9 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"10 Indigo Knots","es":"10 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"11 Indigo Knots","es":"11 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"12 Indigo Knots","es":"12 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"13 Indigo Knots","es":"13 nudos índigo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"14 Indigo Knots","es":"14 nudos índigo"},"culturalElementIds":["family-cups"]}],"swords":[{"itemName":{"en":"1 Black Knot","es":"1 nudo negro"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"2 Black Knots","es":"2 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"3 Black Knots","es":"3 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"4 Black Knots","es":"4 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"5 Black Knots","es":"5 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"6 Black Knots","es":"6 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"7 Black Knots","es":"7 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"8 Black Knots","es":"8 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"9 Black Knots","es":"9 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"10 Black Knots","es":"10 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"11 Black Knots","es":"11 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"12 Black Knots","es":"12 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"13 Black Knots","es":"13 nudos negros"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"14 Black Knots","es":"14 nudos negros"},"culturalElementIds":["family-swords"]}],"pentacles":[{"itemName":{"en":"1 Brown Knot","es":"1 nudo marrón"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"2 Brown Knots","es":"2 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"3 Brown Knots","es":"3 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"4 Brown Knots","es":"4 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"5 Brown Knots","es":"5 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"6 Brown Knots","es":"6 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"7 Brown Knots","es":"7 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"8 Brown Knots","es":"8 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"9 Brown Knots","es":"9 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"10 Brown Knots","es":"10 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"11 Brown Knots","es":"11 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"12 Brown Knots","es":"12 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"13 Brown Knots","es":"13 nudos marrones"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"14 Brown Knots","es":"14 nudos marrones"},"culturalElementIds":["family-pentacles"]}]}}
+{
+  "$schema": "../medium-map.schema.json",
+  "version": 3,
+  "status": {
+    "state": "source-backed-draft",
+    "culturalSpecialistReviewRequired": true,
+    "note": {
+      "en": "The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.",
+      "es": "Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."
+    }
+  },
+  "reader": "amaru",
+  "culture": {
+    "en": "Inka khipu structures and documented Andean religious traditions",
+    "es": "Estructuras khipu y tradiciones religiosas andinas documentadas"
+  },
+  "presentation": {
+    "rankMode": "count",
+    "majorMode": "compound-cord",
+    "states": {
+      "upright": {
+        "en": "front",
+        "es": "frente"
+      },
+      "reversed": {
+        "en": "rear",
+        "es": "reverso"
+      }
+    },
+    "families": {
+      "wands": {
+        "en": "Buff",
+        "es": "Beige"
+      },
+      "cups": {
+        "en": "Indigo",
+        "es": "Índigo"
+      },
+      "swords": {
+        "en": "Black",
+        "es": "Negro"
+      },
+      "pentacles": {
+        "en": "Brown",
+        "es": "Marrón"
+      }
+    }
+  },
+  "sourceRegistry": [
+    {
+      "id": "bm-khipu",
+      "title": "British Museum: Inca khipu with methodically arranged cords",
+      "url": "https://www.britishmuseum.org/collection/object/E_Am1907-0319-286",
+      "note": "Documents primary, pendant and subsidiary cords, colours, knot number, direction and sequence."
+    },
+    {
+      "id": "bm-khipu-colour",
+      "title": "British Museum: multicoloured possible khipu",
+      "url": "https://www.britishmuseum.org/collection/object/E_Am1914-0731-60",
+      "note": "Documents cream, brown, indigo and black yarn groups."
+    },
+    {
+      "id": "met-paccha",
+      "title": "Metropolitan Museum: Inca paccha ritual vessel",
+      "url": "https://www.metmuseum.org/art/collection/search/314954",
+      "note": "Documents an Inca ritual vessel and Pachamama context."
+    },
+    {
+      "id": "smarthistory-inca",
+      "title": "Smarthistory: The Inka, an introduction",
+      "url": "https://smarthistory.org/inka-intro2/",
+      "note": "Historical overview of Inka culture and religion."
+    },
+    {
+      "id": "inca-religion",
+      "title": "World History Encyclopedia: Inca religion",
+      "url": "https://www.worldhistory.org/Inca_Religion/",
+      "note": "Secondary overview of Inka deities and cosmology; specialist review remains required."
+    }
+  ],
+  "culturalElementRegistry": [
+    {
+      "id": "family-wands",
+      "name": {
+        "en": "Buff",
+        "es": "Beige"
+      },
+      "sourceIds": [
+        "bm-khipu",
+        "bm-khipu-colour"
+      ],
+      "sensitivity": "ordinary"
+    },
+    {
+      "id": "family-cups",
+      "name": {
+        "en": "Indigo",
+        "es": "Índigo"
+      },
+      "sourceIds": [
+        "bm-khipu",
+        "bm-khipu-colour"
+      ],
+      "sensitivity": "ordinary"
+    },
+    {
+      "id": "family-swords",
+      "name": {
+        "en": "Black",
+        "es": "Negro"
+      },
+      "sourceIds": [
+        "bm-khipu",
+        "bm-khipu-colour"
+      ],
+      "sensitivity": "ordinary"
+    },
+    {
+      "id": "family-pentacles",
+      "name": {
+        "en": "Brown",
+        "es": "Marrón"
+      },
+      "sourceIds": [
+        "bm-khipu",
+        "bm-khipu-colour"
+      ],
+      "sensitivity": "ordinary"
+    },
+    {
+      "id": "major-viracocha",
+      "name": {
+        "en": "Viracocha",
+        "es": "Viracocha"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-inti",
+      "name": {
+        "en": "Inti",
+        "es": "Inti"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-mama-quilla",
+      "name": {
+        "en": "Mama Quilla",
+        "es": "Mama Quilla"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-illapa",
+      "name": {
+        "en": "Illapa",
+        "es": "Illapa"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-pachamama",
+      "name": {
+        "en": "Pachamama",
+        "es": "Pachamama"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-mama-cocha",
+      "name": {
+        "en": "Mama Cocha",
+        "es": "Mama Cocha"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-pachacamac",
+      "name": {
+        "en": "Pachacamac",
+        "es": "Pachacámac"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-kon",
+      "name": {
+        "en": "Kon",
+        "es": "Kon"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-pariacaca",
+      "name": {
+        "en": "Pariacaca",
+        "es": "Pariacaca"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-catequil",
+      "name": {
+        "en": "Catequil",
+        "es": "Catequil"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-supay",
+      "name": {
+        "en": "Supay",
+        "es": "Supay"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-amaru",
+      "name": {
+        "en": "Amaru",
+        "es": "Amaru"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-the-apus",
+      "name": {
+        "en": "The Apus",
+        "es": "Los apus"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-chasca",
+      "name": {
+        "en": "Chasca",
+        "es": "Chasca"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-mama-sara",
+      "name": {
+        "en": "Mama Sara",
+        "es": "Mama Sara"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-urcuchillay",
+      "name": {
+        "en": "Urcuchillay",
+        "es": "Urcuchillay"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-cavillaca",
+      "name": {
+        "en": "Cavillaca",
+        "es": "Cavillaca"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-vichama",
+      "name": {
+        "en": "Vichama",
+        "es": "Vichama"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-ayar-manco",
+      "name": {
+        "en": "Ayar Manco",
+        "es": "Ayar Manco"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-ayar-cachi",
+      "name": {
+        "en": "Ayar Cachi",
+        "es": "Ayar Cachi"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-mama-ocllo",
+      "name": {
+        "en": "Mama Ocllo",
+        "es": "Mama Ocllo"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-the-huaca",
+      "name": {
+        "en": "The Huaca",
+        "es": "La huaca"
+      },
+      "sourceIds": [
+        "smarthistory-inca",
+        "inca-religion"
+      ],
+      "sensitivity": "specialist-review"
+    }
+  ],
+  "cards": {
+    "major-fool": {
+      "itemName": {
+        "en": "Viracocha",
+        "es": "Viracocha"
+      },
+      "culturalElementIds": [
+        "major-viracocha"
+      ],
+      "itemDescription": {
+        "en": "A compound buff and indigo cord with single knots representing Viracocha.",
+        "es": "Un cordón compuesto beige y índigo con nudos simples que representa a Viracocha."
+      }
+    },
+    "major-magician": {
+      "itemName": {
+        "en": "Inti",
+        "es": "Inti"
+      },
+      "culturalElementIds": [
+        "major-inti"
+      ],
+      "itemDescription": {
+        "en": "A compound indigo and black cord with long knots representing Inti.",
+        "es": "Un cordón compuesto índigo y negro con nudos largos que representa a Inti."
+      }
+    },
+    "major-priestess": {
+      "itemName": {
+        "en": "Mama Quilla",
+        "es": "Mama Quilla"
+      },
+      "culturalElementIds": [
+        "major-mama-quilla"
+      ],
+      "itemDescription": {
+        "en": "A compound black and brown cord with figure-eight knots representing Mama Quilla.",
+        "es": "Un cordón compuesto negro y marrón con nudos en forma de ocho que representa a Mama Quilla."
+      }
+    },
+    "major-empress": {
+      "itemName": {
+        "en": "Illapa",
+        "es": "Illapa"
+      },
+      "culturalElementIds": [
+        "major-illapa"
+      ],
+      "itemDescription": {
+        "en": "A compound brown and buff cord with subsidiary cords representing Illapa.",
+        "es": "Un cordón compuesto marrón y beige con cordones subsidiarios que representa a Illapa."
+      }
+    },
+    "major-emperor": {
+      "itemName": {
+        "en": "Pachamama",
+        "es": "Pachamama"
+      },
+      "culturalElementIds": [
+        "major-pachamama"
+      ],
+      "itemDescription": {
+        "en": "A compound buff and indigo cord with single knots representing Pachamama.",
+        "es": "Un cordón compuesto beige y índigo con nudos simples que representa a Pachamama."
+      }
+    },
+    "major-hierophant": {
+      "itemName": {
+        "en": "Mama Cocha",
+        "es": "Mama Cocha"
+      },
+      "culturalElementIds": [
+        "major-mama-cocha"
+      ],
+      "itemDescription": {
+        "en": "A compound indigo and brown cord with long knots representing Mama Cocha.",
+        "es": "Un cordón compuesto índigo y marrón con nudos largos que representa a Mama Cocha."
+      }
+    },
+    "major-lovers": {
+      "itemName": {
+        "en": "Pachacamac",
+        "es": "Pachacámac"
+      },
+      "culturalElementIds": [
+        "major-pachacamac"
+      ],
+      "itemDescription": {
+        "en": "A compound black and buff cord with figure-eight knots representing Pachacamac.",
+        "es": "Un cordón compuesto negro y beige con nudos en forma de ocho que representa a Pachacámac."
+      }
+    },
+    "major-chariot": {
+      "itemName": {
+        "en": "Kon",
+        "es": "Kon"
+      },
+      "culturalElementIds": [
+        "major-kon"
+      ],
+      "itemDescription": {
+        "en": "A compound brown and indigo cord with subsidiary cords representing Kon.",
+        "es": "Un cordón compuesto marrón y índigo con cordones subsidiarios que representa a Kon."
+      }
+    },
+    "major-strength": {
+      "itemName": {
+        "en": "Pariacaca",
+        "es": "Pariacaca"
+      },
+      "culturalElementIds": [
+        "major-pariacaca"
+      ],
+      "itemDescription": {
+        "en": "A compound buff and black cord with single knots representing Pariacaca.",
+        "es": "Un cordón compuesto beige y negro con nudos simples que representa a Pariacaca."
+      }
+    },
+    "major-hermit": {
+      "itemName": {
+        "en": "Catequil",
+        "es": "Catequil"
+      },
+      "culturalElementIds": [
+        "major-catequil"
+      ],
+      "itemDescription": {
+        "en": "A compound indigo and brown cord with long knots representing Catequil.",
+        "es": "Un cordón compuesto índigo y marrón con nudos largos que representa a Catequil."
+      }
+    },
+    "major-wheel": {
+      "itemName": {
+        "en": "Supay",
+        "es": "Supay"
+      },
+      "culturalElementIds": [
+        "major-supay"
+      ],
+      "itemDescription": {
+        "en": "A compound black and indigo cord with figure-eight knots representing Supay.",
+        "es": "Un cordón compuesto negro y índigo con nudos en forma de ocho que representa a Supay."
+      }
+    },
+    "major-justice": {
+      "itemName": {
+        "en": "Amaru",
+        "es": "Amaru"
+      },
+      "culturalElementIds": [
+        "major-amaru"
+      ],
+      "itemDescription": {
+        "en": "A compound brown and black cord with subsidiary cords representing Amaru.",
+        "es": "Un cordón compuesto marrón y negro con cordones subsidiarios que representa a Amaru."
+      }
+    },
+    "major-hanged": {
+      "itemName": {
+        "en": "The Apus",
+        "es": "Los apus"
+      },
+      "culturalElementIds": [
+        "major-the-apus"
+      ],
+      "itemDescription": {
+        "en": "A compound buff and brown cord with single knots representing The Apus.",
+        "es": "Un cordón compuesto beige y marrón con nudos simples que representa a Los apus."
+      }
+    },
+    "major-death": {
+      "itemName": {
+        "en": "Chasca",
+        "es": "Chasca"
+      },
+      "culturalElementIds": [
+        "major-chasca"
+      ],
+      "itemDescription": {
+        "en": "A compound indigo and buff cord with long knots representing Chasca.",
+        "es": "Un cordón compuesto índigo y beige con nudos largos que representa a Chasca."
+      }
+    },
+    "major-temperance": {
+      "itemName": {
+        "en": "Mama Sara",
+        "es": "Mama Sara"
+      },
+      "culturalElementIds": [
+        "major-mama-sara"
+      ],
+      "itemDescription": {
+        "en": "A compound black and indigo cord with figure-eight knots representing Mama Sara.",
+        "es": "Un cordón compuesto negro y índigo con nudos en forma de ocho que representa a Mama Sara."
+      }
+    },
+    "major-devil": {
+      "itemName": {
+        "en": "Urcuchillay",
+        "es": "Urcuchillay"
+      },
+      "culturalElementIds": [
+        "major-urcuchillay"
+      ],
+      "itemDescription": {
+        "en": "A compound brown and buff cord with subsidiary cords representing Urcuchillay.",
+        "es": "Un cordón compuesto marrón y beige con cordones subsidiarios que representa a Urcuchillay."
+      }
+    },
+    "major-tower": {
+      "itemName": {
+        "en": "Cavillaca",
+        "es": "Cavillaca"
+      },
+      "culturalElementIds": [
+        "major-cavillaca"
+      ],
+      "itemDescription": {
+        "en": "A compound buff and indigo cord with single knots representing Cavillaca.",
+        "es": "Un cordón compuesto beige y índigo con nudos simples que representa a Cavillaca."
+      }
+    },
+    "major-star": {
+      "itemName": {
+        "en": "Vichama",
+        "es": "Vichama"
+      },
+      "culturalElementIds": [
+        "major-vichama"
+      ],
+      "itemDescription": {
+        "en": "A compound indigo and black cord with long knots representing Vichama.",
+        "es": "Un cordón compuesto índigo y negro con nudos largos que representa a Vichama."
+      }
+    },
+    "major-moon": {
+      "itemName": {
+        "en": "Ayar Manco",
+        "es": "Ayar Manco"
+      },
+      "culturalElementIds": [
+        "major-ayar-manco"
+      ],
+      "itemDescription": {
+        "en": "A compound black and brown cord with figure-eight knots representing Ayar Manco.",
+        "es": "Un cordón compuesto negro y marrón con nudos en forma de ocho que representa a Ayar Manco."
+      }
+    },
+    "major-sun": {
+      "itemName": {
+        "en": "Ayar Cachi",
+        "es": "Ayar Cachi"
+      },
+      "culturalElementIds": [
+        "major-ayar-cachi"
+      ],
+      "itemDescription": {
+        "en": "A compound brown and buff cord with subsidiary cords representing Ayar Cachi.",
+        "es": "Un cordón compuesto marrón y beige con cordones subsidiarios que representa a Ayar Cachi."
+      }
+    },
+    "major-judgement": {
+      "itemName": {
+        "en": "Mama Ocllo",
+        "es": "Mama Ocllo"
+      },
+      "culturalElementIds": [
+        "major-mama-ocllo"
+      ],
+      "itemDescription": {
+        "en": "A compound buff and indigo cord with single knots representing Mama Ocllo.",
+        "es": "Un cordón compuesto beige y índigo con nudos simples que representa a Mama Ocllo."
+      }
+    },
+    "major-world": {
+      "itemName": {
+        "en": "The Huaca",
+        "es": "La huaca"
+      },
+      "culturalElementIds": [
+        "major-the-huaca"
+      ],
+      "itemDescription": {
+        "en": "A compound indigo and black cord with long knots representing The Huaca.",
+        "es": "Un cordón compuesto índigo y negro con nudos largos que representa a La huaca."
+      }
+    },
+    "wands-ace": {
+      "itemName": {
+        "en": "1 Buff Knot",
+        "es": "1 nudo beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-two": {
+      "itemName": {
+        "en": "2 Buff Knots",
+        "es": "2 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-three": {
+      "itemName": {
+        "en": "3 Buff Knots",
+        "es": "3 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-four": {
+      "itemName": {
+        "en": "4 Buff Knots",
+        "es": "4 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-five": {
+      "itemName": {
+        "en": "5 Buff Knots",
+        "es": "5 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-six": {
+      "itemName": {
+        "en": "6 Buff Knots",
+        "es": "6 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-seven": {
+      "itemName": {
+        "en": "7 Buff Knots",
+        "es": "7 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-eight": {
+      "itemName": {
+        "en": "8 Buff Knots",
+        "es": "8 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-nine": {
+      "itemName": {
+        "en": "9 Buff Knots",
+        "es": "9 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-ten": {
+      "itemName": {
+        "en": "10 Buff Knots",
+        "es": "10 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-page": {
+      "itemName": {
+        "en": "11 Buff Knots",
+        "es": "11 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-knight": {
+      "itemName": {
+        "en": "12 Buff Knots",
+        "es": "12 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-queen": {
+      "itemName": {
+        "en": "13 Buff Knots",
+        "es": "13 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-king": {
+      "itemName": {
+        "en": "14 Buff Knots",
+        "es": "14 nudos beige"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "cups-ace": {
+      "itemName": {
+        "en": "1 Indigo Knot",
+        "es": "1 nudo índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-two": {
+      "itemName": {
+        "en": "2 Indigo Knots",
+        "es": "2 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-three": {
+      "itemName": {
+        "en": "3 Indigo Knots",
+        "es": "3 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-four": {
+      "itemName": {
+        "en": "4 Indigo Knots",
+        "es": "4 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-five": {
+      "itemName": {
+        "en": "5 Indigo Knots",
+        "es": "5 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-six": {
+      "itemName": {
+        "en": "6 Indigo Knots",
+        "es": "6 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-seven": {
+      "itemName": {
+        "en": "7 Indigo Knots",
+        "es": "7 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-eight": {
+      "itemName": {
+        "en": "8 Indigo Knots",
+        "es": "8 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-nine": {
+      "itemName": {
+        "en": "9 Indigo Knots",
+        "es": "9 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-ten": {
+      "itemName": {
+        "en": "10 Indigo Knots",
+        "es": "10 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-page": {
+      "itemName": {
+        "en": "11 Indigo Knots",
+        "es": "11 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-knight": {
+      "itemName": {
+        "en": "12 Indigo Knots",
+        "es": "12 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-queen": {
+      "itemName": {
+        "en": "13 Indigo Knots",
+        "es": "13 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-king": {
+      "itemName": {
+        "en": "14 Indigo Knots",
+        "es": "14 nudos índigo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "swords-ace": {
+      "itemName": {
+        "en": "1 Black Knot",
+        "es": "1 nudo negro"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-two": {
+      "itemName": {
+        "en": "2 Black Knots",
+        "es": "2 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-three": {
+      "itemName": {
+        "en": "3 Black Knots",
+        "es": "3 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-four": {
+      "itemName": {
+        "en": "4 Black Knots",
+        "es": "4 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-five": {
+      "itemName": {
+        "en": "5 Black Knots",
+        "es": "5 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-six": {
+      "itemName": {
+        "en": "6 Black Knots",
+        "es": "6 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-seven": {
+      "itemName": {
+        "en": "7 Black Knots",
+        "es": "7 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-eight": {
+      "itemName": {
+        "en": "8 Black Knots",
+        "es": "8 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-nine": {
+      "itemName": {
+        "en": "9 Black Knots",
+        "es": "9 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-ten": {
+      "itemName": {
+        "en": "10 Black Knots",
+        "es": "10 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-page": {
+      "itemName": {
+        "en": "11 Black Knots",
+        "es": "11 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-knight": {
+      "itemName": {
+        "en": "12 Black Knots",
+        "es": "12 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-queen": {
+      "itemName": {
+        "en": "13 Black Knots",
+        "es": "13 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-king": {
+      "itemName": {
+        "en": "14 Black Knots",
+        "es": "14 nudos negros"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "pentacles-ace": {
+      "itemName": {
+        "en": "1 Brown Knot",
+        "es": "1 nudo marrón"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-two": {
+      "itemName": {
+        "en": "2 Brown Knots",
+        "es": "2 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-three": {
+      "itemName": {
+        "en": "3 Brown Knots",
+        "es": "3 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-four": {
+      "itemName": {
+        "en": "4 Brown Knots",
+        "es": "4 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-five": {
+      "itemName": {
+        "en": "5 Brown Knots",
+        "es": "5 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-six": {
+      "itemName": {
+        "en": "6 Brown Knots",
+        "es": "6 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-seven": {
+      "itemName": {
+        "en": "7 Brown Knots",
+        "es": "7 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-eight": {
+      "itemName": {
+        "en": "8 Brown Knots",
+        "es": "8 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-nine": {
+      "itemName": {
+        "en": "9 Brown Knots",
+        "es": "9 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-ten": {
+      "itemName": {
+        "en": "10 Brown Knots",
+        "es": "10 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-page": {
+      "itemName": {
+        "en": "11 Brown Knots",
+        "es": "11 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-knight": {
+      "itemName": {
+        "en": "12 Brown Knots",
+        "es": "12 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-queen": {
+      "itemName": {
+        "en": "13 Brown Knots",
+        "es": "13 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-king": {
+      "itemName": {
+        "en": "14 Brown Knots",
+        "es": "14 nudos marrones"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    }
+  }
+}

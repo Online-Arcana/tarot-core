@@ -1,1 +1,939 @@
-{"$schema":"../medium-map.schema.json","version":2,"status":{"state":"source-backed-draft","runtimeIntegrated":true,"culturalSpecialistReviewRequired":true,"note":{"en":"The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.","es":"Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."}},"reader":"brennos","readerName":{"en":"Brennos","es":"Brennos"},"culture":{"en":"Iron Age Helvetii and closely related Central European La Tène material culture, with broader Celtic folklore clearly identified where used","es":"Cultura material de los helvecios de la Edad del Hierro y de La Tène centroeuropea, con el folclore celta más amplio claramente identificado cuando se utiliza"},"medium":{"en":"individually carved bones","es":"huesos tallados individualmente"},"canonicalDeck":{"name":{"en":"Online Arcana naipes","es":"Naipes de Online Arcana"},"cardCount":78,"orientationValues":["upright","reversed"],"mappingRule":{"en":"Exactly one fixed medium result per canonical card; the public state is selected by the canonical orientation.","es":"Exactamente un resultado fijo del medio por cada naipe canónico; el estado público se selecciona mediante la orientación canónica."}},"presentation":{"rankMode":"entity","majorMode":"carved-being","states":{"upright":{"en":"between","es":"entre"},"reversed":{"en":"crossing","es":"cruzando"}},"families":{"wands":{"en":"Trees","es":"Árboles"},"cups":{"en":"Flowers","es":"Flores"},"swords":{"en":"Birds","es":"Aves"},"pentacles":{"en":"Beasts","es":"Bestias"}}},"ritual":{"concealment":{"en":"All carved bones remain hidden inside a shallow iron shield.","es":"Todos los huesos tallados permanecen ocultos dentro de un escudo de hierro poco profundo."},"chance":{"en":"Brennos shakes the shield until exactly one bone escapes the rim and strikes the fire-scarred table.","es":"Brennos agita el escudo hasta que un solo hueso supera el borde y golpea la mesa marcada por el fuego."},"upright":{"en":"The bone rests wholly between the burnt cracks.","es":"El hueso queda por completo entre las grietas quemadas."},"reversed":{"en":"The bone touches or crosses a burnt crack.","es":"El hueso toca o cruza una grieta quemada."},"beats":{"en":["iron shield","bones striking iron","one bone escaping","impact on the table","relationship to the burnt cracks"],"es":["escudo de hierro","huesos golpeando el hierro","un solo hueso que escapa","impacto sobre la mesa","relación con las grietas quemadas"]}},"sourceRegistry":[{"id":"bm-latene-context","title":"British Museum: La Tène collection term","url":"https://www.britishmuseum.org/collection/term/x111161","note":"Archaeological context for Central European La Tène material culture."},{"id":"bm-wheel-ducks","title":"British Museum: torc fragment with ducks and wheel","url":"https://www.britishmuseum.org/collection/object/H_ML-2202","note":"Attested Iron Age animal and geometric ornament."},{"id":"celtic-religion","title":"J. A. MacCulloch: The Religion of the Ancient Celts","url":"https://www.gutenberg.org/files/14672/14672-h/14672-h.htm","note":"Historical comparative study preserving references to deities, animals, trees, plants and later folk custom; used critically."},{"id":"celtic-myth","title":"Charles Squire: Celtic Myth and Legend","url":"https://archive.org/details/celticmythlegend00squi","note":"Historical compilation of Insular Celtic narrative and folklore; used as broader comparative material, not as Helvetii-specific evidence."}],"culturalElementRegistry":[{"id":"family-wands","name":{"en":"Trees","es":"Árboles"},"sourceIds":["bm-latene-context","bm-wheel-ducks","celtic-religion","celtic-myth"],"sensitivity":"specialist-review"},{"id":"family-cups","name":{"en":"Flowers","es":"Flores"},"sourceIds":["bm-latene-context","bm-wheel-ducks","celtic-religion","celtic-myth"],"sensitivity":"specialist-review"},{"id":"family-swords","name":{"en":"Birds","es":"Aves"},"sourceIds":["bm-latene-context","bm-wheel-ducks","celtic-religion","celtic-myth"],"sensitivity":"specialist-review"},{"id":"family-pentacles","name":{"en":"Beasts","es":"Bestias"},"sourceIds":["bm-latene-context","bm-wheel-ducks","celtic-religion","celtic-myth"],"sensitivity":"specialist-review"},{"id":"major-being","name":{"en":"Named being","es":"Ser nombrado"},"sourceIds":["bm-latene-context","bm-wheel-ducks","celtic-religion","celtic-myth"],"sensitivity":"specialist-review"}],"major":[{"itemName":{"en":"Epona","es":"Epona"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Epona.","es":"Un hueso oscurecido por humo tallado con Epona."}},{"itemName":{"en":"Cernunnos","es":"Cernunnos"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Cernunnos.","es":"Un hueso oscurecido por humo tallado con Cernunnos."}},{"itemName":{"en":"Taranis","es":"Taranis"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Taranis.","es":"Un hueso oscurecido por humo tallado con Taranis."}},{"itemName":{"en":"Lugus","es":"Lugus"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Lugus.","es":"Un hueso oscurecido por humo tallado con Lugus."}},{"itemName":{"en":"Rosmerta","es":"Rosmerta"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Rosmerta.","es":"Un hueso oscurecido por humo tallado con Rosmerta."}},{"itemName":{"en":"Sucellus","es":"Sucellus"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Sucellus.","es":"Un hueso oscurecido por humo tallado con Sucellus."}},{"itemName":{"en":"Nantosuelta","es":"Nantosuelta"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Nantosuelta.","es":"Un hueso oscurecido por humo tallado con Nantosuelta."}},{"itemName":{"en":"Artio","es":"Artio"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Artio.","es":"Un hueso oscurecido por humo tallado con Artio."}},{"itemName":{"en":"Belenus","es":"Belenus"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Belenus.","es":"Un hueso oscurecido por humo tallado con Belenus."}},{"itemName":{"en":"Sirona","es":"Sirona"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Sirona.","es":"Un hueso oscurecido por humo tallado con Sirona."}},{"itemName":{"en":"Maponos","es":"Maponos"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Maponos.","es":"Un hueso oscurecido por humo tallado con Maponos."}},{"itemName":{"en":"Ogmios","es":"Ogmios"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Ogmios.","es":"Un hueso oscurecido por humo tallado con Ogmios."}},{"itemName":{"en":"The Matres","es":"Las Matres"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with The Matres.","es":"Un hueso oscurecido por humo tallado con Las Matres."}},{"itemName":{"en":"Nodens","es":"Nodens"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Nodens.","es":"Un hueso oscurecido por humo tallado con Nodens."}},{"itemName":{"en":"Sequana","es":"Sequana"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Sequana.","es":"Un hueso oscurecido por humo tallado con Sequana."}},{"itemName":{"en":"Grannus","es":"Grannus"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Grannus.","es":"Un hueso oscurecido por humo tallado con Grannus."}},{"itemName":{"en":"Erecura","es":"Erecura"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Erecura.","es":"Un hueso oscurecido por humo tallado con Erecura."}},{"itemName":{"en":"Esus","es":"Esus"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Esus.","es":"Un hueso oscurecido por humo tallado con Esus."}},{"itemName":{"en":"Toutatis","es":"Toutatis"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Toutatis.","es":"Un hueso oscurecido por humo tallado con Toutatis."}},{"itemName":{"en":"Cissonius","es":"Cissonius"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Cissonius.","es":"Un hueso oscurecido por humo tallado con Cissonius."}},{"itemName":{"en":"Aventia","es":"Aventia"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Aventia.","es":"Un hueso oscurecido por humo tallado con Aventia."}},{"itemName":{"en":"Borvo","es":"Borvo"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A smoke-darkened bone carved with Borvo.","es":"Un hueso oscurecido por humo tallado con Borvo."}}],"minor":{"wands":[{"itemName":{"en":"Birch Bone","es":"Hueso de Abedul"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Rowan Bone","es":"Hueso de Serbal"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Alder Bone","es":"Hueso de Aliso"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Willow Bone","es":"Hueso de Sauce"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Ash Bone","es":"Hueso de Fresno"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Hawthorn Bone","es":"Hueso de Espino albar"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Oak Bone","es":"Hueso de Roble"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Holly Bone","es":"Hueso de Acebo"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Hazel Bone","es":"Hueso de Avellano"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Apple Bone","es":"Hueso de Manzano"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Elder Bone","es":"Hueso de Saúco"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Pine Bone","es":"Hueso de Pino"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Yew Bone","es":"Hueso de Tejo"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Beech Bone","es":"Hueso de Haya"},"culturalElementIds":["family-wands"]}],"cups":[{"itemName":{"en":"Primrose Bone","es":"Hueso de Prímula"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Violet Bone","es":"Hueso de Violeta"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Daisy Bone","es":"Hueso de Margarita"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Clover Blossom Bone","es":"Hueso de Flor de trébol"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Meadowsweet Bone","es":"Hueso de Reina de los prados"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Heather Bone","es":"Hueso de Brezo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Bellflower Bone","es":"Hueso de Campánula"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Gentian Bone","es":"Hueso de Genciana"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Foxglove Bone","es":"Hueso de Dedalera"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Rose Bone","es":"Hueso de Rosa"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Poppy Bone","es":"Hueso de Amapola"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Cornflower Bone","es":"Hueso de Aciano"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Thistle Bone","es":"Hueso de Cardo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Vervain Bone","es":"Hueso de Verbena"},"culturalElementIds":["family-cups"]}],"swords":[{"itemName":{"en":"Wren Bone","es":"Hueso de Chochín"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Blackbird Bone","es":"Hueso de Mirlo"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Duck Bone","es":"Hueso de Pato"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Goose Bone","es":"Hueso de Ganso"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Swan Bone","es":"Hueso de Cisne"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Crane Bone","es":"Hueso de Grulla"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Heron Bone","es":"Hueso de Garza"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Raven Bone","es":"Hueso de Cuervo grande"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Crow Bone","es":"Hueso de Corneja"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Owl Bone","es":"Hueso de Búho"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Hawk Bone","es":"Hueso de Halcón"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Falcon Bone","es":"Hueso de Halcón peregrino"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Eagle Bone","es":"Hueso de Águila"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Lark Bone","es":"Hueso de Alondra"},"culturalElementIds":["family-swords"]}],"pentacles":[{"itemName":{"en":"Hare Bone","es":"Hueso de Liebre"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Fox Bone","es":"Hueso de Zorro"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Hound Bone","es":"Hueso de Sabueso"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Boar Bone","es":"Hueso de Jabalí"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Stag Bone","es":"Hueso de Ciervo"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Horse Bone","es":"Hueso de Caballo"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Bull Bone","es":"Hueso de Toro"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Ram Bone","es":"Hueso de Carnero"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Goat Bone","es":"Hueso de Cabra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Wolf Bone","es":"Hueso de Lobo"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Bear Bone","es":"Hueso de Oso"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Badger Bone","es":"Hueso de Tejón"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Otter Bone","es":"Hueso de Nutria"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Beaver Bone","es":"Hueso de Castor"},"culturalElementIds":["family-pentacles"]}]}}
+{
+  "$schema": "../medium-map.schema.json",
+  "version": 3,
+  "status": {
+    "state": "source-backed-draft",
+    "culturalSpecialistReviewRequired": true,
+    "note": {
+      "en": "The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.",
+      "es": "Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."
+    }
+  },
+  "reader": "brennos",
+  "culture": {
+    "en": "Iron Age Helvetii and closely related Central European La Tène material culture, with broader Celtic folklore clearly identified where used",
+    "es": "Cultura material de los helvecios de la Edad del Hierro y de La Tène centroeuropea, con el folclore celta más amplio claramente identificado cuando se utiliza"
+  },
+  "presentation": {
+    "rankMode": "entity",
+    "majorMode": "carved-being",
+    "states": {
+      "upright": {
+        "en": "between",
+        "es": "entre"
+      },
+      "reversed": {
+        "en": "crossing",
+        "es": "cruzando"
+      }
+    },
+    "families": {
+      "wands": {
+        "en": "Trees",
+        "es": "Árboles"
+      },
+      "cups": {
+        "en": "Flowers",
+        "es": "Flores"
+      },
+      "swords": {
+        "en": "Birds",
+        "es": "Aves"
+      },
+      "pentacles": {
+        "en": "Beasts",
+        "es": "Bestias"
+      }
+    }
+  },
+  "sourceRegistry": [
+    {
+      "id": "bm-latene-context",
+      "title": "British Museum: La Tène collection term",
+      "url": "https://www.britishmuseum.org/collection/term/x111161",
+      "note": "Archaeological context for Central European La Tène material culture."
+    },
+    {
+      "id": "bm-wheel-ducks",
+      "title": "British Museum: torc fragment with ducks and wheel",
+      "url": "https://www.britishmuseum.org/collection/object/H_ML-2202",
+      "note": "Attested Iron Age animal and geometric ornament."
+    },
+    {
+      "id": "celtic-religion",
+      "title": "J. A. MacCulloch: The Religion of the Ancient Celts",
+      "url": "https://www.gutenberg.org/files/14672/14672-h/14672-h.htm",
+      "note": "Historical comparative study preserving references to deities, animals, trees, plants and later folk custom; used critically."
+    },
+    {
+      "id": "celtic-myth",
+      "title": "Charles Squire: Celtic Myth and Legend",
+      "url": "https://archive.org/details/celticmythlegend00squi",
+      "note": "Historical compilation of Insular Celtic narrative and folklore; used as broader comparative material, not as Helvetii-specific evidence."
+    }
+  ],
+  "culturalElementRegistry": [
+    {
+      "id": "family-wands",
+      "name": {
+        "en": "Trees",
+        "es": "Árboles"
+      },
+      "sourceIds": [
+        "bm-latene-context",
+        "bm-wheel-ducks",
+        "celtic-religion",
+        "celtic-myth"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "family-cups",
+      "name": {
+        "en": "Flowers",
+        "es": "Flores"
+      },
+      "sourceIds": [
+        "bm-latene-context",
+        "bm-wheel-ducks",
+        "celtic-religion",
+        "celtic-myth"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "family-swords",
+      "name": {
+        "en": "Birds",
+        "es": "Aves"
+      },
+      "sourceIds": [
+        "bm-latene-context",
+        "bm-wheel-ducks",
+        "celtic-religion",
+        "celtic-myth"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "family-pentacles",
+      "name": {
+        "en": "Beasts",
+        "es": "Bestias"
+      },
+      "sourceIds": [
+        "bm-latene-context",
+        "bm-wheel-ducks",
+        "celtic-religion",
+        "celtic-myth"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-being",
+      "name": {
+        "en": "Named being",
+        "es": "Ser nombrado"
+      },
+      "sourceIds": [
+        "bm-latene-context",
+        "bm-wheel-ducks",
+        "celtic-religion",
+        "celtic-myth"
+      ],
+      "sensitivity": "specialist-review"
+    }
+  ],
+  "cards": {
+    "major-fool": {
+      "itemName": {
+        "en": "Epona",
+        "es": "Epona"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Epona.",
+        "es": "Un hueso oscurecido por humo tallado con Epona."
+      }
+    },
+    "major-magician": {
+      "itemName": {
+        "en": "Cernunnos",
+        "es": "Cernunnos"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Cernunnos.",
+        "es": "Un hueso oscurecido por humo tallado con Cernunnos."
+      }
+    },
+    "major-priestess": {
+      "itemName": {
+        "en": "Taranis",
+        "es": "Taranis"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Taranis.",
+        "es": "Un hueso oscurecido por humo tallado con Taranis."
+      }
+    },
+    "major-empress": {
+      "itemName": {
+        "en": "Lugus",
+        "es": "Lugus"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Lugus.",
+        "es": "Un hueso oscurecido por humo tallado con Lugus."
+      }
+    },
+    "major-emperor": {
+      "itemName": {
+        "en": "Rosmerta",
+        "es": "Rosmerta"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Rosmerta.",
+        "es": "Un hueso oscurecido por humo tallado con Rosmerta."
+      }
+    },
+    "major-hierophant": {
+      "itemName": {
+        "en": "Sucellus",
+        "es": "Sucellus"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Sucellus.",
+        "es": "Un hueso oscurecido por humo tallado con Sucellus."
+      }
+    },
+    "major-lovers": {
+      "itemName": {
+        "en": "Nantosuelta",
+        "es": "Nantosuelta"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Nantosuelta.",
+        "es": "Un hueso oscurecido por humo tallado con Nantosuelta."
+      }
+    },
+    "major-chariot": {
+      "itemName": {
+        "en": "Artio",
+        "es": "Artio"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Artio.",
+        "es": "Un hueso oscurecido por humo tallado con Artio."
+      }
+    },
+    "major-strength": {
+      "itemName": {
+        "en": "Belenus",
+        "es": "Belenus"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Belenus.",
+        "es": "Un hueso oscurecido por humo tallado con Belenus."
+      }
+    },
+    "major-hermit": {
+      "itemName": {
+        "en": "Sirona",
+        "es": "Sirona"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Sirona.",
+        "es": "Un hueso oscurecido por humo tallado con Sirona."
+      }
+    },
+    "major-wheel": {
+      "itemName": {
+        "en": "Maponos",
+        "es": "Maponos"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Maponos.",
+        "es": "Un hueso oscurecido por humo tallado con Maponos."
+      }
+    },
+    "major-justice": {
+      "itemName": {
+        "en": "Ogmios",
+        "es": "Ogmios"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Ogmios.",
+        "es": "Un hueso oscurecido por humo tallado con Ogmios."
+      }
+    },
+    "major-hanged": {
+      "itemName": {
+        "en": "The Matres",
+        "es": "Las Matres"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with The Matres.",
+        "es": "Un hueso oscurecido por humo tallado con Las Matres."
+      }
+    },
+    "major-death": {
+      "itemName": {
+        "en": "Nodens",
+        "es": "Nodens"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Nodens.",
+        "es": "Un hueso oscurecido por humo tallado con Nodens."
+      }
+    },
+    "major-temperance": {
+      "itemName": {
+        "en": "Sequana",
+        "es": "Sequana"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Sequana.",
+        "es": "Un hueso oscurecido por humo tallado con Sequana."
+      }
+    },
+    "major-devil": {
+      "itemName": {
+        "en": "Grannus",
+        "es": "Grannus"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Grannus.",
+        "es": "Un hueso oscurecido por humo tallado con Grannus."
+      }
+    },
+    "major-tower": {
+      "itemName": {
+        "en": "Erecura",
+        "es": "Erecura"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Erecura.",
+        "es": "Un hueso oscurecido por humo tallado con Erecura."
+      }
+    },
+    "major-star": {
+      "itemName": {
+        "en": "Esus",
+        "es": "Esus"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Esus.",
+        "es": "Un hueso oscurecido por humo tallado con Esus."
+      }
+    },
+    "major-moon": {
+      "itemName": {
+        "en": "Toutatis",
+        "es": "Toutatis"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Toutatis.",
+        "es": "Un hueso oscurecido por humo tallado con Toutatis."
+      }
+    },
+    "major-sun": {
+      "itemName": {
+        "en": "Cissonius",
+        "es": "Cissonius"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Cissonius.",
+        "es": "Un hueso oscurecido por humo tallado con Cissonius."
+      }
+    },
+    "major-judgement": {
+      "itemName": {
+        "en": "Aventia",
+        "es": "Aventia"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Aventia.",
+        "es": "Un hueso oscurecido por humo tallado con Aventia."
+      }
+    },
+    "major-world": {
+      "itemName": {
+        "en": "Borvo",
+        "es": "Borvo"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A smoke-darkened bone carved with Borvo.",
+        "es": "Un hueso oscurecido por humo tallado con Borvo."
+      }
+    },
+    "wands-ace": {
+      "itemName": {
+        "en": "Birch Bone",
+        "es": "Hueso de Abedul"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-two": {
+      "itemName": {
+        "en": "Rowan Bone",
+        "es": "Hueso de Serbal"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-three": {
+      "itemName": {
+        "en": "Alder Bone",
+        "es": "Hueso de Aliso"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-four": {
+      "itemName": {
+        "en": "Willow Bone",
+        "es": "Hueso de Sauce"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-five": {
+      "itemName": {
+        "en": "Ash Bone",
+        "es": "Hueso de Fresno"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-six": {
+      "itemName": {
+        "en": "Hawthorn Bone",
+        "es": "Hueso de Espino albar"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-seven": {
+      "itemName": {
+        "en": "Oak Bone",
+        "es": "Hueso de Roble"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-eight": {
+      "itemName": {
+        "en": "Holly Bone",
+        "es": "Hueso de Acebo"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-nine": {
+      "itemName": {
+        "en": "Hazel Bone",
+        "es": "Hueso de Avellano"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-ten": {
+      "itemName": {
+        "en": "Apple Bone",
+        "es": "Hueso de Manzano"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-page": {
+      "itemName": {
+        "en": "Elder Bone",
+        "es": "Hueso de Saúco"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-knight": {
+      "itemName": {
+        "en": "Pine Bone",
+        "es": "Hueso de Pino"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-queen": {
+      "itemName": {
+        "en": "Yew Bone",
+        "es": "Hueso de Tejo"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-king": {
+      "itemName": {
+        "en": "Beech Bone",
+        "es": "Hueso de Haya"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "cups-ace": {
+      "itemName": {
+        "en": "Primrose Bone",
+        "es": "Hueso de Prímula"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-two": {
+      "itemName": {
+        "en": "Violet Bone",
+        "es": "Hueso de Violeta"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-three": {
+      "itemName": {
+        "en": "Daisy Bone",
+        "es": "Hueso de Margarita"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-four": {
+      "itemName": {
+        "en": "Clover Blossom Bone",
+        "es": "Hueso de Flor de trébol"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-five": {
+      "itemName": {
+        "en": "Meadowsweet Bone",
+        "es": "Hueso de Reina de los prados"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-six": {
+      "itemName": {
+        "en": "Heather Bone",
+        "es": "Hueso de Brezo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-seven": {
+      "itemName": {
+        "en": "Bellflower Bone",
+        "es": "Hueso de Campánula"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-eight": {
+      "itemName": {
+        "en": "Gentian Bone",
+        "es": "Hueso de Genciana"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-nine": {
+      "itemName": {
+        "en": "Foxglove Bone",
+        "es": "Hueso de Dedalera"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-ten": {
+      "itemName": {
+        "en": "Rose Bone",
+        "es": "Hueso de Rosa"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-page": {
+      "itemName": {
+        "en": "Poppy Bone",
+        "es": "Hueso de Amapola"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-knight": {
+      "itemName": {
+        "en": "Cornflower Bone",
+        "es": "Hueso de Aciano"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-queen": {
+      "itemName": {
+        "en": "Thistle Bone",
+        "es": "Hueso de Cardo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-king": {
+      "itemName": {
+        "en": "Vervain Bone",
+        "es": "Hueso de Verbena"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "swords-ace": {
+      "itemName": {
+        "en": "Wren Bone",
+        "es": "Hueso de Chochín"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-two": {
+      "itemName": {
+        "en": "Blackbird Bone",
+        "es": "Hueso de Mirlo"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-three": {
+      "itemName": {
+        "en": "Duck Bone",
+        "es": "Hueso de Pato"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-four": {
+      "itemName": {
+        "en": "Goose Bone",
+        "es": "Hueso de Ganso"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-five": {
+      "itemName": {
+        "en": "Swan Bone",
+        "es": "Hueso de Cisne"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-six": {
+      "itemName": {
+        "en": "Crane Bone",
+        "es": "Hueso de Grulla"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-seven": {
+      "itemName": {
+        "en": "Heron Bone",
+        "es": "Hueso de Garza"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-eight": {
+      "itemName": {
+        "en": "Raven Bone",
+        "es": "Hueso de Cuervo grande"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-nine": {
+      "itemName": {
+        "en": "Crow Bone",
+        "es": "Hueso de Corneja"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-ten": {
+      "itemName": {
+        "en": "Owl Bone",
+        "es": "Hueso de Búho"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-page": {
+      "itemName": {
+        "en": "Hawk Bone",
+        "es": "Hueso de Halcón"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-knight": {
+      "itemName": {
+        "en": "Falcon Bone",
+        "es": "Hueso de Halcón peregrino"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-queen": {
+      "itemName": {
+        "en": "Eagle Bone",
+        "es": "Hueso de Águila"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-king": {
+      "itemName": {
+        "en": "Lark Bone",
+        "es": "Hueso de Alondra"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "pentacles-ace": {
+      "itemName": {
+        "en": "Hare Bone",
+        "es": "Hueso de Liebre"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-two": {
+      "itemName": {
+        "en": "Fox Bone",
+        "es": "Hueso de Zorro"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-three": {
+      "itemName": {
+        "en": "Hound Bone",
+        "es": "Hueso de Sabueso"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-four": {
+      "itemName": {
+        "en": "Boar Bone",
+        "es": "Hueso de Jabalí"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-five": {
+      "itemName": {
+        "en": "Stag Bone",
+        "es": "Hueso de Ciervo"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-six": {
+      "itemName": {
+        "en": "Horse Bone",
+        "es": "Hueso de Caballo"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-seven": {
+      "itemName": {
+        "en": "Bull Bone",
+        "es": "Hueso de Toro"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-eight": {
+      "itemName": {
+        "en": "Ram Bone",
+        "es": "Hueso de Carnero"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-nine": {
+      "itemName": {
+        "en": "Goat Bone",
+        "es": "Hueso de Cabra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-ten": {
+      "itemName": {
+        "en": "Wolf Bone",
+        "es": "Hueso de Lobo"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-page": {
+      "itemName": {
+        "en": "Bear Bone",
+        "es": "Hueso de Oso"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-knight": {
+      "itemName": {
+        "en": "Badger Bone",
+        "es": "Hueso de Tejón"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-queen": {
+      "itemName": {
+        "en": "Otter Bone",
+        "es": "Hueso de Nutria"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-king": {
+      "itemName": {
+        "en": "Beaver Bone",
+        "es": "Hueso de Castor"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    }
+  }
+}

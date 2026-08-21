@@ -1,6 +1,12 @@
 node_modules/
 dist/
 .test-build/
+src/readers/personas.generated.json
+src/model/fallbacks.generated.json
+reports/live-prose/
+reports/live-prose-summary.json
+reports/live-prose-summary.md
+reports/live-prose-review.md
 .dev.vars
 .dev.vars.*
 .env

@@ -1,94 +1,93 @@
-# Tarot Engine Core
+# tarot-core
 
-A strongly typed TypeScript library for tarot draws, reader profiles, staged readings, handovers and structured OpenAI interpretation. It is the shared engine used by Online Arcana and also includes a reduced JSON-in/JSON-out CLI.
+Core reading engine for Online Arcana.
+
+This repository owns the deterministic tarot domain, reader data, mapped media systems, bilingual model orchestration, validation, recovery and stable API contracts used by the application. Browser behaviour, presentation assets and client storage remain outside this package.
+
+## Core boundary
+
+The browser-facing `ApiReq` and `ApiOut` contracts remain compatible with the existing Online Arcana application. Client-supplied card and spread descriptions are treated as compatibility data only: the core rebuilds semantic card, orientation, spread and position facts from canonical IDs before model generation.
 
 ```text
-card and spread pack
-    -> cryptographic draw
-    -> validated task request
-    -> reader-specific structured interpretation
-    -> validated domain output
+canonical deck + spreads + personas + mapped media
+        -> request canonicalisation
+        -> shared bilingual prompt construction
+        -> strict structured model output
+        -> pre-audit prose preparation
+        -> deterministic audit / constrained correction
+        -> deterministic recovery when required
+        -> attach public mapped presentation data
+        -> unchanged ApiOut
 ```
 
-## Requirements
+## Canonical data
 
-- Node.js 22 or later
-- TypeScript 5.8 or later
-- a recursive Git checkout for the pinned `openai-schema` submodule
+- `src/data/deck.json`: explicit bilingual 78-card catalogue
+- `src/data/spreads.json`: the five canonical spreads and positions
+- `src/readers/personas/*.xml`: the eight reader personas and identities
+- `src/readers/media/maps/*.json`: explicit 78-result mappings for the seven mapped readers
+- `src/readers/media/rituals.json`: canonical mapped ritual choreography and machine-facing audit aliases
+- `src/readers/media/public-meta.json`: public mapped presentation metadata
+- `src/model/fallbacks.xml`: canonical emergency/fallback prose and shared recovery atmosphere
 
-## Use
+Generated persona and fallback JSON files are build products and are not authoritative prose sources.
+
+## Language and voice
+
+Generation supports English and Spanish through one shared architecture. English is requested as natural British English. Spanish is requested as natural Spain Spanish with tuteo and normal pro-drop.
+
+Narrator fields and reader dialogue are distinct contracts. Spanish narrator audience normalisation is conservative and applies only to narrator-owned fields; reader dialogue is never transformed as narration. Mapped readers use their public physical medium in model-facing data rather than canonical tarot identifiers.
+
+## Model routing
+
+Default lanes are independently configurable:
+
+- ordinary short tasks: `gpt-5-nano` -> `gpt-5.6-luna`
+- ritual: `gpt-5-mini` -> `gpt-5.6-luna`
+- read/chat: `gpt-5.6-luna` -> `gpt-5.6-luna`
+
+Every accepted generated candidate has its prose prepared and deterministically audited before public mapped presentation metadata is attached. Spanish narrator grammar failures caused by a leaked querent name or invalid tuteo pronoun case have a dedicated minimal correction schema that exposes only the affected narrator field or fields. Guaranteed recovery is available for customer-facing callers and remains diagnosable when reconstruction fails.
+
+See [`docs/model.md`](docs/model.md) for the complete orchestration contract.
+
+## Development
 
 ```bash
-git submodule update --init --recursive
-npm install
+npm ci
 npm run check
 npm run build
+npm test
+npm run ci
 ```
 
-The package is source-available and currently consumed as a pinned submodule rather than published to npm.
+`npm run ci` regenerates derived persona/fallback data, type-checks the core, syntax-checks the local live-test harness, builds `dist/` and runs the full deterministic test suite. It does not make paid model calls.
 
-```ts
-import { Deck, runModel } from "tarot-engine-core";
+The active tests include canonical-data checks, request canonicalisation, bilingual prompt and voice checks, mapped-medium validation, sequential ritual recovery and an exhaustive deterministic release matrix across all eight readers, both languages and all five spreads.
 
-const draw = new Deck(cards).draw(pack, "three");
-const out = await runModel(pack, {
-  task: "read",
-  lang: "en-GB",
-  reader: "selena",
-  name: "Kitty",
-  history: [],
-  question: "What is changing here?",
-  draw,
-}, model);
-```
-
-## CLI
-
-Provide one JSON object on standard input and a compatible language-pack manifest through `--pack` or `TAROT_PACK`.
+The paid model-facing release matrix is intentionally local, not a GitHub Actions job. With `OPENAI_API_KEY` set in your shell:
 
 ```bash
-export OPENAI_API_KEY='...'
-export TAROT_PACK='/path/to/public/lang/en-GB.json'
-
-echo '{"name":"Kitty","reader":"selena","spread":"three","question":"What is changing here?"}' \
-  | npm run cli --silent
+npm run test:live
 ```
 
-The result contains the draw, structured reading and OpenAI conversation ID. Pass that ID back as `sessionKey` to continue the same managed model conversation.
+That command runs all 80 complete reader/language/spread readings locally, aggregates commit-bound machine gates and writes `reports/live-prose-review.md` for human review. Generated live reports and raw model attempts are ignored by Git.
 
-## Source layout
+See [`docs/testing.md`](docs/testing.md) for the full release gates and single-cell debugging commands.
 
-```text
-src/cli/         reduced command adapter
-src/contracts/   domain contracts and runtime guards
-src/domain/      deck and draw mechanics
-src/model/       prompts, schemas and structured execution
-src/packs/       card-pack expansion and validation
-src/readers/     identities, fit profiles and personas
-src/reading/     reveal, stage and handover logic
-src/transport/   request parsing and validation
-test/            retained regression record, excluded from build and CI
-```
+## Release status
+
+Automated deterministic validation is an engineering gate, not a claim of cultural or prose approval. Canonical card prose, reader personas and mapped cultural systems retain explicit human review requirements. The paid local live-model matrix and human review must be completed before the audited core replaces the application pin.
 
 ## Documentation
 
-- [Documentation index](docs/README.md)
-- [Getting started](docs/getting-started.md)
-- [Library API](docs/library.md)
-- [Contracts](docs/contracts.md)
-- [Card and spread packs](docs/packs.md)
-- [Model orchestration](docs/model.md)
-- [Reading flow](docs/reading-flow.md)
-- [Reader profiles](docs/readers.md)
-- [CLI](docs/cli.md)
-- [Online Arcana integration](docs/integration.md)
-- [Testing and maintenance](docs/testing.md)
-- [Security notes](docs/security.md)
+- [`docs/getting-started.md`](docs/getting-started.md)
+- [`docs/contracts.md`](docs/contracts.md)
+- [`docs/model.md`](docs/model.md)
+- [`docs/readers.md`](docs/readers.md)
+- [`docs/reading-flow.md`](docs/reading-flow.md)
+- [`docs/testing.md`](docs/testing.md)
+- [`docs/security.md`](docs/security.md)
 
 ## Licence
 
-The engine is proprietary source-available software. See [LICENSE](LICENSE).
-
-Section 2 of the licence records the project's cultural inspirations, expressly
-disclaims ownership of historical, folkloric and living cultural heritage, and
-acknowledges the peoples whose traditions helped inspire the fictional readers.
+See [`LICENSE`](LICENSE).

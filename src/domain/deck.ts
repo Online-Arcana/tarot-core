@@ -1,4 +1,5 @@
 import type { CardDef, Draw, DrawnCard, DrawPack, Side, SpreadId } from "../contracts/types.js";
+import { assertCanonicalCardSet } from "./canonical.js";
 
 function rnd(max: number): number {
   if (!Number.isSafeInteger(max) || max < 1) throw new RangeError("max must be positive");
@@ -13,10 +14,8 @@ export class Deck {
   readonly #cards: CardDef[];
 
   constructor(cards: readonly CardDef[]) {
-    if (cards.length !== 78) throw new Error("A complete tarot deck must contain 78 cards");
-    const ids = new Set(cards.map(c => c.id));
-    if (ids.size !== cards.length) throw new Error("Card identifiers must be unique");
-    this.#cards = cards.map(c => ({ ...c }));
+    assertCanonicalCardSet(cards.map(card => card.id));
+    this.#cards = cards.map(card => ({ ...card }));
   }
 
   draw(pack: DrawPack, id: SpreadId): Draw {

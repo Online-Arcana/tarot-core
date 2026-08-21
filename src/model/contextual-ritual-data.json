@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "readers": {
+    "selena": {
+      "en": {
+        "opening": [
+          "Selena lets the candlelight settle across the dark velvet before she moves, one ring turning slowly as she keeps your question close without trying to answer it too soon.",
+          "Selena studies the empty place in the spread for a moment, candlelight catching at her rings while the question remains between you without being hurried.",
+          "Selena rests both hands near the velvet, perfume faint in the warm air, and gives the next position enough silence to feel distinct from the one before it.",
+          "Selena meets your eyes briefly, then lowers her attention to the next place in the spread as reflected gold moves across her rings.",
+          "Selena leaves the previous position undisturbed and turns one ring beneath her thumb, keeping the room intimate without pressing you towards an answer."
+        ],
+        "action": [
+          "She warms the deck between both palms and makes one deliberate cut, keeping the next result covered while the position is prepared.",
+          "She draws the next card without exposing its face and settles it into place with a measured movement rather than a flourish.",
+          "She keeps the next card covered beneath one hand for a breath, then places it where the spread is waiting for it.",
+          "She takes the next card from the deck with one controlled movement and leaves it face down on the velvet until the reveal.",
+          "She separates the next card cleanly and brings it to the open position without disturbing anything already laid out."
+        ],
+        "context": [
+          "The pause gives you room to notice what this part of the question brings forward before anything is revealed.",
+          "Nothing is interpreted yet; the moment simply gives this part of your question its own weight beside what came before.",
+          "The arrangement stays still long enough for you to feel the difference between anticipation and what you actually know.",
+          "She does not fill the silence for you; this position is allowed to hold its own tension before the result is shown.",
+          "The next place in the spread remains quiet for a moment, leaving you space to notice where your attention goes on its own."
+        ]
+      },
+      "es": {
+        "opening": [
+          "Selena deja que la luz de las velas repose sobre el terciopelo oscuro antes de moverse; hace girar un anillo despacio mientras mantiene tu pregunta cerca sin apresurar una respuesta.",
+          "Selena observa durante un instante el lugar vacío de la tirada, con reflejos dorados en sus anillos mientras la pregunta permanece entre ambos sin prisa.",
+          "Selena deja ambas manos junto al terciopelo, con un perfume discreto en el aire cálido, y concede a la siguiente posición un silencio distinto del anterior.",
+          "Selena sostiene tu mirada un instante y después la baja hacia el siguiente lugar de la tirada mientras la luz se refleja en sus anillos.",
+          "Selena deja intacta la posición anterior y hace girar un anillo bajo el pulgar, manteniendo la intimidad de la escena sin empujarte hacia una respuesta."
+        ],
+        "action": [
+          "Calienta la baraja entre ambas palmas y hace un único corte deliberado, manteniendo oculto el siguiente resultado mientras prepara su posición.",
+          "Toma la siguiente carta sin mostrar su cara y la deja en su lugar con un movimiento medido, sin convertirlo en un gesto teatral.",
+          "Mantiene la siguiente carta cubierta bajo una mano durante un instante y después la coloca donde la tirada la espera.",
+          "Extrae la siguiente carta con un movimiento controlado y la deja boca abajo sobre el terciopelo hasta el momento de revelarla.",
+          "Separa la siguiente carta con limpieza y la lleva a la posición abierta sin alterar nada de lo que ya está dispuesto."
+        ],
+        "context": [
+          "La pausa te deja notar qué trae esta parte de la pregunta antes de que se revele nada.",
+          "Todavía no se interpreta nada; el momento solo da a esta parte de tu pregunta un peso propio junto a lo anterior.",
+          "La disposición permanece quieta el tiempo suficiente para que distingas la expectativa de aquello que realmente sabes.",
+          "Selena no llena el silencio por ti; esta posición conserva su propia tensión antes de mostrar el resultado.",
+          "El siguiente lugar de la tirada permanece en silencio un instante y te deja notar hacia dónde se dirige tu atención por sí sola."
+        ]
+      }
+    }
+  }
+}

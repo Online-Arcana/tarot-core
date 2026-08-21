@@ -5,8 +5,8 @@ import type {
   ReadingOut,
   RitualOut,
 } from "../contracts/types.js";
+import { hasDirectAddress } from "./language.js";
 
-const direct = /\b(?:you|your|yours|yourself|tú|tu|tus|te|ti|contigo|usted|ustedes|vos|vosotros|vuestro|vuestra|sus)\b/iu;
 const userNounEn = "life|question|path|choice|voice|body|breath|hands?|face|future|past|situation|world|thoughts?|feelings?|heart|mind|attention|experience|home|work|relationship|decision|grief|hope|fear";
 const userNounEs = "vida|pregunta|camino|elección|voz|cuerpo|aliento|manos?|rostro|futuro|pasado|situación|mundo|pensamientos?|sentimientos?|corazón|mente|atención|experiencia|hogar|trabajo|relación|decisión|duelo|esperanza|miedo";
 
@@ -37,75 +37,161 @@ const EN_AGREEMENT: readonly [RegExp, string][] = [
   [/^(\s*)walks\b/iu, "$1walk"],
 ];
 
-const ES_AGREEMENT: readonly [RegExp, string][] = [
-  [/^(\s*)está\b/iu, "$1estás"],
-  [/^(\s*)es\b/iu, "$1eres"],
-  [/^(\s*)espera\b/iu, "$1esperas"],
-  [/^(\s*)permanece\b/iu, "$1permaneces"],
-  [/^(\s*)escucha\b/iu, "$1escuchas"],
-  [/^(\s*)mira\b/iu, "$1miras"],
-  [/^(\s*)siente\b/iu, "$1sientes"],
-  [/^(\s*)descansa\b/iu, "$1descansas"],
-  [/^(\s*)observa\b/iu, "$1observas"],
-  [/^(\s*)sigue\b/iu, "$1sigues"],
-  [/^(\s*)sostiene\b/iu, "$1sostienes"],
-  [/^(\s*)toca\b/iu, "$1tocas"],
-  [/^(\s*)queda\b/iu, "$1quedas"],
-  [/^(\s*)camina\b/iu, "$1caminas"],
-  [/^(\s*)respira\b/iu, "$1respiras"],
-  [/^(\s*)ve\b/iu, "$1ves"],
-  [/^(\s*)oye\b/iu, "$1oyes"],
-];
+const ES_SUBJECT: Readonly<Record<string, string>> = {
+  "se acerca": "te acercas",
+  "se inclina": "te inclinas",
+  "se queda": "te quedas",
+  "se sienta": "te sientas",
+  abre: "abres",
+  alcanza: "alcanzas",
+  camina: "caminas",
+  cierra: "cierras",
+  descansa: "descansas",
+  entra: "entras",
+  espera: "esperas",
+  está: "estás",
+  es: "eres",
+  escucha: "escuchas",
+  extrae: "extraes",
+  introduce: "introduces",
+  levanta: "levantas",
+  lleva: "llevas",
+  mira: "miras",
+  mueve: "mueves",
+  observa: "observas",
+  oye: "oyes",
+  permanece: "permaneces",
+  respira: "respiras",
+  retira: "retiras",
+  saca: "sacas",
+  siente: "sientes",
+  sigue: "sigues",
+  sostiene: "sostienes",
+  toma: "tomas",
+  toca: "tocas",
+  ve: "ves",
+};
+
+const ES_DIRECT_OBJECT_VERBS = [
+  "acompaña", "contempla", "escucha", "espera", "guía", "invita", "mira", "observa", "recibe", "toca",
+] as const;
+const ES_INDIRECT_OBJECT_VERBS = [
+  "acerca", "da", "devuelve", "entrega", "muestra", "ofrece", "pasa",
+] as const;
 
 function escape(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 }
 
 function spanish(req: ApiReq): boolean {
-  return req.lang.toLocaleLowerCase().startsWith("es");
+  return req.lang.toLowerCase().startsWith("es");
 }
 
-function agreement(value: string, es: boolean): string {
+function englishAgreement(value: string): string {
   let output = value;
-  for (const [pattern, replacement] of es ? ES_AGREEMENT : EN_AGREEMENT) {
+  for (const [pattern, replacement] of EN_AGREEMENT) {
     const next = output.replace(pattern, replacement);
     if (next !== output) return next;
   }
   return output;
 }
 
-function viewerReferences(value: string, es: boolean): string {
-  if (es) {
-    const possessive = new RegExp(`\\b(?:su|sus)\\s+(${userNounEs})\\b`, "giu");
-    return value
-      .replace(possessive, (_whole, noun: string) => `tu ${noun}`)
-      .replace(/\b(?:sí mismo|sí misma|sí mismos|sí mismas)\b/giu, "ti");
-  }
+function englishViewerReferences(value: string): string {
   const possessive = new RegExp(`\\b(?:his|her|their)\\s+(${userNounEn})\\b`, "giu");
   return value
     .replace(possessive, (_whole, noun: string) => `your ${noun}`)
     .replace(/\b(?:himself|herself|themselves)\b/giu, "yourself");
 }
 
-function sentenceAudience(sentence: string, name: string, es: boolean): string {
-  if (!name) return sentence;
-  const namePattern = new RegExp(`\\b${escape(name)}(?:['’]s)?\\b`, "iu");
-  const match = namePattern.exec(sentence);
-  if (!match || match.index === undefined) return sentence;
+function englishGenericAudience(sentence: string): string {
+  let output = sentence.replace(/\bthe querent['’]s\b/giu, "your");
+  const match = /\bthe querent\b/iu.exec(output);
+  if (!match || match.index === undefined) return output;
+  const before = output.slice(0, match.index);
+  const after = output.slice(match.index + match[0].length);
+  return `${before}you${englishAgreement(englishViewerReferences(after))}`;
+}
 
-  const before = sentence.slice(0, match.index);
-  const after = sentence.slice(match.index + match[0].length);
+function englishSentenceAudience(sentence: string, name: string): string {
+  const generic = englishGenericAudience(sentence);
+  if (!name) return generic;
+  const namePattern = new RegExp(`\\b${escape(name)}(?:['’]s)?\\b`, "iu");
+  const match = namePattern.exec(generic);
+  if (!match || match.index === undefined) return generic;
+
+  const before = generic.slice(0, match.index);
+  const after = generic.slice(match.index + match[0].length);
   const possessive = /['’]s$/iu.test(match[0]);
-  const replacement = possessive ? (es ? "tu" : "your") : (es ? "tú" : "you");
-  const referred = viewerReferences(after, es);
-  return `${before}${replacement}${possessive ? referred : agreement(referred, es)}`;
+  const referred = englishViewerReferences(after);
+  if (!possessive) return `${before}you${englishAgreement(referred)}`;
+  const absolute = /^\s*(?:$|[,.;:!?\)\]”’])/u.test(referred);
+  return `${before}${absolute ? "yours" : "your"}${referred}`;
+}
+
+function spanishSubject(sentence: string, name: string): string {
+  const escaped = escape(name);
+  const forms = Object.keys(ES_SUBJECT).sort((a, b) => b.length - a.length).map(escape).join("|");
+  const pattern = new RegExp(`^(\\s*)${escaped}\\s+(${forms})\\b`, "iu");
+  return sentence.replace(pattern, (_whole, lead: string, verb: string) => {
+    const conjugated = ES_SUBJECT[verb.toLocaleLowerCase("es-ES")];
+    return conjugated ? `${lead}${conjugated}` : _whole;
+  });
+}
+
+function spanishObjects(sentence: string, name: string): string {
+  const escaped = escape(name);
+  let output = sentence;
+  const directVerbs = ES_DIRECT_OBJECT_VERBS.join("|");
+  const indirectVerbs = ES_INDIRECT_OBJECT_VERBS.join("|");
+
+  output = output.replace(
+    new RegExp(`\\b(${directVerbs})\\s+a\\s+${escaped}\\b`, "giu"),
+    (_whole, verb: string) => `te ${verb}`,
+  );
+  output = output.replace(
+    new RegExp(`\\b(${indirectVerbs})\\s+([^.!?]{1,100}?)\\s+a\\s+${escaped}\\b`, "giu"),
+    (_whole, verb: string, object: string) => `te ${verb} ${object.trim()}`,
+  );
+  output = output.replace(new RegExp(`\\bA\\s+${escaped}\\s+le\\b`, "giu"), "Te");
+  return output;
+}
+
+function spanishPossessives(sentence: string, name: string): string {
+  const escaped = escape(name);
+  const possessive = new RegExp(`\\b(el|la|los|las)\\s+(${userNounEs})\\s+de\\s+${escaped}\\b`, "giu");
+  return sentence
+    .replace(/\balrededor\s+de\s+/giu, match => match)
+    .replace(possessive, (_whole, article: string, noun: string) =>
+      `${/^(?:los|las)$/iu.test(article) ? "tus" : "tu"} ${noun}`)
+    .replace(new RegExp(`\\balrededor\\s+de\\s+${escaped}\\b`, "giu"), "a tu alrededor");
+}
+
+function spanishPrepositions(sentence: string, name: string): string {
+  const escaped = escape(name);
+  let output = sentence.replace(new RegExp(`\\bcon\\s+${escaped}\\b`, "giu"), "contigo");
+  for (const preposition of ["ante", "hacia", "para", "sin", "sobre", "tras"] as const) {
+    output = output.replace(new RegExp(`\\b${preposition}\\s+${escaped}\\b`, "giu"), `${preposition} ti`);
+  }
+  for (const phrase of ["junto a", "frente a", "delante de", "detrás de", "cerca de", "lejos de"] as const) {
+    output = output.replace(new RegExp(`\\b${phrase.replace(" ", "\\s+")}\\s+${escaped}\\b`, "giu"), `${phrase} ti`);
+  }
+  return output;
+}
+
+function spanishSentenceAudience(sentence: string, name: string): string {
+  if (!name) return sentence;
+  let output = spanishSubject(sentence, name);
+  output = spanishObjects(output, name);
+  output = spanishPossessives(output, name);
+  output = spanishPrepositions(output, name);
+  return output;
 }
 
 function audience(value: string, req: ApiReq): string {
   const name = req.name.trim();
-  if (!name || !value.trim()) return value;
+  if (!value.trim()) return value;
   return value.replace(/[^.!?]+(?:[.!?]+|$)/gu, sentence =>
-    sentenceAudience(sentence, name, spanish(req))
+    spanish(req) ? spanishSentenceAudience(sentence, name) : englishSentenceAudience(sentence, name)
   );
 }
 
@@ -113,41 +199,45 @@ function count(value: string): number {
   return value.trim().split(/\s+/u).filter(Boolean).length;
 }
 
+function englishContinuation(value: string): string {
+  return value.replace(
+    /^(A|An|The|Her|His|Their|With|Without|After|Before|While|As|When|Once|Then)\b/u,
+    word => word.toLocaleLowerCase("en-GB"),
+  );
+}
+
 function ensureDirect(value: string, req: ApiReq, maxWords: number): string {
   const clean = value.trim();
-  if (!clean || direct.test(clean)) return clean;
+  if (!clean || hasDirectAddress(clean, req.lang)) return clean;
 
   const immersed = spanish(req)
-    ? clean
-      .replace(/\bla pregunta\b/iu, "tu pregunta")
-      .replace(/\b(?:el|la) (?:entorno|habitación|estancia|silencio|escena|mesa|agua|fuego|luz)\b/iu, "tu entorno")
-    : clean
-      .replace(/\bthe question\b/iu, "your question")
-      .replace(/\bthe (?:surroundings|room|silence|scene|table|water|fire|light)\b/iu, "your surroundings");
-  if (direct.test(immersed)) return immersed;
+    ? clean.replace(/\bla pregunta\b/iu, "tu pregunta")
+    : clean.replace(/\bthe question\b/iu, "your question");
+  if (hasDirectAddress(immersed, req.lang)) return immersed;
 
   const prefix = spanish(req) ? "Ante ti, " : "Before you, ";
-  return count(clean) + count(prefix) <= maxWords ? `${prefix}${clean}` : clean;
+  const continuation = spanish(req) ? clean : englishContinuation(clean);
+  return count(clean) + count(prefix) <= maxWords ? `${prefix}${continuation}` : clean;
 }
 
 function ritual(req: Extract<ApiReq, { task: "ritual" }>, out: RitualOut): RitualOut {
   const parts: [string, string, string] = [
-    audience(out.gesture, req),
     audience(out.opening, req),
     audience(out.ritual, req),
+    audience(out.gesture, req),
   ];
   const combined = parts.join(" ").replace(/\s+/gu, " ").trim();
-  if (!direct.test(combined)) {
+  if (!hasDirectAddress(combined, req.lang)) {
     const suffix = spanish(req)
       ? "La quietud se reúne a tu alrededor."
       : "The stillness gathers around you.";
-    if (count(combined) + count(suffix) <= 110) {
+    if (count(combined) + count(suffix) <= 130) {
       parts[2] = `${parts[2].trim()} ${suffix}`.trim();
     } else {
-      parts[0] = ensureDirect(parts[0], req, 110 - count(parts[1]) - count(parts[2]));
+      parts[0] = ensureDirect(parts[0], req, 130 - count(parts[1]) - count(parts[2]));
     }
   }
-  return { ...out, gesture: parts[0], opening: parts[1], ritual: parts[2] };
+  return { ...out, opening: parts[0], ritual: parts[1], gesture: parts[2] };
 }
 
 function reading(req: Extract<ApiReq, { task: "read" }>, out: ReadingOut): ReadingOut {
@@ -160,6 +250,10 @@ function chat(req: Extract<ApiReq, { task: "chat" }>, out: ChatOut): ChatOut {
   return { ...out, gesture: ensureDirect(gesture, req, 110) };
 }
 
+/**
+ * Compatibility audience normalisation for narrator-owned fields only.
+ * The transformation is deliberately conservative: uncertain grammatical roles are left unchanged for audit/model correction.
+ */
 export function addressViewer(req: ApiReq, out: ApiOut): ApiOut {
   if (req.task === "ritual") return ritual(req, out as RitualOut);
   if (req.task === "read") return reading(req, out as ReadingOut);

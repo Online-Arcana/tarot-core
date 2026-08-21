@@ -1,72 +1,23 @@
 {
-  "version": 2,
+  "version": 3,
   "status": "source-backed-draft",
   "runtimeIntegrated": true,
-  "installPath": "src/readers/media",
-  "vanillaReader": {
-    "id": "selena",
-    "mappingFile": null,
-    "rule": {
-      "en": "Use Selena's existing naipes, ritual and presentation unchanged.",
-      "es": "Usar sin cambios los naipes, el ritual y la presentación existentes de Selena."
-    }
-  },
+  "culturalSpecialistReviewRequired": true,
+  "vanillaReader": "selena",
   "mappedReaders": [
-    {
-      "id": "brennos",
-      "file": "maps/brennos.json",
-      "logicalResults": 78,
-      "minorFamilies": ["Trees", "Flowers", "Birds", "Beasts"],
-      "states": ["between", "crossing"]
-    },
-    {
-      "id": "yejide",
-      "file": "maps/yejide.json",
-      "logicalResults": 78,
-      "minorFamilies": ["Reptiles", "Fish", "Birds", "Creatures"],
-      "states": ["visible", "hidden"]
-    },
-    {
-      "id": "ngaru",
-      "file": "maps/ngaru.json",
-      "logicalResults": 78,
-      "physicalItems": 156,
-      "minorFamilies": ["Kaokao", "Koru", "Niho taniwha", "Pātiki"],
-      "states": ["outer", "inner"]
-    },
-    {
-      "id": "ame",
-      "file": "maps/ame.json",
-      "logicalResults": 78,
-      "minorFamilies": ["Fuji", "Hasu", "Sakura", "Ajisai"],
-      "states": ["still", "drifting"],
-      "spreadCast": "single cast for the whole spread"
-    },
-    {
-      "id": "amaru",
-      "file": "maps/amaru.json",
-      "logicalResults": 78,
-      "minorFamilies": ["Buff", "Indigo", "Black", "Brown"],
-      "states": ["front", "rear"]
-    },
-    {
-      "id": "nahid",
-      "file": "maps/nahid.json",
-      "logicalResults": 78,
-      "minorFamilies": ["Fire", "Water", "Air", "Earth"],
-      "states": ["forming", "dispersing"]
-    },
-    {
-      "id": "mictli",
-      "file": "maps/mictli.json",
-      "logicalResults": 78,
-      "minorFamilies": ["Eagles", "Cempasúchil", "Jaguars", "Cacao"],
-      "states": ["aligned", "turned"]
-    }
+    { "id": "brennos", "file": "maps/brennos.json" },
+    { "id": "yejide", "file": "maps/yejide.json" },
+    { "id": "ngaru", "file": "maps/ngaru.json" },
+    { "id": "ame", "file": "maps/ame.json" },
+    { "id": "amaru", "file": "maps/amaru.json" },
+    { "id": "nahid", "file": "maps/nahid.json" },
+    { "id": "mictli", "file": "maps/mictli.json" }
   ],
   "sharedFiles": {
     "schema": "medium-map.schema.json",
-    "ritualContract": "reader-rituals.json",
-    "canonicalCardIndex": "canonical-card-index.json"
-  }
+    "rituals": "rituals.json",
+    "publicMetadata": "public-meta.json",
+    "culturalReview": "CULTURAL-REVIEW.md"
+  },
+  "canonicalDeck": "../../data/deck.json"
 }

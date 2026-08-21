@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { canonicalSpread } from "../dist/domain/canonical.js";
 import { auditModelOut } from "../dist/model/audit.js";
 import { modelPrompt, runModelSession } from "../dist/model/run.js";
 import { presentMappedRitual } from "../dist/readers/media/output.js";
 import { mediaFor, mediumRitualFor } from "../dist/readers/media/runtime.js";
 
 const pack = { prompt: { reading: "Interpret the supplied cards directly.", chat: "Answer directly." } };
+const canonicalOne = canonicalSpread("one", "en-GB");
 const card = {
   pos: 1,
   posName: "The present",
@@ -93,20 +95,13 @@ function promptFrom(body) {
   return input[0].content;
 }
 
-test("ritual prompt carries full reading context without exposing the hidden result", () => {
-  const req = ritualReq("brennos", ["Brennos first set the iron shield beside the flame and let the room become quiet."]);
-  const prompt = modelPrompt(pack, req);
+function assertCanonicalOneContext(prompt) {
+  assert.ok(prompt.includes(canonicalOne.purpose));
+  assert.ok(prompt.includes(canonicalOne.pos[0].meaning));
+  assert.doesNotMatch(prompt, /Answer what is active now|At the centre/u);
+}
 
-  assert.match(prompt, /Answer what is active now/u);
-  assert.match(prompt, /What is active now/u);
-  assert.match(prompt, /At the centre/u);
-  assert.match(prompt, /Brennos first set the iron shield/u);
-  assert.match(prompt, /fire-scarred table|iron shield/iu);
-  assert.doesNotMatch(prompt, /"itemName":"Epona"|"name":"The Fool"|"suit":"major"/u);
-  assert.doesNotMatch(prompt, /sourceRegistry|sourceIds|British Museum|https?:\/\//iu);
-});
-
-test("successful mapped ritual preserves LLM prose and attaches v3 metadata", async () => {
+test("successful mapped ritual preserves LLM substance without audience rewriting and attaches v3 metadata", async () => {
   const req = ritualReq();
   let prompt = "";
   const result = await runModelSession(pack, req, cfg(fakeSuccess(mappedRitual, body => {
@@ -117,6 +112,7 @@ test("successful mapped ritual preserves LLM prose and attaches v3 metadata", as
   assert.equal(result.out.gesture, mappedRitual.gesture);
   assert.equal(result.out.opening, mappedRitual.opening);
   assert.equal(result.out.ritual, mappedRitual.ritual);
+  assert.equal(result.auditErrors.includes("english_audience_normalised"), false);
   assert.ok(result.out.medium);
   assert.equal(result.out.medium.version, 3);
   assert.equal(result.out.medium.publicName, "Epona");
@@ -126,7 +122,7 @@ test("successful mapped ritual preserves LLM prose and attaches v3 metadata", as
   assert.doesNotMatch(prompt, /Epona|The Fool/u);
 });
 
-test("generic mapped ritual is rejected rather than silently replaced", () => {
+test("generic mapped ritual is rejected without presentation rewriting it", () => {
   const req = ritualReq();
   const context = mediumRitualFor("brennos", "en-GB");
   assert.ok(context);
@@ -137,11 +133,10 @@ test("generic mapped ritual is rejected rather than silently replaced", () => {
     beats: context.beats,
   });
 
-  assert.equal(presented.gesture, genericRitual.gesture.replace("The reader", "Brennos"));
-  assert.equal(presented.opening, genericRitual.opening);
-  assert.equal(presented.ritual, genericRitual.ritual.replace("The reader", "Brennos"));
+  assert.deepEqual(presented, genericRitual, "presentation must not hide invalid generated prose");
   const audit = auditModelOut(req, presented);
   assert.equal(audit.valid, false);
+  assert.ok(audit.issues.some(issue => issue.code === "generic_reader"));
   assert.ok(audit.issues.some(issue => issue.code === "canonical_medium"));
 });
 
@@ -176,8 +171,7 @@ test("read audit rejects duplicate theatre ownership", () => {
 test("Selena ritual receives the same reading and continuity context", () => {
   const req = ritualReq("selena", ["Selena placed the naipes between both hands while the first question settled."]);
   const prompt = modelPrompt(pack, req);
-  assert.match(prompt, /Answer what is active now/u);
-  assert.match(prompt, /What is active now/u);
+  assertCanonicalOneContext(prompt);
   assert.match(prompt, /Selena placed the naipes/u);
   assert.equal(mediaFor("selena", card, "en-GB"), null);
 });

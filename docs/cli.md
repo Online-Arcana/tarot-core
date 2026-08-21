@@ -1,12 +1,12 @@
 # Reduced JSON CLI
 
-The CLI is a thin command adapter over the same deck, audit and structured model functions exported by the library.
+The CLI is a thin command adapter over the same canonical deck, audit, model orchestration and deterministic recovery path exported by the library.
 
 ## Launch
 
 ```bash
 export OPENAI_API_KEY='...'
-export TAROT_PACK='/absolute/path/to/public/lang/en-GB.json'
+export TAROT_PACK='/absolute/path/to/lang/en-GB.json'
 
 npm run cli --silent <<'JSON'
 {
@@ -24,12 +24,14 @@ The pack may instead be passed explicitly:
 npm run cli --silent -- --pack ./public/lang/en-GB.json < request.json
 ```
 
+The pack must contain explicit cards with the exact canonical 78-card ID set. Rank×suit card recipes are not supported. Pack card/spread prose is retained for compatibility/draw presentation, while model-facing semantics are rebuilt from core canonical data.
+
 ## Model overrides
 
 The default reading lane is:
 
 ```text
-gpt-5.6-luna -> deterministic NLP audit -> gpt-5.6-luna constrained correction -> deterministic NLP audit -> reconstruction
+gpt-5.6-luna -> finalise/audit -> gpt-5.6-luna constrained correction -> finalise/audit -> deterministic reconstruction
 ```
 
 Environment overrides are optional:
@@ -43,7 +45,7 @@ export TAROT_LONG_ESCALATION_MODEL='gpt-5.6-luna'
 
 `TAROT_MODEL` remains a compatibility alias for `TAROT_LONG_PRIMARY_MODEL`.
 
-The four settings remain independent even where their current values match. This allows later model changes to be made as configuration updates without changing the routing architecture.
+The settings remain independent even where current values match. The CLI currently runs a `read` task, so the long lane is the one exercised by normal CLI use.
 
 ## Input
 
@@ -69,7 +71,7 @@ Limits:
 
 ## Output
 
-Successful output is one compact JSON line:
+Successful output is one compact JSON line and now includes model provenance:
 
 ```json
 {
@@ -81,35 +83,44 @@ Successful output is one compact JSON line:
   "question": "What should I understand about this situation?",
   "lang": "en-GB",
   "draw": {},
-  "response": {}
+  "response": {},
+  "model": {
+    "source": "primary",
+    "primaryModel": "gpt-5.6-luna",
+    "escalationModel": "gpt-5.6-luna",
+    "auditErrors": []
+  }
 }
 ```
 
-The CLI always opts into guaranteed output. If both model stages fail deterministic validation, it returns the reconstructed reading rather than failing the customer request.
+`model.source` is `primary`, `escalation` or `reconstructed`. When deterministic reconstruction was required, the original audit/recovery diagnostics remain in `model.auditErrors` rather than being hidden behind a second CLI fallback.
 
-When no remote conversation can be established, the CLI returns a `local_...` recovery key with the reconstructed reading. A later call accepts that key but does not send it to OpenAI; the next successful remote request creates a proper managed conversation ID.
+The CLI opts into guaranteed output. If the model stages fail but deterministic reconstruction succeeds, the CLI returns that audited reading with `source: "reconstructed"`.
 
-Input, pack, reader and spread validation errors still use one JSON line and a non-zero exit code:
+When no remote conversation ID is available but an audited result can still be produced, the CLI returns a `local_...` key. A later call accepts that key but does not send it to OpenAI; a later successful remote session can obtain a managed conversation ID.
+
+Input, pack, reader, spread and genuinely unrecoverable model/reconstruction errors use one JSON line and a non-zero exit code:
 
 ```json
 {"ok":false,"error":{"message":"reader is invalid"}}
 ```
 
-Model output quality failures do not use this error path.
+The CLI no longer catches an orchestration exception and silently substitutes a second generic fallback.
 
 ## Behaviour
 
 The CLI:
 
 1. validates input
-2. resolves and validates the language pack
-3. expands and validates exactly 78 cards
+2. resolves and validates the compatibility pack
+3. requires explicit cards with the exact canonical 78-card ID set
 4. draws the selected spread
-5. calls Luna for the long-task primary response
-6. audits the structured result deterministically
-7. asks Luna once for a constrained correction when required
-8. audits the corrected result
-9. deterministically reconstructs any remaining invalid fields
-10. returns the complete draw, reading and available conversation or recovery key
+5. builds a canonicalised model request from stable IDs
+6. calls the configured long-task primary model
+7. finalises and audits the structured result deterministically
+8. uses the long-task escalation model for constrained correction when required
+9. finalises/audits the corrected result
+10. deterministically reconstructs remaining invalid output when guaranteed recovery can do so safely
+11. returns the complete draw, reading, model provenance and available conversation/recovery key
 
 It does not implement interactive prompts, archive files, browser persistence or rendering.

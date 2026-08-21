@@ -4,13 +4,16 @@ import type {
   FitOut,
   HandoverOut,
   ReadingOut,
+  RitualOut,
 } from "../contracts/types.js";
 import { attachMedia, mediaFor } from "../readers/media/runtime.js";
+import { resolveFit } from "../reading/fit.js";
+import { futureNameInText, futureResultNames } from "../reading/reveal.js";
 import { auditModelOut, words } from "./audit.js";
 import { fallbackFor } from "./fallback.js";
+import { hasDirectAddress } from "./language.js";
 import { recoverRitual } from "./ritual-recovery.js";
 
-const direct = /\b(?:you|your|yours|yourself|tú|tu|tus|te|ti|contigo|usted|ustedes|vos|vosotros|vuestro|vuestra|sus)\b/iu;
 const terminal = /[.!?]["'’”)]*$/u;
 const hanging = /(?:…|\.\.\.|[,;:\-–—])\s*$/u;
 const ref = /#\/[A-Za-z0-9_~./-]+/gu;
@@ -21,6 +24,12 @@ interface ProseRules {
   readonly direct?: boolean;
   readonly oneSentence?: boolean;
   readonly question?: boolean;
+}
+
+export interface ReconstructionResult {
+  readonly out: ApiOut;
+  readonly emergencyFallback: boolean;
+  readonly auditErrors: readonly string[];
 }
 
 const clean = (value: unknown): string => typeof value === "string"
@@ -48,7 +57,7 @@ const firstSentence = (value: string): string =>
 const completePrefix = (value: string): string =>
   value.match(/^.*[.!?]["'’”)]*(?=\s|$)/u)?.[0].trim() ?? "";
 
-const repairedProse = (value: unknown, rules: ProseRules): string | null => {
+const repairedProse = (value: unknown, rules: ProseRules, lang: string): string | null => {
   let output = clean(value).replace(/(?:…|\.\.\.)+\s*$/u, "");
   if (!output || hanging.test(output)) return null;
   if (rules.oneSentence === true) output = firstSentence(output);
@@ -65,7 +74,7 @@ const repairedProse = (value: unknown, rules: ProseRules): string | null => {
   }
   const count = words(output);
   if (count < rules.minWords || count > rules.maxWords) return null;
-  if (rules.direct === true && !direct.test(output)) return null;
+  if (rules.direct === true && !hasDirectAddress(output, lang)) return null;
   if (!terminal.test(output) || hanging.test(output)) return null;
   if (rules.oneSentence === true) {
     const endings = output.match(/[.!?]["'’”)]*(?=\s|$)/gu)?.length ?? 0;
@@ -79,9 +88,10 @@ const proseFrom = (
   key: string,
   fallback: string,
   rules: ProseRules,
+  lang: string,
 ): string => {
   for (const value of values(candidates, key)) {
-    const repaired = repairedProse(value, rules);
+    const repaired = repairedProse(value, rules, lang);
     if (repaired !== null) return repaired;
   }
   return fallback;
@@ -127,7 +137,7 @@ const theatreCandidate = (
   if (parts.some((part) => !part)) return null;
   const combined = parts.join(" ");
   const count = words(combined);
-  if (count < 36 || count > 110 || /[\r\n]/u.test(combined) || !terminal.test(combined) || hanging.test(combined)) {
+  if (count < 36 || count > 130 || /[\r\n]/u.test(combined) || !terminal.test(combined) || hanging.test(combined)) {
     return null;
   }
   return parts;
@@ -188,11 +198,10 @@ const cardFallback = (
 const futureNames = (
   req: Extract<ApiReq, { task: "read" }>,
   index: number,
-): string[] => req.draw.cards.slice(index + 1).flatMap(card => {
-  const publicName = mediaFor(req.reader, card, req.lang)?.publicName;
-  return [card.name, ...(publicName ? [publicName] : [])]
-    .map(name => name.toLocaleLowerCase(req.lang));
-});
+): string[] => {
+  const publicNames = req.draw.cards.map(card => mediaFor(req.reader, card, req.lang)?.publicName ?? "");
+  return futureResultNames(req.draw, index, req.lang, publicNames);
+};
 
 const cardTextFrom = (
   req: Extract<ApiReq, { task: "read" }>,
@@ -202,10 +211,9 @@ const cardTextFrom = (
 ): string => {
   const laterNames = futureNames(req, index);
   for (const array of arrays(candidates, "cardText")) {
-    const value = repairedProse(array[index], { minWords: 5, maxWords: 260, direct: true });
+    const value = repairedProse(array[index], { minWords: 5, maxWords: 260, direct: true }, req.lang);
     if (value === null) continue;
-    const lower = value.toLocaleLowerCase(req.lang);
-    if (laterNames.some((name) => lower.includes(name))) continue;
+    if (futureNameInText(value, laterNames, req.lang, req.question)) continue;
     return value;
   }
   const card = req.draw.cards[index];
@@ -216,25 +224,24 @@ const read = (
   req: Extract<ApiReq, { task: "read" }>,
   candidates: readonly (ApiOut | undefined)[],
 ): ReadingOut => {
-  const fallback = fallbackFor(req.lang);
+  const fallback = fallbackFor(req.lang, req.reader);
   return {
-    // Pre-reveal theatre is owned by the separately generated ritual sequence.
     gesture: "",
     opening: "",
     link: "",
     cardText: req.draw.cards.map((_card, index) => cardTextFrom(req, candidates, index, fallback.cardText)),
     synthesis: proseFrom(candidates, "synthesis", fallback.synthesis, {
       minWords: 8, maxWords: 320, direct: true,
-    }),
+    }, req.lang),
     reading: proseFrom(candidates, "reading", fallback.reading, {
       minWords: 12, maxWords: 700, direct: true,
-    }),
+    }, req.lang),
     closing: proseFrom(candidates, "closing", fallback.closing, {
       minWords: 3, maxWords: 120, direct: true,
-    }),
+    }, req.lang),
     note: proseFrom(candidates, "note", fallback.note, {
       minWords: 1, maxWords: 100,
-    }),
+    }, req.lang),
   };
 };
 
@@ -242,18 +249,30 @@ const fit = (
   req: Extract<ApiReq, { task: "fit" }>,
   candidates: readonly (ApiOut | undefined)[],
 ): FitOut => {
-  const fallback = fallbackFor(req.lang);
+  const fallback = fallbackFor(req.lang, req.reader);
   const candidate = [...candidates].reverse().find((value) => value !== undefined && "level" in value) as FitOut | undefined;
-  return {
+  const semanticBase: FitOut = {
     level: candidate?.level ?? "acceptable",
     topic: candidate?.topic ?? "identity",
     recommend: candidate?.recommend ?? null,
-    reason: proseFrom(candidates, "reason", fallback.fitReason, {
+    reason: fallback.fitReason,
+    offer: fallback.fitOffer,
+  };
+  const canonical = resolveFit(req.reader, req.question, req.lang, semanticBase) ?? semanticBase;
+  const output: FitOut = {
+    ...canonical,
+    reason: proseFrom(candidates, "reason", canonical.reason || fallback.fitReason, {
       minWords: 2, maxWords: 32, direct: true, oneSentence: true,
-    }),
-    offer: proseFrom(candidates, "offer", fallback.fitOffer, {
+    }, req.lang),
+    offer: proseFrom(candidates, "offer", canonical.offer || fallback.fitOffer, {
       minWords: 2, maxWords: 32, direct: true, oneSentence: true,
-    }),
+    }, req.lang),
+  };
+  if (auditModelOut(req, output).valid) return output;
+  return {
+    ...canonical,
+    reason: canonical.reason || fallback.fitReason,
+    offer: canonical.offer || fallback.fitOffer,
   };
 };
 
@@ -261,7 +280,7 @@ const handover = (
   req: Extract<ApiReq, { task: "handover" }>,
   candidates: readonly (ApiOut | undefined)[],
 ): HandoverOut => {
-  const fallback = fallbackFor(req.lang);
+  const fallback = fallbackFor(req.lang, req.reader);
   const allowedCards = new Set(suppliedCards(req));
   const allowedQuestions = suppliedQuestions(req);
   const allowedQuestionSet = new Set(allowedQuestions);
@@ -270,7 +289,7 @@ const handover = (
   return {
     summary: proseFrom(candidates, "summary", fallback.handoverSummary, {
       minWords: 8, maxWords: 160,
-    }),
+    }, req.lang),
     questions: questions.length > 0 ? questions : allowedQuestions,
     conclusions: listFrom(candidates, "conclusions"),
     cards: listFrom(candidates, "cards", (value) => allowedCards.has(value)),
@@ -280,7 +299,7 @@ const handover = (
 };
 
 const bareFallbackModelOut = (req: ApiReq): ApiOut => {
-  const fallback = fallbackFor(req.lang);
+  const fallback = fallbackFor(req.lang, req.reader);
   switch (req.task) {
     case "invite": return { text: fallback.invite };
     case "fit": return {
@@ -306,13 +325,14 @@ export const fallbackModelOut = (req: ApiReq): ApiOut =>
 const suggestionsFrom = (
   candidates: readonly (ApiOut | undefined)[],
   fallback: readonly [string, string, string],
+  lang: string,
 ): string[] => {
   const output: string[] = [];
   for (const array of arrays(candidates, "suggestions")) {
     for (let index = 0; index < array.length && output.length < 3; index += 1) {
       const value = repairedProse(array[index], {
         minWords: 3, maxWords: 24, oneSentence: true, question: true,
-      });
+      }, lang);
       if (value !== null && !output.some((item) => item.toLocaleLowerCase() === value.toLocaleLowerCase())) {
         output.push(value);
       }
@@ -334,67 +354,112 @@ const titleFrom = (
   return fallback;
 };
 
-const reconstruct = (
+const reconstructCandidate = (
   req: ApiReq,
   candidates: readonly (ApiOut | undefined)[],
 ): ApiOut => {
-  const fallback = fallbackFor(req.lang);
-  let output: ApiOut;
+  const fallback = fallbackFor(req.lang, req.reader);
   switch (req.task) {
-    case "invite": output = {
+    case "invite": return {
       text: proseFrom(candidates, "text", fallback.invite, {
         minWords: 3, maxWords: 24, oneSentence: true,
-      }),
-    }; break;
-    case "fit": output = fit(req, candidates); break;
+      }, req.lang),
+    };
+    case "fit": return fit(req, candidates);
     case "ritual": {
       const theatre = theatreFrom(
         candidates,
-        ["gesture", "opening", "ritual"],
-        [fallback.ritualGesture, fallback.ritualOpening, fallback.ritual],
+        ["opening", "ritual", "gesture"],
+        [fallback.ritualOpening, fallback.ritual, fallback.ritualGesture],
       );
-      output = { gesture: theatre[0], opening: theatre[1], ritual: theatre[2] };
-      break;
+      return { opening: theatre[0], ritual: theatre[1], gesture: theatre[2] };
     }
-    case "read": output = read(req, candidates); break;
-    case "chat": output = {
+    case "read": return read(req, candidates);
+    case "chat": return {
       gesture: singleTheatreFrom(candidates, "gesture", fallback.chatGesture),
       response: proseFrom(candidates, "response", fallback.chatResponse, {
         minWords: 8, maxWords: 600, direct: true,
-      }),
-    }; break;
-    case "suggest": output = { suggestions: suggestionsFrom(candidates, fallback.suggestions) }; break;
-    case "continue": output = {
+      }, req.lang),
+    };
+    case "suggest": return { suggestions: suggestionsFrom(candidates, fallback.suggestions, req.lang) };
+    case "continue": return {
       text: proseFrom(candidates, "text", fallback.continuation, {
         minWords: 8, maxWords: 24, direct: true, oneSentence: true,
-      }),
-    }; break;
-    case "title": output = { title: titleFrom(candidates, fallback.title) }; break;
-    case "handover": output = handover(req, candidates); break;
-    case "return": output = {
+      }, req.lang),
+    };
+    case "title": return { title: titleFrom(candidates, fallback.title) };
+    case "handover": return handover(req, candidates);
+    case "return": return {
       text: proseFrom(candidates, "text", fallback.returning, {
-        minWords: 3, maxWords: 80, direct: true,
-      }),
-    }; break;
+        minWords: 3, maxWords: 95, direct: true,
+      }, req.lang),
+    };
   }
-  if (auditModelOut(req, output).valid) return output;
+};
+
+const sameRitual = (left: RitualOut, right: RitualOut): boolean =>
+  left.gesture === right.gesture && left.opening === right.opening && left.ritual === right.ritual;
+
+export function reconstructModelOutDetailed(
+  req: ApiReq,
+  candidates: readonly (ApiOut | undefined)[],
+): ReconstructionResult {
+  const candidate = reconstructCandidate(req, candidates);
+  const candidateAudit = auditModelOut(req, candidate);
+  if (candidateAudit.valid) {
+    if (req.task !== "ritual") {
+      return { out: attachMedia(req, candidate), emergencyFallback: false, auditErrors: [] };
+    }
+    const generic = bareFallbackModelOut(req) as RitualOut;
+    if (!sameRitual(candidate as RitualOut, generic)) {
+      return { out: attachMedia(req, candidate), emergencyFallback: false, auditErrors: [] };
+    }
+    const recovered = recoverRitual(req, generic);
+    const recoveredAudit = auditModelOut(req, recovered);
+    if (!recoveredAudit.valid) {
+      throw new Error(`ritual_recovery_invalid: ${recoveredAudit.errors.join(" | ")}`);
+    }
+    if (sameRitual(recovered, generic)) {
+      throw new Error("ritual_recovery_generic_fallback: deterministic recovery did not escape the bare emergency ritual");
+    }
+    return {
+      out: attachMedia(req, recovered),
+      emergencyFallback: false,
+      auditErrors: ["ritual_generic_fallback_recovered"],
+    };
+  }
+
   if (req.task === "ritual") {
-    return recoverRitual(req, {
+    const fallback = fallbackFor(req.lang, req.reader);
+    const recovered = recoverRitual(req, {
       gesture: fallback.ritualGesture,
       opening: fallback.ritualOpening,
       ritual: fallback.ritual,
     });
+    const recoveredAudit = auditModelOut(req, recovered);
+    if (!recoveredAudit.valid) {
+      throw new Error(`ritual_recovery_invalid: ${recoveredAudit.errors.join(" | ")}`);
+    }
+    return {
+      out: attachMedia(req, recovered),
+      emergencyFallback: false,
+      auditErrors: candidateAudit.errors,
+    };
   }
-  return bareFallbackModelOut(req);
-};
+
+  const emergency = bareFallbackModelOut(req);
+  const emergencyAudit = auditModelOut(req, emergency);
+  if (!emergencyAudit.valid) {
+    throw new Error(`emergency_fallback_invalid: ${emergencyAudit.errors.join(" | ")}`);
+  }
+  return {
+    out: attachMedia(req, emergency),
+    emergencyFallback: true,
+    auditErrors: [...candidateAudit.errors, "emergency_fallback_used"],
+  };
+}
 
 export const reconstructModelOut = (
   req: ApiReq,
   candidates: readonly (ApiOut | undefined)[],
-): ApiOut => {
-  try {
-    return attachMedia(req, reconstruct(req, candidates));
-  } catch {
-    return fallbackModelOut(req);
-  }
-};
+): ApiOut => reconstructModelOutDetailed(req, candidates).out;

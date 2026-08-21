@@ -1,14 +1,16 @@
 # Card and spread packs
 
-Core separates language-specific card and spread data from engine code. The CLI accepts the same manifest shape used by Online Arcana language packs.
+The CLI still accepts the manifest shape historically shared with Online Arcana language packs, but the audited core no longer treats pack prose as semantic authority.
 
 ## Entry manifest
+
+A CLI manifest contains compatibility prompt fields, one or more explicit card files and spread metadata:
 
 ```json
 {
   "prompt": {
-    "reading": "Interpret the supplied draw...",
-    "chat": "Answer the follow-up..."
+    "reading": "Compatibility prompt text",
+    "chat": "Compatibility prompt text"
   },
   "cardFiles": [
     "cards/major.json",
@@ -29,16 +31,16 @@ Core separates language-specific card and spread data from engine code. The CLI 
 }
 ```
 
-The entry file must provide `prompt.reading`, `prompt.chat`, a valid spread array and a card-file list. Relative card paths resolve from the entry manifest directory.
+`prompt.reading` and `prompt.chat` remain required by the legacy manifest/API shape. The current model layer accepts that `ModelPack` for compatibility but constructs generation prompts from core-owned bilingual contracts, persona data and mapped-medium data instead of using those strings as authored model instructions.
 
-## Explicit card lists
+## Explicit card lists only
 
-A card chunk may be an array of complete card objects:
+Every card chunk must be an explicit array of complete card objects:
 
 ```json
 [
   {
-    "id": "major-00",
+    "id": "major-fool",
     "name": "The Fool",
     "suit": "Major Arcana",
     "upright": "Beginnings and openness",
@@ -47,28 +49,27 @@ A card chunk may be an array of complete card objects:
 ]
 ```
 
-## Generated suit recipes
+The complete loaded pack must contain exactly the same 78 stable card IDs as `src/data/deck.json`. Display names and legacy card prose can remain in the compatibility pack for draw/persistence purposes, but model request canonicalisation rebuilds card names, suit and upright/reversed meaning from the core-owned canonical deck before generation.
 
-Minor arcana may use a compact recipe:
+## No generated minor meanings
 
-```json
-{
-  "pattern": "{rank} of {suit}",
-  "suits": [
-    { "id": "cups", "name": "Cups", "domain": "emotion" }
-  ],
-  "ranks": [
-    {
-      "id": "ace",
-      "name": "Ace",
-      "upright": "A beginning in {domain}",
-      "reversed": "Blocked movement in {domain}"
-    }
-  ]
-}
+Rank×suit recipes are deliberately unsupported. `expandCards` accepts explicit card arrays only and rejects recipe objects.
+
+This is a release invariant, not merely a documentation preference: each minor-arcana meaning is authored explicitly in the canonical deck. The engine never produces canonical meanings by combining a generic rank template with a suit/domain template.
+
+## Spread compatibility data
+
+CLI manifests still carry spread name, purpose and positions because `Deck.draw` preserves the existing draw contract. Supported spread IDs remain:
+
+```text
+one
+three
+decision
+advice
+celtic
 ```
 
-`expandCards` creates the Cartesian product of suits and ranks, replaces `{rank}`, `{suit}` and `{domain}`, and returns ordinary `CardDef` objects.
+At the model boundary, spread purpose and position semantics are rebuilt from `src/data/spreads.json` by spread ID and one-based position. Client/pack wording is therefore not trusted as model meaning.
 
 ## Loading APIs
 
@@ -78,10 +79,15 @@ const cards = await loadCards(files, readJson);
 ```
 
 - `cardFiles` validates and copies the manifest file list.
-- `expandCards` expands one explicit list or generated recipe.
-- `loadCards` reads all chunks concurrently, flattens them and enforces the complete-deck invariants.
-- `loadCliPack` resolves a manifest from disk and returns cards, spreads and model prompts in one object.
+- `expandCards` validates and clones an explicit card array.
+- `loadCards` reads all chunks concurrently, flattens them and enforces the exact canonical 78-card ID set.
+- `loadCliPack` resolves a manifest from disk and returns compatibility cards/spreads plus the accepted legacy `ModelPack` prompt shape.
 
-## Validation rules
+## Source of truth
 
-A usable pack must contain exactly 78 cards after expansion. Every card ID must be unique. Every spread must use one of the five supported IDs and contain between one and ten positions. Position names and meanings are required; `place` is optional.
+For model-facing semantics, the authoritative files are:
+
+- `src/data/deck.json`
+- `src/data/spreads.json`
+
+A language/CLI pack cannot override those meanings by sending different prose under an otherwise valid card or spread ID.

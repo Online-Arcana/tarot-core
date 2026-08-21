@@ -1,3 +1,10 @@
+import generated from "./fallbacks.generated.json" with { type: "json" };
+import { localText, profileFor } from "../readers/profiles.js";
+import type { LangCode, ReaderId } from "../contracts/types.js";
+import { hasDirectAddress } from "./language.js";
+
+const ATMOSPHERE_COUNT = 16;
+
 export interface FallbackCatalogue {
   readonly invite: string;
   readonly fitReason: string;
@@ -5,6 +12,7 @@ export interface FallbackCatalogue {
   readonly ritualGesture: string;
   readonly ritualOpening: string;
   readonly ritual: string;
+  readonly ritualAtmosphere: readonly string[];
   readonly readGesture: string;
   readonly readOpening: string;
   readonly readLink: string;
@@ -23,63 +31,79 @@ export interface FallbackCatalogue {
   readonly returning: string;
 }
 
-const en: FallbackCatalogue = {
-  invite: "Tell me what you would like the cards to explore.",
-  fitReason: "Your question can be explored thoughtfully with this reader.",
-  fitOffer: "You can continue here, and the reading will stay focused on your question.",
-  ritualGesture: "The reader steadies the deck between both hands and lets the room become quiet around you.",
-  ritualOpening: "A measured breath creates enough space for your question to settle without forcing an answer.",
-  ritual: "When you are ready, the next card can be revealed and considered with care.",
-  readGesture: "The reader gathers the visible results into a clear line and pauses so each image can hold its own place.",
-  readOpening: "Your question remains at the centre while the visible arrangement is considered as one connected pattern.",
-  readLink: "The message now moves from the individual results towards what they ask you to notice together.",
-  cardText: "This visible result draws your attention to the choices, feelings and circumstances surrounding this position. Consider what it asks you to recognise before deciding how you want to respond.",
-  synthesis: "Taken together, the visible results ask you to separate what is already clear from what still needs time. You can move forward by trusting the consistent themes while remaining open about the parts that have not fully settled.",
-  reading: "The visible pattern points you towards a careful, grounded response rather than a rushed conclusion. Notice which part feels immediately recognisable, then compare it with the practical choices available to you. These results can clarify a pattern, but you remain responsible for deciding what is true, useful and appropriate in your circumstances.",
-  closing: "Keep what feels honest and useful to you, and let the rest become clearer with time.",
-  note: "The supplied visible results remain before you as a reflective interpretation of their positions.",
-  chatGesture: "The reader rests a hand beside the spread and studies the arrangement without rushing you. A quiet pause gives your follow-up question room to settle, while the earlier cards remain visible as context for the answer that follows.",
-  chatResponse: "Your follow-up returns to the central pattern already visible in the reading. Focus on the part you can verify in your own experience, then use that clarity to decide what deserves action and what still needs observation. You do not have to force certainty where the situation remains genuinely open.",
-  suggestions: [
-    "Which part of this reading should I act on first?",
-    "What tension in these cards needs more attention?",
-    "How can I apply this message to my situation?",
-  ],
-  continuation: "You can ask about any part of the reading that still feels unresolved.",
-  title: "A Pattern Coming Clear",
-  handoverSummary: "The user is continuing an existing tarot conversation and needs the next reader to preserve the established question, cards and unresolved themes without inventing new facts.",
-  handoverUnresolved: "Clarify the user’s current question without changing the conclusions already established.",
-  returning: "I remember the thread of your earlier reading, and you can continue from whatever now feels most important.",
-};
+type Fields = Record<string, unknown>;
 
-const es: FallbackCatalogue = {
-  invite: "Cuéntame qué te gustaría explorar con las cartas.",
-  fitReason: "Tu pregunta puede explorarse con cuidado junto a este lector.",
-  fitOffer: "Puedes continuar aquí y la lectura se mantendrá centrada en tu pregunta.",
-  ritualGesture: "El lector sostiene la baraja entre ambas manos y deja que el espacio a tu alrededor se vuelva tranquilo.",
-  ritualOpening: "Una respiración pausada permite que tu pregunta se asiente sin obligarla a producir una respuesta inmediata.",
-  ritual: "Cuando quieras, la siguiente carta puede revelarse y considerarse con atención.",
-  readGesture: "El lector ordena los resultados visibles en una línea clara y hace una pausa para que cada imagen conserve su lugar.",
-  readOpening: "Tu pregunta permanece en el centro mientras la disposición visible se contempla como un patrón conectado.",
-  readLink: "El mensaje pasa ahora de cada resultado individual hacia aquello que, en conjunto, te piden observar.",
-  cardText: "Este resultado visible dirige tu atención hacia las decisiones, emociones y circunstancias de esta posición. Considera lo que te pide reconocer antes de decidir cómo quieres responder.",
-  synthesis: "En conjunto, los resultados visibles te piden distinguir lo que ya está claro de aquello que aún necesita tiempo. Puedes avanzar confiando en los temas constantes y manteniendo apertura ante lo que todavía no se ha asentado por completo.",
-  reading: "El patrón visible te orienta hacia una respuesta cuidadosa y realista, no hacia una conclusión apresurada. Observa qué parte reconoces de inmediato y compárala con las opciones prácticas que tienes. Estos resultados pueden aclarar un patrón, pero tú decides qué resulta verdadero, útil y apropiado para tus circunstancias.",
-  closing: "Conserva lo que te resulte honesto y útil, y permite que lo demás se aclare con el tiempo.",
-  note: "Los resultados visibles permanecen ante ti como una interpretación reflexiva de sus posiciones.",
-  chatGesture: "El lector apoya una mano junto a la tirada y observa la disposición sin apresurarte. Una pausa tranquila permite que tu pregunta de seguimiento se asiente, mientras las cartas anteriores permanecen visibles como contexto para la respuesta que sigue.",
-  chatResponse: "Tu pregunta de seguimiento vuelve al patrón central que ya aparece en la lectura. Concéntrate en la parte que puedes comprobar en tu propia experiencia y utiliza esa claridad para decidir qué merece acción y qué todavía requiere observación. No tienes que forzar certeza cuando la situación sigue realmente abierta.",
-  suggestions: [
-    "¿Sobre qué parte de esta lectura debería actuar primero?",
-    "¿Qué tensión de estas cartas necesita más atención?",
-    "¿Cómo puedo aplicar este mensaje a mi situación?",
-  ],
-  continuation: "Puedes preguntar por cualquier parte de tu lectura que todavía sientas sin resolver.",
-  title: "Un Patrón Se Aclara",
-  handoverSummary: "La persona continúa una conversación de tarot existente y necesita que el siguiente lector preserve la pregunta, las cartas y los temas pendientes sin inventar hechos nuevos.",
-  handoverUnresolved: "Aclara la pregunta actual sin cambiar las conclusiones que ya se establecieron.",
-  returning: "Recuerdo el hilo de tu lectura anterior y puedes continuar desde aquello que ahora te resulte más importante.",
-};
+function object(value: unknown, path: string): Fields {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) throw new Error(`${path} must be an object`);
+  return value as Fields;
+}
+function text(value: unknown, path: string): string {
+  if (typeof value !== "string" || !value.trim()) throw new Error(`${path} must be non-empty text`);
+  return value.trim();
+}
+function source(code: string): Fields {
+  const root = object(generated as unknown, "generated fallbacks");
+  if (root.version !== 1 || root.generatedFrom !== "src/model/fallbacks.xml") {
+    throw new Error("generated fallbacks must come from canonical fallbacks.xml");
+  }
+  const languages = object(root.languages, "generated fallbacks.languages");
+  return object(languages[code], `generated fallbacks.languages.${code}`);
+}
+function rendered(value: string, reader: ReaderId): string {
+  return value.replaceAll("{reader}", profileFor(reader).public.name);
+}
+function field(fields: Fields, id: string, reader: ReaderId): string {
+  return rendered(text(fields[id], `generated fallbacks.${id}`), reader);
+}
+function validInvite(value: string): boolean {
+  const clean = value.trim();
+  if (!clean || /[\r\n]/u.test(clean)) return false;
+  const words = clean.split(/\s+/u).filter(Boolean).length;
+  if (words < 3 || words > 24) return false;
+  const endings = clean.match(/[.!?]["'’”)]*(?=\s|$)/gu)?.length ?? 0;
+  return endings === 1 && /[.!?]["'’”)]*$/u.test(clean);
+}
 
-export const fallbackFor = (lang: string): FallbackCatalogue =>
-  lang.toLocaleLowerCase().startsWith("es") ? es : en;
+export function fallbackFor(lang: string, reader: ReaderId): FallbackCatalogue {
+  const code: LangCode = lang.toLowerCase().startsWith("es") ? "es-ES" : "en-GB";
+  const fields = source(code);
+  const profile = profileFor(reader);
+  const genericInvite = field(fields, "invite.text", reader);
+  const invite = localText(profile.persona.invite, code).find(validInvite) ?? genericInvite;
+  const genericReturning = field(fields, "return.text", reader);
+  const personaReturning = localText(profile.handover.returning, code)[0];
+  const returning = personaReturning && hasDirectAddress(personaReturning, code)
+    ? personaReturning
+    : genericReturning;
+
+  return {
+    invite,
+    fitReason: field(fields, "fit.reason", reader),
+    fitOffer: field(fields, "fit.offer", reader),
+    ritualGesture: field(fields, "ritual.gesture", reader),
+    ritualOpening: field(fields, "ritual.opening", reader),
+    ritual: field(fields, "ritual.ritual", reader),
+    ritualAtmosphere: Array.from({ length: ATMOSPHERE_COUNT }, (_, index) =>
+      field(fields, `ritual.atmosphere.${index}`, reader)),
+    readGesture: field(fields, "read.gesture", reader),
+    readOpening: field(fields, "read.opening", reader),
+    readLink: field(fields, "read.link", reader),
+    cardText: field(fields, "read.cardText", reader),
+    synthesis: field(fields, "read.synthesis", reader),
+    reading: field(fields, "read.reading", reader),
+    closing: field(fields, "read.closing", reader),
+    note: field(fields, "read.note", reader),
+    chatGesture: field(fields, "chat.gesture", reader),
+    chatResponse: field(fields, "chat.response", reader),
+    suggestions: [
+      field(fields, "suggest.0", reader),
+      field(fields, "suggest.1", reader),
+      field(fields, "suggest.2", reader),
+    ],
+    continuation: field(fields, "continue.text", reader),
+    title: field(fields, "title.title", reader),
+    handoverSummary: field(fields, "handover.summary", reader),
+    handoverUnresolved: field(fields, "handover.unresolved", reader),
+    returning,
+  };
+}

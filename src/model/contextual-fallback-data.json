@@ -1,0 +1,235 @@
+{
+  "version": 1,
+  "languages": {
+    "en": {
+      "genericFocus": [
+        "Stay with what you can recognise in your own experience before turning the reading into a conclusion.",
+        "Use the result to separate what is already visible from what still depends on your next choice.",
+        "Treat the reading as a way to sharpen the question, not as permission to hand your judgement away."
+      ],
+      "topicFocus": {
+        "love": [
+          "In questions of love, notice the difference between mutual care and the hope that intensity will become reciprocity.",
+          "Where affection is involved, pay attention to what is actually being exchanged rather than only to what is strongly felt.",
+          "Let the reading distinguish longing from evidence of a relationship that can genuinely meet you."
+        ],
+        "intimacy": [
+          "With intimacy, the useful distinction is between desire itself and the conditions that make desire safe, mutual and welcome.",
+          "Notice what your body and your boundaries are telling you alongside what attraction is asking for.",
+          "Keep desire honest by separating what excites you from what you are actually willing to consent to and sustain."
+        ],
+        "family": [
+          "With family, look for the boundary between what belongs to you and what has been inherited as an obligation.",
+          "Notice which part of the situation is genuinely yours to influence and which part belongs to another person's choices.",
+          "Family patterns matter here, but repetition is not the same thing as destiny."
+        ],
+        "grief": [
+          "Grief does not need to become a problem to solve; let the reading show what needs company, acknowledgement or time.",
+          "Treat what hurts as evidence of attachment and loss, not as proof that you are grieving incorrectly.",
+          "Stay close to what is true now without demanding that grief produce a lesson before you are ready."
+        ],
+        "death": [
+          "Keep the reading with mortality, endings and meaning rather than turning uncertainty into a prediction.",
+          "Let the result speak to how you are meeting finitude without pretending it can tell you what cannot be known.",
+          "The useful question is what this awareness of endings changes in the way you choose to live now."
+        ],
+        "change": [
+          "With change, separate what is genuinely ending from what is merely unfamiliar or frightening.",
+          "Notice which part of the transition already has momentum and which part still depends on a choice you can make.",
+          "Let the reading show what the new chapter asks you to release, carry forward or learn differently."
+        ],
+        "career": [
+          "With work, distinguish recognition, security and money from the deeper question of what this path is costing you.",
+          "Look at the practical trade-off between opportunity, stability and the kind of daily life the choice would create.",
+          "Use the reading to clarify the next workable move, not to replace facts you can verify about the job or situation."
+        ],
+        "conflict": [
+          "In conflict, notice what each side is protecting and what becomes harder to defend once the consequences are made explicit.",
+          "Separate the argument you can win from the outcome you actually want to live with afterwards.",
+          "Look for the point where firmness protects a boundary and the point where escalation merely repeats the problem."
+        ],
+        "purpose": [
+          "With purpose, pay attention to what remains meaningful after praise, fear and other people's expectations are stripped away.",
+          "A useful direction is usually one you can keep choosing in ordinary life, not only one that sounds important from a distance.",
+          "Let the reading test which path asks for a cost you are genuinely willing to carry."
+        ],
+        "spirituality": [
+          "Keep spiritual meaning open enough to be reflective without treating metaphor, intuition or coincidence as proof.",
+          "Notice what deepens your sense of meaning while leaving room for uncertainty and ordinary explanations.",
+          "Use the reading to examine what you believe and how that belief changes your choices, not to manufacture certainty."
+        ],
+        "identity": [
+          "With identity, notice what still feels like you when performance, approval and other people's expectations fall away.",
+          "Separate the self you are trying to prove from the self whose values you can actually live by.",
+          "Let the reading point towards the part of you that needs recognition rather than another role to perform."
+        ],
+        "healing": [
+          "With healing, treat progress as increased capacity and choice rather than a demand to feel finished.",
+          "Notice what helps you return to yourself without turning pain into an identity you must keep carrying.",
+          "Let the reading distinguish patience with recovery from staying indefinitely inside what continues to harm you."
+        ]
+      },
+      "spreadFrame": {
+        "one": [
+          "A single result has to carry the centre of the question, so let it clarify one thing well rather than forcing it to answer everything.",
+          "This one-position reading works best when the result is treated as the clearest point of emphasis, not as a complete future."
+        ],
+        "three": [
+          "Read the three positions as movement: what formed the situation, what is active now and where the current pattern tends to lead.",
+          "The value of this sequence is in the contrast between origin, present pressure and likely direction if the pattern continues."
+        ],
+        "decision": [
+          "This reading separates the pull of the choice from what obstructs it and from the most useful way to move forward.",
+          "Keep the three positions distinct: the dominant tendency, the complication and the advice are not the same kind of answer."
+        ],
+        "advice": [
+          "This reading moves from the real centre of the problem to the stance that serves you and then to what may follow from applying it.",
+          "The useful thread here is practical: identify the problem accurately, choose the attitude deliberately and watch what that changes."
+        ],
+        "celtic": [
+          "This wider reading matters because it separates the inner and outer forces around the question instead of collapsing them into one answer.",
+          "Use the full pattern to distinguish what is central, what crosses it, what shaped it and what is beginning to emerge."
+        ]
+      },
+      "closings": [
+        "Keep the part that sharpens your judgement, and leave anything that asks you to surrender it.",
+        "Take the clearest thread with you and test it against what actually happens next.",
+        "You do not need to decide everything now; keep the part that makes the next honest step easier to see."
+      ],
+      "chatBridges": [
+        "Your follow-up changes the emphasis without erasing the reading that came before it.",
+        "This question belongs to the same reading, but it asks us to look more closely at one part of the pattern.",
+        "The earlier reading remains the context; this follow-up narrows where the attention needs to go."
+      ],
+      "titles": {
+        "love": ["What the Heart Can Actually Hold", "Desire and Reciprocity", "Where Feeling Meets Reality"],
+        "intimacy": ["Desire With Boundaries", "What Intimacy Is Asking", "Closer Without Losing Yourself"],
+        "family": ["What Belongs to You", "The Pattern at Home", "Family, Duty and Choice"],
+        "grief": ["What Grief Is Carrying", "Making Room for Loss", "What Remains After Loss"],
+        "death": ["Living Beside the Ending", "What Mortality Clarifies", "At the Edge of Certainty"],
+        "change": ["The Shape of the Transition", "What Is Actually Changing", "Between Ending and Beginning"],
+        "career": ["The Cost of the Next Step", "Work, Direction and Trade-Offs", "What This Path Would Ask"],
+        "conflict": ["What the Conflict Is Protecting", "The Cost of Escalation", "Where Firmness Matters"],
+        "purpose": ["A Path Worth Carrying", "What Still Matters", "The Direction You Can Live"],
+        "spirituality": ["Meaning Without Certainty", "What You Choose to Believe", "The Question Beneath the Sign"],
+        "identity": ["Who Remains Without the Performance", "The Self You Can Live As", "Recognition Without a Mask"],
+        "healing": ["What Recovery Is Making Possible", "Healing Without a Deadline", "Returning to Yourself"]
+      }
+    },
+    "es": {
+      "genericFocus": [
+        "Quédate con lo que puedas reconocer en tu propia experiencia antes de convertir la lectura en una conclusión.",
+        "Usa el resultado para distinguir lo que ya es visible de lo que todavía depende de tu siguiente elección.",
+        "Toma la lectura como una forma de afinar la pregunta, no como permiso para ceder tu propio criterio."
+      ],
+      "topicFocus": {
+        "love": [
+          "En cuestiones de amor, distingue entre el cuidado mutuo y la esperanza de que la intensidad termine convirtiéndose en reciprocidad.",
+          "Cuando hay afecto de por medio, observa qué se está intercambiando de verdad y no solo qué se siente con fuerza.",
+          "Deja que la lectura separe el anhelo de las pruebas de una relación que realmente pueda encontrarte a mitad de camino."
+        ],
+        "intimacy": [
+          "En la intimidad, la distinción útil está entre el deseo y las condiciones que hacen que ese deseo sea seguro, mutuo y bien recibido.",
+          "Observa lo que te dicen el cuerpo y los límites junto a lo que te pide la atracción.",
+          "Mantén el deseo honesto distinguiendo lo que te excita de aquello a lo que realmente quieres consentir y dar continuidad."
+        ],
+        "family": [
+          "En la familia, busca el límite entre lo que te pertenece y lo que has heredado como obligación.",
+          "Observa qué parte de la situación puedes influir de verdad y qué parte pertenece a las decisiones de otra persona.",
+          "Los patrones familiares importan aquí, pero la repetición no equivale al destino."
+        ],
+        "grief": [
+          "El duelo no tiene que convertirse en un problema que resolver; deja que la lectura muestre qué necesita compañía, reconocimiento o tiempo.",
+          "Toma lo que duele como prueba del vínculo y de la pérdida, no como señal de que estás viviendo mal el duelo.",
+          "Quédate cerca de lo que es cierto ahora sin exigir que el duelo produzca una lección antes de tiempo."
+        ],
+        "death": [
+          "Mantén la lectura en la mortalidad, los finales y el sentido sin convertir la incertidumbre en una predicción.",
+          "Deja que el resultado hable de cómo afrontas la finitud sin fingir que puede decirte lo que no puede saberse.",
+          "La pregunta útil es qué cambia esta conciencia de los finales en la forma en que eliges vivir ahora."
+        ],
+        "change": [
+          "En el cambio, distingue lo que realmente está terminando de aquello que solo resulta desconocido o inquietante.",
+          "Observa qué parte de la transición ya tiene impulso y cuál todavía depende de una elección que puedes hacer.",
+          "Deja que la lectura muestre qué te pide soltar, conservar o aprender de otra manera en la nueva etapa."
+        ],
+        "career": [
+          "En el trabajo, distingue el reconocimiento, la seguridad y el dinero de la pregunta más profunda sobre lo que este camino te está costando.",
+          "Mira el intercambio práctico entre oportunidad, estabilidad y el tipo de vida cotidiana que crearía esta elección.",
+          "Usa la lectura para aclarar el siguiente movimiento posible, no para sustituir los hechos que puedes comprobar sobre el trabajo o la situación."
+        ],
+        "conflict": [
+          "En un conflicto, observa qué intenta proteger cada parte y qué se vuelve más difícil de defender cuando las consecuencias quedan claras.",
+          "Distingue la discusión que puedes ganar del resultado con el que realmente quieres convivir después.",
+          "Busca el punto en el que la firmeza protege un límite y aquel en el que la escalada solo repite el problema."
+        ],
+        "purpose": [
+          "En el propósito, presta atención a lo que sigue teniendo sentido cuando apartas el elogio, el miedo y las expectativas ajenas.",
+          "Un rumbo útil suele ser aquel que puedes seguir eligiendo en la vida ordinaria, no solo el que suena importante desde lejos.",
+          "Deja que la lectura ponga a prueba qué camino exige un coste que de verdad estás dispuesto a sostener."
+        ],
+        "spirituality": [
+          "Mantén el significado espiritual lo bastante abierto como para reflexionar sin tratar la metáfora, la intuición o la coincidencia como pruebas.",
+          "Observa qué profundiza tu sentido de significado sin cerrar la puerta a la incertidumbre ni a explicaciones ordinarias.",
+          "Usa la lectura para examinar lo que crees y cómo esa creencia cambia tus decisiones, no para fabricar certeza."
+        ],
+        "identity": [
+          "En la identidad, observa qué sigue sintiéndose tuyo cuando apartas la actuación, la aprobación y las expectativas ajenas.",
+          "Distingue el yo que intentas demostrar del yo cuyos valores sí puedes vivir.",
+          "Deja que la lectura señale la parte de ti que necesita reconocimiento y no otro papel que interpretar."
+        ],
+        "healing": [
+          "En la sanación, entiende el progreso como más capacidad y más elección, no como la obligación de sentirte completamente terminado.",
+          "Observa qué te ayuda a volver a ti sin convertir el dolor en una identidad que debas seguir cargando.",
+          "Deja que la lectura distinga la paciencia con la recuperación de permanecer indefinidamente dentro de lo que sigue haciéndote daño."
+        ]
+      },
+      "spreadFrame": {
+        "one": [
+          "Un solo resultado tiene que cargar con el centro de la pregunta, así que deja que aclare bien una cosa sin obligarlo a responderlo todo.",
+          "Esta lectura de una sola posición funciona mejor si tomas el resultado como el énfasis principal y no como un futuro completo."
+        ],
+        "three": [
+          "Lee las tres posiciones como movimiento: lo que dio forma a la situación, lo que está activo ahora y hacia dónde tiende el patrón actual.",
+          "El valor de esta secuencia está en el contraste entre el origen, la presión presente y la dirección probable si el patrón continúa."
+        ],
+        "decision": [
+          "Esta lectura separa la fuerza de la elección de aquello que la complica y de la forma más útil de avanzar.",
+          "Mantén distintas las tres posiciones: la tendencia dominante, el obstáculo y el consejo no son el mismo tipo de respuesta."
+        ],
+        "advice": [
+          "Esta lectura va del verdadero centro del problema a la postura que mejor te sirve y después a lo que puede seguir si la aplicas.",
+          "El hilo útil aquí es práctico: identifica bien el problema, elige la actitud con intención y observa qué cambia con ello."
+        ],
+        "celtic": [
+          "Esta lectura más amplia importa porque separa las fuerzas internas y externas de la pregunta en lugar de reducirlas a una sola respuesta.",
+          "Usa el patrón completo para distinguir qué está en el centro, qué lo cruza, qué lo formó y qué empieza a emerger."
+        ]
+      },
+      "closings": [
+        "Quédate con la parte que afine tu criterio y deja fuera cualquier cosa que te pida renunciar a él.",
+        "Llévate el hilo más claro y compruébalo frente a lo que realmente ocurra después.",
+        "No tienes que decidirlo todo ahora; quédate con la parte que haga más visible el siguiente paso honesto."
+      ],
+      "chatBridges": [
+        "Tu pregunta de seguimiento cambia el énfasis sin borrar la lectura que la precede.",
+        "Esta pregunta pertenece a la misma lectura, pero nos pide mirar con más atención una parte del patrón.",
+        "La lectura anterior sigue siendo el contexto; esta pregunta afina el lugar hacia el que debe ir la atención."
+      ],
+      "titles": {
+        "love": ["Lo Que el Corazón Puede Sostener", "Deseo y Reciprocidad", "Donde el Sentimiento Encuentra la Realidad"],
+        "intimacy": ["Deseo con Límites", "Lo Que Pide la Intimidad", "Más Cerca sin Perderte"],
+        "family": ["Lo Que Te Pertenece", "El Patrón en Casa", "Familia, Deber y Elección"],
+        "grief": ["Lo Que Lleva el Duelo", "Hacer Sitio a la Pérdida", "Lo Que Queda Tras la Pérdida"],
+        "death": ["Vivir Junto al Final", "Lo Que Aclara la Mortalidad", "En el Borde de la Certeza"],
+        "change": ["La Forma de la Transición", "Lo Que Está Cambiando de Verdad", "Entre el Final y el Comienzo"],
+        "career": ["El Coste del Siguiente Paso", "Trabajo, Rumbo e Intercambios", "Lo Que Exigiría Este Camino"],
+        "conflict": ["Lo Que Protege el Conflicto", "El Coste de Escalar", "Donde Importa la Firmeza"],
+        "purpose": ["Un Camino Que Merece la Pena Sostener", "Lo Que Sigue Importando", "El Rumbo Que Puedes Vivir"],
+        "spirituality": ["Sentido sin Certeza", "Lo Que Eliges Creer", "La Pregunta Bajo la Señal"],
+        "identity": ["Quién Queda sin la Actuación", "El Yo Que Puedes Vivir", "Reconocerte sin Máscaras"],
+        "healing": ["Lo Que la Recuperación Hace Posible", "Sanar sin Fecha Límite", "Volver a Ti"]
+      }
+    }
+  }
+}

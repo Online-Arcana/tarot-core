@@ -1,1 +1,950 @@
-{"$schema":"../medium-map.schema.json","version":2,"status":{"state":"source-backed-draft","runtimeIntegrated":true,"culturalSpecialistReviewRequired":true,"note":{"en":"The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.","es":"Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."}},"reader":"yejide","readerName":{"en":"Yejide","es":"Yejide"},"culture":{"en":"Yorùbá religion, folklore and ritual material culture","es":"Religión, folclore y cultura material ritual yorùbá"},"medium":{"en":"large individually carved seeds","es":"semillas grandes talladas individualmente"},"canonicalDeck":{"name":{"en":"Online Arcana naipes","es":"Naipes de Online Arcana"},"cardCount":78,"orientationValues":["upright","reversed"],"mappingRule":{"en":"Exactly one fixed medium result per canonical card; the public state is selected by the canonical orientation.","es":"Exactamente un resultado fijo del medio por cada naipe canónico; el estado público se selecciona mediante la orientación canónica."}},"presentation":{"rankMode":"entity","majorMode":"carved-being","states":{"upright":{"en":"visible","es":"visible"},"reversed":{"en":"hidden","es":"oculto"}},"families":{"wands":{"en":"Reptiles","es":"Reptiles"},"cups":{"en":"Fish","es":"Peces"},"swords":{"en":"Birds","es":"Aves"},"pentacles":{"en":"Creatures","es":"Criaturas"}}},"ritual":{"concealment":{"en":"The carved seeds remain hidden in an opaque woven bag.","es":"Las semillas talladas permanecen ocultas en una bolsa tejida opaca."},"chance":{"en":"Yejide reaches into the bag without looking, takes a concealed handful and casts it; one seed separates from the rest.","es":"Yejide introduce la mano en la bolsa sin mirar, toma un puñado oculto y lo lanza; una semilla se separa de las demás."},"upright":{"en":"The chosen seed settles with its carving visible.","es":"La semilla elegida queda con la talla visible."},"reversed":{"en":"The chosen seed settles with its carving hidden against the surface; Yejide records the state before turning it to identify the carving.","es":"La semilla elegida queda con la talla oculta contra la superficie; Yejide registra el estado antes de girarla para identificar la talla."},"beats":{"en":["opaque woven bag","concealed handful","seeds striking the desk","one seed separating","inspection after the state is recorded"],"es":["bolsa tejida opaca","puñado oculto","semillas golpeando la mesa","una semilla que se separa","inspección después de registrar el estado"]}},"sourceRegistry":[{"id":"bm-ifa-nuts","title":"British Museum: Yoruba Ifá palm nuts in a cloth bag","url":"https://www.britishmuseum.org/collection/object/E_Af1963-13-22-a","note":"Documents palm nuts and an opaque cloth bag used in Ifá equipment."},{"id":"bm-opon-ifa","title":"British Museum: Yoruba Ifá divination board with Èṣù face","url":"https://www.britishmuseum.org/collection/object/E_Af1956-07-2","note":"Documents a carved divination tray and Èṣù imagery."},{"id":"yoruba-legends","title":"M. I. Ogumefu: Yoruba Legends","url":"https://openlibrary.org/books/OL49340567M/Yoruba_Legends","note":"Published collection of Yoruba legends and animal tales; historical collection used critically."},{"id":"yoruba-peoples","title":"A. B. Ellis: The Yoruba-speaking peoples of the Slave Coast","url":"https://wellcomecollection.org/works/y9jfdxdq","note":"Historical ethnographic source for names, religious figures and folklore; colonial-era interpretations require caution."},{"id":"met-crown","title":"Metropolitan Museum: Adéńlá beaded crown","url":"https://www.metmuseum.org/art/collection/search/844643","note":"Documents Yoruba sacred kingship imagery, birds and beadwork."}],"culturalElementRegistry":[{"id":"family-wands","name":{"en":"Reptiles","es":"Reptiles"},"sourceIds":["bm-ifa-nuts","bm-opon-ifa","yoruba-legends","yoruba-peoples","met-crown"],"sensitivity":"specialist-review"},{"id":"family-cups","name":{"en":"Fish","es":"Peces"},"sourceIds":["bm-ifa-nuts","bm-opon-ifa","yoruba-legends","yoruba-peoples","met-crown"],"sensitivity":"specialist-review"},{"id":"family-swords","name":{"en":"Birds","es":"Aves"},"sourceIds":["bm-ifa-nuts","bm-opon-ifa","yoruba-legends","yoruba-peoples","met-crown"],"sensitivity":"specialist-review"},{"id":"family-pentacles","name":{"en":"Creatures","es":"Criaturas"},"sourceIds":["bm-ifa-nuts","bm-opon-ifa","yoruba-legends","yoruba-peoples","met-crown"],"sensitivity":"specialist-review"},{"id":"major-being","name":{"en":"Named being","es":"Ser nombrado"},"sourceIds":["bm-ifa-nuts","bm-opon-ifa","yoruba-legends","yoruba-peoples","met-crown"],"sensitivity":"specialist-review"}],"major":[{"itemName":{"en":"Èṣù","es":"Èṣù"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Èṣù.","es":"Una semilla grande tallada con Èṣù."}},{"itemName":{"en":"Ọ̀rúnmìlà","es":"Ọ̀rúnmìlà"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ọ̀rúnmìlà.","es":"Una semilla grande tallada con Ọ̀rúnmìlà."}},{"itemName":{"en":"Ọbàtálá","es":"Ọbàtálá"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ọbàtálá.","es":"Una semilla grande tallada con Ọbàtálá."}},{"itemName":{"en":"Odùduwà","es":"Odùduwà"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Odùduwà.","es":"Una semilla grande tallada con Odùduwà."}},{"itemName":{"en":"Ògún","es":"Ògún"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ògún.","es":"Una semilla grande tallada con Ògún."}},{"itemName":{"en":"Ṣàngó","es":"Ṣàngó"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ṣàngó.","es":"Una semilla grande tallada con Ṣàngó."}},{"itemName":{"en":"Ọ̀ṣun","es":"Ọ̀ṣun"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ọ̀ṣun.","es":"Una semilla grande tallada con Ọ̀ṣun."}},{"itemName":{"en":"Yemọja","es":"Yemọja"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Yemọja.","es":"Una semilla grande tallada con Yemọja."}},{"itemName":{"en":"Ọya","es":"Ọya"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ọya.","es":"Una semilla grande tallada con Ọya."}},{"itemName":{"en":"Ọ̀bà","es":"Ọ̀bà"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ọ̀bà.","es":"Una semilla grande tallada con Ọ̀bà."}},{"itemName":{"en":"Ọ̀kọ","es":"Ọ̀kọ"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ọ̀kọ.","es":"Una semilla grande tallada con Ọ̀kọ."}},{"itemName":{"en":"Ọ̀sanyìn","es":"Ọ̀sanyìn"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ọ̀sanyìn.","es":"Una semilla grande tallada con Ọ̀sanyìn."}},{"itemName":{"en":"Erinlẹ̀","es":"Erinlẹ̀"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Erinlẹ̀.","es":"Una semilla grande tallada con Erinlẹ̀."}},{"itemName":{"en":"Olókun","es":"Olókun"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Olókun.","es":"Una semilla grande tallada con Olókun."}},{"itemName":{"en":"Orí","es":"Orí"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Orí.","es":"Una semilla grande tallada con Orí."}},{"itemName":{"en":"Àjẹ́","es":"Àjẹ́"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Àjẹ́.","es":"Una semilla grande tallada con Àjẹ́."}},{"itemName":{"en":"Ìbejì","es":"Ìbejì"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ìbejì.","es":"Una semilla grande tallada con Ìbejì."}},{"itemName":{"en":"Egúngún","es":"Egúngún"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Egúngún.","es":"Una semilla grande tallada con Egúngún."}},{"itemName":{"en":"Ajé","es":"Ajé"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Ajé.","es":"Una semilla grande tallada con Ajé."}},{"itemName":{"en":"Yewa","es":"Yewa"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Yewa.","es":"Una semilla grande tallada con Yewa."}},{"itemName":{"en":"Nàná Bùkùú","es":"Nàná Bùkùú"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Nàná Bùkùú.","es":"Una semilla grande tallada con Nàná Bùkùú."}},{"itemName":{"en":"Aganjú","es":"Aganjú"},"culturalElementIds":["major-being"],"itemDescription":{"en":"A large seed carved with Aganjú.","es":"Una semilla grande tallada con Aganjú."}}],"minor":{"wands":[{"itemName":{"en":"Gecko Seed","es":"Semilla de Geco"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Skink Seed","es":"Semilla de Escinco"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Agama Seed","es":"Semilla de Agama"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Chameleon Seed","es":"Semilla de Camaleón"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Tortoise Seed","es":"Semilla de Tortuga terrestre"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Turtle Seed","es":"Semilla de Tortuga acuática"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Monitor Lizard Seed","es":"Semilla de Varano"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Crocodile Seed","es":"Semilla de Cocodrilo"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Python Seed","es":"Semilla de Pitón"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Cobra Seed","es":"Semilla de Cobra"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Mamba Seed","es":"Semilla de Mamba"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Puff Adder Seed","es":"Semilla de Víbora bufadora"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Bush Viper Seed","es":"Semilla de Víbora arbórea"},"culturalElementIds":["family-wands"]},{"itemName":{"en":"Blind Snake Seed","es":"Semilla de Serpiente ciega"},"culturalElementIds":["family-wands"]}],"cups":[{"itemName":{"en":"Tilapia Seed","es":"Semilla de Tilapia"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Catfish Seed","es":"Semilla de Bagre"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Mudfish Seed","es":"Semilla de Pez de lodo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Lungfish Seed","es":"Semilla de Pez pulmonado"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Eel Seed","es":"Semilla de Anguila"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Electric Fish Seed","es":"Semilla de Pez eléctrico"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Croaker Seed","es":"Semilla de Corvina"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Bonga Shad Seed","es":"Semilla de Sábalo bonga"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Barracuda Seed","es":"Semilla de Barracuda"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Flying Fish Seed","es":"Semilla de Pez volador"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Pufferfish Seed","es":"Semilla de Pez globo"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Stingray Seed","es":"Semilla de Raya"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Sawfish Seed","es":"Semilla de Pez sierra"},"culturalElementIds":["family-cups"]},{"itemName":{"en":"Shark Seed","es":"Semilla de Tiburón"},"culturalElementIds":["family-cups"]}],"swords":[{"itemName":{"en":"Dove Seed","es":"Semilla de Paloma"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Pigeon Seed","es":"Semilla de Pichón"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Weaverbird Seed","es":"Semilla de Pájaro tejedor"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Kingfisher Seed","es":"Semilla de Martín pescador"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Guinea Fowl Seed","es":"Semilla de Pintada"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Rooster Seed","es":"Semilla de Gallo"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Parrot Seed","es":"Semilla de Loro"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Hornbill Seed","es":"Semilla de Cálao"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Heron Seed","es":"Semilla de Garza"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Owl Seed","es":"Semilla de Búho"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Hawk Seed","es":"Semilla de Halcón"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Eagle Seed","es":"Semilla de Águila"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Vulture Seed","es":"Semilla de Buitre"},"culturalElementIds":["family-swords"]},{"itemName":{"en":"Ibis Seed","es":"Semilla de Ibis"},"culturalElementIds":["family-swords"]}],"pentacles":[{"itemName":{"en":"Rat Seed","es":"Semilla de Rata"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Squirrel Seed","es":"Semilla de Ardilla"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Hare Seed","es":"Semilla de Liebre"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Goat Seed","es":"Semilla de Cabra"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Ram Seed","es":"Semilla de Carnero"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Dog Seed","es":"Semilla de Perro"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Monkey Seed","es":"Semilla de Mono"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Baboon Seed","es":"Semilla de Babuino"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Antelope Seed","es":"Semilla de Antílope"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Buffalo Seed","es":"Semilla de Búfalo"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Pangolin Seed","es":"Semilla de Pangolín"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Hyena Seed","es":"Semilla de Hiena"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Leopard Seed","es":"Semilla de Leopardo"},"culturalElementIds":["family-pentacles"]},{"itemName":{"en":"Elephant Seed","es":"Semilla de Elefante"},"culturalElementIds":["family-pentacles"]}]}}
+{
+  "$schema": "../medium-map.schema.json",
+  "version": 3,
+  "status": {
+    "state": "source-backed-draft",
+    "culturalSpecialistReviewRequired": true,
+    "note": {
+      "en": "The physical elements and named beings are backed by the cited historical, museum, folklore or religious sources. The one-to-one card correspondences, rank order and divination method are Online Arcana fiction.",
+      "es": "Los elementos físicos y los seres nombrados están respaldados por las fuentes históricas, museísticas, folclóricas o religiosas citadas. Las correspondencias individuales con los naipes, el orden de rangos y el método de adivinación son ficción de Online Arcana."
+    }
+  },
+  "reader": "yejide",
+  "culture": {
+    "en": "Yorùbá religion, folklore and ritual material culture",
+    "es": "Religión, folclore y cultura material ritual yorùbá"
+  },
+  "presentation": {
+    "rankMode": "entity",
+    "majorMode": "carved-being",
+    "states": {
+      "upright": {
+        "en": "visible",
+        "es": "visible"
+      },
+      "reversed": {
+        "en": "hidden",
+        "es": "oculto"
+      }
+    },
+    "families": {
+      "wands": {
+        "en": "Reptiles",
+        "es": "Reptiles"
+      },
+      "cups": {
+        "en": "Fish",
+        "es": "Peces"
+      },
+      "swords": {
+        "en": "Birds",
+        "es": "Aves"
+      },
+      "pentacles": {
+        "en": "Creatures",
+        "es": "Criaturas"
+      }
+    }
+  },
+  "sourceRegistry": [
+    {
+      "id": "bm-ifa-nuts",
+      "title": "British Museum: Yoruba Ifá palm nuts in a cloth bag",
+      "url": "https://www.britishmuseum.org/collection/object/E_Af1963-13-22-a",
+      "note": "Documents palm nuts and an opaque cloth bag used in Ifá equipment."
+    },
+    {
+      "id": "bm-opon-ifa",
+      "title": "British Museum: Yoruba Ifá divination board with Èṣù face",
+      "url": "https://www.britishmuseum.org/collection/object/E_Af1956-07-2",
+      "note": "Documents a carved divination tray and Èṣù imagery."
+    },
+    {
+      "id": "yoruba-legends",
+      "title": "M. I. Ogumefu: Yoruba Legends",
+      "url": "https://openlibrary.org/books/OL49340567M/Yoruba_Legends",
+      "note": "Published collection of Yoruba legends and animal tales; historical collection used critically."
+    },
+    {
+      "id": "yoruba-peoples",
+      "title": "A. B. Ellis: The Yoruba-speaking peoples of the Slave Coast",
+      "url": "https://wellcomecollection.org/works/y9jfdxdq",
+      "note": "Historical ethnographic source for names, religious figures and folklore; colonial-era interpretations require caution."
+    },
+    {
+      "id": "met-crown",
+      "title": "Metropolitan Museum: Adéńlá beaded crown",
+      "url": "https://www.metmuseum.org/art/collection/search/844643",
+      "note": "Documents Yoruba sacred kingship imagery, birds and beadwork."
+    }
+  ],
+  "culturalElementRegistry": [
+    {
+      "id": "family-wands",
+      "name": {
+        "en": "Reptiles",
+        "es": "Reptiles"
+      },
+      "sourceIds": [
+        "bm-ifa-nuts",
+        "bm-opon-ifa",
+        "yoruba-legends",
+        "yoruba-peoples",
+        "met-crown"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "family-cups",
+      "name": {
+        "en": "Fish",
+        "es": "Peces"
+      },
+      "sourceIds": [
+        "bm-ifa-nuts",
+        "bm-opon-ifa",
+        "yoruba-legends",
+        "yoruba-peoples",
+        "met-crown"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "family-swords",
+      "name": {
+        "en": "Birds",
+        "es": "Aves"
+      },
+      "sourceIds": [
+        "bm-ifa-nuts",
+        "bm-opon-ifa",
+        "yoruba-legends",
+        "yoruba-peoples",
+        "met-crown"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "family-pentacles",
+      "name": {
+        "en": "Creatures",
+        "es": "Criaturas"
+      },
+      "sourceIds": [
+        "bm-ifa-nuts",
+        "bm-opon-ifa",
+        "yoruba-legends",
+        "yoruba-peoples",
+        "met-crown"
+      ],
+      "sensitivity": "specialist-review"
+    },
+    {
+      "id": "major-being",
+      "name": {
+        "en": "Named being",
+        "es": "Ser nombrado"
+      },
+      "sourceIds": [
+        "bm-ifa-nuts",
+        "bm-opon-ifa",
+        "yoruba-legends",
+        "yoruba-peoples",
+        "met-crown"
+      ],
+      "sensitivity": "specialist-review"
+    }
+  ],
+  "cards": {
+    "major-fool": {
+      "itemName": {
+        "en": "Èṣù",
+        "es": "Èṣù"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Èṣù.",
+        "es": "Una semilla grande tallada con Èṣù."
+      }
+    },
+    "major-magician": {
+      "itemName": {
+        "en": "Ọ̀rúnmìlà",
+        "es": "Ọ̀rúnmìlà"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ọ̀rúnmìlà.",
+        "es": "Una semilla grande tallada con Ọ̀rúnmìlà."
+      }
+    },
+    "major-priestess": {
+      "itemName": {
+        "en": "Ọbàtálá",
+        "es": "Ọbàtálá"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ọbàtálá.",
+        "es": "Una semilla grande tallada con Ọbàtálá."
+      }
+    },
+    "major-empress": {
+      "itemName": {
+        "en": "Odùduwà",
+        "es": "Odùduwà"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Odùduwà.",
+        "es": "Una semilla grande tallada con Odùduwà."
+      }
+    },
+    "major-emperor": {
+      "itemName": {
+        "en": "Ògún",
+        "es": "Ògún"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ògún.",
+        "es": "Una semilla grande tallada con Ògún."
+      }
+    },
+    "major-hierophant": {
+      "itemName": {
+        "en": "Ṣàngó",
+        "es": "Ṣàngó"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ṣàngó.",
+        "es": "Una semilla grande tallada con Ṣàngó."
+      }
+    },
+    "major-lovers": {
+      "itemName": {
+        "en": "Ọ̀ṣun",
+        "es": "Ọ̀ṣun"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ọ̀ṣun.",
+        "es": "Una semilla grande tallada con Ọ̀ṣun."
+      }
+    },
+    "major-chariot": {
+      "itemName": {
+        "en": "Yemọja",
+        "es": "Yemọja"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Yemọja.",
+        "es": "Una semilla grande tallada con Yemọja."
+      }
+    },
+    "major-strength": {
+      "itemName": {
+        "en": "Ọya",
+        "es": "Ọya"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ọya.",
+        "es": "Una semilla grande tallada con Ọya."
+      }
+    },
+    "major-hermit": {
+      "itemName": {
+        "en": "Ọ̀bà",
+        "es": "Ọ̀bà"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ọ̀bà.",
+        "es": "Una semilla grande tallada con Ọ̀bà."
+      }
+    },
+    "major-wheel": {
+      "itemName": {
+        "en": "Ọ̀kọ",
+        "es": "Ọ̀kọ"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ọ̀kọ.",
+        "es": "Una semilla grande tallada con Ọ̀kọ."
+      }
+    },
+    "major-justice": {
+      "itemName": {
+        "en": "Ọ̀sanyìn",
+        "es": "Ọ̀sanyìn"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ọ̀sanyìn.",
+        "es": "Una semilla grande tallada con Ọ̀sanyìn."
+      }
+    },
+    "major-hanged": {
+      "itemName": {
+        "en": "Erinlẹ̀",
+        "es": "Erinlẹ̀"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Erinlẹ̀.",
+        "es": "Una semilla grande tallada con Erinlẹ̀."
+      }
+    },
+    "major-death": {
+      "itemName": {
+        "en": "Olókun",
+        "es": "Olókun"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Olókun.",
+        "es": "Una semilla grande tallada con Olókun."
+      }
+    },
+    "major-temperance": {
+      "itemName": {
+        "en": "Orí",
+        "es": "Orí"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Orí.",
+        "es": "Una semilla grande tallada con Orí."
+      }
+    },
+    "major-devil": {
+      "itemName": {
+        "en": "Àjẹ́",
+        "es": "Àjẹ́"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Àjẹ́.",
+        "es": "Una semilla grande tallada con Àjẹ́."
+      }
+    },
+    "major-tower": {
+      "itemName": {
+        "en": "Ìbejì",
+        "es": "Ìbejì"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ìbejì.",
+        "es": "Una semilla grande tallada con Ìbejì."
+      }
+    },
+    "major-star": {
+      "itemName": {
+        "en": "Egúngún",
+        "es": "Egúngún"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Egúngún.",
+        "es": "Una semilla grande tallada con Egúngún."
+      }
+    },
+    "major-moon": {
+      "itemName": {
+        "en": "Ajé",
+        "es": "Ajé"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Ajé.",
+        "es": "Una semilla grande tallada con Ajé."
+      }
+    },
+    "major-sun": {
+      "itemName": {
+        "en": "Yewa",
+        "es": "Yewa"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Yewa.",
+        "es": "Una semilla grande tallada con Yewa."
+      }
+    },
+    "major-judgement": {
+      "itemName": {
+        "en": "Nàná Bùkùú",
+        "es": "Nàná Bùkùú"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Nàná Bùkùú.",
+        "es": "Una semilla grande tallada con Nàná Bùkùú."
+      }
+    },
+    "major-world": {
+      "itemName": {
+        "en": "Aganjú",
+        "es": "Aganjú"
+      },
+      "culturalElementIds": [
+        "major-being"
+      ],
+      "itemDescription": {
+        "en": "A large seed carved with Aganjú.",
+        "es": "Una semilla grande tallada con Aganjú."
+      }
+    },
+    "wands-ace": {
+      "itemName": {
+        "en": "Gecko Seed",
+        "es": "Semilla de Geco"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-two": {
+      "itemName": {
+        "en": "Skink Seed",
+        "es": "Semilla de Escinco"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-three": {
+      "itemName": {
+        "en": "Agama Seed",
+        "es": "Semilla de Agama"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-four": {
+      "itemName": {
+        "en": "Chameleon Seed",
+        "es": "Semilla de Camaleón"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-five": {
+      "itemName": {
+        "en": "Tortoise Seed",
+        "es": "Semilla de Tortuga terrestre"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-six": {
+      "itemName": {
+        "en": "Turtle Seed",
+        "es": "Semilla de Tortuga acuática"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-seven": {
+      "itemName": {
+        "en": "Monitor Lizard Seed",
+        "es": "Semilla de Varano"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-eight": {
+      "itemName": {
+        "en": "Crocodile Seed",
+        "es": "Semilla de Cocodrilo"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-nine": {
+      "itemName": {
+        "en": "Python Seed",
+        "es": "Semilla de Pitón"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-ten": {
+      "itemName": {
+        "en": "Cobra Seed",
+        "es": "Semilla de Cobra"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-page": {
+      "itemName": {
+        "en": "Mamba Seed",
+        "es": "Semilla de Mamba"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-knight": {
+      "itemName": {
+        "en": "Puff Adder Seed",
+        "es": "Semilla de Víbora bufadora"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-queen": {
+      "itemName": {
+        "en": "Bush Viper Seed",
+        "es": "Semilla de Víbora arbórea"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "wands-king": {
+      "itemName": {
+        "en": "Blind Snake Seed",
+        "es": "Semilla de Serpiente ciega"
+      },
+      "culturalElementIds": [
+        "family-wands"
+      ]
+    },
+    "cups-ace": {
+      "itemName": {
+        "en": "Tilapia Seed",
+        "es": "Semilla de Tilapia"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-two": {
+      "itemName": {
+        "en": "Catfish Seed",
+        "es": "Semilla de Bagre"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-three": {
+      "itemName": {
+        "en": "Mudfish Seed",
+        "es": "Semilla de Pez de lodo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-four": {
+      "itemName": {
+        "en": "Lungfish Seed",
+        "es": "Semilla de Pez pulmonado"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-five": {
+      "itemName": {
+        "en": "Eel Seed",
+        "es": "Semilla de Anguila"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-six": {
+      "itemName": {
+        "en": "Electric Fish Seed",
+        "es": "Semilla de Pez eléctrico"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-seven": {
+      "itemName": {
+        "en": "Croaker Seed",
+        "es": "Semilla de Corvina"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-eight": {
+      "itemName": {
+        "en": "Bonga Shad Seed",
+        "es": "Semilla de Sábalo bonga"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-nine": {
+      "itemName": {
+        "en": "Barracuda Seed",
+        "es": "Semilla de Barracuda"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-ten": {
+      "itemName": {
+        "en": "Flying Fish Seed",
+        "es": "Semilla de Pez volador"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-page": {
+      "itemName": {
+        "en": "Pufferfish Seed",
+        "es": "Semilla de Pez globo"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-knight": {
+      "itemName": {
+        "en": "Stingray Seed",
+        "es": "Semilla de Raya"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-queen": {
+      "itemName": {
+        "en": "Sawfish Seed",
+        "es": "Semilla de Pez sierra"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "cups-king": {
+      "itemName": {
+        "en": "Shark Seed",
+        "es": "Semilla de Tiburón"
+      },
+      "culturalElementIds": [
+        "family-cups"
+      ]
+    },
+    "swords-ace": {
+      "itemName": {
+        "en": "Dove Seed",
+        "es": "Semilla de Paloma"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-two": {
+      "itemName": {
+        "en": "Pigeon Seed",
+        "es": "Semilla de Pichón"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-three": {
+      "itemName": {
+        "en": "Weaverbird Seed",
+        "es": "Semilla de Pájaro tejedor"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-four": {
+      "itemName": {
+        "en": "Kingfisher Seed",
+        "es": "Semilla de Martín pescador"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-five": {
+      "itemName": {
+        "en": "Guinea Fowl Seed",
+        "es": "Semilla de Pintada"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-six": {
+      "itemName": {
+        "en": "Rooster Seed",
+        "es": "Semilla de Gallo"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-seven": {
+      "itemName": {
+        "en": "Parrot Seed",
+        "es": "Semilla de Loro"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-eight": {
+      "itemName": {
+        "en": "Hornbill Seed",
+        "es": "Semilla de Cálao"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-nine": {
+      "itemName": {
+        "en": "Heron Seed",
+        "es": "Semilla de Garza"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-ten": {
+      "itemName": {
+        "en": "Owl Seed",
+        "es": "Semilla de Búho"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-page": {
+      "itemName": {
+        "en": "Hawk Seed",
+        "es": "Semilla de Halcón"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-knight": {
+      "itemName": {
+        "en": "Eagle Seed",
+        "es": "Semilla de Águila"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-queen": {
+      "itemName": {
+        "en": "Vulture Seed",
+        "es": "Semilla de Buitre"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "swords-king": {
+      "itemName": {
+        "en": "Ibis Seed",
+        "es": "Semilla de Ibis"
+      },
+      "culturalElementIds": [
+        "family-swords"
+      ]
+    },
+    "pentacles-ace": {
+      "itemName": {
+        "en": "Rat Seed",
+        "es": "Semilla de Rata"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-two": {
+      "itemName": {
+        "en": "Squirrel Seed",
+        "es": "Semilla de Ardilla"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-three": {
+      "itemName": {
+        "en": "Hare Seed",
+        "es": "Semilla de Liebre"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-four": {
+      "itemName": {
+        "en": "Goat Seed",
+        "es": "Semilla de Cabra"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-five": {
+      "itemName": {
+        "en": "Ram Seed",
+        "es": "Semilla de Carnero"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-six": {
+      "itemName": {
+        "en": "Dog Seed",
+        "es": "Semilla de Perro"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-seven": {
+      "itemName": {
+        "en": "Monkey Seed",
+        "es": "Semilla de Mono"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-eight": {
+      "itemName": {
+        "en": "Baboon Seed",
+        "es": "Semilla de Babuino"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-nine": {
+      "itemName": {
+        "en": "Antelope Seed",
+        "es": "Semilla de Antílope"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-ten": {
+      "itemName": {
+        "en": "Buffalo Seed",
+        "es": "Semilla de Búfalo"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-page": {
+      "itemName": {
+        "en": "Pangolin Seed",
+        "es": "Semilla de Pangolín"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-knight": {
+      "itemName": {
+        "en": "Hyena Seed",
+        "es": "Semilla de Hiena"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-queen": {
+      "itemName": {
+        "en": "Leopard Seed",
+        "es": "Semilla de Leopardo"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    },
+    "pentacles-king": {
+      "itemName": {
+        "en": "Elephant Seed",
+        "es": "Semilla de Elefante"
+      },
+      "culturalElementIds": [
+        "family-pentacles"
+      ]
+    }
+  }
+}
