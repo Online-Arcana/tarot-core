@@ -51,7 +51,7 @@ function request(reader, lang, card, priorRituals) {
     task: "ritual",
     lang,
     reader,
-    name: "Private name",
+    name: "Alex",
     history: [],
     question: "Private question",
     spread: draw.id,
