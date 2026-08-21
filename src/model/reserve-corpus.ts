@@ -84,7 +84,8 @@ export function validateReserveBucket(bucket: ReserveBucket): readonly string[] 
       if (!values.length) errors.push(`${variant.id}:${field}: array field must not be empty`);
       for (const prose of values) {
         if (!prose.trim()) errors.push(`${variant.id}:${field}: authored prose must not be empty`);
-        if (/\$\{|<%|%>|\{(?!\{)|(?<!\})\}/u.test(prose)) {
+        const withoutSlots = prose.replace(SLOT, "");
+        if (/\$\{|<%|%>|[{}]/u.test(withoutSlots)) {
           errors.push(`${variant.id}:${field}: unsupported interpolation syntax`);
         }
         for (const slot of reserveSlots(prose)) {
