@@ -18,6 +18,16 @@ export interface ReserveBucketKey {
   readonly gender?: ReserveGender;
 }
 
+export interface ReserveLookupKey {
+  readonly reader: ReaderId;
+  readonly lang: ReserveLanguage;
+  readonly task: Task;
+  readonly spread?: SpreadId;
+  readonly position?: number;
+  readonly phase?: RitualPhase;
+  readonly gender?: Exclude<ReserveGender, "any">;
+}
+
 export interface ReserveVariant {
   readonly id: string;
   /**
@@ -31,6 +41,11 @@ export interface ReserveVariant {
 export interface ReserveBucket {
   readonly key: ReserveBucketKey;
   readonly variants: readonly ReserveVariant[];
+}
+
+export interface ReserveCorpus {
+  readonly version: 1;
+  readonly buckets: readonly ReserveBucket[];
 }
 
 export type ReserveVariables = Readonly<Record<string, string>>;
@@ -65,6 +80,18 @@ function strings(fields: ReserveFields): readonly string[] {
   return Object.values(fields).flatMap(value => typeof value === "string" ? [value] : [...value]);
 }
 
+function keyId(key: ReserveBucketKey): string {
+  return [
+    key.reader,
+    key.lang,
+    key.task,
+    key.spread ?? "any",
+    key.position ?? "any",
+    key.phase ?? "any",
+    key.gender ?? "any",
+  ].join("|");
+}
+
 export function validateReserveBucket(bucket: ReserveBucket): readonly string[] {
   const errors: string[] = [];
   if (bucket.variants.length < RESERVE_VARIANTS_PER_BUCKET) {
@@ -95,6 +122,56 @@ export function validateReserveBucket(bucket: ReserveBucket): readonly string[] 
     }
   }
   return [...new Set(errors)];
+}
+
+export function validateReserveCorpus(corpus: ReserveCorpus): readonly string[] {
+  const errors: string[] = [];
+  const keys = new Set<string>();
+  for (const bucket of corpus.buckets) {
+    const id = keyId(bucket.key);
+    if (keys.has(id)) errors.push(`duplicate reserve bucket ${id}`);
+    else keys.add(id);
+    for (const error of validateReserveBucket(bucket)) errors.push(`${id}: ${error}`);
+  }
+  return [...new Set(errors)];
+}
+
+function matches<T extends string | number>(rule: T | "any" | undefined, value: T | undefined): boolean {
+  return rule === undefined || rule === "any" || rule === value;
+}
+
+function bucketMatches(bucket: ReserveBucket, lookup: ReserveLookupKey): boolean {
+  const key = bucket.key;
+  return key.reader === lookup.reader
+    && key.lang === lookup.lang
+    && key.task === lookup.task
+    && matches(key.spread, lookup.spread)
+    && matches(key.position, lookup.position)
+    && matches(key.phase, lookup.phase)
+    && matches(key.gender, lookup.gender);
+}
+
+function specificity(bucket: ReserveBucket): number {
+  const key = bucket.key;
+  return [key.spread, key.position, key.phase, key.gender]
+    .filter(value => value !== undefined && value !== "any")
+    .length;
+}
+
+export function findReserveBucket(corpus: ReserveCorpus, lookup: ReserveLookupKey): ReserveBucket | null {
+  const matchesForContext = corpus.buckets.filter(bucket => bucketMatches(bucket, lookup));
+  if (!matchesForContext.length) return null;
+  const ranked = matchesForContext
+    .map(bucket => ({ bucket, score: specificity(bucket) }))
+    .sort((a, b) => b.score - a.score);
+  const best = ranked[0]!;
+  const tied = ranked.filter(item => item.score === best.score);
+  if (tied.length > 1) {
+    throw new Error(`ambiguous deterministic reserve bucket for ${JSON.stringify(lookup)}`);
+  }
+  const errors = validateReserveBucket(best.bucket);
+  if (errors.length) throw new Error(`invalid deterministic reserve bucket: ${errors.join("; ")}`);
+  return best.bucket;
 }
 
 function hash(value: string): number {
