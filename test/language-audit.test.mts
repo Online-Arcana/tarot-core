@@ -38,7 +38,7 @@ test("Spanish audit rejects tú/te after ordinary prepositions but preserves val
     task: "return",
     lang: "es-ES",
     reader: "selena",
-    name: "Javier",
+    name: "Alex",
     history: [],
     trail: { id: "trail", summary: "", visits: [] },
   };
@@ -57,7 +57,7 @@ test("exact user-authored handover questions are opaque to Spanish grammar corre
     task: "handover",
     lang: "es-ES",
     reader: "selena",
-    name: "Javier",
+    name: "Alex",
     history: [],
     question,
     target: "brennos",
@@ -68,7 +68,7 @@ test("exact user-authored handover questions are opaque to Spanish grammar corre
       reader: "selena",
       created: "2026-08-11T18:00:00.000Z",
       updated: "2026-08-11T18:00:00.000Z",
-      name: "Javier",
+      name: "Alex",
       turns: [],
     },
   };
