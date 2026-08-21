@@ -44,7 +44,7 @@ for (const lang of languages) {
       for (const spreadId of spreads) {
         const label = `${reader}/${lang}/${spreadId}`;
         const draw = drawFor(spreadId, lang, readerIndex);
-        const base = { lang, reader, name: "Javier", history: [] };
+        const base = { lang, reader, name: "Alex", history: [] };
         const q = question(lang);
         const theatre = [];
 
