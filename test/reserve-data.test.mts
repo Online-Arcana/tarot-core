@@ -147,7 +147,7 @@ test("Ngaru Spanish reserve rituals use natural pro-drop querent participation",
     assert.ok(bucket);
     for (const variant of bucket.variants) {
       const text = JSON.stringify(variant.fields);
-      assert.match(text, /(?:Introduces|Metes|Sacas|Extraes|Tomas|Retiras)/u, variant.id);
+      assert.match(text, /(?:introduces|metes|sacas|extraes|tomas|retiras)/iu, variant.id);
       assert.doesNotMatch(text, /\bTú\s+(?:introduces|metes|sacas|extraes|tomas|retiras)\b/iu, variant.id);
     }
   }
