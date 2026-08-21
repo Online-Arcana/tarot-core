@@ -26,6 +26,15 @@ const numericZeroes = {
   failures: 0,
 };
 
+function cleanDeliveryTasks() {
+  return Array.from({ length: 65 }, (_, index) => ({
+    label: `synthetic/task/${index + 1}`,
+    task: "chat",
+    source: "primary",
+    auditErrors: ["generation_path:primary", "delivery_path:primary_clean"],
+  }));
+}
+
 async function writeReports(dir: string, commitFor: (index: number) => string) {
   let index = 0;
   for (const reader of readers) {
@@ -36,7 +45,7 @@ async function writeReports(dir: string, commitFor: (index: number) => string) {
         commit: commitFor(index),
         reader,
         lang,
-        spreads: [],
+        spreads: [{ tasks: cleanDeliveryTasks() }],
         network: [],
         summary: {
           completeReadings: 5,
@@ -81,6 +90,13 @@ test("live report aggregation accepts exactly one tested commit matching the che
     assert.equal(summary.commit, commit);
     assert.equal(summary.hardGates.oneTestedCommit, true);
     assert.equal(summary.hardGates.expectedCommit, true);
+    assert.equal(summary.hardGates.deliveryMetricsComplete, true);
+    assert.equal(summary.delivery.observedTasks, 1040);
+    assert.equal(summary.delivery.primaryClean, 1040);
+    assert.equal(summary.advisory.primaryCleanPercent, 100);
+    assert.equal(summary.delivery.atomicRevisions, 0);
+    assert.equal(summary.delivery.imperfectLlmDeliveries, 0);
+    assert.equal(summary.delivery.deterministicReserveDeliveries, 0);
   } finally {
     await rm(dir, { recursive: true, force: true });
     await rm(output, { recursive: true, force: true });
@@ -101,6 +117,7 @@ test("live report aggregation rejects mixed or stale commit provenance", async (
     assert.equal(summary.commit, null);
     assert.equal(summary.hardGates.oneTestedCommit, false);
     assert.equal(summary.hardGates.expectedCommit, false);
+    assert.equal(summary.hardGates.deliveryMetricsComplete, true);
   } finally {
     await rm(dir, { recursive: true, force: true });
     await rm(output, { recursive: true, force: true });
