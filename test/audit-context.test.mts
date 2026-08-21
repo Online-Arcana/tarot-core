@@ -90,9 +90,9 @@ test("natural Spanish pro-drop satisfies a querent-operated mapped ritual", () =
   assert.equal(audit.issues.some(issue => issue.code === "invented_participation"), false, audit.errors.join("\n"));
 });
 
-test("reader-operated ritual turns the same second-person action sensor into a contextual finding only when it touches that medium", () => {
+function brennosReq() {
   const card = canonicalCardAt("major-fool", "upright", 1, "one", "es-ES");
-  const req = {
+  return {
     task: "ritual",
     lang: "es-ES",
     reader: "brennos",
@@ -103,6 +103,10 @@ test("reader-operated ritual turns the same second-person action sensor into a c
     card: 0,
     drawn: card,
   };
+}
+
+test("reader-operated ritual turns a local second-person medium action into a contextual finding", () => {
+  const req = brennosReq();
   const out = {
     opening: "Brennos sostiene el escudo de hierro ante ti mientras los huesos permanecen ocultos y la mesa marcada por el fuego queda en silencio.",
     ritual: "Agitas el escudo hasta que uno de los huesos se desplaza hacia el borde, mientras Brennos mantiene la atención en el movimiento.",
@@ -113,13 +117,25 @@ test("reader-operated ritual turns the same second-person action sensor into a c
   const issue = audit.issues.find(item => item.code === "invented_participation");
   assert.ok(issue);
   assert.equal(issue.path, "ritual.ritual");
-  assert.match(issue.message, /evidence=.*Agitas.*escudo/iu);
-  assert.match(issue.message, /expected=/u);
-  assert.match(issue.message, /repair_scope=local/u);
+  assert.equal(issue.evidence, "Agitas el escudo");
+  assert.match(issue.expected ?? "", /keep Brennos as the actor/iu);
+  assert.equal(issue.repairScope, "local");
 
   const review = contextualProseCorrection(req, audit);
   assert.ok(review);
   assert.deepEqual(review.paths, ["ritual.ritual"]);
+});
+
+test("querent movement stays valid when the reader performs the nearby medium action", () => {
+  const req = brennosReq();
+  const out = {
+    opening: "Brennos sostiene el escudo de hierro ante ti mientras los huesos permanecen ocultos y la mesa marcada por el fuego queda en silencio.",
+    ritual: "Retiras la mano mientras Brennos agita el escudo y deja que uno de los huesos golpee el hierro antes de caer sobre las grietas quemadas.",
+    gesture: "Brennos espera a que el hueso vuelva a quedar quieto antes de apartar el escudo.",
+  };
+
+  const audit = contextualAuditModelOut(req, out);
+  assert.equal(audit.issues.some(issue => issue.code === "invented_participation"), false, audit.errors.join("\n"));
 });
 
 test("ritual stage and reveal state are compiled from the current request", () => {
