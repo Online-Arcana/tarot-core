@@ -1,0 +1,191 @@
+{
+  "version": 1,
+  "buckets": [
+    {
+      "key": {
+        "reader": "selena",
+        "lang": "en-GB",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "continuation",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "selena-en-ritual-continuation-01",
+          "fields": {
+            "opening": "Selena leaves the earlier card exactly where it rests and shifts her attention towards the position marked {{position.name}}, keeping the candlelit scene unbroken.",
+            "ritual": "Without repeating the preparation, she draws the next card from the waiting tarot deck and places it face-down on the velvet, its identity still hidden from you.",
+            "gesture": "One ring catches the candlelight as Selena lets her hand withdraw and gives the new position a quiet moment before the reveal."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-02",
+          "fields": {
+            "opening": "The previous card remains undisturbed while Selena lets the silence travel to the place marked {{position.name}}, her attention moving with it rather than restarting the scene.",
+            "ritual": "She reaches to the already-prepared tarot deck, takes the next card and settles it face-down beside the existing layout without exposing its face.",
+            "gesture": "Selena turns a ring once beneath her thumb, glances towards you and then returns her eyes to the dark velvet as the new position settles."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-03",
+          "fields": {
+            "opening": "Selena keeps the existing arrangement intact and allows the question to move forward into the position marked {{position.name}}, with no break in the candlelit atmosphere.",
+            "ritual": "Her hand returns briefly to the tarot deck, lifting one card and placing it face-down into the open position while every identifying detail remains concealed.",
+            "gesture": "She eases back after the movement, leaving the card untouched and the space around it quiet enough for the next reveal."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-04",
+          "fields": {
+            "opening": "The scene stays continuous as Selena moves her focus from what has already been shown towards the position marked {{position.name}}, leaving the earlier layout untouched.",
+            "ritual": "She takes one card from the prepared tarot deck and lays it face-down on the velvet in the next place, careful not to show what the card carries.",
+            "gesture": "Candlelight slides across her rings when her hand comes away, and Selena gives you a brief, attentive look before the reveal continues."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-05",
+          "fields": {
+            "opening": "Selena does not disturb the cards already placed; instead, she lets the next part of the question gather around the position marked {{position.name}}.",
+            "ritual": "From the tarot deck that is already waiting on the table, she draws a single card and places it face-down into the new position without turning it.",
+            "gesture": "Her fingertips rest near the velvet for a moment, then withdraw as Selena leaves the hidden card alone and the room remains warm and still."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-06",
+          "fields": {
+            "opening": "Selena lets the earlier reveal remain part of the room while her attention shifts naturally to the position marked {{position.name}}, preserving the same close candlelit scene.",
+            "ritual": "She lifts the next card from the already-prepared tarot deck and sets it face-down beside the others, keeping its face and meaning outside the scene for now.",
+            "gesture": "A faint reflection moves across her rings as she pauses with both hands away from the card, waiting without adding another ceremony to the moment."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-07",
+          "fields": {
+            "opening": "The candlelight and velvet remain unchanged while Selena carries the reading into the position marked {{position.name}}, allowing the previous card to stay exactly where it is.",
+            "ritual": "She draws the next card from the waiting tarot deck and slides it face-down into the open place, making no attempt to inspect or reveal it early.",
+            "gesture": "Selena's gaze follows the movement only until the card is still, then returns to you with the same intimate, unhurried attention."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-08",
+          "fields": {
+            "opening": "Selena keeps the earlier part of the reading visible and undisturbed as the focus moves towards the position marked {{position.name}}, with the room still held in warm candlelight.",
+            "ritual": "Her hand goes to the prepared tarot deck once, brings a new card forward and leaves it face-down on the velvet without exposing any part of its face.",
+            "gesture": "She lets the movement end cleanly, one hand settling beside the table while the new hidden card waits for its proper reveal."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-09",
+          "fields": {
+            "opening": "Nothing in the established layout is reset when Selena turns her attention to the position marked {{position.name}}; the same quiet perfume and candlelight remain around the table.",
+            "ritual": "She draws one card from the tarot deck already in place and lays it face-down in the next position, leaving its identity completely concealed.",
+            "gesture": "Selena turns her wrist away from the card and lets a small golden reflection fade from her rings before meeting your eyes again."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-10",
+          "fields": {
+            "opening": "Selena allows the reading to advance without replaying its beginning, moving her attention towards the position marked {{position.name}} while the earlier cards remain where they were left.",
+            "ritual": "She takes the next card from the prepared tarot deck and places it face-down on the dark velvet, preserving the pause before its identity becomes visible.",
+            "gesture": "Her fingers leave the card immediately; Selena remains attentive across the table while the candle flame steadies and the next reveal waits."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "selena",
+        "lang": "es-ES",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "continuation",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "selena-es-ritual-continuation-01",
+          "fields": {
+            "opening": "Selena deja la carta anterior exactamente donde está y desplaza la atención hacia la posición «{{position.name}}», manteniendo intacta la continuidad de la escena iluminada por velas.",
+            "ritual": "Sin repetir la preparación, toma la carta siguiente de la baraja de tarot ya dispuesta y la coloca boca abajo sobre el terciopelo, todavía oculta para ti.",
+            "gesture": "Uno de sus anillos recoge la luz cuando Selena retira la mano y concede a la nueva posición un instante de quietud antes de la revelación."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-02",
+          "fields": {
+            "opening": "La carta anterior permanece intacta mientras Selena deja que el silencio avance hacia la posición «{{position.name}}», moviendo con él su atención sin reiniciar la escena.",
+            "ritual": "Acerca la mano a la baraja de tarot ya preparada, toma la carta siguiente y la deja boca abajo junto a la disposición existente sin mostrar su cara.",
+            "gesture": "Selena hace girar un anillo una vez bajo el pulgar, te mira brevemente y vuelve después los ojos al terciopelo oscuro mientras la nueva posición se asienta."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-03",
+          "fields": {
+            "opening": "Selena conserva intacta la disposición ya establecida y deja que la pregunta avance hacia la posición «{{position.name}}» sin romper la atmósfera de la mesa iluminada por velas.",
+            "ritual": "Su mano vuelve brevemente a la baraja de tarot, levanta una carta y la coloca boca abajo en la posición abierta mientras todos sus detalles siguen ocultos.",
+            "gesture": "Se aparta ligeramente después del movimiento, dejando la carta sin tocar y suficiente silencio alrededor para la siguiente revelación."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-04",
+          "fields": {
+            "opening": "La escena continúa sin interrupción cuando Selena desplaza la atención desde lo ya mostrado hacia la posición «{{position.name}}», dejando intacta la disposición anterior.",
+            "ritual": "Toma una carta de la baraja de tarot preparada y la deja boca abajo sobre el terciopelo en el nuevo lugar, cuidando de no mostrar lo que contiene.",
+            "gesture": "La luz recorre sus anillos cuando retira la mano, y Selena te dedica una mirada breve y atenta antes de que continúe la revelación."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-05",
+          "fields": {
+            "opening": "Selena no altera las cartas que ya están sobre la mesa; deja que la siguiente parte de la pregunta se reúna alrededor de la posición «{{position.name}}».",
+            "ritual": "Desde la baraja de tarot que ya espera sobre la mesa, toma una sola carta y la coloca boca abajo en la nueva posición sin darle la vuelta.",
+            "gesture": "Sus dedos descansan un instante junto al terciopelo y después se retiran mientras Selena deja en paz la carta oculta y la estancia permanece cálida y quieta."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-06",
+          "fields": {
+            "opening": "Selena permite que la revelación anterior siga formando parte de la escena mientras su atención se desplaza con naturalidad hacia la posición «{{position.name}}».",
+            "ritual": "Levanta la carta siguiente de la baraja de tarot ya preparada y la deja boca abajo junto a las demás, manteniendo por ahora fuera de la escena su cara y su significado.",
+            "gesture": "Un reflejo tenue cruza sus anillos cuando hace una pausa con ambas manos lejos de la carta, esperando sin añadir otra ceremonia al momento."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-07",
+          "fields": {
+            "opening": "La luz de las velas y el terciopelo permanecen iguales cuando Selena lleva la lectura hacia la posición «{{position.name}}», dejando la carta anterior exactamente donde estaba.",
+            "ritual": "Toma la carta siguiente de la baraja de tarot que espera sobre la mesa y la desliza boca abajo hasta el lugar libre, sin intentar verla antes de tiempo.",
+            "gesture": "La mirada de Selena acompaña el movimiento solo hasta que la carta queda quieta y después vuelve a ti con la misma atención íntima y tranquila."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-08",
+          "fields": {
+            "opening": "Selena mantiene visible e intacta la parte anterior de la lectura mientras el foco avanza hacia la posición «{{position.name}}», todavía dentro de la misma luz cálida.",
+            "ritual": "Su mano va una sola vez a la baraja de tarot preparada, trae una carta nueva y la deja boca abajo sobre el terciopelo sin mostrar ninguna parte de su cara.",
+            "gesture": "Deja que el movimiento termine por completo, con una mano descansando junto a la mesa mientras la nueva carta oculta espera su momento."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-09",
+          "fields": {
+            "opening": "Nada de la disposición ya establecida se reinicia cuando Selena dirige la atención hacia la posición «{{position.name}}»; el mismo perfume discreto y la misma luz siguen alrededor de la mesa.",
+            "ritual": "Toma una carta de la baraja de tarot que ya está en su sitio y la coloca boca abajo en la nueva posición, manteniendo completamente oculta su identidad.",
+            "gesture": "Selena aparta la muñeca de la carta y deja que un pequeño reflejo dorado se apague en sus anillos antes de volver a encontrarse con tu mirada."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-10",
+          "fields": {
+            "opening": "Selena deja que la lectura avance sin repetir su comienzo, llevando la atención hacia la posición «{{position.name}}» mientras las cartas anteriores permanecen donde quedaron.",
+            "ritual": "Toma la carta siguiente de la baraja de tarot ya preparada y la coloca boca abajo sobre el terciopelo oscuro, conservando la pausa antes de que su identidad sea visible.",
+            "gesture": "Sus dedos abandonan la carta de inmediato; Selena permanece atenta al otro lado de la mesa mientras la llama se estabiliza y la siguiente revelación espera."
+          }
+        }
+      ]
+    }
+  ]
+}
