@@ -68,6 +68,44 @@ test("runner performs atomic review before broader recovery", async () => {
   assert.ok(result.auditErrors.includes("delivery_path:atomic_revision"));
 });
 
+test("atomic querent-name repair is language-agnostic", async () => {
+  const englishReq = {
+    task: "chat",
+    lang: "en-GB",
+    reader: "selena",
+    name: "Alex",
+    history: [],
+    question: "What should I look at now?",
+  };
+  const englishPrimary = {
+    gesture: "Selena keeps one hand beside the reading while she thinks about Alex and lets the room settle around the question. Candlelight moves slowly across the table while the visible pattern remains undisturbed in front of you.",
+    response: "You can return to the tension you already recognise and decide which part deserves one concrete action before seeking more certainty.",
+  };
+  const englishCorrected = "Selena keeps one hand beside the reading while she thinks about what you asked and lets the room settle around the question. Candlelight moves slowly across the table while the visible pattern remains undisturbed in front of you.";
+  const replies = [englishPrimary, { edits: [{ mode: "patch", path: "chat.gesture", before: "Alex", after: "what you asked" }] }];
+  const calls = [];
+  const fetch = async (_url, init) => {
+    calls.push(JSON.parse(init.body));
+    const next = replies.shift();
+    if (next === undefined) throw new Error("unexpected extra call");
+    return response(next);
+  };
+
+  const result = await runModelSession(pack, englishReq, {
+    apiKey: "test",
+    conversation: false,
+    guaranteeOutput: true,
+    retries: 0,
+    fetch,
+    body: {},
+  });
+
+  assert.equal(calls.length, 2);
+  assert.equal(result.out.gesture, englishCorrected);
+  assert.equal(result.out.response, englishPrimary.response);
+  assert.ok(result.auditErrors.includes("delivery_path:atomic_revision"));
+});
+
 test("reviewer may dismiss a heuristic finding without changing prose", async () => {
   const replies = [primary, { edits: [] }];
   const fetch = async () => response(replies.shift());
