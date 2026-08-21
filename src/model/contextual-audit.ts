@@ -12,8 +12,13 @@ import type {
   SuggestOut,
   TitleOut,
 } from "../contracts/types.js";
-import { auditLanguage } from "./language.js";
+import { auditLanguage, containsWholePhrase } from "./language.js";
 import { auditRole, buildAuditContext, type AuditContext } from "./audit-context.js";
+import {
+  contractActionEvidence,
+  mediumObjectEvidence,
+  querentPhysicalActionEvidence,
+} from "./audit-sensors.js";
 import {
   auditModelOut as baseAuditModelOut,
   type AuditIssue,
@@ -98,9 +103,105 @@ function hasIssue(issues: readonly AuditIssue[], code: string, path: string): bo
   return issues.some(issue => issue.code === code && issue.path === path);
 }
 
-function add(issues: AuditIssue[], code: string, path: string, message: string): void {
+function detail(message: string, evidence: string | null, expected: string): string {
+  return [
+    message,
+    ...(evidence ? [`evidence=${JSON.stringify(evidence)}`] : []),
+    `expected=${JSON.stringify(expected)}`,
+    "repair_scope=local",
+  ].join("; ");
+}
+
+function add(
+  issues: AuditIssue[],
+  code: string,
+  path: string,
+  message: string,
+  evidence: string | null,
+  expected: string,
+): void {
   if (hasIssue(issues, code, path)) return;
-  issues.push({ code, path, message: `${path}: ${message}` });
+  issues.push({ code, path, message: `${path}: ${detail(message, evidence, expected)}` });
+}
+
+function firstFieldWithAction(
+  ritualFields: readonly AuditField[],
+  ctx: AuditContext,
+): { field: AuditField; evidence: string } | null {
+  if (!ctx.ritual) return null;
+  for (const field of ritualFields) {
+    const action = contractActionEvidence(field.value, ctx.ritual.verbs, ctx.ritual.objects, ctx.language);
+    if (action) return { field, evidence: `${action.verb} + ${action.object}` };
+  }
+  return null;
+}
+
+function ritualFindings(
+  req: Extract<ApiReq, { task: "ritual" }>,
+  out: RitualOut,
+  ctx: AuditContext,
+  issues: AuditIssue[],
+): void {
+  if (!ctx.ritual) return;
+  const ritualFields: readonly AuditField[] = [
+    { path: "ritual.opening", value: out.opening },
+    { path: "ritual.ritual", value: out.ritual },
+    { path: "ritual.gesture", value: out.gesture },
+  ];
+  const theatre = clean(ritualFields.map(field => field.value).join(" "));
+  const expectedAction = ctx.ritual.action ?? "the configured ritual action";
+  const action = contractActionEvidence(theatre, ctx.ritual.verbs, ctx.ritual.objects, ctx.language);
+
+  if (ctx.ritual.actor === "querent" && action === null) {
+    add(
+      issues,
+      "missing_participation",
+      "ritual.ritual",
+      "the current ritual contract requires the querent to perform its physical action, but the expected action is not evidenced in the theatre",
+      null,
+      `narrate the querent performing ${expectedAction} using this reader's configured medium, without changing unrelated prose`,
+    );
+  }
+
+  if (ctx.ritual.actor === "reader") {
+    for (const field of ritualFields) {
+      const actionEvidence = querentPhysicalActionEvidence(field.value, ctx.language);
+      if (!actionEvidence) continue;
+      const objectEvidence = mediumObjectEvidence(field.value, ctx.ritual.objects, ctx.language);
+      if (!objectEvidence) continue;
+      add(
+        issues,
+        "invented_participation",
+        field.path,
+        "the prose appears to assign a reader-operated medium action to the querent",
+        `${actionEvidence} … ${objectEvidence}`,
+        `keep ${ctx.reader.name} as the actor for the configured ${expectedAction} ritual; preserve any unrelated direct address`,
+      );
+    }
+  }
+
+  if (ctx.ritual.mode === "single-cast" && ctx.ritual.phase === "continuation" && action !== null) {
+    const located = firstFieldWithAction(ritualFields, ctx);
+    add(
+      issues,
+      "repeated_cast",
+      located?.field.path ?? "ritual.ritual",
+      "the current medium is single-cast and this continuation appears to perform the configured cast again",
+      located?.evidence ?? `${action.verb} + ${action.object}`,
+      "continue observing or interpreting the already-established cast rather than performing it again",
+    );
+  }
+
+  if (ctx.ritual.grounding.length > 0 && !ctx.ritual.grounding.some(item => containsWholePhrase(theatre, item, ctx.language))) {
+    add(
+      issues,
+      "medium_grounding",
+      "ritual.ritual",
+      "the ritual lacks a concrete grounding detail recognised by this reader's current medium contract",
+      null,
+      "add only the smallest medium-grounding detail supported by the current ritual contract",
+    );
+  }
 }
 
 function contextualFindings(req: ApiReq, out: ApiOut, ctx: AuditContext, issues: AuditIssue[]): void {
@@ -108,29 +209,57 @@ function contextualFindings(req: ApiReq, out: ApiOut, ctx: AuditContext, issues:
     const text = clean(field.value);
     const role = auditRole(ctx, field.path);
 
-    if (role === "narrator" && oppositeReaderPronoun(ctx).test(text)) {
-      add(
-        issues,
-        "reader_subject_drift",
-        field.path,
-        `possible reader-gender/person drift: this narrator field belongs to ${ctx.reader.name}, whose configured subject pronoun is ${ctx.reader.pronouns.subject}`,
-      );
+    if (role === "narrator") {
+      const drift = oppositeReaderPronoun(ctx).exec(text)?.[0] ?? null;
+      if (drift) {
+        add(
+          issues,
+          "reader_subject_drift",
+          field.path,
+          "possible reader-gender/person drift in narrator-owned prose",
+          drift,
+          `the narrator field refers to ${ctx.reader.name} consistently with configured subject pronoun ${ctx.reader.pronouns.subject}`,
+        );
+      }
     }
 
     if (auditLanguage(ctx.language) === "es" && role !== "handover_state") {
-      if (ctx.querent.gender === "woman" && MALE_DIRECT.test(text)) {
-        add(issues, "querent_gender", field.path, "possible masculine agreement for a querent configured as a woman; review the local second-person grammar");
-      } else if (ctx.querent.gender === "man" && FEMALE_DIRECT.test(text)) {
-        add(issues, "querent_gender", field.path, "possible feminine agreement for a querent configured as a man; review the local second-person grammar");
+      if (ctx.querent.gender === "woman") {
+        const evidence = MALE_DIRECT.exec(text)?.[0] ?? null;
+        if (evidence) {
+          add(
+            issues,
+            "querent_gender",
+            field.path,
+            "possible masculine agreement for a querent configured as a woman",
+            evidence,
+            "use natural second-person Spanish consistent with the current querent's feminine grammatical agreement",
+          );
+        }
+      } else if (ctx.querent.gender === "man") {
+        const evidence = FEMALE_DIRECT.exec(text)?.[0] ?? null;
+        if (evidence) {
+          add(
+            issues,
+            "querent_gender",
+            field.path,
+            "possible feminine agreement for a querent configured as a man",
+            evidence,
+            "use natural second-person Spanish consistent with the current querent's masculine grammatical agreement",
+          );
+        }
       }
     }
   }
+
+  if (req.task === "ritual") ritualFindings(req, out as RitualOut, ctx, issues);
 }
 
 export function contextualAuditModelOut(req: ApiReq, out: ApiOut): ModelAudit {
   const base = baseAuditModelOut(req, out);
   const issues = [...base.issues];
-  contextualFindings(req, out, buildAuditContext(req), issues);
+  const ctx = buildAuditContext(req);
+  contextualFindings(req, out, ctx, issues);
   const errors = [...new Set(issues.map(issue => issue.message))];
   return {
     valid: issues.length === 0,
