@@ -5,7 +5,13 @@ export * from "./contracts/guard.js";
 export * from "./contracts/types.js";
 export * from "./domain/deck.js";
 export * from "./domain/request.js";
-export * from "./model/audit.js";
+export {
+  correctionFromAudit,
+  words,
+  type AuditIssue,
+  type ModelAudit,
+} from "./model/audit.js";
+export { contextualAuditModelOut as auditModelOut } from "./model/contextual-audit.js";
 export * from "./model/fallback.js";
 export * from "./model/recover.js";
 export * from "./model/run.js";
