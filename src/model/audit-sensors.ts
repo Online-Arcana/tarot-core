@@ -1,5 +1,5 @@
 import type { LangCode } from "../contracts/types.js";
-import { auditLanguage, containsWholePhrase } from "./language.js";
+import { auditLanguage, containsWholePhrase, regexEscape } from "./language.js";
 
 export interface ActionEvidence {
   readonly verb: string;
@@ -18,21 +18,40 @@ export function contractActionEvidence(
   return object ? { verb, object } : null;
 }
 
-const QUERENT_ACTION_EN = /\byou\s+(?:lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw)\b/iu;
-const QUERENT_ACTION_ES = /\b(?:levantas|elevas|tomas|alcanzas|tocas|sostienes|sacas|agitas|lanzas|colocas|eliges|tiras|sueltas|giras|mueves|mezclas|retiras|llevas|abres|cierras|manipulas|agarras|dejas|introduces|metes|extraes)\b/iu;
+const QUERENT_VERBS_EN = "lift|raise|take|reach|touch|hold|draw|shake|cast|place|choose|pull|pick|release|turn|move|mix|withdraw|set|carry|open|close|handle|grasp|drop|throw";
+const QUERENT_VERBS_ES = "levantas|elevas|tomas|alcanzas|tocas|sostienes|sacas|agitas|lanzas|colocas|eliges|tiras|sueltas|giras|mueves|mezclas|retiras|llevas|abres|cierras|manipulas|agarras|dejas|introduces|metes|extraes";
 
-/**
- * Surface observation only. A match is not itself an error: callers must combine
- * it with the current ritual actor/object contract before drawing a conclusion.
- */
-export function querentPhysicalActionEvidence(value: string, lang: LangCode): string | null {
-  return (auditLanguage(lang) === "es" ? QUERENT_ACTION_ES : QUERENT_ACTION_EN).exec(value)?.[0] ?? null;
+function objectPattern(objects: readonly string[]): string | null {
+  const items = objects
+    .map(item => item.trim())
+    .filter(Boolean)
+    .sort((left, right) => right.length - left.length)
+    .map(regexEscape);
+  return items.length ? items.join("|") : null;
 }
 
-export function mediumObjectEvidence(
+/**
+ * Surface observation only. This deliberately requires a plausible local
+ * verb-to-medium-object relation rather than treating two unrelated tokens in
+ * the same field as one action. A match is still not an error until the caller
+ * combines it with the current ritual actor contract.
+ */
+export function querentMediumActionEvidence(
   value: string,
   objects: readonly string[],
   lang: LangCode,
 ): string | null {
-  return objects.find(item => containsWholePhrase(value, item, lang)) ?? null;
+  const object = objectPattern(objects);
+  if (!object) return null;
+
+  const pattern = auditLanguage(lang) === "es"
+    ? new RegExp(
+      String.raw`\b(?:${QUERENT_VERBS_ES})\b(?:\s+[\p{L}\p{N}'’áéíóúüñ-]+){0,5}\s+(?:(?:el|la|los|las|un|una|unos|unas)\s+)?(?:${object})\b`,
+      "iu",
+    )
+    : new RegExp(
+      String.raw`\byou\s+(?:${QUERENT_VERBS_EN})\b(?:\s+[\p{L}\p{N}'’-]+){0,5}\s+(?:(?:the|a|an)\s+)?(?:${object})\b`,
+      "iu",
+    );
+  return pattern.exec(value)?.[0] ?? null;
 }
