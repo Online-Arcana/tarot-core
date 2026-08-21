@@ -72,3 +72,111 @@ test("structurally valid but blank model output cannot become the customer respo
   assert.ok(result.out.gesture.trim().length > 0);
   assert.ok(result.out.response.trim().length > 0);
 });
+
+const contextualOnly = {
+  gesture: "Él mantiene una mano junto a la lectura mientras la habitación queda en silencio ante ti y la luz permanece inmóvil sobre la mesa.",
+  response: "Puedes volver a lo que ya sabes y comprobar qué parte necesita una decisión concreta antes de avanzar.",
+};
+
+test("production path sends a contextual-only finding to one atomic reviewer", async () => {
+  // The established auditor deliberately accepts this. The per-request overlay
+  // is what knows Selena's configured identity and raises the advisory finding.
+  assert.equal(auditModelOut(req, contextualOnly).valid, true);
+  const calls = [];
+  const replies = [
+    contextualOnly,
+    {
+      edits: [{
+        mode: "patch",
+        path: "chat.gesture",
+        before: "Él",
+        after: "Ella",
+      }],
+    },
+  ];
+  const fetch = async (_url, init) => {
+    calls.push(JSON.parse(init.body));
+    const next = replies.shift();
+    if (next === undefined) throw new Error("unexpected extra model call");
+    return response(next);
+  };
+
+  const result = await runModelSession(pack, req, {
+    apiKey: "test",
+    conversation: false,
+    guaranteeOutput: true,
+    retries: 0,
+    fetch,
+    body: {},
+  });
+
+  assert.equal(calls.length, 2);
+  assert.match(JSON.stringify(calls[1]), /reader_subject_drift/u);
+  assert.match(JSON.stringify(calls[1]), /compiled_audit_context/u);
+  assert.equal(result.source, "escalation");
+  assert.equal(result.out.gesture, contextualOnly.gesture.replace(/^Él/u, "Ella"));
+  assert.equal(result.out.response, contextualOnly.response);
+  assert.ok(result.auditErrors.includes("contextual_review:edits:1"));
+  assert.ok(result.auditErrors.includes("delivery_path:contextual_atomic_revision"));
+  assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
+});
+
+test("contextual reviewer may dismiss a heuristic finding without touching prose", async () => {
+  const calls = [];
+  const replies = [contextualOnly, { edits: [] }];
+  const fetch = async (_url, init) => {
+    calls.push(JSON.parse(init.body));
+    const next = replies.shift();
+    if (next === undefined) throw new Error("unexpected extra model call");
+    return response(next);
+  };
+
+  const result = await runModelSession(pack, req, {
+    apiKey: "test",
+    conversation: false,
+    guaranteeOutput: true,
+    retries: 0,
+    fetch,
+    body: {},
+  });
+
+  assert.equal(calls.length, 2);
+  assert.equal(result.source, "primary");
+  assert.deepEqual(result.out, contextualOnly);
+  assert.ok(result.auditErrors.includes("contextual_review:heuristic_findings_dismissed"));
+  assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
+});
+
+test("contextual findings cannot authorise a whole-field rewrite", async () => {
+  const calls = [];
+  const replies = [
+    contextualOnly,
+    {
+      edits: [{
+        mode: "decontaminate",
+        path: "chat.gesture",
+        before: contextualOnly.gesture,
+        after: "Ella deja la escena en calma ante ti.",
+      }],
+    },
+  ];
+  const fetch = async (_url, init) => {
+    calls.push(JSON.parse(init.body));
+    const next = replies.shift();
+    if (next === undefined) throw new Error("unexpected extra model call");
+    return response(next);
+  };
+
+  const result = await runModelSession(pack, req, {
+    apiKey: "test",
+    conversation: false,
+    guaranteeOutput: true,
+    retries: 0,
+    fetch,
+    body: {},
+  });
+
+  assert.equal(calls.length, 2);
+  assert.deepEqual(result.out, contextualOnly);
+  assert.ok(result.auditErrors.includes("contextual_review:non_atomic_patch_rejected"));
+});
