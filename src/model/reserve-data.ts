@@ -1,5 +1,6 @@
-import opening from "./reserve-corpus-data.json" with { type: "json" };
-import continuation from "./reserve/selena-ritual-continuation.json" with { type: "json" };
+import selenaOpening from "./reserve-corpus-data.json" with { type: "json" };
+import selenaContinuation from "./reserve/selena-ritual-continuation.json" with { type: "json" };
+import ngaruRitual from "./reserve/ngaru-ritual.json" with { type: "json" };
 import {
   findReserveBucket,
   validateReserveCorpus,
@@ -10,8 +11,9 @@ import {
 const CORPUS = {
   version: 1,
   buckets: [
-    ...(opening as unknown as ReserveCorpus).buckets,
-    ...(continuation as unknown as ReserveCorpus).buckets,
+    ...(selenaOpening as unknown as ReserveCorpus).buckets,
+    ...(selenaContinuation as unknown as ReserveCorpus).buckets,
+    ...(ngaruRitual as unknown as ReserveCorpus).buckets,
   ],
 } as const satisfies ReserveCorpus;
 const ERRORS = validateReserveCorpus(CORPUS);
