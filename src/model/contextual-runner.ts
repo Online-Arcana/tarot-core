@@ -12,6 +12,7 @@ import {
   finalProofreadPrompt,
   finalProofreadShape,
 } from "./final-proofread.js";
+import { prepareModelOutDetailed } from "./finalise.js";
 import { contextualProseCorrection } from "./prose-review.js";
 import {
   modelPrompt,
@@ -52,6 +53,11 @@ function appendDiagnostics(result: ModelResult, diagnostics: readonly string[]):
     auditErrors: [...new Set([...result.auditErrors, ...diagnostics])],
   };
 }
+
+export const validModelOut = (request: Parameters<typeof runBaseModelSession>[1], out: ApiOut): boolean => {
+  const req = canonicaliseApiReq(request);
+  return contextualAuditModelOut(req, prepareModelOutDetailed(req, out).out).valid;
+};
 
 /**
  * Run the established model/recovery pipeline, then apply the request-specific
