@@ -5,7 +5,7 @@ import {
 import type { ApiOut } from "../contracts/types.js";
 import { canonicaliseApiReq } from "../domain/request.js";
 import { auditContextSummary, buildAuditContext } from "./audit-context.js";
-import { auditModelOut as baseAuditModelOut } from "./audit.js";
+import { auditModelOut as baseAuditModelOut, type AuditIssue } from "./audit.js";
 import { contextualAuditModelOut } from "./contextual-audit.js";
 import {
   applyFinalProofread,
@@ -51,6 +51,22 @@ function appendDiagnostics(result: ModelResult, diagnostics: readonly string[]):
   return {
     ...result,
     auditErrors: [...new Set([...result.auditErrors, ...diagnostics])],
+  };
+}
+
+function reviewFinding(issue: AuditIssue): Record<string, string> {
+  const contextual = issue as AuditIssue & {
+    readonly evidence?: string;
+    readonly expected?: string;
+    readonly repairScope?: string;
+  };
+  return {
+    code: issue.code,
+    path: issue.path,
+    message: issue.message,
+    ...(contextual.evidence === undefined ? {} : { evidence: contextual.evidence }),
+    ...(contextual.expected === undefined ? {} : { expected: contextual.expected }),
+    ...(contextual.repairScope === undefined ? {} : { repairScope: contextual.repairScope }),
   };
 }
 
@@ -111,6 +127,9 @@ export async function runModelSession(
       "<compiled_audit_context>",
       JSON.stringify(auditContextSummary(buildAuditContext(req))),
       "</compiled_audit_context>",
+      "<compiled_audit_findings>",
+      JSON.stringify(review.findings.map(reviewFinding)),
+      "</compiled_audit_findings>",
     ].join("\n");
     const patch = await ai.run(
       finalProofreadShape(req, result.out, review.paths),
