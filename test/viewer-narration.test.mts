@@ -8,7 +8,7 @@ function spanishRitual(gesture, opening = "La estancia permanece en silencio.", 
       task: "ritual",
       lang: "es-ES",
       reader: "selena",
-      name: "Javier",
+      name: "Alex",
       question: "¿Qué está cambiando?",
       history: [],
       spread: "one",
@@ -23,14 +23,14 @@ test("ritual narration addresses the viewer as you without changing reader prono
     task: "ritual",
     lang: "en-GB",
     reader: "ame",
-    name: "Javier",
+    name: "Alex",
     question: "What is changing?",
     history: [],
     spread: "decision",
     card: 0,
   };
   const out = {
-    gesture: "Ame listens, her gaze resting beyond Javier and the changing ground beneath his life.",
+    gesture: "Ame listens, her gaze resting beyond Alex and the changing ground beneath his life.",
     opening: "Pale incense threads the moonlit air.",
     ritual: "She lifts one gathered handful of mixed petals above the basin, then releases them in one quiet sweep.",
   };
@@ -38,7 +38,7 @@ test("ritual narration addresses the viewer as you without changing reader prono
   const value = addressViewer(req, out);
   assert.equal("ritual" in value, true);
   const text = `${value.gesture} ${value.opening} ${value.ritual}`;
-  assert.doesNotMatch(text, /Javier/u);
+  assert.doesNotMatch(text, /Alex/u);
   assert.match(text, /beyond you/u);
   assert.match(text, /beneath your life/u);
   assert.match(text, /her gaze/u);
@@ -111,7 +111,7 @@ test("ritual narration adds direct immersion when the model omits the viewer", (
     task: "ritual",
     lang: "en-GB",
     reader: "ame",
-    name: "Javier",
+    name: "Alex",
     question: "What is changing?",
     history: [],
     spread: "decision",
@@ -133,7 +133,7 @@ test("reader dialogue keeps the person's name while narrator notes use you", () 
     task: "read",
     lang: "en-GB",
     reader: "ame",
-    name: "Javier",
+    name: "Alex",
     question: "What is changing?",
     history: [],
     draw: { id: "one", name: "One card", purpose: "Answer", cards: [] },
@@ -143,60 +143,60 @@ test("reader dialogue keeps the person's name while narrator notes use you", () 
     opening: "",
     link: "",
     cardText: [],
-    synthesis: "Javier, you are already moving through this threshold.",
+    synthesis: "Alex, you are already moving through this threshold.",
     reading: "You do not need to force the answer before it takes shape.",
     closing: "Let your next step remain quiet.",
-    note: "The rain continues around Javier after Ame falls silent.",
+    note: "The rain continues around Alex after Ame falls silent.",
   };
 
   const value = addressViewer(req, out);
   assert.equal("reading" in value, true);
-  assert.match(value.synthesis, /Javier/u);
-  assert.doesNotMatch(value.note, /Javier/u);
+  assert.match(value.synthesis, /Alex/u);
+  assert.doesNotMatch(value.note, /Alex/u);
   assert.match(value.note, /\byou\b/u);
 });
 
 test("Spanish subject replacement conjugates to natural second person with pro-drop", () => {
-  const { req, out } = spanishRitual("Javier espera junto a la mesa mientras Selena sostiene la baraja.");
+  const { req, out } = spanishRitual("Alex espera junto a la mesa mientras Selena sostiene la baraja.");
   const value = addressViewer(req, out);
   assert.match(value.gesture, /^Esperas junto a la mesa/iu);
-  assert.doesNotMatch(value.gesture, /\bJavier\b/u);
+  assert.doesNotMatch(value.gesture, /\bAlex\b/u);
   assert.doesNotMatch(value.gesture, /^Tú esperas/iu);
 });
 
 test("Spanish direct and indirect objects become te rather than blind tú", () => {
-  const direct = spanishRitual("Selena mira a Javier mientras la vela tiembla.");
+  const direct = spanishRitual("Selena mira a Alex mientras la vela tiembla.");
   const directValue = addressViewer(direct.req, direct.out);
   assert.match(directValue.gesture, /Selena te mira/iu);
-  assert.doesNotMatch(directValue.gesture, /\bJavier\b|\btú\b/iu);
+  assert.doesNotMatch(directValue.gesture, /\bAlex\b|\btú\b/iu);
 
-  const indirect = spanishRitual("Selena entrega una piedra lisa a Javier y vuelve la mano hacia la mesa.");
+  const indirect = spanishRitual("Selena entrega una piedra lisa a Alex y vuelve la mano hacia la mesa.");
   const indirectValue = addressViewer(indirect.req, indirect.out);
   assert.match(indirectValue.gesture, /Selena te entrega una piedra lisa/iu);
-  assert.doesNotMatch(indirectValue.gesture, /\bJavier\b/u);
+  assert.doesNotMatch(indirectValue.gesture, /\bAlex\b/u);
 });
 
 test("Spanish prepositional roles use ti and contigo", () => {
-  const { req, out } = spanishRitual("Selena se sienta frente a Javier y deja el cuenco junto a Javier antes de hablar con Javier.");
+  const { req, out } = spanishRitual("Selena se sienta frente a Alex y deja el cuenco junto a Alex antes de hablar con Alex.");
   const value = addressViewer(req, out);
   assert.match(value.gesture, /frente a ti/iu);
   assert.match(value.gesture, /junto a ti/iu);
   assert.match(value.gesture, /contigo/iu);
-  assert.doesNotMatch(value.gesture, /\bJavier\b/u);
+  assert.doesNotMatch(value.gesture, /\bAlex\b/u);
 });
 
 test("Spanish possessive roles become tu or tus", () => {
-  const { req, out } = spanishRitual("Selena observa la pregunta de Javier y después las manos de Javier sobre la mesa.");
+  const { req, out } = spanishRitual("Selena observa la pregunta de Alex y después las manos de Alex sobre la mesa.");
   const value = addressViewer(req, out);
   assert.match(value.gesture, /tu pregunta/iu);
   assert.match(value.gesture, /tus manos/iu);
-  assert.doesNotMatch(value.gesture, /\bJavier\b/u);
+  assert.doesNotMatch(value.gesture, /\bAlex\b/u);
 });
 
 test("uncertain Spanish grammatical roles are left for audit instead of guessed", () => {
-  const { req, out } = spanishRitual("Selena piensa en Javier mientras ordena el espacio.");
+  const { req, out } = spanishRitual("Selena piensa en Alex mientras ordena el espacio.");
   const value = addressViewer(req, out);
-  assert.match(value.gesture, /\bJavier\b/u);
+  assert.match(value.gesture, /\bAlex\b/u);
   assert.doesNotMatch(value.gesture, /piensa en tú|piensa en te/iu);
 });
 
@@ -205,7 +205,7 @@ test("Spanish reader dialogue is never passed through narrator audience transfor
     task: "read",
     lang: "es-ES",
     reader: "selena",
-    name: "Javier",
+    name: "Alex",
     question: "¿Qué está cambiando?",
     history: [],
     draw: { id: "one", name: "Una", purpose: "Responder", cards: [] },
@@ -215,19 +215,19 @@ test("Spanish reader dialogue is never passed through narrator audience transfor
     opening: "",
     link: "",
     cardText: [],
-    synthesis: "Javier, quiero que mires esto sin apresurarte.",
+    synthesis: "Alex, quiero que mires esto sin apresurarte.",
     reading: "Puedes elegir qué parte te resulta verdadera.",
     closing: "Quédate con lo que te sirva.",
-    note: "Selena deja una piedra delante de Javier y guarda silencio.",
+    note: "Selena deja una piedra delante de Alex y guarda silencio.",
   };
   const value = addressViewer(req, out);
-  assert.match(value.synthesis, /Javier/u);
-  assert.doesNotMatch(value.note, /Javier/u);
+  assert.match(value.synthesis, /Alex/u);
+  assert.doesNotMatch(value.note, /Alex/u);
   assert.match(value.note, /delante de ti/iu);
 });
 
 test("audience transformation is idempotent", () => {
-  const { req, out } = spanishRitual("Selena mira a Javier y deja la pregunta de Javier junto al cuenco.");
+  const { req, out } = spanishRitual("Selena mira a Alex y deja la pregunta de Alex junto al cuenco.");
   const once = addressViewer(req, out);
   const twice = addressViewer(req, once);
   assert.deepEqual(twice, once);
