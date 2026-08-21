@@ -4,6 +4,7 @@ import test from "node:test";
 
 const cellRunner = await readFile(new URL("../scripts/run-live-prose-cell.mjs", import.meta.url), "utf8");
 const matrixRunner = await readFile(new URL("../scripts/run-live-prose-matrix.mjs", import.meta.url), "utf8");
+const matrixWorker = await readFile(new URL("../scripts/live-prose-matrix.mjs", import.meta.url), "utf8");
 const reviewRenderer = await readFile(new URL("../scripts/render-live-prose-review.mjs", import.meta.url), "utf8");
 const testingDocs = await readFile(new URL("../docs/testing.md", import.meta.url), "utf8");
 
@@ -28,6 +29,19 @@ test("full live matrix stamps the local commit and covers both supported languag
   assert.match(matrixRunner, /git["], \["rev-parse", "HEAD"\]/u);
   assert.match(matrixRunner, /"en-GB", "es-ES"/u);
   assert.match(matrixRunner, /GITHUB_SHA: commit/u);
+});
+
+test("paid matrix reports use the same contextual audit contract as production", () => {
+  assert.match(matrixWorker, /contextualAuditModelOut/u);
+  assert.doesNotMatch(matrixWorker, /from "\.\.\/dist\/model\/audit\.js"/u);
+  assert.match(matrixWorker, /delivery_path:contextual_atomic_revision/u);
+  assert.match(matrixWorker, /delivery_path:atomic_revision/u);
+  assert.doesNotMatch(matrixWorker, /narrow_spanish_narrator_correction/u);
+});
+
+test("paid matrix retry accounting separates semantic review calls from transport retries", () => {
+  assert.match(matrixWorker, /function semanticCallCount\(result\)/u);
+  assert.match(matrixWorker, /Math\.max\(0, calls\.length - semanticCallCount\(result\)\)/u);
 });
 
 test("human review pack exposes canonical draw references only as review context", () => {
