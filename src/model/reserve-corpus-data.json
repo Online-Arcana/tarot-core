@@ -1,0 +1,191 @@
+{
+  "version": 1,
+  "buckets": [
+    {
+      "key": {
+        "reader": "selena",
+        "lang": "en-GB",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "opening",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "selena-en-ritual-opening-01",
+          "fields": {
+            "opening": "Candlelight catches Selena's rings as she turns one slowly and lets the question settle between you without pressing it towards an answer.",
+            "ritual": "She warms the tarot deck between both palms, then places it over the dark velvet near the position marked {{position.name}}, keeping the next card hidden.",
+            "gesture": "Selena holds your gaze for a brief moment before lowering her attention to the deck, leaving enough silence for the reveal to arrive in its own time."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-02",
+          "fields": {
+            "opening": "Selena rests her fingertips against the edge of the velvet while the candlelight throws a muted gold reflection across her rings and the table remains quiet before you.",
+            "ritual": "She brings the tarot deck between her hands, warming it briefly before making one deliberate cut beside the place marked {{position.name}} without exposing the card beneath.",
+            "gesture": "A trace of perfume lingers in the warm air as Selena draws her hands back and lets the question remain present without trying to soften it."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-03",
+          "fields": {
+            "opening": "The room narrows to candlelight, velvet and Selena's steady attention as she gives the question a moment to become clear without asking you to explain it again.",
+            "ritual": "Selena turns one ring with her thumb, warms the tarot deck between her palms and sets it close to the position marked {{position.name}}, leaving the hidden card untouched.",
+            "gesture": "She leans in only slightly, then gives you the space back, her expression attentive rather than expectant while the scene settles for the reveal."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-04",
+          "fields": {
+            "opening": "Selena lets the last movement in the room fade before she touches the deck, candlelight resting along the gold of her rings while your question remains at the centre of the table.",
+            "ritual": "With both palms around the tarot deck, she warms it once and makes a measured cut near the position marked {{position.name}}, careful not to disturb the hidden result.",
+            "gesture": "Her eyes lift to you for a heartbeat, intimate but unhurried, before she returns her attention to the cloth and waits for the moment to move on."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-05",
+          "fields": {
+            "opening": "Warm glass and a quiet trace of perfume sit at the edge of the candlelit table while Selena listens to the shape of the question and turns a ring once against her finger.",
+            "ritual": "She takes the tarot deck between both hands, warms it and cuts it with one deliberate motion beside the position marked {{position.name}}, keeping the next card concealed.",
+            "gesture": "Selena leaves one hand resting near the velvet and studies your expression without crowding the silence, allowing the scene to remain open rather than theatrical."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-06",
+          "fields": {
+            "opening": "Selena draws the tarot deck closer across the dark velvet as candlelight moves over her rings, then pauses long enough for the question to feel present rather than merely spoken.",
+            "ritual": "She warms the deck between her palms and makes a single deliberate cut near the position marked {{position.name}}, leaving every face hidden until the reveal is due.",
+            "gesture": "Her attention returns to you with a faint, knowing softness before she lowers her eyes again, keeping the atmosphere intimate without turning it into a performance."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-07",
+          "fields": {
+            "opening": "The candle flame reflects against Selena's rings while she keeps both hands still for a moment, letting your question occupy the quiet space between the two of you.",
+            "ritual": "Selena warms the tarot deck, cuts it once with a steady hand and places it beside the position marked {{position.name}}, with the next card still fully concealed.",
+            "gesture": "She tilts her head as though noticing a hesitation, but does not interrupt it, leaving you room while the velvet and warm light hold the scene together."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-08",
+          "fields": {
+            "opening": "Selena's fingers settle around the tarot deck while the room grows quieter, the scent of perfume and the dark velvet giving your question a close, private kind of attention.",
+            "ritual": "She warms the deck between both palms and makes one clean cut near the position marked {{position.name}}, keeping the hidden card beneath her hand without turning it.",
+            "gesture": "A small reflection of gold moves across her rings as she withdraws her hand and meets your eyes, then lets the silence continue without demanding anything from it."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-09",
+          "fields": {
+            "opening": "Candlelight gathers across the dark cloth as Selena listens without filling the pause, one thumb moving slowly over a ring while the question remains clear between you.",
+            "ritual": "She takes the tarot deck into both hands, warms it and cuts it once beside the position marked {{position.name}}, preserving the hidden card exactly as it lies.",
+            "gesture": "Selena leans a little closer as if to acknowledge the weight of the moment, then eases back and leaves you enough room for the reveal to speak for itself."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-10",
+          "fields": {
+            "opening": "Selena keeps the candlelit table undisturbed while your question settles, her rings catching brief points of gold as she rests the tarot deck between her hands.",
+            "ritual": "After warming the deck, she makes one deliberate cut and sets it near the position marked {{position.name}}, with the next card still hidden from view.",
+            "gesture": "Her gaze stays with you just long enough to feel attentive rather than intrusive before she returns to the velvet and lets the room become still."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "selena",
+        "lang": "es-ES",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "opening",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "selena-es-ritual-opening-01",
+          "fields": {
+            "opening": "La luz de las velas se refleja en los anillos de Selena mientras hace girar uno despacio y deja que tu pregunta se asiente entre ambos sin empujarla hacia una respuesta.",
+            "ritual": "Calienta la baraja de tarot entre las dos palmas y la deja sobre el terciopelo oscuro, junto a la posición «{{position.name}}», manteniendo oculta la carta siguiente.",
+            "gesture": "Selena sostiene tu mirada un instante antes de bajar los ojos hacia la baraja, dejando suficiente silencio para que la revelación llegue a su debido momento."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-02",
+          "fields": {
+            "opening": "Selena apoya las yemas de los dedos en el borde del terciopelo mientras la vela deja un reflejo dorado sobre sus anillos y la mesa permanece tranquila ante ti.",
+            "ritual": "Acerca la baraja de tarot, la calienta brevemente entre las manos y hace un corte deliberado junto a la posición «{{position.name}}» sin mostrar la carta que queda debajo.",
+            "gesture": "Un rastro discreto de perfume permanece en el aire cálido cuando Selena retira las manos y deja que la pregunta siga presente sin intentar suavizarla."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-03",
+          "fields": {
+            "opening": "La estancia se reduce a la luz de las velas, el terciopelo y la atención serena de Selena mientras concede a tu pregunta un momento para aclararse sin pedirte que la expliques de nuevo.",
+            "ritual": "Hace girar un anillo con el pulgar, calienta la baraja de tarot entre las palmas y la coloca cerca de la posición «{{position.name}}», dejando intacta la carta oculta.",
+            "gesture": "Selena se inclina apenas un poco y después vuelve a darte espacio, atenta pero sin expectativas mientras la escena se prepara para la revelación."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-04",
+          "fields": {
+            "opening": "Selena deja que desaparezca el último movimiento de la habitación antes de tocar la baraja; la luz descansa sobre sus anillos mientras tu pregunta permanece en el centro de la mesa.",
+            "ritual": "Rodea la baraja de tarot con ambas palmas, la calienta una vez y hace un corte medido junto a la posición «{{position.name}}», sin alterar el resultado oculto.",
+            "gesture": "Sus ojos vuelven a ti durante un instante íntimo pero tranquilo antes de regresar al paño y esperar a que llegue el momento de continuar."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-05",
+          "fields": {
+            "opening": "El cristal cálido y un perfume discreto acompañan la mesa iluminada por velas mientras Selena escucha la forma de tu pregunta y hace girar un anillo una sola vez.",
+            "ritual": "Toma la baraja de tarot entre las dos manos, la calienta y la corta con un gesto deliberado junto a la posición «{{position.name}}», manteniendo oculta la carta siguiente.",
+            "gesture": "Selena deja una mano cerca del terciopelo y observa tu expresión sin invadir el silencio, permitiendo que la escena siga siendo íntima sin volverse teatral."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-06",
+          "fields": {
+            "opening": "Selena acerca la baraja de tarot sobre el terciopelo oscuro mientras la luz recorre sus anillos y hace una pausa suficiente para que tu pregunta se sienta presente, no solo pronunciada.",
+            "ritual": "Calienta la baraja entre las palmas y realiza un único corte deliberado junto a la posición «{{position.name}}», manteniendo todas las caras ocultas hasta el momento de la revelación.",
+            "gesture": "Su atención vuelve a ti con una suavidad apenas cómplice antes de bajar otra vez la mirada, conservando la intimidad sin convertirla en una actuación."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-07",
+          "fields": {
+            "opening": "La llama se refleja en los anillos de Selena mientras mantiene las manos quietas durante un momento y deja que tu pregunta ocupe el espacio silencioso entre los dos.",
+            "ritual": "Calienta la baraja de tarot, la corta una vez con mano firme y la coloca junto a la posición «{{position.name}}», con la carta siguiente todavía completamente oculta.",
+            "gesture": "Selena inclina ligeramente la cabeza, como si percibiera una vacilación, pero no la interrumpe y te deja espacio mientras el terciopelo y la luz cálida sostienen la escena."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-08",
+          "fields": {
+            "opening": "Los dedos de Selena se acomodan alrededor de la baraja de tarot mientras la habitación se aquieta; el perfume tenue y el terciopelo oscuro dan a tu pregunta una atención cercana y privada.",
+            "ritual": "Calienta la baraja entre ambas palmas y hace un corte limpio junto a la posición «{{position.name}}», manteniendo bajo la mano la carta oculta sin darle la vuelta.",
+            "gesture": "Un pequeño reflejo dorado cruza sus anillos cuando retira la mano y encuentra tu mirada, dejando después que el silencio continúe sin exigirle nada."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-09",
+          "fields": {
+            "opening": "La luz de las velas se reúne sobre el paño oscuro mientras Selena escucha sin llenar la pausa, con el pulgar recorriendo lentamente un anillo y tu pregunta clara entre ambos.",
+            "ritual": "Toma la baraja de tarot entre las dos manos, la calienta y la corta una vez junto a la posición «{{position.name}}», conservando la carta oculta tal como ha quedado.",
+            "gesture": "Selena se acerca un poco, como reconociendo el peso del momento, y después vuelve a dejarte espacio para que la revelación pueda hablar por sí misma."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-10",
+          "fields": {
+            "opening": "Selena mantiene intacta la mesa iluminada por velas mientras tu pregunta se asienta; sus anillos recogen breves destellos dorados al sostener la baraja de tarot entre las manos.",
+            "ritual": "Después de calentar la baraja, hace un corte deliberado y la deja junto a la posición «{{position.name}}», con la carta siguiente todavía fuera de tu vista.",
+            "gesture": "Su mirada permanece contigo el tiempo justo para sentirse atenta y no invasiva antes de regresar al terciopelo y dejar que la estancia quede en calma."
+          }
+        }
+      ]
+    }
+  ]
+}
