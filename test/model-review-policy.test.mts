@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { auditModelOut } from "../dist/model/audit.js";
-import { runModelSession } from "../dist/model/run.js";
+import { runModelSession, validModelOut } from "../dist/model/run.js";
 
 const pack = { prompt: { reading: "reading", chat: "chat" } };
 const req = {
@@ -24,6 +24,7 @@ const response = value => new Response(JSON.stringify({ output_text: JSON.string
 
 test("clean primary prose is delivered after exactly one model call", async () => {
   assert.equal(auditModelOut(req, clean).valid, true);
+  assert.equal(validModelOut(req, clean), true);
   const calls = [];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
@@ -77,6 +78,11 @@ const contextualOnly = {
   gesture: "Él mantiene una mano junto a la lectura mientras la habitación queda en silencio ante ti y la luz permanece inmóvil sobre la mesa.",
   response: "Puedes volver a lo que ya sabes y comprobar qué parte necesita una decisión concreta antes de avanzar.",
 };
+
+test("public validity helper includes request-specific contextual findings", () => {
+  assert.equal(auditModelOut(req, contextualOnly).valid, true);
+  assert.equal(validModelOut(req, contextualOnly), false);
+});
 
 test("production path sends a contextual-only finding to one atomic reviewer", async () => {
   // The established auditor deliberately accepts this. The per-request overlay
