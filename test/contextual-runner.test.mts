@@ -76,7 +76,7 @@ test("contextual-only pro-drop actor drift gets one atomic production repair", a
   assert.match(reviewerPrompt, /<compiled_audit_context>/u);
   assert.match(reviewerPrompt, /<compiled_audit_findings>/u);
   assert.match(reviewerPrompt, /"code":"invented_participation"/u);
-  assert.match(reviewerPrompt, /"evidence":"Agitas … escudo"/u);
+  assert.match(reviewerPrompt, /"evidence":"Agitas el escudo"/u);
   assert.match(reviewerPrompt, /"expected":/u);
   assert.match(reviewerPrompt, /"repairScope":"local"/u);
   assert.equal(contextualAuditModelOut(req, result.out).valid, true);
