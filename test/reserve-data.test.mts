@@ -10,7 +10,7 @@ import {
 } from "../dist/model/reserve-data.js";
 
 const languages = ["en-GB", "es-ES"];
-const seededReaders = ["selena", "ngaru"];
+const seededReaders = ["selena", "ngaru", "ame"];
 
 function ritualOut(variant, positionName) {
   const fields = renderReserveFields(variant.fields, { "position.name": positionName });
@@ -45,7 +45,7 @@ function readingState(lang) {
 }
 
 test("authored reserve corpus loads with ten variants per seeded bucket", () => {
-  assert.deepEqual(reserveCorpusCoverage(), { buckets: 8, variants: 80 });
+  assert.deepEqual(reserveCorpusCoverage(), { buckets: 12, variants: 120 });
   for (const reader of seededReaders) {
     for (const lang of languages) {
       for (const phase of ["opening", "continuation"]) {
@@ -131,7 +131,7 @@ test("every seeded reserve ritual variant passes contextual audit with canonical
     }
   }
 
-  assert.equal(corpus.buckets.length, 8);
+  assert.equal(corpus.buckets.length, 12);
 });
 
 test("Ngaru Spanish reserve rituals use natural pro-drop querent participation", () => {
@@ -150,5 +150,34 @@ test("Ngaru Spanish reserve rituals use natural pro-drop querent participation",
       assert.match(text, /(?:introduces|metes|sacas|extraes|tomas|retiras)/iu, variant.id);
       assert.doesNotMatch(text, /\bTú\s+(?:introduces|metes|sacas|extraes|tomas|retiras)\b/iu, variant.id);
     }
+  }
+});
+
+test("Ame opening corpus performs one cast while continuation corpus cannot perform another", () => {
+  const verbs = {
+    "en-GB": /\b(?:casts|releases|scatters|throws)\b/iu,
+    "es-ES": /\b(?:lanza|suelta|esparce|arroja)\b/iu,
+  };
+  for (const lang of languages) {
+    const opening = reserveCorpusBucket({
+      reader: "ame",
+      lang,
+      task: "ritual",
+      spread: "three",
+      position: 1,
+      phase: "opening",
+    });
+    const continuation = reserveCorpusBucket({
+      reader: "ame",
+      lang,
+      task: "ritual",
+      spread: "three",
+      position: 2,
+      phase: "continuation",
+    });
+    assert.ok(opening);
+    assert.ok(continuation);
+    for (const variant of opening.variants) assert.match(JSON.stringify(variant.fields), verbs[lang], variant.id);
+    for (const variant of continuation.variants) assert.doesNotMatch(JSON.stringify(variant.fields), verbs[lang], variant.id);
   }
 });
