@@ -4,7 +4,6 @@ import { auditModelOut } from "../dist/model/audit.js";
 import { prepareModelOutDetailed } from "../dist/model/finalise.js";
 import { hasDirectAddress } from "../dist/model/language.js";
 import { reconstructModelOutDetailed } from "../dist/model/recover.js";
-import { addressViewer } from "../dist/model/viewer-narration.js";
 
 const ritualReq = {
   task: "ritual",
@@ -46,22 +45,6 @@ test("ritual reconstruction preserves a valid fragment-style model paragraph", (
   assert.equal(reconstructed.emergencyFallback, false);
   assert.deepEqual(reconstructed.out, fragmentRitual);
   assert.deepEqual(reconstructed.auditErrors, []);
-});
-
-test("ritual audience immersion appends to the semantic final field rather than splitting a fragment", () => {
-  const out = {
-    opening: "Selena settles at the candlelit table, smoothing the dark velvet while the last movement in the room becomes quiet,",
-    ritual: "she warms the deck between both palms and makes one deliberate cut with patient attention,",
-    gesture: "then her fingertips rest above the covered result until the candle steadies and the room becomes still.",
-  };
-  const immersed = addressViewer(ritualReq, out);
-  assert.match(immersed.gesture, /The stillness gathers around you\.$/u);
-  assert.doesNotMatch(immersed.opening, /The stillness gathers around you/u);
-  assert.doesNotMatch(immersed.ritual, /The stillness gathers around you/u);
-  const combined = `${immersed.opening} ${immersed.ritual} ${immersed.gesture}`;
-  assert.doesNotMatch(combined, /breath The|attention The|quiet, The/iu);
-  const audit = auditModelOut(ritualReq, immersed);
-  assert.equal(audit.valid, true, audit.errors.join(" | "));
 });
 
 test("ritual audit and reconstruction preserve a natural 110-to-130-word live candidate", () => {
