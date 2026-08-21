@@ -25,6 +25,16 @@ import {
   type ModelAudit,
 } from "./audit.js";
 
+export interface ContextualAuditIssue extends AuditIssue {
+  readonly evidence?: string;
+  readonly expected?: string;
+  readonly repairScope?: "local";
+}
+
+export type ContextualModelAudit<T extends ApiOut = ApiOut> = Omit<ModelAudit<T>, "issues"> & {
+  readonly issues: readonly ContextualAuditIssue[];
+};
+
 interface AuditField {
   readonly path: string;
   readonly value: string;
@@ -113,7 +123,7 @@ function detail(message: string, evidence: string | null, expected: string): str
 }
 
 function add(
-  issues: AuditIssue[],
+  issues: ContextualAuditIssue[],
   code: string,
   path: string,
   message: string,
@@ -121,7 +131,14 @@ function add(
   expected: string,
 ): void {
   if (hasIssue(issues, code, path)) return;
-  issues.push({ code, path, message: `${path}: ${detail(message, evidence, expected)}` });
+  issues.push({
+    code,
+    path,
+    message: `${path}: ${detail(message, evidence, expected)}`,
+    ...(evidence ? { evidence } : {}),
+    expected,
+    repairScope: "local",
+  });
 }
 
 function firstFieldWithAction(
@@ -137,10 +154,9 @@ function firstFieldWithAction(
 }
 
 function ritualFindings(
-  req: Extract<ApiReq, { task: "ritual" }>,
   out: RitualOut,
   ctx: AuditContext,
-  issues: AuditIssue[],
+  issues: ContextualAuditIssue[],
 ): void {
   if (!ctx.ritual) return;
   const ritualFields: readonly AuditField[] = [
@@ -204,7 +220,12 @@ function ritualFindings(
   }
 }
 
-function contextualFindings(req: ApiReq, out: ApiOut, ctx: AuditContext, issues: AuditIssue[]): void {
+function contextualFindings(
+  req: ApiReq,
+  out: ApiOut,
+  ctx: AuditContext,
+  issues: ContextualAuditIssue[],
+): void {
   for (const field of fields(req, out)) {
     const text = clean(field.value);
     const role = auditRole(ctx, field.path);
@@ -252,12 +273,12 @@ function contextualFindings(req: ApiReq, out: ApiOut, ctx: AuditContext, issues:
     }
   }
 
-  if (req.task === "ritual") ritualFindings(req, out as RitualOut, ctx, issues);
+  if (req.task === "ritual") ritualFindings(out as RitualOut, ctx, issues);
 }
 
-export function contextualAuditModelOut(req: ApiReq, out: ApiOut): ModelAudit {
+export function contextualAuditModelOut(req: ApiReq, out: ApiOut): ContextualModelAudit {
   const base = baseAuditModelOut(req, out);
-  const issues = [...base.issues];
+  const issues: ContextualAuditIssue[] = [...base.issues];
   const ctx = buildAuditContext(req);
   contextualFindings(req, out, ctx, issues);
   const errors = [...new Set(issues.map(issue => issue.message))];
