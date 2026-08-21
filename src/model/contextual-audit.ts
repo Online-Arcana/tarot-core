@@ -1,4 +1,17 @@
-import type { ApiOut, ApiReq } from "../contracts/types.js";
+import type {
+  ApiOut,
+  ApiReq,
+  ChatOut,
+  ContinueOut,
+  FitOut,
+  HandoverOut,
+  InviteOut,
+  ReadingOut,
+  ReturnOut,
+  RitualOut,
+  SuggestOut,
+  TitleOut,
+} from "../contracts/types.js";
 import { auditLanguage } from "./language.js";
 import { auditRole, buildAuditContext, type AuditContext } from "./audit-context.js";
 import {
@@ -7,55 +20,74 @@ import {
   type ModelAudit,
 } from "./audit.js";
 
+interface AuditField {
+  readonly path: string;
+  readonly value: string;
+}
+
 function clean(value: string): string {
   return value.replace(/\s+/gu, " ").trim();
 }
 
-function fields(req: ApiReq, out: ApiOut): readonly { path: string; value: string }[] {
+function fields(req: ApiReq, out: ApiOut): readonly AuditField[] {
   switch (req.task) {
-    case "invite": return [{ path: "invite.text", value: (out as any).text }];
-    case "fit": return [
-      { path: "fit.reason", value: (out as any).reason },
-      { path: "fit.offer", value: (out as any).offer },
-    ];
-    case "ritual": return [
-      { path: "ritual.opening", value: (out as any).opening },
-      { path: "ritual.ritual", value: (out as any).ritual },
-      { path: "ritual.gesture", value: (out as any).gesture },
-    ];
-    case "read": {
-      const value = out as any;
+    case "invite":
+      return [{ path: "invite.text", value: (out as InviteOut).text }];
+    case "fit": {
+      const value = out as FitOut;
       return [
-        ...value.cardText.map((text: string, index: number) => ({ path: `read.cardText[${index}]`, value: text })),
+        { path: "fit.reason", value: value.reason },
+        { path: "fit.offer", value: value.offer },
+      ];
+    }
+    case "ritual": {
+      const value = out as RitualOut;
+      return [
+        { path: "ritual.opening", value: value.opening },
+        { path: "ritual.ritual", value: value.ritual },
+        { path: "ritual.gesture", value: value.gesture },
+      ];
+    }
+    case "read": {
+      const value = out as ReadingOut;
+      return [
+        ...value.cardText.map((text, index) => ({ path: `read.cardText[${index}]`, value: text })),
         { path: "read.synthesis", value: value.synthesis },
         { path: "read.reading", value: value.reading },
         { path: "read.closing", value: value.closing },
         { path: "read.note", value: value.note },
       ];
     }
-    case "chat": return [
-      { path: "chat.gesture", value: (out as any).gesture },
-      { path: "chat.response", value: (out as any).response },
-    ];
-    case "suggest": return (out as any).suggestions.map((value: string, index: number) => ({ path: `suggest.suggestions[${index}]`, value }));
-    case "continue": return [{ path: "continue.text", value: (out as any).text }];
-    case "title": return [{ path: "title.title", value: (out as any).title }];
-    case "handover": {
-      const value = out as any;
+    case "chat": {
+      const value = out as ChatOut;
       return [
-        { path: "handover.summary", value: value.summary },
-        ...value.conclusions.map((text: string, index: number) => ({ path: `handover.conclusions[${index}]`, value: text })),
-        ...value.facts.map((text: string, index: number) => ({ path: `handover.facts[${index}]`, value: text })),
-        ...value.unresolved.map((text: string, index: number) => ({ path: `handover.unresolved[${index}]`, value: text })),
+        { path: "chat.gesture", value: value.gesture },
+        { path: "chat.response", value: value.response },
       ];
     }
-    case "return": return [{ path: "return.text", value: (out as any).text }];
+    case "suggest":
+      return (out as SuggestOut).suggestions.map((value, index) => ({ path: `suggest.suggestions[${index}]`, value }));
+    case "continue":
+      return [{ path: "continue.text", value: (out as ContinueOut).text }];
+    case "title":
+      return [{ path: "title.title", value: (out as TitleOut).title }];
+    case "handover": {
+      const value = out as HandoverOut;
+      return [
+        { path: "handover.summary", value: value.summary },
+        ...value.conclusions.map((text, index) => ({ path: `handover.conclusions[${index}]`, value: text })),
+        ...value.facts.map((text, index) => ({ path: `handover.facts[${index}]`, value: text })),
+        ...value.unresolved.map((text, index) => ({ path: `handover.unresolved[${index}]`, value: text })),
+      ];
+    }
+    case "return":
+      return [{ path: "return.text", value: (out as ReturnOut).text }];
   }
 }
 
 function oppositeReaderPronoun(ctx: AuditContext): RegExp {
-  const es = auditLanguage(ctx.language) === "es";
-  if (es) return ctx.reader.gender === "woman" ? /\bél\b/iu : /\bella\b/iu;
+  const spanish = auditLanguage(ctx.language) === "es";
+  if (spanish) return ctx.reader.gender === "woman" ? /\bél\b/iu : /\bella\b/iu;
   return ctx.reader.gender === "woman" ? /\bhe\b/iu : /\bshe\b/iu;
 }
 
