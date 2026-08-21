@@ -46,11 +46,11 @@ export function querentMediumActionEvidence(
 
   const pattern = auditLanguage(lang) === "es"
     ? new RegExp(
-      String.raw`\b(?:${QUERENT_VERBS_ES})\b(?:\s+[\p{L}\p{N}'’áéíóúüñ-]+){0,5}\s+(?:(?:el|la|los|las|un|una|unos|unas)\s+)?(?:${object})\b`,
+      String.raw`\b(?:${QUERENT_VERBS_ES})\b(?:\s+[\p{L}\p{N}'’áéíóúüñ-]+){0,3}\s+(?:(?:el|la|los|las|un|una|unos|unas)\s+)?(?:${object})\b`,
       "iu",
     )
     : new RegExp(
-      String.raw`\byou\s+(?:${QUERENT_VERBS_EN})\b(?:\s+[\p{L}\p{N}'’-]+){0,5}\s+(?:(?:the|a|an)\s+)?(?:${object})\b`,
+      String.raw`\byou\s+(?:${QUERENT_VERBS_EN})\b(?:\s+[\p{L}\p{N}'’-]+){0,3}\s+(?:(?:the|a|an)\s+)?(?:${object})\b`,
       "iu",
     );
   return pattern.exec(value)?.[0] ?? null;
