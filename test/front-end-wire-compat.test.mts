@@ -50,7 +50,7 @@ const legacyConv = {
   reader: "selena",
   created: "2026-08-12T12:00:00.000Z",
   updated: "2026-08-12T12:00:00.000Z",
-  name: "Kitty",
+  name: "Alex",
   turns: [],
 };
 
@@ -78,7 +78,7 @@ const legacyTrail = {
 const base = {
   lang: "en-GB",
   reader: "selena",
-  name: "Kitty",
+  name: "Alex",
   history: [],
 };
 
