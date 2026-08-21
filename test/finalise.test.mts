@@ -33,7 +33,7 @@ const spanishRitualReq = {
   task: "ritual",
   lang: "es-ES",
   reader: "selena",
-  name: "Javier",
+  name: "Alex",
   history: [],
   question: "¿Qué está cambiando?",
   spread: "one",
@@ -42,16 +42,16 @@ const spanishRitualReq = {
 };
 
 const ritualOut = {
-  gesture: "Selena mira a Javier mientras la luz de la vela se mueve sobre la mesa y el silencio se hace más cercano.",
-  opening: "Después observa la pregunta de Javier sin apresurar el momento y deja que el aire se aquiete alrededor del mazo.",
-  ritual: "Por último, deja el siguiente resultado cubierto frente a Javier y mantiene las manos quietas hasta que todo vuelve a quedar en calma.",
+  gesture: "Selena mira a Alex mientras la luz de la vela se mueve sobre la mesa y el silencio se hace más cercano.",
+  opening: "Después observa la pregunta de Alex sin apresurar el momento y deja que el aire se aquiete alrededor del mazo.",
+  ritual: "Por último, deja el siguiente resultado cubierto frente a Alex y mantiene las manos quietas hasta que todo vuelve a quedar en calma.",
 };
 
 const mappedReadReq = {
   task: "read",
   lang: "es-ES",
   reader: "amaru",
-  name: "Javier",
+  name: "Alex",
   history: [],
   question: "¿Qué debería comprender ahora?",
   draw: { id: "three", name: "Tres", purpose: "Comprender el movimiento", cards: [fool, magician] },
@@ -81,7 +81,7 @@ const mappedReadOut = {
 test("core finalisation does not mechanically rewrite narrator audience", () => {
   const spanish = finaliseModelOutDetailed(spanishRitualReq, ritualOut);
   const theatre = `${spanish.out.gesture} ${spanish.out.opening} ${spanish.out.ritual}`;
-  assert.match(theatre, /Javier/u);
+  assert.match(theatre, /Alex/u);
   assert.equal(spanish.diagnostics.includes("spanish_audience_normalised"), false);
   const spanishAudit = auditModelOut(spanishRitualReq, spanish.out);
   assert.equal(spanishAudit.valid, false);
@@ -89,13 +89,13 @@ test("core finalisation does not mechanically rewrite narrator audience", () => 
 
   const englishReq = { ...spanishRitualReq, lang: "en-GB", question: "What is changing?" };
   const englishOut = {
-    gesture: "Selena looks towards Javier while the candle moves across Javier's side of the table and the room becomes quieter around the question.",
-    opening: "She leaves enough space for Javier to settle before touching the deck again or changing the arrangement.",
-    ritual: "The next result stays covered while Selena watches Javier and waits for every small movement around Javier to become still.",
+    gesture: "Selena looks towards Alex while the candle moves across Alex's side of the table and the room becomes quieter around the question.",
+    opening: "She leaves enough space for Alex to settle before touching the deck again or changing the arrangement.",
+    ritual: "The next result stays covered while Selena watches Alex and waits for every small movement around Alex to become still.",
   };
   const english = finaliseModelOutDetailed(englishReq, englishOut);
   const englishTheatre = `${english.out.gesture} ${english.out.opening} ${english.out.ritual}`;
-  assert.match(englishTheatre, /Javier/u);
+  assert.match(englishTheatre, /Alex/u);
   assert.equal(english.diagnostics.includes("english_audience_normalised"), false);
   const englishAudit = auditModelOut(englishReq, english.out);
   assert.equal(englishAudit.valid, false);
