@@ -4,7 +4,6 @@ import { auditModelOut, words } from "../dist/model/audit.js";
 import { canonicalCardAt, canonicalSpread } from "../dist/domain/canonical.js";
 import { repeatsActiveTarotPreparation } from "../dist/model/language.js";
 import { runModelSession } from "../dist/model/run.js";
-import { addressViewer } from "../dist/model/viewer-narration.js";
 import { handoverSummary } from "../dist/reading/handover.js";
 
 const pack = { prompt: { reading: "", chat: "" } };
@@ -51,16 +50,16 @@ test("Spanish querent subject drift is rejected instead of accepting qué deseo,
   assert.ok(audit.errors.some(error => /second person|segunda persona|internal states/iu.test(error)));
 });
 
-test("audience immersion never rewrites the physical table into tu entorno", () => {
+test("authored audience immersion preserves physical table references without post-processing", () => {
   const req = { ...base, task: "chat", question: followUp };
   const out = {
-    gesture: "Selena deja la baraja en el centro del terciopelo y gira lentamente uno de sus anillos mientras sostiene la mirada. La llama más cercana tiembla sobre el cristal, dibujando reflejos dorados en sus manos. Después acerca una hoja limpia, la alinea con el borde de la mesa y espera un instante antes de apartar ligeramente la baraja.",
+    gesture: "Selena deja la baraja en el centro del terciopelo y gira lentamente uno de sus anillos mientras sostiene la mirada. La llama más cercana tiembla sobre el cristal, dibujando reflejos dorados en sus manos. Después acerca una hoja limpia, la alinea con el borde de la mesa y espera un instante ante ti antes de apartar ligeramente la baraja.",
     response: "Puedes separar lo que sabes de lo que todavía necesitas comprobar antes de decidir.",
   };
-  const value = addressViewer(req, out);
-  assert.match(value.gesture, /borde de la mesa/iu);
-  assert.doesNotMatch(value.gesture, /borde de tu entorno/iu);
-  assert.match(value.gesture, /^(?:Ante ti, )?Selena/iu);
+  const audit = auditModelOut(req, out);
+  assert.equal(audit.valid, true, audit.errors.join("\n"));
+  assert.match(out.gesture, /borde de la mesa/iu);
+  assert.doesNotMatch(out.gesture, /borde de tu entorno/iu);
 });
 
 test("canonical handover compacts long reading conclusions before its own audit", () => {
@@ -108,7 +107,7 @@ test("canonical handover compacts long reading conclusions before its own audit"
   assert.equal(audit.valid, true, audit.errors.join("\n"));
 });
 
-test("reader-dialogue gender and direct-address faults recover contextually before another model call", async () => {
+test("reader-dialogue gender and direct-address faults receive one atomic model review", async () => {
   const spread = canonicalSpread("three", "es-ES");
   const draw = {
     id: spread.id,
@@ -143,25 +142,51 @@ test("reader-dialogue gender and direct-address faults recover contextually befo
   );
 
   const calls = [];
+  const replies = [
+    primary,
+    {
+      edits: [
+        {
+          mode: "patch",
+          path: "read.cardText[2]",
+          before: "no estás dispuesto a sacrificar",
+          after: "no quieres sacrificar",
+        },
+        {
+          mode: "patch",
+          path: "read.synthesis",
+          before: "Las tres cartas",
+          after: "Para ti, las tres cartas",
+        },
+      ],
+    },
+  ];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
-    return response(primary);
+    const next = replies.shift();
+    if (next === undefined) throw new Error("unexpected extra model call");
+    return response(next);
   };
 
   const result = await runModelSession(pack, req, {
     apiKey: "test",
     conversation: false,
     guaranteeOutput: true,
+    retries: 0,
     fetch,
     body: {},
   });
 
-  assert.equal(calls.length, 1);
+  assert.equal(calls.length, 2);
   assert.equal(calls[0].model, "gpt-5.6-luna");
   assert.equal(calls[0].reasoning.effort, "none");
-  assert.equal(result.source, "reconstructed");
+  assert.equal(calls[1].model, "gpt-5.6-luna");
+  assert.equal(calls[1].reasoning.effort, "none");
+  assert.equal(result.source, "escalation");
   assert.equal(auditModelOut(req, result.out).valid, true);
   assert.doesNotMatch(JSON.stringify(result.out), /dispuesto a sacrificar/iu);
+  assert.match(result.out.synthesis, /^Para ti, las tres cartas/iu);
+  assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
 });
 
 test("repeating active warm-and-cut preparation counts as semantic ritual reuse", () => {
