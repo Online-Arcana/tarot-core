@@ -3,6 +3,7 @@ import test from "node:test";
 import { canonicalCardAt } from "../dist/domain/canonical.js";
 import { buildAuditContext } from "../dist/model/audit-context.js";
 import { contextualAuditModelOut } from "../dist/model/contextual-audit.js";
+import { contextualProseCorrection } from "../dist/model/prose-review.js";
 
 const chat = (reader, gender) => ({
   task: "chat",
@@ -63,6 +64,62 @@ test("mapped ritual context changes with reader and is not a global participatio
   assert.equal(nahid.ritual?.actor, "reader");
   assert.equal(nahid.ritual?.action, "reader-observe-pattern");
   assert.ok(nahid.ritual?.verbs.includes("observa"));
+});
+
+test("natural Spanish pro-drop satisfies a querent-operated mapped ritual", () => {
+  const card = canonicalCardAt("major-fool", "upright", 1, "one", "es-ES");
+  const req = {
+    task: "ritual",
+    lang: "es-ES",
+    reader: "ngaru",
+    name: "Alex",
+    history: [],
+    question: "¿Qué necesito comprender?",
+    spread: "one",
+    card: 0,
+    drawn: card,
+  };
+  const out = {
+    opening: "Ngaru sostiene la bolsa opaca desgastada por el mar ante ti mientras el sonido de las conchas queda amortiguado por la tela.",
+    ritual: "Introduces la mano sin mirar y extraes una concha guiándote solo por el tacto, sin intentar anticipar lo que mostrará después.",
+    gesture: "Ngaru mantiene la bolsa estable y deja que el movimiento termine antes de continuar con la revelación.",
+  };
+
+  const audit = contextualAuditModelOut(req, out);
+  assert.equal(audit.issues.some(issue => issue.code === "missing_participation"), false, audit.errors.join("\n"));
+  assert.equal(audit.issues.some(issue => issue.code === "invented_participation"), false, audit.errors.join("\n"));
+});
+
+test("reader-operated ritual turns the same second-person action sensor into a contextual finding only when it touches that medium", () => {
+  const card = canonicalCardAt("major-fool", "upright", 1, "one", "es-ES");
+  const req = {
+    task: "ritual",
+    lang: "es-ES",
+    reader: "brennos",
+    name: "Alex",
+    history: [],
+    question: "¿Qué necesito comprender?",
+    spread: "one",
+    card: 0,
+    drawn: card,
+  };
+  const out = {
+    opening: "Brennos sostiene el escudo de hierro ante ti mientras los huesos permanecen ocultos y la mesa marcada por el fuego queda en silencio.",
+    ritual: "Agitas el escudo hasta que uno de los huesos se desplaza hacia el borde, mientras Brennos mantiene la atención en el movimiento.",
+    gesture: "Brennos espera a que el hierro vuelva a quedar quieto antes de apartar la mano.",
+  };
+
+  const audit = contextualAuditModelOut(req, out);
+  const issue = audit.issues.find(item => item.code === "invented_participation");
+  assert.ok(issue);
+  assert.equal(issue.path, "ritual.ritual");
+  assert.match(issue.message, /evidence=.*Agitas.*escudo/iu);
+  assert.match(issue.message, /expected=/u);
+  assert.match(issue.message, /repair_scope=local/u);
+
+  const review = contextualProseCorrection(req, audit);
+  assert.ok(review);
+  assert.deepEqual(review.paths, ["ritual.ritual"]);
 });
 
 test("ritual stage and reveal state are compiled from the current request", () => {
