@@ -73,7 +73,7 @@ test("public ritual palettes contain no operational language", () => {
 
 test("ritual and ordinary short tasks both route to Luna by default", () => {
   const cfg = { apiKey: "test", body: {}, conversation: false };
-  const base = { lang: "en-GB", reader: "selena", name: "Kitty", history: [] };
+  const base = { lang: "en-GB", reader: "selena", name: "Alex", history: [] };
   assert.equal(modelRoute({ ...base, task: "ritual", question: "Question", spread: "one", card: 0 }, cfg)[0], "gpt-5.6-luna");
   assert.equal(modelRoute({ ...base, task: "invite" }, cfg)[0], "gpt-5.6-luna");
 });
@@ -83,7 +83,7 @@ test("voice audit rejects operational narration and reader self-narration", () =
     task: "ritual",
     lang: "en-GB",
     reader: "yejide",
-    name: "Kitty",
+    name: "Alex",
     history: [],
     question: "Question",
     spread: "one",
@@ -101,7 +101,7 @@ test("voice audit rejects operational narration and reader self-narration", () =
     task: "chat",
     lang: "en-GB",
     reader: "yejide",
-    name: "Kitty",
+    name: "Alex",
     history: [],
     question: "Question",
   };
@@ -122,7 +122,7 @@ test("reader voice audit allows approved mapped entity names that contain the re
       task: "read",
       lang,
       reader: "ame",
-      name: "Kitty",
+      name: "Alex",
       history: [],
       question: lang === "es-ES" ? "¿Qué necesito comprender?" : "What do I need to understand?",
       draw: { id: "one", name: "One", purpose: "Focus", cards: [hierophant] },
