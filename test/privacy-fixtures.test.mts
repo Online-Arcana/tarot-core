@@ -19,12 +19,13 @@ test("public test requests use only invented fixture identities", async () => {
   for (const file of files) {
     const source = await readFile(join(TEST_DIR, file), "utf8");
 
-    // Request-like objects conventionally put reader and name close together.
-    // Check both property orders without logging the rejected literal itself.
-    for (const match of source.matchAll(/reader\s*:\s*["'][^"']+["'][\s\S]{0,220}?name\s*:\s*["']([^"']+)["']/gu)) {
+    // Request fixtures conventionally keep reader/name adjacent. Keep this
+    // narrow so unrelated nested `name` properties, such as spread names, do
+    // not become false positives.
+    for (const match of source.matchAll(/reader\s*:\s*["'][^"']+["']\s*,\s*name\s*:\s*["']([^"']+)["']/gu)) {
       assertApproved(match[1], file);
     }
-    for (const match of source.matchAll(/name\s*:\s*["']([^"']+)["'][\s\S]{0,220}?reader\s*:\s*["'][^"']+["']/gu)) {
+    for (const match of source.matchAll(/name\s*:\s*["']([^"']+)["']\s*,\s*reader\s*:\s*["'][^"']+["']/gu)) {
       assertApproved(match[1], file);
     }
 
