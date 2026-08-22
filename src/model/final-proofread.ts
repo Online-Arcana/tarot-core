@@ -226,9 +226,9 @@ export function finalProofreadShape(
         if (typeof after !== "string") throw new Error(`Final proofread edit ${index} requires corrected text`);
         const original = fields[path];
         if (original === undefined) throw new Error(`Final proofread edit ${index} has an unavailable path`);
-        // A reviewer occasionally echoes an unchanged span while dismissing a
-        // heuristic finding. Treat that as an explicit no-op, not a failed
-        // proofread call that unnecessarily forces broad regeneration.
+        // A reviewer may echo an unchanged span when it judges one semantic
+        // finding to be a false positive. Treat that as an explicit no-op, not
+        // a failed proofread call.
         if (before === after) return null;
 
         if (mode === "patch") {
@@ -292,11 +292,11 @@ export function finalProofreadPrompt(
   const lang = req.lang.toLowerCase().startsWith("es") ? "Spanish from Spain" : "British English";
   const auditGuidance = findings.length
     ? [
-      "The automated NLP auditor raised the findings below. They are heuristic review signals and MAY BE FALSE POSITIVES.",
-      "Check every finding against the complete canonical context. Do not edit text merely because the auditor flagged it.",
+      "The semantic auditor raised concrete findings against exact customer-visible prose. An individual finding can still be mistaken, but these are not generic heuristic hints.",
+      "Review EACH finding separately against the complete canonical context. Do not dismiss a batch merely because one finding is a false positive.",
+      "For every confirmed finding, return at least one surgical patch that removes or corrects its exact defective evidence. Before returning, verify that every confirmed finding is actually resolved in the resulting field.",
       "When a finding includes evidence or expected values, use them to identify the exact suspected span and the canonical semantic contract; they are diagnostic context, not replacement prose.",
-      "If every finding is a false positive and you see no other unambiguous correctness defect inside the editable fields, return {\"edits\":[]}.",
-      "A confirmed finding should be fixed with the smallest exact patch that restores the intended reader, querent, voice, stage, ritual and language contract.",
+      "If one finding is a false positive, leave that span untouched. Return {\"edits\":[]} only when EVERY finding is a false positive and there is no other unambiguous correctness defect inside the editable fields.",
     ]
     : [
       "The text has already passed automated audits. That does NOT prove it is correct. Find human-visible defects those audits can miss.",
