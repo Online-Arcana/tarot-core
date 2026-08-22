@@ -15,9 +15,9 @@ const DIRECT_ES = /(?<![\p{L}\p{N}])(?:tú|te|ti|contigo|tu|tus)(?![\p{L}\p{N}])
 const DIRECT_ES_VERB = /\b(?:eres|estás|estés|has|hayas|tienes|tengas|puedes|puedas|debes|quieres|quieras|necesitas|necesites|sientes|sientas|ves|veas|miras|mires|escuchas|escuches|haces|hagas|vas|vayas|vienes|llevas|lleves|sigues|sigas|encuentras|encuentres|buscas|busques|dejas|dejes|tomas|tomes|introduces|metes|sacas|extraes|eliges|elijas|retiras|mantienes|mantengas|recibes|reconoces|aceptas|temes|esperas|piensas|crees|notas|preguntas|decides|decidas|avanzas|avances|vuelves|regresas|permites|permitas|sostienes|comprendes|comprendas|sabes|sepas)\b/iu;
 const DIRECT_ES_IMPERATIVE = /(?:^|[.!?;:]["'’”)]*\s+)(?:aclara|acepta|busca|comprende|considera|cuida|deja|detente|dime|elige|escribe|escucha|haz|imagina|mantén|mira|observa|permítete|piensa|pon|pregúntate|recuerda|respira|revisa|separa|toma|confía)\b/iu;
 // Natural Spanish often carries the second-person object as an enclitic. Keep
-// this deliberately narrow to infinitives/gerunds so ordinary words ending in
-// -te are not mistaken for direct address (acompañarte, ayudarte, verte, etc.).
-const DIRECT_ES_ENCLITIC = /\b[\p{L}]+(?:ar|er|ir|ando|iendo|yendo)te\b/iu;
+// this lexical rather than morphological: a broad "...arte/erte/irte" pattern
+// misclassifies ordinary nouns such as «parte» as direct address.
+const DIRECT_ES_ENCLITIC = /\b(?:acompañarte|ayudarte|servirte|verte|mirarte|escucharte|preguntarte|recordarte|decirte|darte|mostrarte|ofrecerte|permitirte|encontrarte|sentirte|quedarte|mantenerte|hacerte|volverte|dejarte|llevarte|traerte|sostenerte|protegerte|cuidarte|guiarte|apoyarte|centrarte|acercarte|alejarte|moverte|detenerte|prepararte|plantearte|imaginarte|observarte|orientarte|hablarte|responderte|señalarte|invitarte|proponerte|acompañándote|ayudándote|guiándote|mostrándote|dándote|dejándote|permitiéndote|ofreciéndote|recordándote)\b/iu;
 const DIRECT_EN = /\b(?:you|your|yours|yourself|yourselves)\b/iu;
 const DIRECT_EN_IMPERATIVE = /(?:^|[.!?]["'’”)]*\s+)(?:ask|begin|breathe|bring|check|choose|consider|explore|follow|give|hold|imagine|keep|let|listen|look|name|notice|pause|remember|return|share|sit|speak|stay|take|tell|think|trust|try)\b/iu;
 
