@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { auditModelOut as publicAuditModelOut } from "../dist/index.js";
-import { auditModelOut as baseAuditModelOut } from "../dist/model/audit.js";
+import {
+  auditModelOut as publicAuditModelOut,
+  contextualAuditModelOut,
+} from "../dist/index.js";
 import { canonicalCardAt } from "../dist/domain/canonical.js";
 
 const card = canonicalCardAt("major-fool", "upright", 1, "one", "es-ES");
@@ -22,10 +24,11 @@ const out = {
   gesture: "Brennos espera a que el hierro vuelva a quedar quieto antes de apartar la mano.",
 };
 
-test("package-root auditModelOut includes request-context findings", () => {
-  const base = baseAuditModelOut(req, out);
-  const contextual = publicAuditModelOut(req, out);
+test("package-root synchronous audit is deterministic while legacy contextual diagnostics remain explicit", () => {
+  const production = publicAuditModelOut(req, out);
+  const legacyContextual = contextualAuditModelOut(req, out);
 
-  assert.equal(base.issues.some(issue => issue.code === "invented_participation"), false);
-  assert.ok(contextual.issues.some(issue => issue.code === "invented_participation" && issue.path === "ritual.ritual"));
+  assert.equal(production.valid, true, production.errors.join("\n"));
+  assert.equal(production.issues.some(issue => issue.code === "invented_participation"), false);
+  assert.ok(legacyContextual.issues.some(issue => issue.code === "invented_participation"));
 });
