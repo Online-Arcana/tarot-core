@@ -13,6 +13,7 @@ import type {
   TitleOut,
 } from "../contracts/types.js";
 import { isMappedReader } from "../readers/media/runtime.js";
+import { profileFor } from "../readers/profiles.js";
 import { normaliseProse } from "./language.js";
 import {
   correctionFromAudit,
@@ -27,7 +28,7 @@ import {
  * code can prove from shape, exact lexical contracts or canonical state. The
  * schema-constrained semantic auditor owns grammar, naturalness, grammatical
  * person, gender agreement, actor attribution, negation, ritual continuity,
- * voice, name/reference meaning and other contextual language judgements.
+ * voice, ambiguous reference meaning and other contextual language judgements.
  */
 
 interface TextRules {
@@ -46,6 +47,23 @@ const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?|tarotistas?)\
 
 function clean(value: string): string {
   return value.replace(/\s+/gu, " ").trim();
+}
+
+function fold(value: string): string {
+  return clean(value).normalize("NFKC").toLocaleLowerCase();
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+function exactNamePattern(name: string): RegExp | null {
+  const parts = clean(name).split(/\s+/u).filter(Boolean);
+  if (!parts.length) return null;
+  return new RegExp(
+    `(^|[^\\p{L}\\p{N}])${parts.map(escapeRegex).join("\\s+")}(?=$|[^\\p{L}\\p{N}])`,
+    "iu",
+  );
 }
 
 function add(issues: AuditIssue[], code: string, path: string, message: string): void {
@@ -82,6 +100,31 @@ function auditExactRoleLabels(issues: AuditIssue[], path: string, value: string)
 function auditMappedTerms(issues: AuditIssue[], path: string, value: string, req: ApiReq): void {
   if (isMappedReader(req.reader) && mappedTerms.test(value)) {
     add(issues, "canonical_medium", path, "mapped-reader prose must stay inside its public medium rather than canonical tarot terminology");
+  }
+}
+
+function auditNarratorQuerentName(
+  issues: AuditIssue[],
+  path: string,
+  value: string,
+  req: ApiReq,
+): void {
+  const name = clean(req.name);
+  if (!name) return;
+
+  // If reader and querent share the same visible name, lexical matching cannot
+  // prove who the occurrence refers to. Leave that genuinely ambiguous case to
+  // the semantic auditor rather than manufacturing a deterministic failure.
+  if (fold(name) === fold(profileFor(req.reader).public.name)) return;
+
+  const pattern = exactNamePattern(name);
+  if (pattern?.test(value)) {
+    add(
+      issues,
+      "querent_name_narrator",
+      path,
+      `narrator prose must address the querent directly rather than naming ${JSON.stringify(name)}`,
+    );
   }
 }
 
@@ -144,6 +187,7 @@ export const auditModelOut = <T extends ApiOut = ApiOut>(req: ApiReq, out: T): M
         ["ritual.gesture", value.gesture],
       ] as const) {
         auditVisible(issues, path, text, req);
+        auditNarratorQuerentName(issues, path, text, req);
       }
       const theatre = clean([value.opening, value.ritual, value.gesture].join(" "));
       if (/[\r\n]/u.test([value.opening, value.ritual, value.gesture].join(" "))) {
@@ -171,6 +215,7 @@ export const auditModelOut = <T extends ApiOut = ApiOut>(req: ApiReq, out: T): M
       auditVisible(issues, "read.reading", value.reading, req, { complete: true });
       auditVisible(issues, "read.closing", value.closing, req, { complete: true });
       auditVisible(issues, "read.note", value.note, req, { complete: true });
+      auditNarratorQuerentName(issues, "read.note", value.note, req);
       auditDuplicates(issues, [
         ...value.cardText.map((text, index) => ({ path: `read.cardText[${index}]`, value: text })),
         { path: "read.synthesis", value: value.synthesis },
@@ -182,6 +227,7 @@ export const auditModelOut = <T extends ApiOut = ApiOut>(req: ApiReq, out: T): M
     case "chat": {
       const value = out as ChatOut;
       auditVisible(issues, "chat.gesture", value.gesture, req, { complete: true });
+      auditNarratorQuerentName(issues, "chat.gesture", value.gesture, req);
       auditVisible(issues, "chat.response", value.response, req, { complete: true });
       break;
     }
