@@ -125,6 +125,17 @@ export async function runModelSession(
     ]);
   }
 
+  // Handover summary/questions/conclusions/cards/unresolved are rebuilt from the
+  // canonical conversation before this point, while facts are restricted to
+  // exact transcript-grounded statements. They are state, not free prose. A
+  // semantic reviewer must never rewrite that canonical handover state.
+  if (req.task === "handover") {
+    return appendDiagnostics(result, [
+      "semantic_audit:skipped_canonical_handover",
+      "semantic_final:pass",
+    ]);
+  }
+
   let audit: SemanticAuditResult;
   try {
     audit = await semanticAudit(req, result.out, cfg);
