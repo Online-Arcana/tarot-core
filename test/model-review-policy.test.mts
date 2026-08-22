@@ -214,3 +214,89 @@ test("semantic findings cannot authorise a whole-field rewrite", async () => {
   assert.ok(result.auditErrors.includes("semantic_repair:non_atomic_patch_rejected"));
   assert.ok(result.auditErrors.some(value => value.startsWith("semantic_final_issue:reader_identity:chat.gesture:")));
 });
+
+test("canonical handover state skips semantic review and cannot be rewritten", async () => {
+  const reading = {
+    gesture: "",
+    opening: "",
+    link: "",
+    cardText: ["The opening can be explored without committing too early."],
+    synthesis: "The reading points to a cautious beginning that keeps options open.",
+    reading: "You can move forward while keeping the first decision small enough to revise.",
+    closing: "Keep the next step deliberate.",
+    note: "Selena leaves the card in place.",
+  };
+  const draw = {
+    id: "one",
+    name: "One card",
+    purpose: "Focus",
+    cards: [{
+      pos: 1,
+      posName: "Message",
+      posMeaning: "The message",
+      id: "major-fool",
+      name: "The Fool",
+      suit: "Major Arcana",
+      side: "upright",
+      meaning: "Beginnings and openness.",
+    }],
+  };
+  const handoverReq = {
+    task: "handover",
+    lang: "en-GB",
+    reader: "selena",
+    name: "Alex",
+    history: [],
+    question: "What consequence should I weigh most carefully?",
+    target: "brennos",
+    conv: {
+      v: 1,
+      id: "conv-source",
+      lang: "en-GB",
+      reader: "selena",
+      created: "2026-08-11T18:00:00.000Z",
+      updated: "2026-08-11T18:05:00.000Z",
+      name: "Alex",
+      turns: [{
+        id: "turn-reading",
+        kind: "reading",
+        at: "2026-08-11T18:05:00.000Z",
+        question: "Should I take the new role?",
+        draw,
+        out: reading,
+      }],
+    },
+  };
+  const generated = {
+    summary: "Invented summary that must not replace canonical state.",
+    questions: ["Invented question?"],
+    conclusions: ["Invented conclusion."],
+    cards: ["Death"],
+    facts: [],
+    unresolved: ["Invented unresolved point."],
+  };
+  const calls = [];
+  const fetch = async (_url, init) => {
+    calls.push(JSON.parse(init.body));
+    if (calls.length > 1) throw new Error("canonical handover must not invoke semantic audit or repair");
+    return response(generated);
+  };
+
+  const result = await runModelSession(pack, handoverReq, {
+    apiKey: "test",
+    conversation: false,
+    guaranteeOutput: true,
+    retries: 0,
+    fetch,
+    body: {},
+  });
+
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none"]);
+  assert.equal(result.out.summary, reading.synthesis);
+  assert.deepEqual(result.out.conclusions, [reading.reading]);
+  assert.deepEqual(result.out.cards, ["The Fool"]);
+  assert.ok(result.auditErrors.includes("semantic_audit:skipped_canonical_handover"));
+  assert.ok(result.auditErrors.includes("semantic_final:pass"));
+  assert.equal(result.auditErrors.some(value => value.startsWith("semantic_repair:")), false);
+});
