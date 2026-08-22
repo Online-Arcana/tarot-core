@@ -75,6 +75,9 @@ test("deterministic handover summary derives questions and cards only from suppl
   ]);
   assert.deepEqual(summary.cards, ["The Fool"]);
   assert.deepEqual(summary.facts, []);
+  assert.equal(summary.summary, readingOut.synthesis);
+  assert.deepEqual(summary.conclusions, [readingOut.reading]);
+  assert.equal(summary.conclusions.includes(summary.summary), false);
 });
 
 test("pre-audit handover grounds all semantic state and keeps only transcript-grounded facts", () => {
@@ -98,7 +101,7 @@ test("pre-audit handover grounds all semantic state and keeps only transcript-gr
     "Should I take the new role?",
     "What consequence should I weigh most carefully?",
   ]);
-  assert.deepEqual(prepared.out.conclusions, [readingOut.synthesis, readingOut.reading]);
+  assert.deepEqual(prepared.out.conclusions, [readingOut.reading]);
   assert.deepEqual(prepared.out.cards, ["The Fool"]);
   assert.deepEqual(prepared.out.facts, ["The reading points to a cautious beginning that keeps options open."]);
   assert.deepEqual(prepared.out.unresolved, [referral.question]);
@@ -141,7 +144,7 @@ test("persisted generated handover preserves gender and exact result state witho
     positionName: "Message",
     meaning: "Beginnings and openness.",
   }]);
-  assert.deepEqual(next.handover.conclusions, [readingOut.synthesis, readingOut.reading]);
+  assert.deepEqual(next.handover.conclusions, [readingOut.reading]);
   assert.deepEqual(next.handover.unresolved, [referral.question]);
   assert.deepEqual(next.handover.facts, ["The reading points to a cautious beginning that keeps options open."]);
   assert.equal(next.handover.facts.includes("Alex has already accepted the job offer."), false);
