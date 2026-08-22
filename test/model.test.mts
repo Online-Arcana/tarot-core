@@ -29,9 +29,7 @@ const response = value => new Response(JSON.stringify({ output_text: JSON.string
 });
 
 const cleanInvite = { text: "Tell me what you want to explore, and I will listen." };
-const longInvite = {
-  text: "Tell me what you want to explore today, and I will stay with your question carefully while we make enough room for every uncertainty to become visible before the reading begins.",
-};
+const invalidInvite = { text: "Tell me what you want to explore" };
 
 test("builds a strict shape without embedding application routing", () => {
   const shape = outputShape(req);
@@ -105,7 +103,7 @@ test("uses Luna cheap effort for clean customer-visible generation", async () =>
 
 test("non-local prose findings use one medium corrective generation before delivery", async () => {
   const calls = [];
-  const replies = [longInvite, cleanInvite];
+  const replies = [invalidInvite, cleanInvite];
   const fetch = async (_url, init) => {
     const body = JSON.parse(init.body);
     calls.push(body);
@@ -114,7 +112,7 @@ test("non-local prose findings use one medium corrective generation before deliv
     return response(next);
   };
 
-  assert.equal(auditModelOut(req, longInvite).valid, false);
+  assert.equal(auditModelOut(req, invalidInvite).valid, false);
   const result = await runModelSession(pack, req, {
     apiKey: "test",
     conversation: false,
@@ -138,7 +136,7 @@ test("imperfect usable LLM prose is delivered instead of deterministic prose", a
   const fetch = async (_url, init) => {
     const body = JSON.parse(init.body);
     calls.push(body);
-    return response(longInvite);
+    return response(invalidInvite);
   };
 
   const result = await runModelSession(pack, req, {
@@ -152,7 +150,7 @@ test("imperfect usable LLM prose is delivered instead of deterministic prose", a
 
   assert.equal(calls.length, 2);
   assert.equal(result.source, "primary");
-  assert.deepEqual(result.out, longInvite);
+  assert.deepEqual(result.out, invalidInvite);
   assert.equal(auditModelOut(req, result.out).valid, false);
   assert.ok(result.auditErrors.includes("delivery_path:imperfect_llm"));
   assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
@@ -204,7 +202,7 @@ test("non-guaranteed core callers keep a bounded Luna correction path", async ()
   const calls = [];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
-    return response(longInvite);
+    return response(invalidInvite);
   };
 
   await assert.rejects(
