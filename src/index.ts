@@ -11,7 +11,8 @@ export {
   type AuditIssue,
   type ModelAudit,
 } from "./model/audit.js";
-export { contextualAuditModelOut as auditModelOut } from "./model/contextual-audit.js";
+export { auditModelOut } from "./model/production-audit.js";
+export { contextualAuditModelOut } from "./model/contextual-audit.js";
 export * from "./model/fallback.js";
 export * from "./model/recover.js";
 export * from "./model/run.js";
