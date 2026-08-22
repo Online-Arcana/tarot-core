@@ -123,6 +123,7 @@ function semanticContext(req: ApiReq): unknown {
     querent: {
       name: ctx.querent.name,
       gender: ctx.querent.gender,
+      directAddress: ctx.querent.directAddress,
     },
     ritual: ctx.ritual === null ? null : {
       phase: ctx.ritual.phase,
@@ -218,7 +219,7 @@ export function semanticAuditPrompt(req: ApiReq, out: ApiOut): string {
   const fields = proofreadFields(req, out);
   const context = semanticContext(req);
   const language = req.lang.toLowerCase().startsWith("es")
-    ? "natural Spanish from Spain; use ordinary tuteo and natural pro-drop where the reader addresses the querent"
+    ? "natural Spanish from Spain; use ordinary tuteo and natural pro-drop where the reader or narrator addresses the querent"
     : "natural British English";
 
   return [
@@ -226,11 +227,12 @@ export function semanticAuditPrompt(req: ApiReq, out: ApiOut): string {
     `Target language: ${language}.`,
     "You are a conservative correctness judge, not a rewriter and not a style critic.",
     "Read each customer-visible field in its canonical role and context.",
-    "FIELD ROLES ARE SEMANTIC CONTRACTS. narrator is external third-person scene prose. reader_dialogue is the selected reader speaking directly to the querent. querent_question is an editable follow-up question written in the querent's own first-person voice, not reader dialogue. handover_state is grounded internal state. title is only a title.",
+    "FIELD ROLES ARE SEMANTIC CONTRACTS. narrator is external scene prose: it describes the selected reader and scene in third person, but MAY address the querent/viewer directly in second person. reader_dialogue is the selected reader speaking directly to the querent. querent_question is an editable follow-up question written in the querent's own first-person voice, not reader dialogue. handover_state is grounded internal state. title is only a title.",
+    "NARRATOR DIRECT ADDRESS IS VALID. Third-person narrator ownership applies to the reader/narrating voice, NOT to references to the querent. In narrator fields, Spanish tú/te/ti/contigo/tu/tus and ordinary second-person verb forms may naturally refer to the querent; English you/your may do the same. Do NOT flag phrases such as «tu propia decisión», «aquello que buscas comprender», «mientras tú observas», «tu manera de afrontar lo que viene» or «más tuya» merely because they address the viewer. The narrator must not become first-person or make the selected reader speak as narrator. Exact querent-name leakage is handled deterministically and is different from valid second-person address.",
     "For querent_question fields, preserve one internally consistent querent first-person perspective. In Spanish, forms such as yo/me/mi/quiero/necesito are appropriate when the querent is the grammatical subject; do NOT force second-person te/tu merely because reader_dialogue normally uses tuteo. In English, use I/me/my where the querent's question requires first person. Flag mixed-person questions such as Spanish «te exige ... ayudarme».",
     "Return pass unless there is a concrete, objective defect. If wording is merely different from what you would personally write, PASS it.",
-    "Be especially conservative with Spanish: infer grammar from the whole sentence, not isolated tokens. Do not confuse nouns with conjugated verbs, ordinary feminine/masculine nouns with querent gender, enclitic -te with missing direct address, or natural pro-drop with an omitted actor.",
-    "Check grammar, semantic coherence, field voice, grammatical person, direct address where the field role requires it, querent-gender agreement when gender is known, neutral phrasing when gender is unspecified/nonbinary, reader identity, physical actor ownership, ritual continuity, single-cast continuity, medium grounding, substantial repetition, and whether result references are genuinely being used as result identities rather than ordinary words.",
+    "Be especially conservative with Spanish: infer grammar from the whole sentence, not isolated tokens. Do not confuse nouns with conjugated verbs, ordinary feminine/masculine nouns with querent gender, enclitic -te with missing direct address, or natural pro-drop with an omitted actor. A valid construction is not a grammar defect merely because a synonym would be more idiomatic; for example «sigue cómo el humo se reúne» is grammatical and should not be flagged solely in favour of «observa cómo». Naturalness findings require plainly non-native or incoherent wording, not a stylistic preference.",
+    "Check grammar, semantic coherence, field voice, grammatical person, direct address where the field role requires or permits it, querent-gender agreement when gender is known, neutral phrasing when gender is unspecified/nonbinary, reader identity, physical actor ownership, ritual continuity, single-cast continuity, medium grounding, substantial repetition, and whether result references are genuinely being used as result identities rather than ordinary words.",
     "For ritual prose, distinguish an action that is actually performed from an action that is negated, hypothetical, remembered or merely discussed.",
     "For hidden/future results, only flag a disclosure when the prose actually identifies that result. A common noun that happens to match a result name is not automatically a disclosure.",
     "Never treat user-authored quoted/question text as prose written by the reader.",
