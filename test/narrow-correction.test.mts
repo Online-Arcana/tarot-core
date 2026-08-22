@@ -20,6 +20,11 @@ const primary = {
   response: "Puedes volver a la tensión que ya reconoces y decidir qué parte merece una acción concreta antes de buscar más certeza.",
 };
 const corrected = "Selena piensa en lo que has preguntado mientras mantiene una mano junto a la lectura y deja que la habitación se aquiete. La luz de la vela recorre lentamente la mesa y su atención permanece en el patrón ya visible sin alterar nada de lo que tienes delante.";
+const semanticPrimary = {
+  gesture: "Él mantiene una mano junto a la lectura mientras la habitación queda en silencio ante ti y la luz permanece inmóvil sobre la mesa.",
+  response: "Puedes volver a lo que ya sabes y comprobar qué parte necesita una decisión concreta antes de avanzar.",
+};
+const semanticCorrected = semanticPrimary.gesture.replace(/^Él/u, "Ella");
 const response = value => new Response(JSON.stringify({ output_text: JSON.stringify(value) }), { status: 200, headers: { "content-type": "application/json" } });
 
 function review() {
@@ -30,14 +35,14 @@ function review() {
   return { audit, found };
 }
 
-function semanticNameFinding(path = "chat.gesture", evidence = "Alex") {
+function semanticIdentityFinding(path = "chat.gesture", evidence = "Él", expected = "Use Selena's configured feminine third-person narrator subject.") {
   return {
     verdict: "repair",
     findings: [{
       path,
-      code: "direct_address",
+      code: "reader_identity",
       evidence,
-      expected: "Narrator prose should address the querent directly instead of referring to the querent by proper name.",
+      expected,
     }],
   };
 }
@@ -54,8 +59,9 @@ test("audit-triggered proofread remains field-scoped and surgical as a compatibi
   const shape = finalProofreadShape(req, primary, found.paths);
   assert.equal(shape.name, "arcana_final_proofread");
   const prompt = finalProofreadPrompt(req, primary, "CONTEXTO DE PRUEBA", { paths: found.paths, findings: found.findings });
-  assert.match(prompt, /MAY BE FALSE POSITIVES/iu);
-  assert.match(prompt, /Do not edit text merely because the auditor flagged it/iu);
+  assert.match(prompt, /semantic auditor raised concrete findings/iu);
+  assert.match(prompt, /Review EACH finding separately/iu);
+  assert.match(prompt, /every confirmed finding/iu);
   assert.match(prompt, /Alex/u);
   assert.doesNotMatch(prompt, new RegExp(primary.response.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"));
   const revised = applyFinalProofread(primary, { edits: [{ mode: "patch", path: "chat.gesture", before: "Alex", after: "lo que has preguntado" }] });
@@ -66,9 +72,9 @@ test("audit-triggered proofread remains field-scoped and surgical as a compatibi
 
 test("runner uses low semantic findings to drive medium atomic repair", async () => {
   const replies = [
-    primary,
-    semanticNameFinding(),
-    { edits: [{ mode: "patch", path: "chat.gesture", before: "Alex", after: "lo que has preguntado" }] },
+    semanticPrimary,
+    semanticIdentityFinding(),
+    { edits: [{ mode: "patch", path: "chat.gesture", before: "Él", after: "Ella" }] },
     { verdict: "pass", findings: [] },
   ];
   const calls = [];
@@ -81,12 +87,12 @@ test("runner uses low semantic findings to drive medium atomic repair", async ()
   const result = await runModelSession(pack, req, { apiKey: "test", conversation: false, guaranteeOutput: true, retries: 0, fetch, body: {} });
   assert.equal(calls.length, 4);
   assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low", "medium", "low"]);
-  assert.equal(result.out.gesture, corrected);
-  assert.equal(result.out.response, primary.response);
+  assert.equal(result.out.gesture, semanticCorrected);
+  assert.equal(result.out.response, semanticPrimary.response);
   assert.ok(result.auditErrors.includes("delivery_path:semantic_atomic_revision"));
 });
 
-test("semantic querent-name repair is language-agnostic", async () => {
+test("semantic reader-identity repair is language-agnostic", async () => {
   const englishReq = {
     task: "chat",
     lang: "en-GB",
@@ -96,14 +102,14 @@ test("semantic querent-name repair is language-agnostic", async () => {
     question: "What should I look at now?",
   };
   const englishPrimary = {
-    gesture: "Selena keeps one hand beside the reading while she thinks about Alex and lets the room settle around the question. Candlelight moves slowly across the table while the visible pattern remains undisturbed in front of you.",
+    gesture: "He keeps one hand beside the reading while the room settles around the question. Candlelight moves slowly across the table while the visible pattern remains undisturbed in front of you.",
     response: "You can return to the tension you already recognise and decide which part deserves one concrete action before seeking more certainty.",
   };
-  const englishCorrected = "Selena keeps one hand beside the reading while she thinks about what you asked and lets the room settle around the question. Candlelight moves slowly across the table while the visible pattern remains undisturbed in front of you.";
+  const englishCorrected = englishPrimary.gesture.replace(/^He/u, "She");
   const replies = [
     englishPrimary,
-    semanticNameFinding(),
-    { edits: [{ mode: "patch", path: "chat.gesture", before: "Alex", after: "what you asked" }] },
+    semanticIdentityFinding("chat.gesture", "He", "Use Selena's configured feminine third-person narrator subject."),
+    { edits: [{ mode: "patch", path: "chat.gesture", before: "He", after: "She" }] },
     { verdict: "pass", findings: [] },
   ];
   const calls = [];
@@ -124,27 +130,31 @@ test("semantic querent-name repair is language-agnostic", async () => {
   });
 
   assert.equal(calls.length, 4);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low", "medium", "low"]);
   assert.equal(result.out.gesture, englishCorrected);
   assert.equal(result.out.response, englishPrimary.response);
   assert.ok(result.auditErrors.includes("delivery_path:semantic_atomic_revision"));
 });
 
 test("low semantic auditor may pass prose that a legacy heuristic flags", async () => {
-  const replies = [primary, { verdict: "pass", findings: [] }];
+  const legacy = auditModelOut(req, semanticPrimary);
+  assert.equal(legacy.valid, false);
+  assert.ok(legacy.issues.some(issue => issue.code === "reader_subject_drift"));
+  const replies = [semanticPrimary, { verdict: "pass", findings: [] }];
   const fetch = async () => response(replies.shift());
   const result = await runModelSession(pack, req, { apiKey: "test", conversation: false, guaranteeOutput: true, retries: 0, fetch, body: {} });
   assert.equal(result.source, "primary");
-  assert.equal(result.out.gesture, primary.gesture);
+  assert.equal(result.out.gesture, semanticPrimary.gesture);
   assert.ok(result.auditErrors.includes("semantic_audit:pass"));
   assert.ok(result.auditErrors.includes("semantic_final:pass"));
 });
 
-test("usable imperfect LLM prose beats deterministic reserve when medium declines an edit", async () => {
-  const replies = [primary, semanticNameFinding(), { edits: [] }];
+test("usable imperfect LLM prose beats deterministic reserve when medium declines a semantic edit", async () => {
+  const replies = [semanticPrimary, semanticIdentityFinding(), { edits: [] }];
   const fetch = async () => response(replies.shift());
   const result = await runModelSession(pack, req, { apiKey: "test", conversation: false, guaranteeOutput: true, retries: 0, fetch, body: {} });
   assert.equal(result.source, "primary");
-  assert.equal(result.out.gesture, primary.gesture);
+  assert.equal(result.out.gesture, semanticPrimary.gesture);
   assert.ok(result.auditErrors.includes("semantic_repair:no_change"));
   assert.ok(result.auditErrors.includes("semantic_repair:preserved_original"));
   assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
