@@ -11,7 +11,7 @@ import {
   correctionFromAudit,
   type AuditIssue,
   type ModelAudit,
-} from "./audit.js";
+} from "./production-audit.js";
 import { contextualFallbackModelOut } from "./contextual-fallback.js";
 import {
   applyFinalProofread,
