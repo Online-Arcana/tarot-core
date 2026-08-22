@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { auditModelOut } from "../dist/model/audit.js";
 import {
+  hasActiveTarotPreparation,
   hasDirectAddress,
   hasNarratorFirstPerson,
 } from "../dist/model/language.js";
@@ -11,6 +12,20 @@ test("Spanish sus is not treated as direct address", () => {
   assert.equal(hasDirectAddress("Selena gira sus anillos despacio.", "es-ES"), false);
   assert.equal(hasDirectAddress("Selena deja sus anillos junto a ti.", "es-ES"), true);
   assert.equal(hasDirectAddress("Puedes observar cómo Selena gira sus anillos.", "es-ES"), true);
+});
+
+test("Spanish direct address recognises natural enclitic te forms", () => {
+  assert.equal(hasDirectAddress("Puedo acompañarte a mirar lo que ya sabes.", "es-ES"), true);
+  assert.equal(hasDirectAddress("Quiero ayudarte a ordenar lo que ya has visto.", "es-ES"), true);
+  assert.equal(hasDirectAddress("Puede servirte para decidir qué comprobar después.", "es-ES"), true);
+  assert.equal(hasDirectAddress("La parte visible permanece sobre la mesa.", "es-ES"), false);
+});
+
+test("explicitly negated tarot preparation is not counted as an active reset", () => {
+  assert.equal(hasActiveTarotPreparation("She draws the deck closer but does not cut the deck.", "en-GB"), false);
+  assert.equal(hasActiveTarotPreparation("Acerca la baraja, pero no corta la baraja.", "es-ES"), false);
+  assert.equal(hasActiveTarotPreparation("She cuts the deck again.", "en-GB"), true);
+  assert.equal(hasActiveTarotPreparation("Corta la baraja de nuevo.", "es-ES"), true);
 });
 
 test("Spanish accented pronouns use Unicode-aware token boundaries", () => {
