@@ -1,19 +1,23 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import type { ApiReq, SuggestOut } from "../src/contracts/types.ts";
 import { canonicalCardAt } from "../dist/domain/canonical.js";
 import { auditRole, buildAuditContext } from "../dist/model/audit-context.js";
 import { finalProofreadPrompt } from "../dist/model/final-proofread.js";
 import { semanticAuditPrompt } from "../dist/model/semantic-audit.js";
 
-function fixture() {
+function fixture(): {
+  req: Extract<ApiReq, { task: "suggest" }>;
+  out: SuggestOut;
+} {
   const card = canonicalCardAt("major-fool", "upright", 1, "one", "es-ES");
   const draw = {
-    id: "one",
+    id: "one" as const,
     name: "Una carta",
     purpose: "Enfoque",
     cards: [card],
   };
-  const turn = {
+  const turn: Extract<ApiReq, { task: "suggest" }>["turn"] = {
     id: "reading-1",
     kind: "reading",
     at: "2026-08-11T18:00:00.000Z",
@@ -30,7 +34,7 @@ function fixture() {
       note: "Nahid deja que el humo vuelva a dispersarse sobre la seda.",
     },
   };
-  const req = {
+  const req: Extract<ApiReq, { task: "suggest" }> = {
     task: "suggest",
     lang: "es-ES",
     reader: "nahid",
@@ -38,7 +42,7 @@ function fixture() {
     history: [],
     turn,
   };
-  const out = {
+  const out: SuggestOut = {
     suggestions: [
       "¿Qué base material quiero conservar mientras exploro este cambio?",
       "¿Qué rutina actual te exige esfuerzo sin ayudarme a crecer?",
