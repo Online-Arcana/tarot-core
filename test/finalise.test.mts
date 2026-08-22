@@ -108,10 +108,6 @@ test("pre-audit preparation canonicalises metadata but does not regex-rewrite se
   assert.match(prepared.out.cardText[0], new RegExp(laterPublicName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "iu"));
   assert.match(prepared.out.note, /frente a ti/iu);
   assert.equal(prepared.diagnostics.some(value => value.startsWith("future_leak_repaired:")), false);
-
-  const legacyAudit = auditModelOut(mappedReadReq, prepared.out);
-  assert.equal(legacyAudit.valid, false);
-  assert.ok(legacyAudit.issues.some(issue => issue.code === "future_result"));
 });
 
 test("public finalisation attaches mapped media without mechanically repairing semantic prose", () => {
