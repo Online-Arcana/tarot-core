@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { canonicalCardAt } from "../dist/domain/canonical.js";
-import { auditModelOut as baseAuditModelOut } from "../dist/model/audit.js";
-import { contextualAuditModelOut } from "../dist/model/contextual-audit.js";
+import { auditModelOut as legacyAuditModelOut } from "../dist/model/audit.js";
+import { auditModelOut as productionAuditModelOut } from "../dist/model/production-audit.js";
 import { runModelSession } from "../dist/model/run.js";
 
 const pack = { prompt: { reading: "reading", chat: "chat" } };
@@ -30,15 +30,24 @@ const response = value => new Response(JSON.stringify({ output_text: JSON.string
   headers: { "content-type": "application/json" },
 });
 
-test("contextual-only pro-drop actor drift gets one atomic production review", async () => {
-  const base = baseAuditModelOut(req, primary);
-  assert.equal(base.valid, true, base.errors.join("\n"));
-  const contextual = contextualAuditModelOut(req, primary);
-  assert.ok(contextual.issues.some(issue => issue.code === "invented_participation"));
+test("semantic actor drift uses Luna-low audit then Luna-medium atomic repair", async () => {
+  // Legacy diagnostics may still describe the old finding, but production
+  // deterministic validation no longer lets that heuristic drive recovery.
+  assert.equal(productionAuditModelOut(req, primary).valid, true);
+  assert.ok(legacyAuditModelOut(req, primary).valid);
 
   const calls = [];
   const replies = [
     primary,
+    {
+      verdict: "repair",
+      findings: [{
+        path: "ritual.ritual",
+        code: "actor",
+        evidence: "Agitas el escudo",
+        expected: "Brennos, not the querent, performs the shield action in this reader-owned ritual.",
+      }],
+    },
     {
       edits: [
         {
@@ -55,6 +64,7 @@ test("contextual-only pro-drop actor drift gets one atomic production review", a
         },
       ],
     },
+    { verdict: "pass", findings: [] },
   ];
   const fetch = async (_url, init) => {
     const body = JSON.parse(init.body);
@@ -73,19 +83,63 @@ test("contextual-only pro-drop actor drift gets one atomic production review", a
     body: {},
   });
 
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 4);
+  assert.deepEqual(calls.map(call => call.model), [
+    "gpt-5.6-luna",
+    "gpt-5.6-luna",
+    "gpt-5.6-luna",
+    "gpt-5.6-luna",
+  ]);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low", "medium", "low"]);
+
   assert.equal(result.source, "escalation");
   assert.equal(result.out.opening, primary.opening);
   assert.equal(result.out.gesture, primary.gesture);
   assert.equal(result.out.ritual, correctedRitual);
-  assert.ok(result.auditErrors.includes("delivery_path:contextual_atomic_revision"));
+  assert.ok(result.auditErrors.includes("delivery_path:semantic_atomic_revision"));
+  assert.ok(result.auditErrors.includes("semantic_final:pass"));
 
-  const reviewerPrompt = calls[1].input[0].content;
-  assert.match(reviewerPrompt, /<compiled_audit_context>/u);
-  assert.match(reviewerPrompt, /<compiled_audit_findings>/u);
-  assert.match(reviewerPrompt, /"code":"invented_participation"/u);
-  assert.match(reviewerPrompt, /"evidence":"Agitas el escudo"/u);
-  assert.match(reviewerPrompt, /"expected":/u);
-  assert.match(reviewerPrompt, /"repairScope":"local"/u);
-  assert.equal(contextualAuditModelOut(req, result.out).valid, true);
+  const auditPrompt = calls[1].input[0].content;
+  assert.match(auditPrompt, /SEMANTIC AND GRAMMATICAL AUDIT ONLY/u);
+  assert.match(auditPrompt, /False positives are more harmful/u);
+  assert.match(auditPrompt, /"actor":"reader"/u);
+  assert.match(auditPrompt, /Agitas el escudo/u);
+
+  const repairPrompt = calls[2].input[0].content;
+  assert.match(repairPrompt, /<semantic_audit_findings>/u);
+  assert.match(repairPrompt, /"code":"actor"/u);
+  assert.match(repairPrompt, /"evidence":"Agitas el escudo"/u);
+  assert.match(repairPrompt, /<editable_original_fields>/u);
+  assert.match(repairPrompt, /Agitas el escudo/u);
+});
+
+test("a clean semantic verdict preserves original prose without medium repair", async () => {
+  const clean = {
+    ...primary,
+    ritual: correctedRitual,
+  };
+  const calls = [];
+  const replies = [clean, { verdict: "pass", findings: [] }];
+  const fetch = async (_url, init) => {
+    calls.push(JSON.parse(init.body));
+    const next = replies.shift();
+    if (next === undefined) throw new Error("unexpected extra call");
+    return response(next);
+  };
+
+  const result = await runModelSession(pack, req, {
+    apiKey: "test",
+    conversation: false,
+    guaranteeOutput: true,
+    retries: 0,
+    fetch,
+    body: {},
+  });
+
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low"]);
+  assert.deepEqual(result.out, clean);
+  assert.equal(result.source, "primary");
+  assert.ok(result.auditErrors.includes("semantic_audit:pass"));
+  assert.ok(result.auditErrors.includes("semantic_final:pass"));
 });
