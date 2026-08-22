@@ -64,9 +64,16 @@ const genericRitual = {
   ritual: "The reader holds the deck still until the moment feels ready, then leaves the hidden card untouched for you.",
 };
 
+function isSemanticAudit(body) {
+  return body?.text?.format?.name === "arcana_semantic_audit";
+}
+
 function fakeSuccess(output, inspect = () => undefined) {
   return async (_input, init) => {
     const body = JSON.parse(String(init?.body ?? "{}"));
+    if (isSemanticAudit(body)) {
+      return Response.json({ output_text: JSON.stringify({ verdict: "pass", findings: [] }) });
+    }
     inspect(body);
     return Response.json({ output_text: JSON.stringify(output) });
   };
