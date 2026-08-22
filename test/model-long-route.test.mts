@@ -26,11 +26,21 @@ const response = value => new Response(JSON.stringify({ output_text: JSON.string
   headers: { "content-type": "application/json" },
 });
 
-test("long tasks use atomic model repair before any deterministic reserve", async () => {
+test("long tasks use low semantic audit and medium atomic repair before any deterministic reserve", async () => {
   const calls = [];
   const replies = [
     primary,
+    {
+      verdict: "repair",
+      findings: [{
+        path: "chat.response",
+        code: "voice",
+        evidence: "The reader considers",
+        expected: "Reader dialogue should be spoken in Selena's first-person voice, not refer to her generically in third person.",
+      }],
+    },
     { edits: [{ mode: "patch", path: "chat.response", before: "The reader considers", after: "I consider" }] },
+    { verdict: "pass", findings: [] },
   ];
   const fetch = async (_url, init) => {
     const body = JSON.parse(init.body);
@@ -49,17 +59,20 @@ test("long tasks use atomic model repair before any deterministic reserve", asyn
     body: { store: false, max_output_tokens: 1400 },
   });
 
-  assert.equal(calls.length, 2);
-  assert.equal(calls[0].model, "gpt-5.6-luna");
-  assert.equal(calls[0].reasoning.effort, "none");
-  assert.equal(calls[1].model, "gpt-5.6-luna");
-  assert.equal(calls[1].reasoning.effort, "none");
+  assert.equal(calls.length, 4);
+  assert.deepEqual(calls.map(call => call.model), [
+    "gpt-5.6-luna",
+    "gpt-5.6-luna",
+    "gpt-5.6-luna",
+    "gpt-5.6-luna",
+  ]);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low", "medium", "low"]);
   assert.match(calls[0].input[0].content, /CURRENT STAGE: follow-up conversation/iu);
   assert.match(calls[0].input[0].content, /NARRATOR:/u);
   assert.match(calls[0].input[0].content, /READER:/u);
   assert.equal(result.source, "escalation");
   assert.equal(result.out.gesture, primary.gesture);
   assert.equal(result.out.response, corrected);
-  assert.ok(result.auditErrors.includes("delivery_path:atomic_revision"));
+  assert.ok(result.auditErrors.includes("delivery_path:semantic_atomic_revision"));
   assert.equal(result.auditErrors.some(value => value.includes("availability_path:")), false);
 });
