@@ -33,6 +33,7 @@ export function querentLanguageContract(req: ApiReq): string {
     "No infieras el género por el nombre, la pregunta, la voz, las relaciones ni ningún otro indicio.",
     "Usa español natural y neutral respecto al género de la persona: evita adjetivos, participios, reflexivos o formas colectivas con concordancia masculina o femenina cuando se refieran directamente a ella o a un grupo que la incluya.",
     "Reformula con verbos conjugados, sustantivos abstractos o construcciones sin marca de género. Ejemplos: «¿sientes que puedes avanzar?» en vez de «¿estás preparado/preparada?»; «puede encontrarte con cansancio» en vez de «puede encontrarte cansado/cansada»; «sentir que te eligen» en vez de «sentirte elegido/elegida»; «para ti» o «en tu propia experiencia» en vez de «a ti mismo/misma»; «exploremos» en vez de «exploremos juntos/juntas».",
+    "Evita especialmente formas que ya han demostrado causar concordancia indebida: «estás dispuesto/dispuesta», «quedarte suspendido/suspendida», «acompañado/acompañada» y «entre ambos/ambas» cuando el grupo incluye a la persona. Reformula, por ejemplo, como «lo que estás dispuesto a sostener» → «lo que puedes sostener», «quedarte suspendido» → «quedarte en suspenso», «acompañado por» → «con el apoyo de» y «entre ambos» → «entre las dos partes» o «en el espacio compartido».",
     "Mantén el tuteo normal: tú, te, ti, contigo, tu y tus no marcan género y son apropiados. Lo que debe evitarse es añadirles una concordancia como «tú mismo», «contigo misma» o equivalente.",
     "No uses @, x, barras, paréntesis, duplicaciones tipo «preparado/a» ni terminaciones inclusivas forzadas en -e. La neutralidad debe lograrse mediante redacción natural.",
   ].join("\n");
@@ -67,13 +68,13 @@ const ARTIFICIAL_INCLUSIVE = new RegExp(
 // Most of these forms are unambiguously first-person verbs after «qué». «Deseo»
 // is also a common noun, so only treat it as first person when the following
 // syntax proves a verbal reading (an infinitive, or a repeated «qué» clause).
-const FIRST_PERSON_INTERNAL_STATE = String.raw`(?:quiero|temo|necesito|siento|pienso|busco|deseo(?=\s+(?:[\p{L}]+(?:ar|er|ir)\b|,?\s*qué\b)))`;
+const FIRST_PERSON_INTERNAL_STATE = String.raw`(?:quiero|temo|necesito|siento|pienso|busco|deseo(?=\s*(?:[\p{L}]+(?:ar|er|ir)\b|,\s*qué\b)))`;
 const QUERENT_SUBJECT_DRIFT = new RegExp(
   String.raw`\b(?:puedo|quiero|voy\s+a)\b[^.!?]{0,80}\b(?:acompañarte|ayudarte)\b[^.!?]{0,80}\b(?:mirar|explorar|comprender|revisar|ver)\b[^.!?]{0,80}\bqué\s+${FIRST_PERSON_INTERNAL_STATE}\b`,
   "iu",
 );
 const SPANISH_INVITE_SUBJECT_DRIFT = new RegExp(
-  String.raw`(?:^|[,;:]\s*)¿?\s*qué\s+(?:quiero|necesito|temo|siento|pienso|busco|deseo(?=\s+[\p{L}]+(?:ar|er|ir)\b))\b`,
+  String.raw`(?:^|[,;:]\s*)¿?\s*qué\s+(?:quiero|necesito|temo|siento|pienso|busco|deseo(?=\s*(?:[\p{L}]+(?:ar|er|ir)\b|,\s*qué\b)))\b`,
   "iu",
 );
 const ENGLISH_INVITE_SUBJECT_DRIFT = /(?:^|[,;:]\s*)what\s+(?:do\s+I\s+|would\s+I\s+like\s+to\s+)(?:want|need|wish|hope|fear|feel|think|seek|explore|understand|express)?\b/iu;
