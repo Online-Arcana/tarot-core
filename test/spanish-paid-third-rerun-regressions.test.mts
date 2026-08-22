@@ -54,7 +54,7 @@ test("one repeated active tarot-preparation action is enough to identify a scene
   assert.equal(repeatsActiveTarotPreparation(firstCut, resetCut, "es-ES"), true);
 });
 
-test("production finalisation rejects a repeated vanilla tarot preparation step", () => {
+test("production preparation preserves repeated ritual wording for semantic audit", () => {
   const ritualReq = {
     task: "ritual",
     lang: "es-ES",
@@ -66,14 +66,12 @@ test("production finalisation rejects a repeated vanilla tarot preparation step"
     card: 1,
     priorRituals: ["Selena calienta la baraja entre las palmas y la deja preparada sobre el terciopelo antes de la primera revelación."],
   };
-  assert.throws(
-    () => prepareModelOutDetailed(ritualReq, {
-      opening: "Selena mantiene la vela encendida y dirige la atención hacia ti mientras retoma la lectura.",
-      ritual: "Sin mostrar el resultado, desliza la baraja hacia el centro y la calienta nuevamente entre las palmas.",
-      gesture: "Después retira las manos y deja el siguiente lugar preparado ante ti.",
-    }),
-    /ritual_repeated_preparation:1/u,
-  );
+  const prepared = prepareModelOutDetailed(ritualReq, {
+    opening: "Selena mantiene la vela encendida y dirige la atención hacia ti mientras retoma la lectura.",
+    ritual: "Sin mostrar el resultado, desliza la baraja hacia el centro y la calienta nuevamente entre las palmas.",
+    gesture: "Después retira las manos y deja el siguiente lugar preparado ante ti.",
+  });
+  assert.match(prepared.out.ritual, /calienta nuevamente/iu);
 });
 
 test("retrospective preparation state remains valid continuity rather than an active reset", () => {
