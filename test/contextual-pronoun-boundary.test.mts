@@ -30,7 +30,19 @@ test("Spanish article el is not collapsed into accented reader pronoun él", () 
   );
 });
 
-test("Spanish accented opposite reader pronoun is still detected as its own token", () => {
+test("Spanish non-reader pronoun in a prepositional phrase is not reader-subject drift", () => {
+  const audit = contextualAuditModelOut(
+    req,
+    out("El silencio avanza por la mesa mientras Selena mueve con él su atención hacia la pregunta que tienes delante."),
+  );
+  assert.equal(
+    audit.issues.some(issue => issue.code === "reader_subject_drift"),
+    false,
+    audit.errors.join("\n"),
+  );
+});
+
+test("Spanish accented opposite reader pronoun is detected when it owns the sentence subject", () => {
   const audit = contextualAuditModelOut(
     req,
     out("Él mantiene una mano sobre el borde de la mesa mientras la habitación queda en silencio ante ti."),
