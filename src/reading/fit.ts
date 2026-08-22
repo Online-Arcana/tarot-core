@@ -89,10 +89,15 @@ export function resolveFit(
     return candidate ? { ...candidate, level: "weak", topic, recommend: null } : null;
   }
 
-  return {
-    level: "very_weak",
-    topic,
-    recommend: target,
-    ...copy(reader, target, topic, code),
-  };
+  // Routing is deterministic; customer-visible prose is not. When a model
+  // candidate exists, preserve its reason/offer and canonicalise only the
+  // structured routing facts. The authored copy remains the no-model path.
+  return candidate
+    ? { ...candidate, level: "very_weak", topic, recommend: target }
+    : {
+      level: "very_weak",
+      topic,
+      recommend: target,
+      ...copy(reader, target, topic, code),
+    };
 }
