@@ -5,7 +5,7 @@ import { auditModelOut } from "../dist/model/audit.js";
 const baseReq = {
   lang: "en-GB",
   reader: "selena",
-  name: "Kitty",
+  name: "Alex",
   history: [],
 };
 
