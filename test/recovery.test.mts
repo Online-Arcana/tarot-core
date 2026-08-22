@@ -7,7 +7,7 @@ import { reconstructModelOut } from "../dist/model/recover.js";
 const base = {
   lang: "en-GB",
   reader: "selena",
-  name: "Kitty",
+  name: "Alex",
   history: [],
 };
 
@@ -85,7 +85,7 @@ test("filters invented handover cards and questions across both attempts", () =>
       reader: "selena",
       created: "2026-08-04T00:00:00.000Z",
       updated: "2026-08-04T00:00:00.000Z",
-      name: "Kitty",
+      name: "Alex",
       turns: [{
         id: "turn",
         kind: "reading",
