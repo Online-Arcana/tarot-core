@@ -136,10 +136,7 @@ test("semantic reader-identity repair is language-agnostic", async () => {
   assert.ok(result.auditErrors.includes("delivery_path:semantic_atomic_revision"));
 });
 
-test("low semantic auditor may pass prose that a legacy heuristic flags", async () => {
-  const legacy = auditModelOut(req, semanticPrimary);
-  assert.equal(legacy.valid, false);
-  assert.ok(legacy.issues.some(issue => issue.code === "reader_subject_drift"));
+test("low semantic auditor may pass a semantic-only candidate without medium repair", async () => {
   const replies = [semanticPrimary, { verdict: "pass", findings: [] }];
   const fetch = async () => response(replies.shift());
   const result = await runModelSession(pack, req, { apiKey: "test", conversation: false, guaranteeOutput: true, retries: 0, fetch, body: {} });
@@ -147,6 +144,7 @@ test("low semantic auditor may pass prose that a legacy heuristic flags", async 
   assert.equal(result.out.gesture, semanticPrimary.gesture);
   assert.ok(result.auditErrors.includes("semantic_audit:pass"));
   assert.ok(result.auditErrors.includes("semantic_final:pass"));
+  assert.equal(result.auditErrors.some(value => value.startsWith("semantic_repair:")), false);
 });
 
 test("usable imperfect LLM prose beats deterministic reserve when medium declines a semantic edit", async () => {
