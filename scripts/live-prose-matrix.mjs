@@ -42,7 +42,7 @@ const mappedTerms = /\b(?:deck|cards?|tarot|baraja|naipes?|cartas?)\b/iu;
 const placeholderTerms = /\b(?:placeholder|something went wrong|unable to generate|generation failed|error generating|texto provisional|marcador de posición|no se pudo generar|error al generar)\b/iu;
 
 const report = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   generatedAt: new Date().toISOString(),
   commit: process.env.GITHUB_SHA ?? null,
   reader,
@@ -181,8 +181,10 @@ function logicalCallCount(result, task) {
   if (diagnostics.some(value => value.startsWith("atomic_review:") || value.startsWith("atomic_review_exception:"))) expected += 1;
   if (diagnostics.some(value => value.includes("broad_correction"))) expected += 1;
   if (result.source !== "reconstructed" && task !== "handover" && !diagnostics.includes("semantic_audit:skipped_due_deterministic_findings")) expected += 1;
-  if (diagnostics.some(value => value.startsWith("semantic_repair:") || value === "delivery_path:semantic_atomic_revision" || value === "delivery_path:semantic_imperfect_revision" || value === "delivery_path:semantic_unconfirmed_revision")) expected += 1;
+  if (diagnostics.some(value => value.startsWith("semantic_repair:") || value === "delivery_path:semantic_atomic_revision" || value === "delivery_path:semantic_imperfect_revision" || value === "delivery_path:semantic_unconfirmed_revision" || value === "delivery_path:semantic_atomic_revision_retry")) expected += 1;
   if (diagnostics.some(value => value.startsWith("semantic_reaudit:") || value.includes("semantic_reaudit:"))) expected += 1;
+  if (diagnostics.some(value => value.startsWith("semantic_retry_repair:"))) expected += 1;
+  if (diagnostics.some(value => value.startsWith("semantic_retry_reaudit:"))) expected += 1;
   return expected;
 }
 
@@ -191,11 +193,13 @@ function usedAtomicRevision(result) {
     value === "delivery_path:atomic_revision" ||
     value === "delivery_path:contextual_atomic_revision" ||
     value === "delivery_path:semantic_atomic_revision" ||
+    value === "delivery_path:semantic_atomic_revision_retry" ||
     value === "delivery_path:semantic_imperfect_revision" ||
     value === "delivery_path:semantic_unconfirmed_revision" ||
     value.startsWith("atomic_review:edits:") ||
     value.startsWith("contextual_review:edits:") ||
-    value.startsWith("semantic_repair:edits:"));
+    value.startsWith("semantic_repair:edits:") ||
+    value.startsWith("semantic_retry_repair:edits:"));
 }
 
 async function runTask(label, req) {
@@ -235,9 +239,9 @@ async function runTask(label, req) {
       mappedCanonicalTermInDialogue: reader !== "selena" && mappedTerms.test(dialogue),
       placeholderTerm: placeholderTerms.test(allVisible),
     };
-    if (scans.genericReaderLabel) report.summary.genericReaderLabels += 1;
-    if (scans.querentNameInNarrator) report.summary.querentNameNarratorLeaks += 1;
-    if (scans.mappedCanonicalTermInDialogue) report.summary.mappedCanonicalLeaks += 1;
+    // Generic-reader, narrator-name and mapped-canonical violations are now
+    // authoritative production-audit findings. Preserve raw scan booleans in
+    // the artifact for human review, but do not double-count them here.
     if (scans.placeholderTerm) report.summary.placeholderRisk += 1;
 
     return {
