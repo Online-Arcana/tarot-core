@@ -41,13 +41,12 @@ test("missing gender catches finite Spanish predicates such as te mantiene atrap
   assert.ok(audit.issues.some(issue => issue.code === "querent_gender"));
 });
 
-test("Spanish querent subject drift is rejected instead of accepting qué deseo, qué temes", () => {
+test("legacy audit does not decide ambiguous Spanish deseo subject drift", () => {
   const audit = auditModelOut(
     fitReq(),
     fitOut("Tu pregunta encaja con este cambio; puedo acompañarte a mirar qué deseo, qué temes y qué necesitas proteger."),
   );
-  assert.equal(audit.valid, false);
-  assert.ok(audit.errors.some(error => /second person|segunda persona|internal states/iu.test(error)));
+  assert.equal(audit.valid, true, audit.errors.join("\n"));
 });
 
 test("authored audience immersion preserves physical table references without post-processing", () => {
@@ -107,7 +106,7 @@ test("canonical handover compacts long reading conclusions before its own audit"
   assert.equal(audit.valid, true, audit.errors.join("\n"));
 });
 
-test("reader-dialogue gender and direct-address faults receive one atomic model review", async () => {
+test("reader-dialogue gender and direct-address faults use low audit then medium atomic repair", async () => {
   const spread = canonicalSpread("three", "es-ES");
   const draw = {
     id: spread.id,
@@ -145,6 +144,23 @@ test("reader-dialogue gender and direct-address faults receive one atomic model 
   const replies = [
     primary,
     {
+      verdict: "repair",
+      findings: [
+        {
+          path: "read.cardText[2]",
+          code: "querent_gender",
+          evidence: "no estás dispuesto a sacrificar",
+          expected: "Use natural gender-neutral Spanish because the querent's gender is unspecified.",
+        },
+        {
+          path: "read.synthesis",
+          code: "direct_address",
+          evidence: "Las tres cartas",
+          expected: "Keep the synthesis addressed to the querent rather than drifting into detached narration.",
+        },
+      ],
+    },
+    {
       edits: [
         {
           mode: "patch",
@@ -160,6 +176,7 @@ test("reader-dialogue gender and direct-address faults receive one atomic model 
         },
       ],
     },
+    { verdict: "pass", findings: [] },
   ];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
@@ -177,15 +194,13 @@ test("reader-dialogue gender and direct-address faults receive one atomic model 
     body: {},
   });
 
-  assert.equal(calls.length, 2);
-  assert.equal(calls[0].model, "gpt-5.6-luna");
-  assert.equal(calls[0].reasoning.effort, "none");
-  assert.equal(calls[1].model, "gpt-5.6-luna");
-  assert.equal(calls[1].reasoning.effort, "none");
+  assert.equal(calls.length, 4);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low", "medium", "low"]);
   assert.equal(result.source, "escalation");
   assert.equal(auditModelOut(req, result.out).valid, true);
   assert.doesNotMatch(JSON.stringify(result.out), /dispuesto a sacrificar/iu);
   assert.match(result.out.synthesis, /^Para ti, las tres cartas/iu);
+  assert.ok(result.auditErrors.includes("delivery_path:semantic_atomic_revision"));
   assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
 });
 
