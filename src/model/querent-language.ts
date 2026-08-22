@@ -64,8 +64,18 @@ const ARTIFICIAL_INCLUSIVE = new RegExp(
   "iu",
 );
 
-const QUERENT_SUBJECT_DRIFT = /\b(?:puedo|quiero|voy\s+a)\b[^.!?]{0,80}\b(?:acompañarte|ayudarte)\b[^.!?]{0,80}\b(?:mirar|explorar|comprender|revisar|ver)\b[^.!?]{0,80}\bqué\s+(?:deseo|quiero|temo|necesito|siento|pienso|busco)\b/iu;
-const SPANISH_INVITE_SUBJECT_DRIFT = /(?:^|[,;:]\s*)¿?\s*qué\s+(?:deseo|quiero|necesito|temo|siento|pienso|busco)\b/iu;
+// Most of these forms are unambiguously first-person verbs after «qué». «Deseo»
+// is also a common noun, so only treat it as first person when the following
+// syntax proves a verbal reading (an infinitive, or a repeated «qué» clause).
+const FIRST_PERSON_INTERNAL_STATE = String.raw`(?:quiero|temo|necesito|siento|pienso|busco|deseo(?=\s+(?:[\p{L}]+(?:ar|er|ir)\b|,?\s*qué\b)))`;
+const QUERENT_SUBJECT_DRIFT = new RegExp(
+  String.raw`\b(?:puedo|quiero|voy\s+a)\b[^.!?]{0,80}\b(?:acompañarte|ayudarte)\b[^.!?]{0,80}\b(?:mirar|explorar|comprender|revisar|ver)\b[^.!?]{0,80}\bqué\s+${FIRST_PERSON_INTERNAL_STATE}\b`,
+  "iu",
+);
+const SPANISH_INVITE_SUBJECT_DRIFT = new RegExp(
+  String.raw`(?:^|[,;:]\s*)¿?\s*qué\s+(?:quiero|necesito|temo|siento|pienso|busco|deseo(?=\s+[\p{L}]+(?:ar|er|ir)\b))\b`,
+  "iu",
+);
 const ENGLISH_INVITE_SUBJECT_DRIFT = /(?:^|[,;:]\s*)what\s+(?:do\s+I\s+|would\s+I\s+like\s+to\s+)(?:want|need|wish|hope|fear|feel|think|seek|explore|understand|express)?\b/iu;
 
 const INTERNAL_IMMERSION_LEAK = /(?:\b(?:grammatical\s+gender|gender\s+(?:mark|marker|label)|gender[- ]neutral\s+(?:wording|phrasing|language)|do\s+not\s+infer\s+(?:the\s+querent'?s|your)\s+gender|avoid\s+gendered\s+(?:adjectives?|participles?|forms?)|without\s+(?:adding|using)\s+(?:a\s+)?gender\s+(?:mark|marker|label)|internal\s+(?:prompt|instruction|schema|validation|state)|deterministic\s+validation|system\s+prompt)\b|\b(?:género\s+gramatical|marca\s+de\s+género|marcar\s+el\s+género|redacción\s+neutral\s+respecto\s+al\s+género|no\s+infieras?\s+el\s+género|evita\s+(?:adjetivos|participios|formas)\s+con\s+concordancia|sin\s+añadir\s+una\s+marca\s+de\s+género|sin\s+marcar\s+(?:el\s+)?género|instrucci[oó]n\s+interna|esquema\s+interno|validación\s+determinista|prompt\s+del\s+sistema)\b)/iu;
