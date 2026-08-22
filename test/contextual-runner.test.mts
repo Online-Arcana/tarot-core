@@ -104,6 +104,9 @@ test("semantic actor drift uses Luna-low audit then Luna-medium atomic repair", 
   assert.match(auditPrompt, /False positives are more harmful/u);
   assert.match(auditPrompt, /"actor":"reader"/u);
   assert.match(auditPrompt, /Agitas el escudo/u);
+  assert.match(auditPrompt, /Epona/u);
+  assert.doesNotMatch(auditPrompt, /El Loco|The Fool/u);
+  assert.doesNotMatch(auditPrompt, /"manner"|"ritualStyle"|"limits"|"avoid"/u);
 
   const repairPrompt = calls[2].input[0].content;
   assert.match(repairPrompt, /<semantic_audit_findings>/u);
