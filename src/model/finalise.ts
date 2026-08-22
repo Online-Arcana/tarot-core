@@ -9,16 +9,10 @@ import type {
 import { attachMedia, isMappedReader, mediaFor } from "../readers/media/runtime.js";
 import { resolveFit } from "../reading/fit.js";
 import { groundedHandoverFacts, handoverSummary } from "../reading/handover.js";
-import { futureLeaks, repairFutureLeaks } from "../reading/reveal.js";
-import { repeatsActiveTarotPreparation } from "./language.js";
 
 export interface FinalisationResult {
   readonly out: ApiOut;
   readonly diagnostics: readonly string[];
-}
-
-function spanish(req: ApiReq): boolean {
-  return req.lang.toLowerCase().startsWith("es");
 }
 
 function serial(value: ApiOut): string {
@@ -37,31 +31,6 @@ function stripPresentation(req: ApiReq, value: ApiOut): ApiOut {
   return value;
 }
 
-function ritualText(value: ApiOut): string {
-  const ritual = value as RitualOut;
-  return `${ritual.opening} ${ritual.ritual} ${ritual.gesture}`.replace(/\s+/gu, " ").trim();
-}
-
-function assertHiddenRitualState(req: ApiReq, value: ApiOut): void {
-  if (req.task !== "ritual") return;
-  const text = ritualText(value);
-  const exposed = spanish(req)
-    ? /\b(?:boca|cara)\s+arriba\b|\b(?:da\s+la\s+vuelta|voltea)\s+(?:la\s+)?(?:carta|naipe|resultado)\b/iu
-    : /\bface[- ]up\b|\b(?:turns?|flips?)\s+(?:the\s+)?(?:card|result)\s+over\b/iu;
-  if (exposed.test(text)) {
-    throw new Error("ritual_premature_visible_state: the current hidden result must remain concealed until the reveal stage");
-  }
-}
-
-function assertRitualPreparationContinuity(req: ApiReq, value: ApiOut): void {
-  if (req.task !== "ritual" || isMappedReader(req.reader)) return;
-  const current = ritualText(value);
-  for (const [index, previous] of (req.priorRituals ?? []).entries()) {
-    if (!repeatsActiveTarotPreparation(previous, current, req.lang)) continue;
-    throw new Error(`ritual_repeated_preparation:${index + 1}: continue the existing scene instead of warming, cutting or shuffling the tarot deck again`);
-  }
-}
-
 function readingWithCanonicalMedia(
   req: Extract<ApiReq, { task: "read" }>,
   reading: ReadingOut,
@@ -76,22 +45,18 @@ function readingWithCanonicalMedia(
 }
 
 /**
- * Prepare generated prose for deterministic audit without attaching public
- * presentation metadata. Prose voice and audience are not rewritten here: the
- * model and contextual constructor must author the final narrator/reader voice
- * correctly from the start, and the audit rejects incorrect person or ownership.
- * Fit routing is canonicalised from shared reader data before prose audit so a
- * model cannot recommend the current reader to themselves or override routing.
- * Handover prose/state is rebuilt from the canonical conversation. The model
- * may contribute only exact transcript-grounded facts, so a fluent paraphrase
- * cannot silently change a prior reading. Mapped reveal repair uses a temporary
- * canonical media view, which is stripped again before the audit boundary.
+ * Prepare generated output for the production validation boundary without
+ * interpreting natural-language prose.
+ *
+ * This function owns deterministic canonicalisation only: strip presentation
+ * metadata, resolve canonical reader routing, ground handover state, and build
+ * the canonical mapped-media view. Grammar, actor attribution, negation,
+ * ritual continuity and result-reference meaning are deliberately NOT inferred
+ * here. Those judgements belong to the schema-constrained Luna semantic audit.
  */
 export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): FinalisationResult {
   const diagnostics: string[] = [];
   let out = stripPresentation(req, value);
-  assertHiddenRitualState(req, out);
-  assertRitualPreparationContinuity(req, out);
 
   if (req.task === "fit") {
     const resolved = resolveFit(req.reader, req.question, req.lang, out as FitOut);
@@ -119,23 +84,17 @@ export function prepareModelOutDetailed(req: ApiReq, value: ApiOut): Finalisatio
   }
 
   if (req.task === "read") {
-    const reading = out as ReadingOut;
-    const auditView = readingWithCanonicalMedia(req, reading);
-    const leaks = futureLeaks(req.draw, auditView, req.lang, req.question);
-    const repaired = leaks.length
-      ? repairFutureLeaks(req.draw, auditView, req.lang, req.question)
-      : auditView;
-    if (leaks.length) diagnostics.push(...leaks.map(leak => `future_leak_repaired:${leak.card}:${leak.name}`));
-    out = stripPresentation(req, repaired);
+    // Build the canonical presentation mapping so missing media is still caught
+    // deterministically. Strip it again before the prose audit boundary.
+    out = stripPresentation(req, readingWithCanonicalMedia(req, out as ReadingOut));
   }
 
   return { out, diagnostics: [...new Set(diagnostics)] };
 }
 
 /**
- * Public finalisation helper. The model runner audits prepareModelOutDetailed()
- * first and calls presentation attachment only after that audit succeeds. This
- * wrapper preserves the existing public helper contract for direct callers.
+ * Public finalisation helper. Production runners validate prepared prose first
+ * and attach public presentation metadata only after that boundary succeeds.
  */
 export function finaliseModelOutDetailed(req: ApiReq, value: ApiOut): FinalisationResult {
   const prepared = prepareModelOutDetailed(req, value);
