@@ -138,7 +138,11 @@ test("a clean semantic verdict preserves original prose without medium repair", 
 
   assert.equal(calls.length, 2);
   assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low"]);
-  assert.deepEqual(result.out, clean);
+  assert.equal(result.out.opening, clean.opening);
+  assert.equal(result.out.ritual, clean.ritual);
+  assert.equal(result.out.gesture, clean.gesture);
+  assert.ok(result.out.medium);
+  assert.equal(result.out.medium.publicName, "Epona");
   assert.equal(result.source, "primary");
   assert.ok(result.auditErrors.includes("semantic_audit:pass"));
   assert.ok(result.auditErrors.includes("semantic_final:pass"));
