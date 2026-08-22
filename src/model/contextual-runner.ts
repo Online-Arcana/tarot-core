@@ -9,6 +9,7 @@ import {
   applyFinalProofread,
   finalProofreadPrompt,
   finalProofreadShape,
+  type ProofreadPatch,
 } from "./final-proofread.js";
 import { prepareModelOutDetailed } from "./finalise.js";
 import { auditModelOut as deterministicAuditModelOut } from "./production-audit.js";
@@ -66,6 +67,11 @@ function finalFindingDiagnostics(findings: SemanticAuditResult["findings"]): str
     `semantic_final_issue:${finding.code}:${finding.path}:${JSON.stringify(finding.evidence)}`);
 }
 
+function reauditFindingDiagnostics(findings: SemanticAuditResult["findings"]): string[] {
+  return findings.map(finding =>
+    `${finding.path}: semantic_reaudit:${finding.code}; evidence=${JSON.stringify(finding.evidence)}; expected=${JSON.stringify(finding.expected)}`);
+}
+
 async function semanticAudit(
   req: ApiReq,
   out: ApiOut,
@@ -86,6 +92,64 @@ async function semanticAudit(
   );
 }
 
+async function semanticRepair(
+  req: ApiReq,
+  out: ApiOut,
+  audit: SemanticAuditResult,
+  cfg: ModelCfg,
+): Promise<{ readonly patch: ProofreadPatch; readonly paths: readonly string[] }> {
+  const findings = semanticFindingsAsAuditIssues(audit.findings);
+  const paths = [...new Set(audit.findings.map(finding => finding.path))];
+  const reviewer = new OpenAISchema<ProofreadPatch>(
+    cfg.apiKey,
+    finalProofreadShape(req, out, paths),
+    undefined,
+    {
+      conversation: false,
+      ...(cfg.fetch === undefined ? {} : { fetch: cfg.fetch }),
+    },
+  );
+  const generationContext = [
+    "<compiled_audit_context>",
+    JSON.stringify(auditContextSummary(buildAuditContext(req))),
+    "</compiled_audit_context>",
+    "<semantic_audit_findings>",
+    JSON.stringify(audit.findings),
+    "</semantic_audit_findings>",
+  ].join("\n");
+  const patch = await reviewer.send(
+    [{
+      role: "system",
+      content: finalProofreadPrompt(req, out, generationContext, {
+        paths,
+        findings,
+      }),
+    }],
+    callOpts(cfg, SEMANTIC_REPAIR_MODEL, SEMANTIC_REPAIR_EFFORT),
+  );
+  return { patch, paths };
+}
+
+function semanticImperfect(
+  result: ModelResult,
+  out: ApiOut,
+  findings: SemanticAuditResult["findings"],
+  diagnostics: readonly string[],
+): ModelResult {
+  return {
+    ...result,
+    out,
+    source: "escalation",
+    auditErrors: [...new Set([
+      ...result.auditErrors,
+      ...reauditFindingDiagnostics(findings),
+      ...finalFindingDiagnostics(findings),
+      ...diagnostics,
+      "delivery_path:semantic_imperfect_revision",
+    ])],
+  };
+}
+
 export const validModelOut = (request: Parameters<typeof runBaseModelSession>[1], out: ApiOut): boolean => {
   const req = canonicaliseApiReq(request);
   // Synchronous validity can only certify deterministic facts. Semantic
@@ -99,9 +163,11 @@ export const validModelOut = (request: Parameters<typeof runBaseModelSession>[1]
  *
  * Deterministic code handles shape and objectively provable lexical/state
  * contracts. A separate conversation-free Luna-low call judges grammar and
- * semantics. Only concrete findings are passed, together with the untouched
- * original prose, to a Luna-medium atomic repair call. Regex heuristics are not
- * allowed to author or trigger semantic repairs.
+ * semantics. Concrete findings are passed with the untouched original prose to
+ * Luna-medium for an atomic repair. If the low re-audit still finds a concrete
+ * defect, one bounded medium repair against the revised prose is allowed before
+ * the pipeline stops. Regex heuristics are not allowed to author or trigger
+ * semantic repairs.
  */
 export async function runModelSession(
   pack: ModelPack,
@@ -154,37 +220,9 @@ export async function runModelSession(
   }
 
   const findings = semanticFindingsAsAuditIssues(audit.findings);
-  const paths = [...new Set(audit.findings.map(finding => finding.path))];
 
   try {
-    const reviewer = new OpenAISchema(
-      cfg.apiKey,
-      finalProofreadShape(req, result.out, paths),
-      undefined,
-      {
-        conversation: false,
-        ...(cfg.fetch === undefined ? {} : { fetch: cfg.fetch }),
-      },
-    );
-    const generationContext = [
-      "<compiled_audit_context>",
-      JSON.stringify(auditContextSummary(buildAuditContext(req))),
-      "</compiled_audit_context>",
-      "<semantic_audit_findings>",
-      JSON.stringify(audit.findings),
-      "</semantic_audit_findings>",
-    ].join("\n");
-
-    const patch = await reviewer.send(
-      [{
-        role: "system",
-        content: finalProofreadPrompt(req, result.out, generationContext, {
-          paths,
-          findings,
-        }),
-      }],
-      callOpts(cfg, SEMANTIC_REPAIR_MODEL, SEMANTIC_REPAIR_EFFORT),
-    );
+    const { patch } = await semanticRepair(req, result.out, audit, cfg);
 
     if (patch.edits.length === 0) {
       return appendDiagnostics(result, [
@@ -238,24 +276,105 @@ export async function runModelSession(
         };
       }
 
-      // A usable LLM repair still beats deterministic prose. Preserve the
-      // repaired candidate and expose the remaining semantic diagnostics rather
-      // than silently reverting to a known-bad original.
-      return {
-        ...result,
-        out: revised,
-        source: "escalation",
-        auditErrors: [...new Set([
-          ...result.auditErrors,
-          ...reaudit.findings.map(finding =>
-            `${finding.path}: semantic_reaudit:${finding.code}; evidence=${JSON.stringify(finding.evidence)}; expected=${JSON.stringify(finding.expected)}`),
-          ...finalFindingDiagnostics(reaudit.findings),
+      // A successful first repair that still has concrete findings gets exactly
+      // one more targeted medium pass. This is intentionally bounded: no loop,
+      // no broad rewrite, and the second patch is kept only when low re-audit
+      // confirms improvement or when the confirmation service is unavailable.
+      try {
+        const retry = await semanticRepair(req, revised, reaudit, cfg);
+        if (retry.patch.edits.length === 0) {
+          return semanticImperfect(result, revised, reaudit.findings, [
+            `semantic_audit:findings:${audit.findings.length}`,
+            `semantic_repair:edits:${patch.edits.length}`,
+            `semantic_reaudit:remaining:${reaudit.findings.length}`,
+            "semantic_retry_repair:no_change",
+          ]);
+        }
+        if (retry.patch.edits.some(edit => edit.mode !== "patch")) {
+          return semanticImperfect(result, revised, reaudit.findings, [
+            `semantic_audit:findings:${audit.findings.length}`,
+            `semantic_repair:edits:${patch.edits.length}`,
+            `semantic_reaudit:remaining:${reaudit.findings.length}`,
+            "semantic_retry_repair:non_atomic_patch_rejected",
+          ]);
+        }
+
+        const retried = applyFinalProofread(revised, retry.patch);
+        const retriedDeterministic = deterministicAuditModelOut(req, retried);
+        if (!retriedDeterministic.valid) {
+          return semanticImperfect(result, revised, reaudit.findings, [
+            `semantic_audit:findings:${audit.findings.length}`,
+            `semantic_repair:edits:${patch.edits.length}`,
+            `semantic_reaudit:remaining:${reaudit.findings.length}`,
+            ...retriedDeterministic.errors,
+            "semantic_retry_repair:deterministic_regression_rejected",
+          ]);
+        }
+
+        try {
+          const retryAudit = await semanticAudit(req, retried, cfg);
+          if (retryAudit.verdict === "pass") {
+            return {
+              ...result,
+              out: retried,
+              source: "escalation",
+              auditErrors: [...new Set([
+                ...result.auditErrors,
+                `semantic_audit:findings:${audit.findings.length}`,
+                `semantic_repair:edits:${patch.edits.length}`,
+                `semantic_reaudit:remaining:${reaudit.findings.length}`,
+                `semantic_retry_repair:edits:${retry.patch.edits.length}`,
+                "semantic_retry_reaudit:pass",
+                "semantic_final:pass",
+                "delivery_path:semantic_atomic_revision_retry",
+              ])],
+            };
+          }
+
+          if (retryAudit.findings.length < reaudit.findings.length) {
+            return semanticImperfect(result, retried, retryAudit.findings, [
+              `semantic_audit:findings:${audit.findings.length}`,
+              `semantic_repair:edits:${patch.edits.length}`,
+              `semantic_reaudit:remaining:${reaudit.findings.length}`,
+              `semantic_retry_repair:edits:${retry.patch.edits.length}`,
+              `semantic_retry_reaudit:remaining:${retryAudit.findings.length}`,
+              "semantic_retry:improved_revision_kept",
+            ]);
+          }
+
+          return semanticImperfect(result, revised, reaudit.findings, [
+            `semantic_audit:findings:${audit.findings.length}`,
+            `semantic_repair:edits:${patch.edits.length}`,
+            `semantic_reaudit:remaining:${reaudit.findings.length}`,
+            `semantic_retry_repair:edits:${retry.patch.edits.length}`,
+            `semantic_retry_reaudit:remaining:${retryAudit.findings.length}`,
+            "semantic_retry:earlier_revision_kept",
+          ]);
+        } catch (cause: unknown) {
+          return {
+            ...result,
+            out: retried,
+            source: "escalation",
+            auditErrors: [...new Set([
+              ...result.auditErrors,
+              `semantic_audit:findings:${audit.findings.length}`,
+              `semantic_repair:edits:${patch.edits.length}`,
+              `semantic_reaudit:remaining:${reaudit.findings.length}`,
+              `semantic_retry_repair:edits:${retry.patch.edits.length}`,
+              `semantic_retry_reaudit:exception:${message(cause)}`,
+              "semantic_final:unknown",
+              "delivery_path:semantic_unconfirmed_revision",
+            ])],
+          };
+        }
+      } catch (cause: unknown) {
+        return semanticImperfect(result, revised, reaudit.findings, [
           `semantic_audit:findings:${audit.findings.length}`,
           `semantic_repair:edits:${patch.edits.length}`,
           `semantic_reaudit:remaining:${reaudit.findings.length}`,
-          "delivery_path:semantic_imperfect_revision",
-        ])],
-      };
+          `semantic_retry_repair:exception:${message(cause)}`,
+        ]);
+      }
     } catch (cause: unknown) {
       // The repair was structurally safe and based on a successful semantic
       // audit. If only the confirmation call is unavailable, keep that repair.
