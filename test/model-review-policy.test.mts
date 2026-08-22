@@ -300,3 +300,83 @@ test("canonical handover state skips semantic review and cannot be rewritten", a
   assert.ok(result.auditErrors.includes("semantic_final:pass"));
   assert.equal(result.auditErrors.some(value => value.startsWith("semantic_repair:")), false);
 });
+
+test("one bounded retry repairs a concrete finding left after the first semantic patch", async () => {
+  const twoStep = {
+    gesture: "Él mantiene una mano junto a la lectura mientras la habitación queda en silencio ante ti.",
+    response: "Puedes revisar qué parte de esta rutina sigue sin ayudarme a crecer.",
+  };
+  const calls = [];
+  const replies = [
+    twoStep,
+    {
+      verdict: "repair",
+      findings: [
+        {
+          path: "chat.gesture",
+          code: "reader_identity",
+          evidence: "Él",
+          expected: "Use Selena's feminine narrator subject.",
+        },
+        {
+          path: "chat.response",
+          code: "direct_address",
+          evidence: "ayudarme",
+          expected: "Address the querent in second person rather than the reader in first person.",
+        },
+      ],
+    },
+    {
+      edits: [{
+        mode: "patch",
+        path: "chat.gesture",
+        before: "Él",
+        after: "Ella",
+      }],
+    },
+    {
+      verdict: "repair",
+      findings: [{
+        path: "chat.response",
+        code: "direct_address",
+        evidence: "ayudarme",
+        expected: "Address the querent in second person rather than the reader in first person.",
+      }],
+    },
+    {
+      edits: [{
+        mode: "patch",
+        path: "chat.response",
+        before: "ayudarme",
+        after: "ayudarte",
+      }],
+    },
+    { verdict: "pass", findings: [] },
+  ];
+  const fetch = async (_url, init) => {
+    calls.push(JSON.parse(init.body));
+    const next = replies.shift();
+    if (next === undefined) throw new Error("semantic retry must remain bounded");
+    return response(next);
+  };
+
+  const result = await runModelSession(pack, req, {
+    apiKey: "test",
+    conversation: false,
+    guaranteeOutput: true,
+    retries: 0,
+    fetch,
+    body: {},
+  });
+
+  assert.equal(calls.length, 6);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low", "medium", "low", "medium", "low"]);
+  assert.equal(result.out.gesture.startsWith("Ella "), true);
+  assert.match(result.out.response, /ayudarte/u);
+  assert.equal(result.out.response.includes("ayudarme"), false);
+  assert.ok(result.auditErrors.includes("semantic_reaudit:remaining:1"));
+  assert.ok(result.auditErrors.includes("semantic_retry_repair:edits:1"));
+  assert.ok(result.auditErrors.includes("semantic_retry_reaudit:pass"));
+  assert.ok(result.auditErrors.includes("semantic_final:pass"));
+  assert.ok(result.auditErrors.includes("delivery_path:semantic_atomic_revision_retry"));
+});
