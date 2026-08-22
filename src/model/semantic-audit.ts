@@ -218,7 +218,7 @@ export function semanticAuditPrompt(req: ApiReq, out: ApiOut): string {
   const fields = proofreadFields(req, out);
   const context = semanticContext(req);
   const language = req.lang.toLowerCase().startsWith("es")
-    ? "natural Spanish from Spain; use ordinary tuteo and natural pro-drop"
+    ? "natural Spanish from Spain; use ordinary tuteo and natural pro-drop where the reader addresses the querent"
     : "natural British English";
 
   return [
@@ -226,6 +226,8 @@ export function semanticAuditPrompt(req: ApiReq, out: ApiOut): string {
     `Target language: ${language}.`,
     "You are a conservative correctness judge, not a rewriter and not a style critic.",
     "Read each customer-visible field in its canonical role and context.",
+    "FIELD ROLES ARE SEMANTIC CONTRACTS. narrator is external third-person scene prose. reader_dialogue is the selected reader speaking directly to the querent. querent_question is an editable follow-up question written in the querent's own first-person voice, not reader dialogue. handover_state is grounded internal state. title is only a title.",
+    "For querent_question fields, preserve one internally consistent querent first-person perspective. In Spanish, forms such as yo/me/mi/quiero/necesito are appropriate when the querent is the grammatical subject; do NOT force second-person te/tu merely because reader_dialogue normally uses tuteo. In English, use I/me/my where the querent's question requires first person. Flag mixed-person questions such as Spanish «te exige ... ayudarme».",
     "Return pass unless there is a concrete, objective defect. If wording is merely different from what you would personally write, PASS it.",
     "Be especially conservative with Spanish: infer grammar from the whole sentence, not isolated tokens. Do not confuse nouns with conjugated verbs, ordinary feminine/masculine nouns with querent gender, enclitic -te with missing direct address, or natural pro-drop with an omitted actor.",
     "Check grammar, semantic coherence, field voice, grammatical person, direct address where the field role requires it, querent-gender agreement when gender is known, neutral phrasing when gender is unspecified/nonbinary, reader identity, physical actor ownership, ritual continuity, single-cast continuity, medium grounding, substantial repetition, and whether result references are genuinely being used as result identities rather than ordinary words.",
