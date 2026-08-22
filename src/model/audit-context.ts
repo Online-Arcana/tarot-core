@@ -17,6 +17,7 @@ import {
 export type AuditFieldRole =
   | "narrator"
   | "reader_dialogue"
+  | "querent_question"
   | "handover_state"
   | "title"
   | "structural";
@@ -93,7 +94,7 @@ function rolesFor(task: Task): Readonly<Record<string, AuditFieldRole>> {
       "read.note": "narrator",
     };
     case "chat": return { "chat.gesture": "narrator", "chat.response": "reader_dialogue" };
-    case "suggest": return { "suggest.suggestions": "reader_dialogue" };
+    case "suggest": return { "suggest.suggestions": "querent_question" };
     case "continue": return { "continue.text": "reader_dialogue" };
     case "title": return { "title.title": "title" };
     case "handover": return {
@@ -213,7 +214,7 @@ export function auditRole(ctx: AuditContext, path: string): AuditFieldRole {
   const exact = ctx.roles[path];
   if (exact) return exact;
   if (path.startsWith("read.cardText[")) return "reader_dialogue";
-  if (path.startsWith("suggest.suggestions[")) return "reader_dialogue";
+  if (path.startsWith("suggest.suggestions[")) return "querent_question";
   if (path.startsWith("handover.")) return "handover_state";
   return "structural";
 }
