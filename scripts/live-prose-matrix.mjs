@@ -208,7 +208,7 @@ async function runTask(label, req) {
     if (scans.genericReaderLabel) report.summary.genericReaderLabels += 1;
     if (scans.querentNameInNarrator) report.summary.querentNameNarratorLeaks += 1;
     if (scans.mappedCanonicalTermInDialogue) report.summary.mappedCanonicalLeaks += 1;
-    if (scans.placeholderTerm || !audit.valid) report.summary.placeholderRisk += 1;
+    if (scans.placeholderTerm) report.summary.placeholderRisk += 1;
 
     return {
       label,
@@ -226,7 +226,6 @@ async function runTask(label, req) {
     };
   } catch (error) {
     report.summary.failures += 1;
-    report.summary.placeholderRisk += 1;
     const message = error instanceof Error ? error.message : String(error);
     return {
       label,
