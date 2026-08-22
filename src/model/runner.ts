@@ -418,20 +418,26 @@ export async function runModelSession(
     stageDiagnostics: readonly string[] = [],
   ): Candidate => {
     let out = generated;
+    let prepareFailure: string | undefined;
     const localDiagnostics = [...stageDiagnostics];
     try {
       const prepared = prepareModelOutDetailed(req, generated);
       out = prepared.out;
       localDiagnostics.push(...prepared.diagnostics);
     } catch (cause: unknown) {
-      localDiagnostics.push(`candidate_prepare_exception:${message(cause)}`);
+      prepareFailure = message(cause);
+      localDiagnostics.push(`candidate_prepare_exception:${prepareFailure}`);
     }
 
     let audit: ModelAudit;
-    try {
-      audit = auditModelOut(req, out);
-    } catch (cause: unknown) {
-      audit = syntheticAudit(out, "candidate_audit_exception", message(cause));
+    if (prepareFailure !== undefined) {
+      audit = syntheticAudit(out, "candidate_prepare_exception", prepareFailure);
+    } else {
+      try {
+        audit = auditModelOut(req, out);
+      } catch (cause: unknown) {
+        audit = syntheticAudit(out, "candidate_audit_exception", message(cause));
+      }
     }
 
     const candidate: Candidate = {
@@ -472,14 +478,21 @@ export async function runModelSession(
     if (narrow !== null) {
       try {
         const generationContext = buildModelPrompt(pack, req);
-        const patch = await ai.run(
+        const reviewer = new OpenAISchema(
+          cfg.apiKey,
           finalProofreadShape(req, primary.out, narrow.paths),
+          undefined,
+          {
+            conversation: false,
+            ...(cfg.fetch === undefined ? {} : { fetch: cfg.fetch }),
+          },
+        );
+        const patch = await reviewer.send(
           [{ role: "system", content: finalProofreadPrompt(req, primary.out, generationContext, {
             paths: narrow.paths,
             findings: narrow.findings,
           }) }],
           sendOpts(cfg, escalationModel, CHEAP_EFFORT),
-          "arcana_contextual_prose_review",
         );
 
         if (patch.edits.length === 0) {
