@@ -215,7 +215,7 @@ export function finalProofreadShape(
       const patchedPaths = new Set<string>();
       const decontaminatedPaths = new Set<string>();
       const patchRanges = new Map<string, Array<readonly [number, number]>>();
-      const edits = value.edits.map((item, index): ProofreadEdit => {
+      const edits = value.edits.map((item, index): ProofreadEdit | null => {
         if (!record(item)) throw new Error(`Final proofread edit ${index} must be an object`);
         const keys = Object.keys(item).sort().join(",");
         if (keys !== "after,before,mode,path") throw new Error(`Final proofread edit ${index} returned unexpected fields`);
@@ -224,9 +224,12 @@ export function finalProofreadShape(
         if (typeof path !== "string" || !(path in fields)) throw new Error(`Final proofread edit ${index} has an unknown path`);
         if (typeof before !== "string" || !before) throw new Error(`Final proofread edit ${index} requires original text`);
         if (typeof after !== "string") throw new Error(`Final proofread edit ${index} requires corrected text`);
-        if (before === after) throw new Error(`Final proofread edit ${index} does not change anything`);
         const original = fields[path];
         if (original === undefined) throw new Error(`Final proofread edit ${index} has an unavailable path`);
+        // A reviewer occasionally echoes an unchanged span while dismissing a
+        // heuristic finding. Treat that as an explicit no-op, not a failed
+        // proofread call that unnecessarily forces broad regeneration.
+        if (before === after) return null;
 
         if (mode === "patch") {
           if (decontaminatedPaths.has(path)) {
@@ -271,7 +274,7 @@ export function finalProofreadShape(
         }
         decontaminatedPaths.add(path);
         return { mode, path, before, after };
-      });
+      }).filter((edit): edit is ProofreadEdit => edit !== null);
       return { edits };
     },
   );
@@ -291,6 +294,7 @@ export function finalProofreadPrompt(
     ? [
       "The automated NLP auditor raised the findings below. They are heuristic review signals and MAY BE FALSE POSITIVES.",
       "Check every finding against the complete canonical context. Do not edit text merely because the auditor flagged it.",
+      "When a finding includes evidence or expected values, use them to identify the exact suspected span and the canonical semantic contract; they are diagnostic context, not replacement prose.",
       "If every finding is a false positive and you see no other unambiguous correctness defect inside the editable fields, return {\"edits\":[]}.",
       "A confirmed finding should be fixed with the smallest exact patch that restores the intended reader, querent, voice, stage, ritual and language contract.",
     ]
@@ -326,7 +330,7 @@ export function finalProofreadPrompt(
     "The reference generation context below exists so you know the exact reader identity, gender/pronouns, voice, mannerisms, ritual style, recurring imagery, environment, limits, mapped medium/objects when applicable, scene, prior state, visible results, conversation/handover context and task semantics. It contains earlier generation instructions. Treat those instructions as REFERENCE ONLY, never as visible prose.",
     ...(findings.length ? [
       "<audit_findings>",
-      JSON.stringify(findings.map(issue => ({ code: issue.code, path: issue.path, message: issue.message }))),
+      JSON.stringify(findings),
       "</audit_findings>",
     ] : []),
     "<reference_generation_context>",
@@ -342,33 +346,75 @@ export function finalProofreadPrompt(
   ].join("\n");
 }
 
-function replaceAtPath(target: ApiOut, edit: ProofreadEdit): void {
+function pathTarget(target: ApiOut, path: string): { owner: any; key: string | number } {
   const parts: Array<string | number> = [];
-  for (const match of edit.path.matchAll(/([^.\[\]]+)|\[(\d+)\]/gu)) {
+  for (const match of path.matchAll(/([^.\[\]]+)|\[(\d+)\]/gu)) {
     if (match[2] !== undefined) parts.push(Number(match[2]));
     else if (match[1] !== undefined) parts.push(match[1]);
   }
-  if (parts.length < 2) throw new Error(`Final proofread path ${edit.path} is invalid`);
+  if (parts.length < 2) throw new Error(`Final proofread path ${path} is invalid`);
 
-  let current: any = target;
+  let owner: any = target;
   for (let index = 1; index < parts.length - 1; index += 1) {
     const part = parts[index];
-    if (part === undefined) throw new Error(`Final proofread path ${edit.path} is invalid`);
-    current = current[part];
+    if (part === undefined) throw new Error(`Final proofread path ${path} is invalid`);
+    owner = owner[part];
   }
   const key = parts[parts.length - 1];
-  if (key === undefined) throw new Error(`Final proofread path ${edit.path} is invalid`);
-  const original = current[key];
-  if (typeof original !== "string") throw new Error(`Final proofread path ${edit.path} no longer points to text`);
-  const at = original.indexOf(edit.before);
-  if (at < 0 || original.indexOf(edit.before, at + edit.before.length) >= 0) {
-    throw new Error(`Final proofread edit for ${edit.path} no longer identifies one exact original span`);
+  if (key === undefined) throw new Error(`Final proofread path ${path} is invalid`);
+  return { owner, key };
+}
+
+function applyPathEdits(target: ApiOut, path: string, edits: readonly ProofreadEdit[]): void {
+  const { owner, key } = pathTarget(target, path);
+  const original = owner[key];
+  if (typeof original !== "string") throw new Error(`Final proofread path ${path} no longer points to text`);
+
+  const decontaminate = edits.filter(edit => edit.mode === "decontaminate");
+  if (decontaminate.length > 0) {
+    if (edits.length !== 1 || decontaminate.length !== 1) {
+      throw new Error(`Final proofread decontamination for ${path} cannot be combined with other edits`);
+    }
+    const edit = decontaminate[0]!;
+    if (edit.before !== original) {
+      throw new Error(`Final proofread decontamination for ${path} no longer matches the original field`);
+    }
+    owner[key] = edit.after;
+    return;
   }
-  current[key] = `${original.slice(0, at)}${edit.after}${original.slice(at + edit.before.length)}`;
+
+  const positioned = edits.map(edit => {
+    const at = original.indexOf(edit.before);
+    if (at < 0 || original.indexOf(edit.before, at + edit.before.length) >= 0) {
+      throw new Error(`Final proofread edit for ${path} no longer identifies one exact original span`);
+    }
+    return { edit, at, end: at + edit.before.length };
+  });
+  const ascending = [...positioned].sort((left, right) => left.at - right.at);
+  for (let index = 1; index < ascending.length; index += 1) {
+    const prior = ascending[index - 1]!;
+    const current = ascending[index]!;
+    if (current.at < prior.end) throw new Error(`Final proofread edits for ${path} overlap`);
+  }
+
+  // Every offset is calculated against the untouched original. Applying from
+  // right to left means a later replacement can never move an earlier span,
+  // so same-field multi-edit behaviour is independent of model return order.
+  let updated = original;
+  for (const { edit, at } of positioned.sort((left, right) => right.at - left.at)) {
+    updated = `${updated.slice(0, at)}${edit.after}${updated.slice(at + edit.before.length)}`;
+  }
+  owner[key] = updated;
 }
 
 export function applyFinalProofread(out: ApiOut, patch: ProofreadPatch): ApiOut {
   const next = JSON.parse(JSON.stringify(out)) as ApiOut;
-  for (const edit of patch.edits) replaceAtPath(next, edit);
+  const byPath = new Map<string, ProofreadEdit[]>();
+  for (const edit of patch.edits) {
+    const edits = byPath.get(edit.path) ?? [];
+    edits.push(edit);
+    byPath.set(edit.path, edits);
+  }
+  for (const [path, edits] of byPath) applyPathEdits(next, path, edits);
   return next;
 }
