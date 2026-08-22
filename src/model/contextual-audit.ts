@@ -107,11 +107,15 @@ function oppositeReaderPronoun(ctx: AuditContext): string {
 
 function readerPronounDriftEvidence(ctx: AuditContext, value: string): string | null {
   const opposite = oppositeReaderPronoun(ctx);
-  const exactToken = new RegExp(
-    `(?<![\\p{L}\\p{N}])${regexEscape(opposite)}(?![\\p{L}\\p{N}])`,
+  // This is a subject-position sensor, not a general pronoun ban. A pronoun
+  // later in a prepositional phrase may legitimately refer to another noun
+  // (for example Spanish «el silencio ... con él»), so only sentence/clause
+  // starts provide sufficiently strong local evidence of reader-subject drift.
+  const subjectPosition = new RegExp(
+    `(?:^|[.!?;:]\\s+["'’“”«»(\\[]*)${regexEscape(opposite)}(?![\\p{L}\\p{N}])`,
     "iu",
   );
-  return exactToken.test(value) ? opposite : null;
+  return subjectPosition.test(value) ? opposite : null;
 }
 
 const FEMALE_DIRECT = /\b(?:estás|te\s+sientes|sentirte|encontrarte|verte|notarte|quedarte|mantenerte|hacerte|volverte|dejarte|sigues|quedas|pareces|resultas)\s+(?:más\s+|menos\s+)?(?:preparada|dispuesta|cansada|agotada|lista|segura|tranquila|elegida|vista|acompañada|respaldada|apoyada|atrapada|convencida|confundida|obligada|escuchada|sola|pequeña)\b/iu;
