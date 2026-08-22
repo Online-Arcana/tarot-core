@@ -78,17 +78,20 @@ export function handoverResults(source: Conv): HandResult[] {
 export function handoverSummary(source: Conv, referral: Referral): HandoverOut {
   const readings = source.turns.filter(turn => turn.kind === "reading");
   const questions = uniq([...source.turns.map(turn => turn.question), referral.question]);
-  const conclusions = uniq(
-    readings.flatMap(turn => [turn.out.synthesis, turn.out.reading]).slice(-8),
-  ).map(value => compactSource(value, 80));
   const cards = uniq(readings.flatMap(turn => turn.draw.cards.map(card => card.name)));
   const latest = readings.at(-1);
   const synthesis = latest?.out.synthesis.trim() ?? "";
   const openSummary = source.lang.toLowerCase().startsWith("es")
     ? "La conversación sigue abierta y la pregunta derivada todavía necesita una exploración cuidadosa."
     : "The conversation remains open and the referred question still needs careful exploration.";
+  const summary = words(synthesis) >= 8 ? compactSource(synthesis, 160) : openSummary;
+  const conclusions = uniq(
+    readings.flatMap(turn => [turn.out.synthesis, turn.out.reading]).slice(-8),
+  )
+    .map(value => compactSource(value, 80))
+    .filter(value => norm(value) !== norm(summary));
   return {
-    summary: words(synthesis) >= 8 ? compactSource(synthesis, 160) : openSummary,
+    summary,
     questions,
     conclusions,
     cards,
