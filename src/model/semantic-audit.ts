@@ -4,8 +4,9 @@ import {
   shape,
   string as schemaString,
 } from "../vendor/openai-schema/src/openaiSchema.js";
-import type { ApiOut, ApiReq } from "../contracts/types.js";
-import { auditContextSummary, buildAuditContext } from "./audit-context.js";
+import type { ApiOut, ApiReq, DrawnCard } from "../contracts/types.js";
+import { isMappedReader, mediaFor } from "../readers/media/runtime.js";
+import { buildAuditContext } from "./audit-context.js";
 import type { AuditIssue } from "./audit.js";
 import { proofreadFields } from "./final-proofread.js";
 
@@ -59,6 +60,90 @@ const CODES: readonly SemanticAuditCode[] = [
 
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function publicResultName(req: ApiReq, card: DrawnCard): string {
+  if (!isMappedReader(req.reader)) return card.name;
+  return mediaFor(req.reader, card, req.lang)?.publicName ?? card.name;
+}
+
+function semanticResultState(req: ApiReq): {
+  readonly revealedResults: readonly string[];
+  readonly hiddenResults: readonly string[];
+} {
+  if (req.task === "ritual") {
+    const cards = req.draw?.cards ?? (req.drawn ? [req.drawn] : []);
+    const names = cards.map(card => publicResultName(req, card));
+    return {
+      revealedResults: names.slice(0, req.card),
+      hiddenResults: names.slice(req.card),
+    };
+  }
+  if (req.task === "read") {
+    return {
+      revealedResults: req.draw.cards.map(card => publicResultName(req, card)),
+      hiddenResults: [],
+    };
+  }
+  if (req.task === "suggest" || req.task === "continue" || req.task === "title") {
+    return {
+      revealedResults: req.turn.draw.cards.map(card => publicResultName(req, card)),
+      hiddenResults: [],
+    };
+  }
+  if (req.task === "handover") {
+    return {
+      revealedResults: req.conv.turns.flatMap(turn =>
+        turn.kind === "reading" ? turn.draw.cards.map(card => publicResultName(req, card)) : []),
+      hiddenResults: [],
+    };
+  }
+  if (req.task === "return") {
+    return {
+      revealedResults: req.handover?.results?.map(result => result.name) ?? req.handover?.cards ?? [],
+      hiddenResults: [],
+    };
+  }
+  return { revealedResults: [], hiddenResults: [] };
+}
+
+function semanticContext(req: ApiReq): unknown {
+  const ctx = buildAuditContext(req);
+  const results = semanticResultState(req);
+  return {
+    language: ctx.language,
+    task: ctx.task,
+    stage: ctx.reading.stage,
+    reader: {
+      name: ctx.reader.name,
+      gender: ctx.reader.gender,
+      pronouns: ctx.reader.pronouns,
+      voice: ctx.reader.voice,
+    },
+    querent: {
+      name: ctx.querent.name,
+      gender: ctx.querent.gender,
+    },
+    ritual: ctx.ritual === null ? null : {
+      phase: ctx.ritual.phase,
+      mode: ctx.ritual.mode,
+      actor: ctx.ritual.actor,
+      action: ctx.ritual.action,
+      grounding: ctx.ritual.grounding,
+      medium: ctx.ritual.medium,
+      concealment: ctx.ritual.concealment,
+      positionName: ctx.ritual.positionName,
+      positionMeaning: ctx.ritual.positionMeaning,
+      priorTheatre: ctx.ritual.priorTheatre,
+    },
+    reading: {
+      question: ctx.reading.question,
+      revealedResults: results.revealedResults,
+      hiddenResults: results.hiddenResults,
+    },
+    fieldRoles: ctx.roles,
+    mappedReader: isMappedReader(req.reader),
+  };
 }
 
 export function semanticAuditShape(req: ApiReq, out: ApiOut) {
@@ -131,7 +216,7 @@ export function semanticAuditShape(req: ApiReq, out: ApiOut) {
 
 export function semanticAuditPrompt(req: ApiReq, out: ApiOut): string {
   const fields = proofreadFields(req, out);
-  const context = auditContextSummary(buildAuditContext(req));
+  const context = semanticContext(req);
   const language = req.lang.toLowerCase().startsWith("es")
     ? "natural Spanish from Spain; use ordinary tuteo and natural pro-drop"
     : "natural British English";
