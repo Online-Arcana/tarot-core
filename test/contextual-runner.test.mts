@@ -30,7 +30,7 @@ const response = value => new Response(JSON.stringify({ output_text: JSON.string
   headers: { "content-type": "application/json" },
 });
 
-test("contextual-only pro-drop actor drift gets one atomic production repair", async () => {
+test("contextual-only pro-drop actor drift gets one atomic production review", async () => {
   const base = baseAuditModelOut(req, primary);
   assert.equal(base.valid, true, base.errors.join("\n"));
   const contextual = contextualAuditModelOut(req, primary);
@@ -40,12 +40,20 @@ test("contextual-only pro-drop actor drift gets one atomic production repair", a
   const replies = [
     primary,
     {
-      edits: [{
-        mode: "patch",
-        path: "ritual.ritual",
-        before: "Agitas el escudo hasta que uno de los huesos se desplaza hacia el borde, mientras Brennos mantiene",
-        after: "Brennos agita el escudo hasta que uno de los huesos se desplaza hacia el borde, mientras mantiene",
-      }],
+      edits: [
+        {
+          mode: "patch",
+          path: "ritual.ritual",
+          before: "Agitas el escudo",
+          after: "Brennos agita el escudo",
+        },
+        {
+          mode: "patch",
+          path: "ritual.ritual",
+          before: "mientras Brennos mantiene",
+          after: "mientras mantiene",
+        },
+      ],
     },
   ];
   const fetch = async (_url, init) => {
