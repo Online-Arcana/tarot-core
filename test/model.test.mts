@@ -30,6 +30,7 @@ const response = value => new Response(JSON.stringify({ output_text: JSON.string
 
 const cleanInvite = { text: "Tell me what you want to explore, and I will listen." };
 const invalidInvite = { text: "Tell me what you want to explore" };
+const semanticPass = { verdict: "pass", findings: [] };
 
 test("builds a strict shape without embedding application routing", () => {
   const shape = outputShape(req);
@@ -77,12 +78,15 @@ test("normalises reasoning effort for supported model contracts", () => {
   assert.deepEqual(modelRequestBody("gpt-5.6-luna", requestedMedium).reasoning, { effort: "medium" });
 });
 
-test("uses Luna cheap effort for clean customer-visible generation", async () => {
+test("uses Luna cheap effort for generation and Luna-low for clean semantic audit", async () => {
   const calls = [];
+  const replies = [cleanInvite, semanticPass];
   const fetch = async (url, init) => {
     const body = JSON.parse(init.body);
     calls.push({ url: String(url), body });
-    return response(cleanInvite);
+    const next = replies.shift();
+    if (next === undefined) throw new Error("unexpected extra model call");
+    return response(next);
   };
 
   const result = await runModelSession(pack, req, {
@@ -90,20 +94,22 @@ test("uses Luna cheap effort for clean customer-visible generation", async () =>
     conversation: false,
     fetch,
     guaranteeOutput: true,
+    retries: 0,
     body: { store: false, reasoning: { effort: "high" }, max_output_tokens: 120 },
   });
 
   assert.deepEqual(result.out, cleanInvite);
   assert.equal(result.source, "primary");
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].body.model, "gpt-5.6-luna");
-  assert.equal(calls[0].body.reasoning.effort, "none");
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls.map(call => call.body.model), ["gpt-5.6-luna", "gpt-5.6-luna"]);
+  assert.deepEqual(calls.map(call => call.body.reasoning.effort), ["none", "low"]);
   assert.ok(result.auditErrors.includes("delivery_path:primary_clean"));
+  assert.ok(result.auditErrors.includes("semantic_final:pass"));
 });
 
-test("non-local prose findings use one medium corrective generation before delivery", async () => {
+test("deterministic non-local findings use one medium corrective generation before semantic audit", async () => {
   const calls = [];
-  const replies = [invalidInvite, cleanInvite];
+  const replies = [invalidInvite, cleanInvite, semanticPass];
   const fetch = async (_url, init) => {
     const body = JSON.parse(init.body);
     calls.push(body);
@@ -122,16 +128,17 @@ test("non-local prose findings use one medium corrective generation before deliv
     body: {},
   });
 
-  assert.equal(calls.length, 2);
-  assert.deepEqual(calls.map(call => call.model), ["gpt-5.6-luna", "gpt-5.6-luna"]);
-  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "medium"]);
+  assert.equal(calls.length, 3);
+  assert.deepEqual(calls.map(call => call.model), ["gpt-5.6-luna", "gpt-5.6-luna", "gpt-5.6-luna"]);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "medium", "low"]);
   assert.match(calls[1].input[0].content, /previous attempt did not pass deterministic validation/iu);
   assert.equal(result.source, "escalation");
   assert.deepEqual(result.out, cleanInvite);
   assert.ok(result.auditErrors.includes("delivery_path:broad_correction"));
+  assert.ok(result.auditErrors.includes("semantic_final:pass"));
 });
 
-test("imperfect usable LLM prose is delivered instead of deterministic prose", async () => {
+test("imperfect structurally invalid LLM prose is delivered instead of deterministic prose", async () => {
   const calls = [];
   const fetch = async (_url, init) => {
     const body = JSON.parse(init.body);
@@ -153,6 +160,7 @@ test("imperfect usable LLM prose is delivered instead of deterministic prose", a
   assert.deepEqual(result.out, invalidInvite);
   assert.equal(auditModelOut(req, result.out).valid, false);
   assert.ok(result.auditErrors.includes("delivery_path:imperfect_llm"));
+  assert.ok(result.auditErrors.includes("semantic_audit:skipped_due_deterministic_findings"));
   assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
 });
 
@@ -221,11 +229,14 @@ test("non-guaranteed core callers keep a bounded Luna correction path", async ()
   assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "medium"]);
 });
 
-test("passes an existing conversation id through to openai-schema", async () => {
-  let request;
+test("passes an existing conversation id only to generation, not the isolated semantic auditor", async () => {
+  const calls = [];
+  const replies = [cleanInvite, semanticPass];
   const fetch = async (_url, init) => {
-    request = JSON.parse(init.body);
-    return response(cleanInvite);
+    calls.push(JSON.parse(init.body));
+    const next = replies.shift();
+    if (next === undefined) throw new Error("unexpected extra model call");
+    return response(next);
   };
 
   await runModel(pack, req, {
@@ -234,8 +245,11 @@ test("passes an existing conversation id through to openai-schema", async () => 
     conversationId: "conv_123",
     fetch,
     guaranteeOutput: true,
+    retries: 0,
     body: {},
   });
 
-  assert.deepEqual(request.conversation, { id: "conv_123" });
+  assert.deepEqual(calls[0].conversation, { id: "conv_123" });
+  assert.equal(calls[1].conversation, undefined);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low"]);
 });
