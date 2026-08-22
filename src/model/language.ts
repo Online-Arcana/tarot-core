@@ -14,6 +14,10 @@ const STOPWORDS: Readonly<Record<AuditLanguage, ReadonlySet<string>>> = {
 const DIRECT_ES = /(?<![\p{L}\p{N}])(?:tú|te|ti|contigo|tu|tus)(?![\p{L}\p{N}])/iu;
 const DIRECT_ES_VERB = /\b(?:eres|estás|estés|has|hayas|tienes|tengas|puedes|puedas|debes|quieres|quieras|necesitas|necesites|sientes|sientas|ves|veas|miras|mires|escuchas|escuches|haces|hagas|vas|vayas|vienes|llevas|lleves|sigues|sigas|encuentras|encuentres|buscas|busques|dejas|dejes|tomas|tomes|introduces|metes|sacas|extraes|eliges|elijas|retiras|mantienes|mantengas|recibes|reconoces|aceptas|temes|esperas|piensas|crees|notas|preguntas|decides|decidas|avanzas|avances|vuelves|regresas|permites|permitas|sostienes|comprendes|comprendas|sabes|sepas)\b/iu;
 const DIRECT_ES_IMPERATIVE = /(?:^|[.!?;:]["'’”)]*\s+)(?:aclara|acepta|busca|comprende|considera|cuida|deja|detente|dime|elige|escribe|escucha|haz|imagina|mantén|mira|observa|permítete|piensa|pon|pregúntate|recuerda|respira|revisa|separa|toma|confía)\b/iu;
+// Natural Spanish often carries the second-person object as an enclitic. Keep
+// this deliberately narrow to infinitives/gerunds so ordinary words ending in
+// -te are not mistaken for direct address (acompañarte, ayudarte, verte, etc.).
+const DIRECT_ES_ENCLITIC = /\b[\p{L}]+(?:ar|er|ir|ando|iendo|yendo)te\b/iu;
 const DIRECT_EN = /\b(?:you|your|yours|yourself|yourselves)\b/iu;
 const DIRECT_EN_IMPERATIVE = /(?:^|[.!?]["'’”)]*\s+)(?:ask|begin|breathe|bring|check|choose|consider|explore|follow|give|hold|imagine|keep|let|listen|look|name|notice|pause|remember|return|share|sit|speak|stay|take|tell|think|trust|try)\b/iu;
 
@@ -52,7 +56,7 @@ export function contentTokens(value: string, code: LangCode): string[] {
 
 export function hasDirectAddress(value: string, code: LangCode): boolean {
   return auditLanguage(code) === "es"
-    ? DIRECT_ES.test(value) || DIRECT_ES_VERB.test(value) || DIRECT_ES_IMPERATIVE.test(value)
+    ? DIRECT_ES.test(value) || DIRECT_ES_VERB.test(value) || DIRECT_ES_IMPERATIVE.test(value) || DIRECT_ES_ENCLITIC.test(value)
     : DIRECT_EN.test(value) || DIRECT_EN_IMPERATIVE.test(value);
 }
 
@@ -76,8 +80,20 @@ export function spanishLanguageIssue(value: string, code: LangCode): string | nu
   return null;
 }
 
+function withoutNegatedTarotPreparation(value: string, code: LangCode): string {
+  if (auditLanguage(code) === "es") {
+    return value
+      .replace(/\bno\s+(?:calienta|frota|entibia|templa|baraja|mezcla|corta|recorta)\b[^.!?]{0,50}\b(?:la\s+|el\s+)?(?:baraja|mazo|naipes|cartas?)\b/giu, " ")
+      .replace(/\bsin\s+(?:calentar|frotar|entibiar|templar|barajar|mezclar|cortar|recortar)\b[^.!?]{0,50}\b(?:la\s+|el\s+)?(?:baraja|mazo|naipes|cartas?)\b/giu, " ");
+  }
+  return value
+    .replace(/\b(?:(?:does|do|did)\s+not|doesn['’]t|don['’]t|didn['’]t)\s+(?:warm|rub|heat|shuffle|mix|cut)\b[^.!?]{0,50}\b(?:the\s+)?(?:deck|cards?)\b/giu, " ")
+    .replace(/\bwithout\s+(?:warming|rubbing|heating|shuffling|mixing|cutting)\b[^.!?]{0,50}\b(?:the\s+)?(?:deck|cards?)\b/giu, " ");
+}
+
 function activeTarotPreparation(value: string, code: LangCode): Set<string> {
   const result = new Set<string>();
+  value = withoutNegatedTarotPreparation(value, code);
   if (auditLanguage(code) === "es") {
     const tarotObject = "(?:baraja|mazo|naipes|cartas)";
     const warmAction = "(?:calienta|calentar|frota|frotar|entibia|entibiar|templa|templar)";
@@ -100,6 +116,7 @@ export function hasActiveTarotPreparation(value: string, code: LangCode): boolea
 }
 
 function explicitTarotPreparationReset(value: string, code: LangCode): boolean {
+  value = withoutNegatedTarotPreparation(value, code);
   if (auditLanguage(code) === "es") {
     const tarotObject = "(?:baraja|mazo|naipes|cartas?)";
     const infinitive = "(?:calentar(?:la|lo)?|frotar(?:la|lo)?|entibiar(?:la|lo)?|templar(?:la|lo)?|barajar(?:la|lo)?|mezclar(?:la|lo)?|cortar(?:la|lo)?|recortar(?:la|lo)?)";
