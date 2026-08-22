@@ -17,7 +17,7 @@ const req = {
 
 const primary = {
   gesture: "Selena leaves the completed reading undisturbed while the next question settles between you and the room remains quiet around the table.",
-  response: "The reader considers the question carefully while you decide which uncertainty deserves a concrete check before moving further.",
+  response: "Selena considers the question carefully while you decide which uncertainty deserves a concrete check before moving further.",
 };
 const corrected = "I consider the question carefully while you decide which uncertainty deserves a concrete check before moving further.";
 
@@ -35,11 +35,11 @@ test("long tasks use low semantic audit and medium atomic repair before any dete
       findings: [{
         path: "chat.response",
         code: "voice",
-        evidence: "The reader considers",
-        expected: "Reader dialogue should be spoken in Selena's first-person voice, not refer to her generically in third person.",
+        evidence: "Selena considers",
+        expected: "Reader dialogue should be spoken in Selena's first-person voice rather than referring to Selena in third person.",
       }],
     },
-    { edits: [{ mode: "patch", path: "chat.response", before: "The reader considers", after: "I consider" }] },
+    { edits: [{ mode: "patch", path: "chat.response", before: "Selena considers", after: "I consider" }] },
     { verdict: "pass", findings: [] },
   ];
   const fetch = async (_url, init) => {
