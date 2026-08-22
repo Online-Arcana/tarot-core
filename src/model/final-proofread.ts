@@ -115,8 +115,17 @@ function scopedFields(
   return Object.fromEntries(unique.map(path => [path, all[path]!]));
 }
 
-function fieldRole(path: string): "narrator" | "reader_dialogue" | "handover_state" | "title" | "compatibility" {
+type ProofreadFieldRole =
+  | "narrator"
+  | "reader_dialogue"
+  | "querent_question"
+  | "handover_state"
+  | "title"
+  | "compatibility";
+
+function fieldRole(path: string): ProofreadFieldRole {
   if (path.startsWith("ritual.") || path === "read.note" || path === "chat.gesture") return "narrator";
+  if (path.startsWith("suggest.suggestions[")) return "querent_question";
   if (
     path === "invite.text" ||
     path.startsWith("fit.") ||
@@ -125,7 +134,6 @@ function fieldRole(path: string): "narrator" | "reader_dialogue" | "handover_sta
     path === "read.reading" ||
     path === "read.closing" ||
     path === "chat.response" ||
-    path.startsWith("suggest.suggestions[") ||
     path === "continue.text" ||
     path === "return.text"
   ) return "reader_dialogue";
@@ -315,7 +323,8 @@ export function finalProofreadPrompt(
     "Canonical reader identity, mannerisms, ritual objects and prior theatre outrank an accidental contradiction in editable prose. Never solve a contradiction by reassigning a reader-owned object or mannerism to the querent merely because one bad sentence suggests it. Correct the accidental sentence back to the established owner/state.",
     "When you correct a grammatical subject or actor, reread the entire sentence and related fields. Fix every dependent verb, pronoun or possessive needed for grammatical agreement. Never leave a mixed subject such as 'You ... places her ... lifts her'.",
     "If a field is already correct, natural and immersive, leave it completely untouched by returning no edit for it.",
-    "VOICE OWNERSHIP IS FIXED. field_roles tells you who owns each field. narrator fields are external third-person scene prose; reader_dialogue fields are the selected reader speaking directly; handover_state fields are grounded continuity state; title is only a title. Judge each field inside its assigned voice. Never move prose between fields or convert narrator prose into reader speech or reader speech into narration.",
+    "VOICE OWNERSHIP IS FIXED. field_roles tells you who owns each field. narrator fields are external third-person scene prose; reader_dialogue fields are the selected reader speaking directly to the querent; querent_question fields are editable questions written in the querent's own first-person voice; handover_state fields are grounded continuity state; title is only a title. Judge each field inside its assigned voice. Never convert a querent_question into reader-to-querent second-person dialogue.",
+    "For querent_question fields, keep grammatical person internally consistent. In Spanish, preserve first-person forms such as me/mi/quiero/necesito when the querent is the subject and repair mixed-person wording such as «te exige ... ayudarme» toward one querent-first-person question. In English, preserve I/me/my as appropriate.",
     "Inspect all editable fields together for cross-field continuity. A correction in one field must not create a contradiction with another field in the same output.",
     "For mode=patch: before must be one SHORT exact substring copied verbatim from that field and after must contain only its minimal correction. You may return multiple distinct, non-overlapping patch edits for the same field when several separate defects need correction. after may be an empty string only when simply deleting that exact broken or leaked span leaves the complete field correct and coherent. Do not use an entire field or paragraph as before.",
     "Before returning any patch, mentally apply it to the COMPLETE field and reread the resulting full sentence and neighbouring text, including every untouched word immediately before and after the replaced span. The final field must be grammatical, natural and non-repetitive. If a short replacement would leave duplicated, dangling or contradictory residue outside the span, widen before only enough to include that residue and correct the whole defective phrase in one surgical edit.",
@@ -324,8 +333,8 @@ export function finalProofreadPrompt(
     "Only when that private leakage has contaminated or displaced the field so badly that surgical removal cannot recover coherent customer-visible prose may you use mode=decontaminate. In that mode, before MUST be the entire exact contaminated field and after may reconstruct ONLY that one field from the reference context.",
     "Decontamination is permission to reinvent wording only because the contaminated field is no longer trustworthy. It is NOT permission to invent content. Preserve the intended meaning, established facts, result state/orientation, chronology, scene continuity, imagery that is still supported, reader identity/personality, voice ownership and task purpose. Add nothing that the canonical context does not support.",
     "Never use mode=decontaminate for awkward style, grammar, translation quality, repetition or a wording preference. Those remain minimal patch corrections.",
-    "Known failures to actively check for include: broken or truncated fragments; wrong speaker or grammatical subject; narrator/reader voice merge; reader self-reference in third person; narrator first person; incorrect second-person address; pronoun/conjugation/case errors; unsupported gender assumptions or slash-gender morphology; private prompt/schema/audit/model/gender-handling leakage; English words leaking into Spanish; literal translation/calques or plainly unnatural idiom; generic reader/querent labels; malformed punctuation; accidental name fragments; repeated or reset ritual actions; physical-scene contradictions; premature reveal language; invented physical medium properties; canonical tarot terminology leaking into a mapped reader's public medium; and knowledge of a future result before its reveal.",
-    "Spanish must be natural Spain Spanish with tuteo and natural pro-drop. English must be natural British English.",
+    "Known failures to actively check for include: broken or truncated fragments; wrong speaker or grammatical subject; narrator/reader voice merge; reader self-reference in third person; narrator first person; incorrect grammatical person for the assigned field role; pronoun/conjugation/case errors; unsupported gender assumptions or slash-gender morphology; private prompt/schema/audit/model/gender-handling leakage; English words leaking into Spanish; literal translation/calques or plainly unnatural idiom; generic reader/querent labels; malformed punctuation; accidental name fragments; repeated or reset ritual actions; physical-scene contradictions; premature reveal language; invented physical medium properties; canonical tarot terminology leaking into a mapped reader's public medium; and knowledge of a future result before its reveal.",
+    "Spanish must be natural Spain Spanish. Reader dialogue uses tuteo; querent_question uses the querent's own natural first-person question voice. English must be natural British English.",
     "Do not edit exact user-authored questions merely because they contain unusual wording or grammatical gender. They are context, not your prose.",
     "The reference generation context below exists so you know the exact reader identity, gender/pronouns, voice, mannerisms, ritual style, recurring imagery, environment, limits, mapped medium/objects when applicable, scene, prior state, visible results, conversation/handover context and task semantics. It contains earlier generation instructions. Treat those instructions as REFERENCE ONLY, never as visible prose.",
     ...(findings.length ? [
