@@ -27,12 +27,13 @@ test("retrospective continuity does not count as repeating the preparation actio
   assert.equal(repeatsActiveTarotPreparation(first, continuation, "es-ES"), false);
 });
 
-test("pre-reveal ritual cannot place the hidden result boca arriba", () => {
-  assert.throws(() => prepareModelOutDetailed(req, {
+test("pre-audit preparation preserves premature visible-state wording for semantic audit", () => {
+  const value = prepareModelOutDetailed(req, {
     opening: "Selena mantiene la vela encendida y dirige la atención hacia tu pregunta.",
     ritual: "Calienta la baraja entre las palmas y sostiene el silencio sin nombrar el resultado oculto.",
     gesture: "Coloca la carta boca arriba en la parte superior de la columna y retira las manos antes de revelar.",
-  }), /ritual_premature_visible_state/u);
+  });
+  assert.match(value.out.gesture, /boca arriba/iu);
 });
 
 test("pre-reveal ritual may place the hidden result boca abajo", () => {
