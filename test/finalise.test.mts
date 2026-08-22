@@ -102,23 +102,25 @@ test("core finalisation does not mechanically rewrite narrator audience", () => 
   assert.ok(englishAudit.errors.some(value => value.includes("querent's proper name")));
 });
 
-test("pre-audit preparation repairs structural prose faults without retaining presentation metadata", () => {
+test("pre-audit preparation canonicalises metadata but does not regex-rewrite semantic prose", () => {
   const prepared = prepareModelOutDetailed(mappedReadReq, mappedReadOut);
   assert.equal(prepared.out.media, undefined);
-  assert.doesNotMatch(prepared.out.cardText[0], new RegExp(laterPublicName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "iu"));
+  assert.match(prepared.out.cardText[0], new RegExp(laterPublicName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "iu"));
   assert.match(prepared.out.note, /frente a ti/iu);
-  assert.ok(prepared.diagnostics.some(value => value.startsWith("future_leak_repaired:")));
-  const audit = auditModelOut(mappedReadReq, prepared.out);
-  assert.equal(audit.valid, true, audit.errors.join(" | "));
+  assert.equal(prepared.diagnostics.some(value => value.startsWith("future_leak_repaired:")), false);
+
+  const legacyAudit = auditModelOut(mappedReadReq, prepared.out);
+  assert.equal(legacyAudit.valid, false);
+  assert.ok(legacyAudit.issues.some(issue => issue.code === "future_result"));
 });
 
-test("public finalisation repairs mapped public future-result leaks and attaches media", () => {
+test("public finalisation attaches mapped media without mechanically repairing semantic prose", () => {
   const finalised = finaliseModelOutDetailed(mappedReadReq, mappedReadOut);
   assert.ok(Array.isArray(finalised.out.media));
-  assert.equal(futureLeaks(mappedReadReq.draw, finalised.out, mappedReadReq.lang, mappedReadReq.question).length, 0);
-  assert.doesNotMatch(finalised.out.cardText[0], new RegExp(laterPublicName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "iu"));
+  assert.ok(futureLeaks(mappedReadReq.draw, finalised.out, mappedReadReq.lang, mappedReadReq.question).length > 0);
+  assert.match(finalised.out.cardText[0], new RegExp(laterPublicName.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "iu"));
   assert.match(finalised.out.note, /frente a ti/iu);
-  assert.ok(finalised.diagnostics.some(value => value.startsWith("future_leak_repaired:")));
+  assert.equal(finalised.diagnostics.some(value => value.startsWith("future_leak_repaired:")), false);
 });
 
 test("core finalisation is idempotent", () => {
