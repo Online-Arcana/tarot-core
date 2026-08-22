@@ -8,7 +8,7 @@ const req = {
   task: "read",
   lang: "en-GB",
   reader: "brennos",
-  name: "Kitty",
+  name: "Alex",
   history: [],
   question: "What now?",
   draw: {
