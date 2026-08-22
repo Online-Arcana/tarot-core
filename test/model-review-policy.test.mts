@@ -22,14 +22,16 @@ const response = value => new Response(JSON.stringify({ output_text: JSON.string
   headers: { "content-type": "application/json" },
 });
 
-test("clean primary prose is delivered after exactly one model call", async () => {
+test("clean primary prose receives one cheap semantic audit and no repair", async () => {
   assert.equal(auditModelOut(req, clean).valid, true);
   assert.equal(validModelOut(req, clean), true);
   const calls = [];
+  const replies = [clean, { verdict: "pass", findings: [] }];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
-    if (calls.length > 1) throw new Error("clean prose must not invoke a reviewer or correction model");
-    return response(clean);
+    const next = replies.shift();
+    if (next === undefined) throw new Error("clean prose must not invoke a repair model");
+    return response(next);
   };
 
   const result = await runModelSession(pack, req, {
@@ -41,16 +43,18 @@ test("clean primary prose is delivered after exactly one model call", async () =
     body: {},
   });
 
-  assert.equal(calls.length, 1);
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low"]);
   assert.equal(result.source, "primary");
   assert.deepEqual(result.out, clean);
   assert.ok(result.auditErrors.includes("delivery_path:primary_clean"));
-  assert.equal(result.auditErrors.some(value => value.includes("atomic_review")), false);
-  assert.equal(result.auditErrors.some(value => value.includes("broad_correction")), false);
+  assert.ok(result.auditErrors.includes("semantic_audit:pass"));
+  assert.ok(result.auditErrors.includes("semantic_final:pass"));
+  assert.equal(result.auditErrors.some(value => value.includes("semantic_repair")), false);
   assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
 });
 
-test("structurally valid but blank model output cannot become the customer response", async () => {
+test("structurally invalid blank model output cannot become the customer response", async () => {
   const blank = { gesture: "", response: "" };
   let calls = 0;
   const fetch = async () => {
@@ -79,18 +83,25 @@ const contextualOnly = {
   response: "Puedes volver a lo que ya sabes y comprobar qué parte necesita una decisión concreta antes de avanzar.",
 };
 
-test("public validity helper includes request-specific contextual findings", () => {
+test("synchronous public validity is deterministic only", () => {
   assert.equal(auditModelOut(req, contextualOnly).valid, true);
-  assert.equal(validModelOut(req, contextualOnly), false);
+  assert.equal(validModelOut(req, contextualOnly), true);
 });
 
-test("production path sends a contextual-only finding to one atomic reviewer", async () => {
-  // The established auditor deliberately accepts this. The per-request overlay
-  // is what knows Selena's configured identity and raises the advisory finding.
+test("production path sends semantic findings with original prose to Luna-medium repair", async () => {
   assert.equal(auditModelOut(req, contextualOnly).valid, true);
   const calls = [];
   const replies = [
     contextualOnly,
+    {
+      verdict: "repair",
+      findings: [{
+        path: "chat.gesture",
+        code: "reader_identity",
+        evidence: "Él",
+        expected: "Use Selena's configured feminine third-person subject pronoun in narrator prose.",
+      }],
+    },
     {
       edits: [{
         mode: "patch",
@@ -99,6 +110,7 @@ test("production path sends a contextual-only finding to one atomic reviewer", a
         after: "Ella",
       }],
     },
+    { verdict: "pass", findings: [] },
   ];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
@@ -116,20 +128,24 @@ test("production path sends a contextual-only finding to one atomic reviewer", a
     body: {},
   });
 
-  assert.equal(calls.length, 2);
-  assert.match(JSON.stringify(calls[1]), /reader_subject_drift/u);
-  assert.match(JSON.stringify(calls[1]), /compiled_audit_context/u);
+  assert.equal(calls.length, 4);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low", "medium", "low"]);
+  assert.match(JSON.stringify(calls[1]), /SEMANTIC AND GRAMMATICAL AUDIT ONLY/u);
+  assert.match(JSON.stringify(calls[2]), /semantic_reader_identity/u);
+  assert.match(JSON.stringify(calls[2]), /<semantic_audit_findings>/u);
+  assert.match(JSON.stringify(calls[2]), /Él mantiene/u);
   assert.equal(result.source, "escalation");
   assert.equal(result.out.gesture, contextualOnly.gesture.replace(/^Él/u, "Ella"));
   assert.equal(result.out.response, contextualOnly.response);
-  assert.ok(result.auditErrors.includes("contextual_review:edits:1"));
-  assert.ok(result.auditErrors.includes("delivery_path:contextual_atomic_revision"));
+  assert.ok(result.auditErrors.includes("semantic_repair:edits:1"));
+  assert.ok(result.auditErrors.includes("delivery_path:semantic_atomic_revision"));
+  assert.ok(result.auditErrors.includes("semantic_final:pass"));
   assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
 });
 
-test("contextual reviewer may dismiss a heuristic finding without touching prose", async () => {
+test("conservative low audit may pass prose that old heuristics would have questioned", async () => {
   const calls = [];
-  const replies = [contextualOnly, { edits: [] }];
+  const replies = [contextualOnly, { verdict: "pass", findings: [] }];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
     const next = replies.shift();
@@ -149,14 +165,24 @@ test("contextual reviewer may dismiss a heuristic finding without touching prose
   assert.equal(calls.length, 2);
   assert.equal(result.source, "primary");
   assert.deepEqual(result.out, contextualOnly);
-  assert.ok(result.auditErrors.includes("contextual_review:heuristic_findings_dismissed"));
-  assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
+  assert.ok(result.auditErrors.includes("semantic_audit:pass"));
+  assert.ok(result.auditErrors.includes("semantic_final:pass"));
+  assert.equal(result.auditErrors.some(value => value.includes("semantic_repair")), false);
 });
 
-test("contextual findings cannot authorise a whole-field rewrite", async () => {
+test("semantic findings cannot authorise a whole-field rewrite", async () => {
   const calls = [];
   const replies = [
     contextualOnly,
+    {
+      verdict: "repair",
+      findings: [{
+        path: "chat.gesture",
+        code: "reader_identity",
+        evidence: "Él",
+        expected: "Use Selena's configured feminine narrator subject.",
+      }],
+    },
     {
       edits: [{
         mode: "decontaminate",
@@ -182,7 +208,9 @@ test("contextual findings cannot authorise a whole-field rewrite", async () => {
     body: {},
   });
 
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 3);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low", "medium"]);
   assert.deepEqual(result.out, contextualOnly);
-  assert.ok(result.auditErrors.includes("contextual_review:non_atomic_patch_rejected"));
+  assert.ok(result.auditErrors.includes("semantic_repair:non_atomic_patch_rejected"));
+  assert.ok(result.auditErrors.some(value => value.startsWith("semantic_final_issue:reader_identity:chat.gesture:")));
 });
