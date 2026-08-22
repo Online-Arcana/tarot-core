@@ -30,6 +30,18 @@ function review() {
   return { audit, found };
 }
 
+function semanticNameFinding(path = "chat.gesture", evidence = "Alex") {
+  return {
+    verdict: "repair",
+    findings: [{
+      path,
+      code: "direct_address",
+      evidence,
+      expected: "Narrator prose should address the querent directly instead of referring to the querent by proper name.",
+    }],
+  };
+}
+
 test("contextual review isolates a querent-name leak without changing legacy helper behaviour", () => {
   const { audit, found } = review();
   assert.deepEqual(found.paths, ["chat.gesture"]);
@@ -37,7 +49,7 @@ test("contextual review isolates a querent-name leak without changing legacy hel
   assert.deepEqual(spanishNarratorCorrection(req, audit), { paths: ["chat.gesture"] });
 });
 
-test("audit-triggered proofread is field-scoped, heuristic and surgical", () => {
+test("audit-triggered proofread remains field-scoped and surgical as a compatibility helper", () => {
   const { found } = review();
   const shape = finalProofreadShape(req, primary, found.paths);
   assert.equal(shape.name, "arcana_final_proofread");
@@ -52,8 +64,13 @@ test("audit-triggered proofread is field-scoped, heuristic and surgical", () => 
   assert.equal(auditModelOut(req, revised).valid, true);
 });
 
-test("runner performs atomic review before broader recovery", async () => {
-  const replies = [primary, { edits: [{ mode: "patch", path: "chat.gesture", before: "Alex", after: "lo que has preguntado" }] }];
+test("runner uses low semantic findings to drive medium atomic repair", async () => {
+  const replies = [
+    primary,
+    semanticNameFinding(),
+    { edits: [{ mode: "patch", path: "chat.gesture", before: "Alex", after: "lo que has preguntado" }] },
+    { verdict: "pass", findings: [] },
+  ];
   const calls = [];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
@@ -62,13 +79,14 @@ test("runner performs atomic review before broader recovery", async () => {
     return response(next);
   };
   const result = await runModelSession(pack, req, { apiKey: "test", conversation: false, guaranteeOutput: true, retries: 0, fetch, body: {} });
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 4);
+  assert.deepEqual(calls.map(call => call.reasoning.effort), ["none", "low", "medium", "low"]);
   assert.equal(result.out.gesture, corrected);
   assert.equal(result.out.response, primary.response);
-  assert.ok(result.auditErrors.includes("delivery_path:atomic_revision"));
+  assert.ok(result.auditErrors.includes("delivery_path:semantic_atomic_revision"));
 });
 
-test("atomic querent-name repair is language-agnostic", async () => {
+test("semantic querent-name repair is language-agnostic", async () => {
   const englishReq = {
     task: "chat",
     lang: "en-GB",
@@ -82,7 +100,12 @@ test("atomic querent-name repair is language-agnostic", async () => {
     response: "You can return to the tension you already recognise and decide which part deserves one concrete action before seeking more certainty.",
   };
   const englishCorrected = "Selena keeps one hand beside the reading while she thinks about what you asked and lets the room settle around the question. Candlelight moves slowly across the table while the visible pattern remains undisturbed in front of you.";
-  const replies = [englishPrimary, { edits: [{ mode: "patch", path: "chat.gesture", before: "Alex", after: "what you asked" }] }];
+  const replies = [
+    englishPrimary,
+    semanticNameFinding(),
+    { edits: [{ mode: "patch", path: "chat.gesture", before: "Alex", after: "what you asked" }] },
+    { verdict: "pass", findings: [] },
+  ];
   const calls = [];
   const fetch = async (_url, init) => {
     calls.push(JSON.parse(init.body));
@@ -100,28 +123,30 @@ test("atomic querent-name repair is language-agnostic", async () => {
     body: {},
   });
 
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 4);
   assert.equal(result.out.gesture, englishCorrected);
   assert.equal(result.out.response, englishPrimary.response);
-  assert.ok(result.auditErrors.includes("delivery_path:atomic_revision"));
+  assert.ok(result.auditErrors.includes("delivery_path:semantic_atomic_revision"));
 });
 
-test("reviewer may dismiss a heuristic finding without changing prose", async () => {
-  const replies = [primary, { edits: [] }];
+test("low semantic auditor may pass prose that a legacy heuristic flags", async () => {
+  const replies = [primary, { verdict: "pass", findings: [] }];
   const fetch = async () => response(replies.shift());
   const result = await runModelSession(pack, req, { apiKey: "test", conversation: false, guaranteeOutput: true, retries: 0, fetch, body: {} });
   assert.equal(result.source, "primary");
   assert.equal(result.out.gesture, primary.gesture);
-  assert.ok(result.auditErrors.includes("atomic_review:heuristic_findings_dismissed"));
+  assert.ok(result.auditErrors.includes("semantic_audit:pass"));
+  assert.ok(result.auditErrors.includes("semantic_final:pass"));
 });
 
-test("usable imperfect LLM prose beats deterministic reserve", async () => {
-  const replies = [primary, { edits: [{ mode: "patch", path: "chat.gesture", before: "Alex", after: "la persona consultante" }] }, primary];
+test("usable imperfect LLM prose beats deterministic reserve when medium declines an edit", async () => {
+  const replies = [primary, semanticNameFinding(), { edits: [] }];
   const fetch = async () => response(replies.shift());
   const result = await runModelSession(pack, req, { apiKey: "test", conversation: false, guaranteeOutput: true, retries: 0, fetch, body: {} });
   assert.equal(result.source, "primary");
   assert.equal(result.out.gesture, primary.gesture);
-  assert.ok(result.auditErrors.includes("delivery_path:imperfect_llm"));
+  assert.ok(result.auditErrors.includes("semantic_repair:no_change"));
+  assert.ok(result.auditErrors.includes("semantic_repair:preserved_original"));
   assert.equal(result.auditErrors.some(value => value.includes("deterministic_reserve")), false);
 });
 
