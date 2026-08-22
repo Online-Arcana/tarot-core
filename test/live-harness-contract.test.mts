@@ -31,17 +31,22 @@ test("full live matrix stamps the local commit and covers both supported languag
   assert.match(matrixRunner, /GITHUB_SHA: commit/u);
 });
 
-test("paid matrix reports use the same contextual audit contract as production", () => {
-  assert.match(matrixWorker, /contextualAuditModelOut/u);
+test("paid matrix reports use the same production deterministic and semantic-final contract", () => {
+  assert.match(matrixWorker, /productionAuditModelOut/u);
+  assert.match(matrixWorker, /semanticFinalIssues\(result\)/u);
+  assert.match(matrixWorker, /semantic_final_issue:/u);
+  assert.match(matrixWorker, /semantic_final:unknown/u);
+  assert.doesNotMatch(matrixWorker, /contextualAuditModelOut/u);
   assert.doesNotMatch(matrixWorker, /from "\.\.\/dist\/model\/audit\.js"/u);
-  assert.match(matrixWorker, /delivery_path:contextual_atomic_revision/u);
-  assert.match(matrixWorker, /delivery_path:atomic_revision/u);
-  assert.doesNotMatch(matrixWorker, /narrow_spanish_narrator_correction/u);
+  assert.match(matrixWorker, /delivery_path:semantic_atomic_revision/u);
+  assert.match(matrixWorker, /delivery_path:semantic_atomic_revision_retry/u);
 });
 
-test("paid matrix retry accounting separates semantic review calls from transport retries", () => {
-  assert.match(matrixWorker, /function semanticCallCount\(result\)/u);
-  assert.match(matrixWorker, /Math\.max\(0, calls\.length - semanticCallCount\(result\)\)/u);
+test("paid matrix retry accounting separates the bounded semantic pipeline from transport retries", () => {
+  assert.match(matrixWorker, /function logicalCallCount\(result, task\)/u);
+  assert.match(matrixWorker, /semantic_retry_repair:/u);
+  assert.match(matrixWorker, /semantic_retry_reaudit:/u);
+  assert.match(matrixWorker, /Math\.max\(0, calls\.length - logicalCallCount\(result, req\.task\)\)/u);
 });
 
 test("human review pack exposes canonical draw references only as review context", () => {
