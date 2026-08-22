@@ -2,38 +2,45 @@ import {
   OpenAISchema,
   type Dict,
 } from "../vendor/openai-schema/src/openaiSchema.js";
-import type { ApiOut } from "../contracts/types.js";
+import type { ApiOut, ApiReq } from "../contracts/types.js";
 import { canonicaliseApiReq } from "../domain/request.js";
 import { auditContextSummary, buildAuditContext } from "./audit-context.js";
-import { auditModelOut as baseAuditModelOut, type AuditIssue } from "./audit.js";
-import { contextualAuditModelOut } from "./contextual-audit.js";
 import {
   applyFinalProofread,
   finalProofreadPrompt,
   finalProofreadShape,
 } from "./final-proofread.js";
 import { prepareModelOutDetailed } from "./finalise.js";
-import { contextualProseCorrection } from "./prose-review.js";
+import { auditModelOut as deterministicAuditModelOut } from "./production-audit.js";
 import {
-  modelPrompt,
+  SEMANTIC_AUDIT_EFFORT,
+  SEMANTIC_AUDIT_MODEL,
+  SEMANTIC_REPAIR_EFFORT,
+  SEMANTIC_REPAIR_MODEL,
+  semanticAuditPrompt,
+  semanticAuditShape,
+  semanticFindingsAsAuditIssues,
+  type SemanticAuditResult,
+} from "./semantic-audit.js";
+import {
   modelRequestBody,
   runModelSession as runBaseModelSession,
   type ModelCfg,
   type ModelPack,
   type ModelResult,
 } from "./runner.js";
-import { outputShape } from "./schema.js";
 
 function dict(value: unknown): value is Dict {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function reviewOpts(cfg: ModelCfg, model: string) {
+function callOpts(cfg: ModelCfg, model: string, effort: string) {
   const body = modelRequestBody(model, {
     ...cfg.body,
+    max_output_tokens: effort === SEMANTIC_AUDIT_EFFORT ? 1_200 : 2_400,
     reasoning: {
       ...(dict(cfg.body.reasoning) ? cfg.body.reasoning : {}),
-      effort: "none",
+      effort,
     },
   });
   return {
@@ -54,32 +61,47 @@ function appendDiagnostics(result: ModelResult, diagnostics: readonly string[]):
   };
 }
 
-function reviewFinding(issue: AuditIssue): Record<string, string> {
-  const contextual = issue as AuditIssue & {
-    readonly evidence?: string;
-    readonly expected?: string;
-    readonly repairScope?: string;
-  };
-  return {
-    code: issue.code,
-    path: issue.path,
-    message: issue.message,
-    ...(contextual.evidence === undefined ? {} : { evidence: contextual.evidence }),
-    ...(contextual.expected === undefined ? {} : { expected: contextual.expected }),
-    ...(contextual.repairScope === undefined ? {} : { repairScope: contextual.repairScope }),
-  };
+function finalFindingDiagnostics(findings: SemanticAuditResult["findings"]): string[] {
+  return findings.map(finding =>
+    `semantic_final_issue:${finding.code}:${finding.path}:${JSON.stringify(finding.evidence)}`);
+}
+
+async function semanticAudit(
+  req: ApiReq,
+  out: ApiOut,
+  cfg: ModelCfg,
+): Promise<SemanticAuditResult> {
+  const auditor = new OpenAISchema<SemanticAuditResult>(
+    cfg.apiKey,
+    semanticAuditShape(req, out),
+    undefined,
+    {
+      conversation: false,
+      ...(cfg.fetch === undefined ? {} : { fetch: cfg.fetch }),
+    },
+  );
+  return auditor.send(
+    [{ role: "system", content: semanticAuditPrompt(req, out) }],
+    callOpts(cfg, SEMANTIC_AUDIT_MODEL, SEMANTIC_AUDIT_EFFORT),
+  );
 }
 
 export const validModelOut = (request: Parameters<typeof runBaseModelSession>[1], out: ApiOut): boolean => {
   const req = canonicaliseApiReq(request);
-  return contextualAuditModelOut(req, prepareModelOutDetailed(req, out).out).valid;
+  // Synchronous validity can only certify deterministic facts. Semantic
+  // correctness is intentionally checked by the async Luna audit in
+  // runModelSession().
+  return deterministicAuditModelOut(req, prepareModelOutDetailed(req, out).out).valid;
 };
 
 /**
- * Run the established model/recovery pipeline, then apply the request-specific
- * contextual audit only to otherwise-valid LLM prose. This keeps contextual NLP
- * findings advisory: they may trigger one surgical review, but they never route
- * usable model prose to deterministic recovery.
+ * Production semantic quality gate.
+ *
+ * Deterministic code handles shape and objectively provable lexical/state
+ * contracts. A separate conversation-free Luna-low call judges grammar and
+ * semantics. Only concrete findings are passed, together with the untouched
+ * original prose, to a Luna-medium atomic repair call. Regex heuristics are not
+ * allowed to author or trigger semantic repairs.
  */
 export async function runModelSession(
   pack: ModelPack,
@@ -89,33 +111,44 @@ export async function runModelSession(
   const req = canonicaliseApiReq(request);
   const result = await runBaseModelSession(pack, req, cfg);
 
-  // Deterministic prose means the model pipeline had no usable candidate. There
-  // is no model prose to preserve or review, and another model call may be just
-  // as unavailable as the calls that led to the reserve.
+  // Deterministic prose is an availability reserve. Do not spend another model
+  // call auditing prose after model availability has already failed.
   if (result.source === "reconstructed") return result;
 
-  const baseAudit = baseAuditModelOut(req, result.out);
-  if (!baseAudit.valid) {
-    // The established runner already attempted its quality-recovery path. Never
-    // turn remaining prose imperfections into a deterministic replacement here.
-    return result;
-  }
-
-  const contextualAudit = contextualAuditModelOut(req, result.out);
-  if (contextualAudit.valid) return result;
-
-  const review = contextualProseCorrection(req, contextualAudit);
-  if (review === null) {
+  const deterministic = deterministicAuditModelOut(req, result.out);
+  if (!deterministic.valid) {
+    // The base runner already exhausted deterministic quality recovery. Never
+    // route a usable LLM candidate to deterministic prose for semantic reasons.
     return appendDiagnostics(result, [
-      ...contextualAudit.errors,
-      "contextual_review:unhandled_advisory_findings",
+      ...deterministic.errors,
+      "semantic_audit:skipped_due_deterministic_findings",
     ]);
   }
 
+  let audit: SemanticAuditResult;
   try {
-    const ai = new OpenAISchema<ApiOut>(
+    audit = await semanticAudit(req, result.out, cfg);
+  } catch (cause: unknown) {
+    // The semantic auditor is a quality service, not an availability gate.
+    // Its own transport/shape failure must not suppress usable generated prose.
+    return appendDiagnostics(result, [
+      `semantic_audit:exception:${message(cause)}`,
+      "semantic_final:unknown",
+      "semantic_audit:preserved_original",
+    ]);
+  }
+
+  if (audit.verdict === "pass") {
+    return appendDiagnostics(result, ["semantic_audit:pass", "semantic_final:pass"]);
+  }
+
+  const findings = semanticFindingsAsAuditIssues(audit.findings);
+  const paths = [...new Set(audit.findings.map(finding => finding.path))];
+
+  try {
+    const reviewer = new OpenAISchema(
       cfg.apiKey,
-      outputShape(req),
+      finalProofreadShape(req, result.out, paths),
       undefined,
       {
         conversation: false,
@@ -123,68 +156,118 @@ export async function runModelSession(
       },
     );
     const generationContext = [
-      modelPrompt(pack, req),
       "<compiled_audit_context>",
       JSON.stringify(auditContextSummary(buildAuditContext(req))),
       "</compiled_audit_context>",
-      "<compiled_audit_findings>",
-      JSON.stringify(review.findings.map(reviewFinding)),
-      "</compiled_audit_findings>",
+      "<semantic_audit_findings>",
+      JSON.stringify(audit.findings),
+      "</semantic_audit_findings>",
     ].join("\n");
-    const patch = await ai.run(
-      finalProofreadShape(req, result.out, review.paths),
+
+    const patch = await reviewer.send(
       [{
         role: "system",
         content: finalProofreadPrompt(req, result.out, generationContext, {
-          paths: review.paths,
-          findings: review.findings,
+          paths,
+          findings,
         }),
       }],
-      reviewOpts(cfg, result.escalationModel),
-      "arcana_contextual_prose_review",
+      callOpts(cfg, SEMANTIC_REPAIR_MODEL, SEMANTIC_REPAIR_EFFORT),
     );
 
     if (patch.edits.length === 0) {
       return appendDiagnostics(result, [
-        ...review.findings.map(finding => finding.message),
-        "contextual_review:heuristic_findings_dismissed",
+        ...findings.map(finding => finding.message),
+        ...finalFindingDiagnostics(audit.findings),
+        "semantic_repair:no_change",
+        "semantic_repair:preserved_original",
       ]);
     }
 
-    // Contextual review is deliberately atomic. Full-field decontamination is a
-    // separate recovery concern and is never authorised merely by an NLP finding.
+    // Semantic repair is deliberately surgical. A semantic finding never
+    // authorises a whole-field rewrite.
     if (patch.edits.some(edit => edit.mode !== "patch")) {
       return appendDiagnostics(result, [
-        ...review.findings.map(finding => finding.message),
-        "contextual_review:non_atomic_patch_rejected",
+        ...findings.map(finding => finding.message),
+        ...finalFindingDiagnostics(audit.findings),
+        "semantic_repair:non_atomic_patch_rejected",
+        "semantic_repair:preserved_original",
       ]);
     }
 
     const revised = applyFinalProofread(result.out, patch);
-    const revisedAudit = contextualAuditModelOut(req, revised);
-    if (!revisedAudit.valid) {
+    const revisedDeterministic = deterministicAuditModelOut(req, revised);
+    if (!revisedDeterministic.valid) {
       return appendDiagnostics(result, [
-        ...review.findings.map(finding => finding.message),
-        ...revisedAudit.errors,
-        "contextual_review:revision_rejected_preserved_original",
+        ...findings.map(finding => finding.message),
+        ...finalFindingDiagnostics(audit.findings),
+        ...revisedDeterministic.errors,
+        "semantic_repair:deterministic_regression_rejected",
+        "semantic_repair:preserved_original",
       ]);
     }
 
-    return {
-      ...result,
-      out: revised,
-      source: "escalation",
-      auditErrors: [...new Set([
-        ...result.auditErrors,
-        `contextual_review:edits:${patch.edits.length}`,
-        "delivery_path:contextual_atomic_revision",
-      ])],
-    };
+    // Only repaired responses pay for a second cheap audit. Clean responses use
+    // exactly one Luna-low audit call.
+    try {
+      const reaudit = await semanticAudit(req, revised, cfg);
+      if (reaudit.verdict === "pass") {
+        return {
+          ...result,
+          out: revised,
+          source: "escalation",
+          auditErrors: [...new Set([
+            ...result.auditErrors,
+            `semantic_audit:findings:${audit.findings.length}`,
+            `semantic_repair:edits:${patch.edits.length}`,
+            "semantic_reaudit:pass",
+            "semantic_final:pass",
+            "delivery_path:semantic_atomic_revision",
+          ])],
+        };
+      }
+
+      // A usable LLM repair still beats deterministic prose. Preserve the
+      // repaired candidate and expose the remaining semantic diagnostics rather
+      // than silently reverting to a known-bad original.
+      return {
+        ...result,
+        out: revised,
+        source: "escalation",
+        auditErrors: [...new Set([
+          ...result.auditErrors,
+          ...reaudit.findings.map(finding =>
+            `${finding.path}: semantic_reaudit:${finding.code}; evidence=${JSON.stringify(finding.evidence)}; expected=${JSON.stringify(finding.expected)}`),
+          ...finalFindingDiagnostics(reaudit.findings),
+          `semantic_audit:findings:${audit.findings.length}`,
+          `semantic_repair:edits:${patch.edits.length}`,
+          `semantic_reaudit:remaining:${reaudit.findings.length}`,
+          "delivery_path:semantic_imperfect_revision",
+        ])],
+      };
+    } catch (cause: unknown) {
+      // The repair was structurally safe and based on a successful semantic
+      // audit. If only the confirmation call is unavailable, keep that repair.
+      return {
+        ...result,
+        out: revised,
+        source: "escalation",
+        auditErrors: [...new Set([
+          ...result.auditErrors,
+          `semantic_audit:findings:${audit.findings.length}`,
+          `semantic_repair:edits:${patch.edits.length}`,
+          `semantic_reaudit:exception:${message(cause)}`,
+          "semantic_final:unknown",
+          "delivery_path:semantic_unconfirmed_revision",
+        ])],
+      };
+    }
   } catch (cause: unknown) {
     return appendDiagnostics(result, [
-      ...review.findings.map(finding => finding.message),
-      `contextual_review:exception:${message(cause)}`,
-      "contextual_review:preserved_original",
+      ...findings.map(finding => finding.message),
+      ...finalFindingDiagnostics(audit.findings),
+      `semantic_repair:exception:${message(cause)}`,
+      "semantic_repair:preserved_original",
     ]);
   }
 }
