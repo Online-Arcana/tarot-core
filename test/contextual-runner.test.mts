@@ -44,14 +44,14 @@ test("contextual-only pro-drop actor drift gets one atomic production review", a
         {
           mode: "patch",
           path: "ritual.ritual",
-          before: "Agitas el escudo",
-          after: "Brennos agita el escudo",
+          before: "mientras Brennos mantiene",
+          after: "mientras mantiene",
         },
         {
           mode: "patch",
           path: "ritual.ritual",
-          before: "mientras Brennos mantiene",
-          after: "mientras mantiene",
+          before: "Agitas el escudo",
+          after: "Brennos agita el escudo",
         },
       ],
     },
