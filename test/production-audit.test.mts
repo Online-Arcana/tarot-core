@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { auditModelOut as legacyAuditModelOut } from "../dist/model/audit.js";
 import { auditModelOut as productionAuditModelOut } from "../dist/model/production-audit.js";
 
 const chatReq = {
@@ -17,10 +16,7 @@ const semanticOnly = {
   response: "Puedes seguir cuando estés preparado y mirar qué parte de esto necesita una decisión concreta.",
 };
 
-test("production deterministic audit does not promote Spanish gender heuristics to facts", () => {
-  const legacy = legacyAuditModelOut(chatReq, semanticOnly);
-  assert.ok(legacy.issues.some(issue => issue.code === "querent_gender"));
-
+test("production deterministic audit does not promote Spanish gender semantics to facts", () => {
   const production = productionAuditModelOut(chatReq, semanticOnly);
   assert.equal(production.issues.some(issue => issue.code === "querent_gender"), false);
   assert.equal(production.valid, true, production.errors.join("\n"));
