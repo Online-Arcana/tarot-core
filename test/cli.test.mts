@@ -34,6 +34,12 @@ const reading = {
   note: "Reflective guidance only.",
 };
 
+const semanticPass = { verdict: "pass", findings: [] };
+
+function isSemanticAudit(body) {
+  return body?.text?.format?.name === "arcana_semantic_audit";
+}
+
 test("parses the reduced JSON contract", () => {
   assert.deepEqual(parseCliInput({
     name: "Alex",
@@ -52,11 +58,13 @@ test("parses the reduced JSON contract", () => {
 test("creates and returns a session key without changing the library path", async () => {
   const calls = [];
   const fetch = async (url, init) => {
-    calls.push({ url: String(url), body: init?.body ? JSON.parse(init.body) : null });
+    const body = init?.body ? JSON.parse(init.body) : null;
+    calls.push({ url: String(url), body });
     if (String(url).endsWith("/conversations")) {
       return new Response(JSON.stringify({ id: "conv_created" }), { status: 200 });
     }
-    return new Response(JSON.stringify({ output_text: JSON.stringify(reading) }), { status: 200 });
+    const value = isSemanticAudit(body) ? semanticPass : reading;
+    return new Response(JSON.stringify({ output_text: JSON.stringify(value) }), { status: 200 });
   };
   const out = await runCli(parseCliInput({
     name: "Alex",
@@ -74,14 +82,17 @@ test("creates and returns a session key without changing the library path", asyn
   assert.equal(out.model.source, "primary");
   assert.equal(out.model.primaryModel, "test-model");
   assert.ok(out.model.auditErrors.includes("delivery_path:primary_clean"));
-  assert.equal(calls[1].body.conversation.id, "conv_created");
+  const generation = calls.find(call => call.body?.conversation?.id === "conv_created");
+  assert.ok(generation);
 });
 
-test("reuses a supplied session key", async () => {
+test("reuses a supplied session key while semantic audit stays conversation-free", async () => {
   const calls = [];
   const fetch = async (url, init) => {
-    calls.push({ url: String(url), body: init?.body ? JSON.parse(init.body) : null });
-    return new Response(JSON.stringify({ output_text: JSON.stringify(reading) }), { status: 200 });
+    const body = init?.body ? JSON.parse(init.body) : null;
+    calls.push({ url: String(url), body });
+    const value = isSemanticAudit(body) ? semanticPass : reading;
+    return new Response(JSON.stringify({ output_text: JSON.stringify(value) }), { status: 200 });
   };
   const out = await runCli(parseCliInput({
     name: "Alex",
@@ -96,8 +107,13 @@ test("reuses a supplied session key", async () => {
     fetch,
   });
   assert.equal(out.sessionKey, "conv_existing");
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].body.conversation.id, "conv_existing");
+  assert.equal(calls.length, 2);
+  const generationCalls = calls.filter(call => !isSemanticAudit(call.body));
+  const auditCalls = calls.filter(call => isSemanticAudit(call.body));
+  assert.equal(generationCalls.length, 1);
+  assert.equal(auditCalls.length, 1);
+  assert.equal(generationCalls[0].body.conversation.id, "conv_existing");
+  assert.equal(auditCalls[0].body.conversation, undefined);
 });
 
 test("reports the deterministic availability reserve when model output is unusable", async () => {
