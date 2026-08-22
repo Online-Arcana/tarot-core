@@ -12,7 +12,7 @@ import type {
   SuggestOut,
   TitleOut,
 } from "../contracts/types.js";
-import { auditLanguage, containsWholePhrase } from "./language.js";
+import { auditLanguage, containsWholePhrase, regexEscape } from "./language.js";
 import { auditRole, buildAuditContext, type AuditContext } from "./audit-context.js";
 import {
   contractActionEvidence,
@@ -107,7 +107,11 @@ function oppositeReaderPronoun(ctx: AuditContext): string {
 
 function readerPronounDriftEvidence(ctx: AuditContext, value: string): string | null {
   const opposite = oppositeReaderPronoun(ctx);
-  return containsWholePhrase(value, opposite, ctx.language) ? opposite : null;
+  const exactToken = new RegExp(
+    `(?<![\\p{L}\\p{N}])${regexEscape(opposite)}(?![\\p{L}\\p{N}])`,
+    "iu",
+  );
+  return exactToken.test(value) ? opposite : null;
 }
 
 const FEMALE_DIRECT = /\b(?:estás|te\s+sientes|sentirte|encontrarte|verte|notarte|quedarte|mantenerte|hacerte|volverte|dejarte|sigues|quedas|pareces|resultas)\s+(?:más\s+|menos\s+)?(?:preparada|dispuesta|cansada|agotada|lista|segura|tranquila|elegida|vista|acompañada|respaldada|apoyada|atrapada|convencida|confundida|obligada|escuchada|sola|pequeña)\b/iu;
