@@ -5,7 +5,7 @@ import {
   canonicalCardIds,
   canonicalSpread,
 } from "../dist/domain/canonical.js";
-import { contextualAuditModelOut } from "../dist/model/contextual-audit.js";
+import { auditModelOut as productionAuditModelOut } from "../dist/model/production-audit.js";
 import { finaliseModelOutDetailed } from "../dist/model/finalise.js";
 import { modelPayload } from "../dist/model/prompt.js";
 import { reconstructModelOutDetailed } from "../dist/model/recover.js";
@@ -27,6 +27,7 @@ const spreadIds = ["three", "decision", "advice"];
 const cardIds = canonicalCardIds();
 const querent = "Alex";
 const pack = { prompt: { reading: "", chat: "" } };
+const placeholderTerms = /\b(?:placeholder|something went wrong|unable to generate|generation failed|error generating|texto provisional|marcador de posición|no se pudo generar|error al generar)\b/iu;
 const baseQuestion = lang === "es-ES"
   ? "¿Qué necesito comprender sobre el cambio que estoy considerando?"
   : "What do I need to understand about the change I am considering?";
@@ -38,7 +39,7 @@ const referralReason = lang === "es-ES"
   : "Continue the reflection with the next reader voice.";
 
 const report = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   kind: "chained-three-card-reader-smoke",
   generatedAt: new Date().toISOString(),
   commit,
@@ -67,9 +68,12 @@ const report = {
     emergencyFallback: 0,
     retryRequests: 0,
     narrowCorrections: 0,
+    semanticRepairs: 0,
+    semanticUnknown: 0,
     finalAuditIssues: 0,
     querentGenderIssues: 0,
     genericReaderLabels: 0,
+    querentNameNarratorLeaks: 0,
     voiceLeaks: 0,
     mappedCanonicalLeaks: 0,
     futureResultLeaks: 0,
@@ -133,18 +137,40 @@ function countIssue(issue) {
   report.summary.finalAuditIssues += 1;
   if (issue.code === "querent_gender") report.summary.querentGenderIssues += 1;
   if (issue.code === "generic_reader") report.summary.genericReaderLabels += 1;
-  if (issue.code === "reader_third_person" || issue.code === "narrator_first_person" || issue.code === "ritual_voice_leak") report.summary.voiceLeaks += 1;
-  if (issue.code === "canonical_medium" || issue.code === "hidden_canonical") report.summary.mappedCanonicalLeaks += 1;
-  if (issue.code === "future_result") report.summary.futureResultLeaks += 1;
-  if (issue.code === "duplicate" || issue.code === "repetitive" || issue.code === "theatre_repetitive" || issue.code === "ritual_reuse") report.summary.repetitionIssues += 1;
+  if (issue.code === "querent_name_narrator") report.summary.querentNameNarratorLeaks += 1;
+  if (issue.code === "reader_third_person" || issue.code === "narrator_first_person" || issue.code === "ritual_voice_leak" || issue.code === "voice" || issue.code === "reader_identity" || issue.code === "actor") report.summary.voiceLeaks += 1;
+  if (issue.code === "canonical_medium" || issue.code === "hidden_canonical" || issue.code === "medium_grounding") report.summary.mappedCanonicalLeaks += 1;
+  if (issue.code === "future_result" || issue.code === "result_reference") report.summary.futureResultLeaks += 1;
+  if (issue.code === "duplicate" || issue.code === "repetitive" || issue.code === "theatre_repetitive" || issue.code === "ritual_reuse" || issue.code === "repetition" || issue.code === "ritual_continuity") report.summary.repetitionIssues += 1;
 }
 
-function semanticCallCount(result) {
-  let expected = 1;
+function semanticFinalIssues(result) {
+  return result.auditErrors
+    .filter(value => value.startsWith("semantic_final_issue:"))
+    .map(value => {
+      const rest = value.slice("semantic_final_issue:".length);
+      const first = rest.indexOf(":");
+      const second = first < 0 ? -1 : rest.indexOf(":", first + 1);
+      if (first < 0 || second < 0) return { code: "semantic", path: "output", message: value };
+      const code = rest.slice(0, first);
+      const path = rest.slice(first + 1, second);
+      const rawEvidence = rest.slice(second + 1);
+      const parsed = safeJson(rawEvidence);
+      const evidence = typeof parsed === "string" ? parsed : rawEvidence;
+      return { code, path, message: `${path}: semantic ${code}; evidence=${JSON.stringify(evidence)}` };
+    });
+}
+
+function logicalCallCount(result, task) {
   const diagnostics = result.auditErrors;
+  let expected = 1;
   if (diagnostics.some(value => value.startsWith("atomic_review:") || value.startsWith("atomic_review_exception:"))) expected += 1;
   if (diagnostics.some(value => value.includes("broad_correction"))) expected += 1;
-  if (diagnostics.some(value => value.startsWith("contextual_review:") || value === "delivery_path:contextual_atomic_revision")) expected += 1;
+  if (result.source !== "reconstructed" && task !== "handover" && !diagnostics.includes("semantic_audit:skipped_due_deterministic_findings")) expected += 1;
+  if (diagnostics.some(value => value.startsWith("semantic_repair:") || value === "delivery_path:semantic_atomic_revision" || value === "delivery_path:semantic_imperfect_revision" || value === "delivery_path:semantic_unconfirmed_revision" || value === "delivery_path:semantic_atomic_revision_retry")) expected += 1;
+  if (diagnostics.some(value => value.startsWith("semantic_reaudit:") || value.includes("semantic_reaudit:"))) expected += 1;
+  if (diagnostics.some(value => value.startsWith("semantic_retry_repair:"))) expected += 1;
+  if (diagnostics.some(value => value.startsWith("semantic_retry_reaudit:"))) expected += 1;
   return expected;
 }
 
@@ -152,8 +178,14 @@ function usedAtomicRevision(result) {
   return result.auditErrors.some(value =>
     value === "delivery_path:atomic_revision" ||
     value === "delivery_path:contextual_atomic_revision" ||
+    value === "delivery_path:semantic_atomic_revision" ||
+    value === "delivery_path:semantic_atomic_revision_retry" ||
+    value === "delivery_path:semantic_imperfect_revision" ||
+    value === "delivery_path:semantic_unconfirmed_revision" ||
     value.startsWith("atomic_review:edits:") ||
-    value.startsWith("contextual_review:edits:"));
+    value.startsWith("contextual_review:edits:") ||
+    value.startsWith("semantic_repair:edits:") ||
+    value.startsWith("semantic_retry_repair:edits:"));
 }
 
 async function runTask(label, req) {
@@ -170,8 +202,11 @@ async function runTask(label, req) {
       body: bodyFor(req.task),
     });
     const calls = report.network.slice(networkStart);
-    const retries = Math.max(0, calls.length - semanticCallCount(result));
-    const audit = contextualAuditModelOut(req, result.out);
+    const retries = Math.max(0, calls.length - logicalCallCount(result, req.task));
+    const deterministicAudit = productionAuditModelOut(req, result.out);
+    const semanticIssues = semanticFinalIssues(result);
+    const auditIssues = [...deterministicAudit.issues, ...semanticIssues];
+    const semanticUnknown = result.auditErrors.includes("semantic_final:unknown");
 
     report.summary.tasks += 1;
     report.summary[result.source] += 1;
@@ -181,8 +216,10 @@ async function runTask(label, req) {
     if (req.task === "handover") report.summary.handoverTasks += 1;
     if (result.auditErrors.includes("emergency_fallback_used")) report.summary.emergencyFallback += 1;
     if (usedAtomicRevision(result)) report.summary.narrowCorrections += 1;
-    for (const issue of audit.issues) countIssue(issue);
-    if (!audit.valid) report.summary.placeholderRisk += 1;
+    if (result.auditErrors.some(value => value.startsWith("semantic_repair:edits:"))) report.summary.semanticRepairs += 1;
+    if (semanticUnknown) report.summary.semanticUnknown += 1;
+    for (const issue of auditIssues) countIssue(issue);
+    if (placeholderTerms.test(JSON.stringify(result.out))) report.summary.placeholderRisk += 1;
 
     return {
       label,
@@ -192,7 +229,7 @@ async function runTask(label, req) {
       primaryModel: result.primaryModel,
       escalationModel: result.escalationModel,
       auditErrors: result.auditErrors,
-      finalAudit: { valid: audit.valid, issues: audit.issues },
+      finalAudit: { valid: auditIssues.length === 0 && !semanticUnknown, issues: auditIssues },
       networkCalls: calls.length,
       retryRequests: retries,
       out: result.out,
@@ -261,8 +298,8 @@ function drawFromPlan(plan) {
 function deterministicOut(req, label) {
   const reconstructed = reconstructModelOutDetailed(req, []);
   const out = finaliseModelOutDetailed(req, reconstructed.out).out;
-  const audit = contextualAuditModelOut(req, out);
-  if (!audit.valid) throw new Error(`${label}: deterministic seed fixture failed audit: ${audit.errors.join(" | ")}`);
+  const audit = productionAuditModelOut(req, out);
+  if (!audit.valid) throw new Error(`${label}: deterministic seed fixture failed production audit: ${audit.issues.map(issue => issue.message).join(" | ")}`);
   return out;
 }
 
@@ -509,6 +546,7 @@ const hardFailure =
   report.summary.handoverTasks !== report.expected.handoverTasks ||
   report.summary.failures > 0 ||
   report.summary.finalAuditIssues > 0 ||
+  report.summary.semanticUnknown > 0 ||
   report.summary.emergencyFallback > 0 ||
   report.summary.placeholderRisk > 0 ||
   report.summary.handoverAcceptanceFailures > 0;
