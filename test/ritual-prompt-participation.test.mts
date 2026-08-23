@@ -50,7 +50,9 @@ test("Spanish querent-operated ritual prompts preserve natural pro-drop", () => 
   assert.match(ngaru, /El español puede omitir «tú» cuando la conjugación ya deja claro el sujeto/iu);
   assert.match(ngaru, /En cada ritual, la primera acción atribuida a una persona debe dejar inequívocamente claro para el usuario quién la realiza/iu);
   assert.match(ngaru, /los rituales anteriores no cuentan como establecimiento/iu);
-  assert.match(ngaru, /puede usar con naturalidad el sujeto omitido mientras no cambie ni se vuelva ambiguo/iu);
+  assert.match(ngaru, /evita repetir innecesariamente su nombre o pronombre y usa con naturalidad el sujeto omitido mientras no cambie ni se vuelva ambiguo/iu);
+  assert.match(ngaru, /Los campos opening, ritual y gesture forman un único ritual continuo en ese orden/iu);
+  assert.match(ngaru, /el comienzo de un campo no reinician por sí solos el actor/iu);
   assert.doesNotMatch(ngaru, /Tú introduces la mano/iu);
   assert.doesNotMatch(amaru, /Tú introduces la mano/iu);
 });
@@ -61,4 +63,5 @@ test("Spanish ritual actor examples resolve reader and querent at runtime", () =
   assert.match(selena, /Ejemplos ilustrativos para Alex; no copies deliberadamente estas acciones ni su redacción\./u);
   assert.match(selena, /CORRECTO: «Selena inclina la cabeza y acerca una mano al centro del espacio frente a ti\. Durante un instante, el silencio permanece intacto\. Después ajusta ligeramente la posición de las manos y espera\. Finalmente las retira y deja el gesto en suspenso\.»/u);
   assert.match(selena, /INCORRECTO: «Inclina la cabeza y acerca una mano al centro del espacio frente a ti\. Durante un instante, el silencio permanece intacto\. Selena ajusta ligeramente la posición de las manos y espera\. Selena las retira y deja el gesto en suspenso\.»/u);
+  assert.match(selena, /El ejemplo INCORRECTO es incorrecto porque la primera acción no deja claro para Alex quién actúa y, después de establecer al actor, repite innecesariamente el nombre de Selena aunque el actor no ha cambiado\./u);
 });
