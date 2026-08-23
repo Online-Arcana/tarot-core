@@ -10,6 +10,7 @@ import { buildAuditContext } from "./audit-context.js";
 import type { AuditIssue } from "./audit.js";
 import { proofreadFields } from "./final-proofread.js";
 import { mappedHandContext } from "./mapped-history.js";
+import { spanishRitualActorContract } from "./querent-language.js";
 
 export const SEMANTIC_AUDIT_MODEL = "gpt-5.6-luna";
 export const SEMANTIC_AUDIT_EFFORT = "low";
@@ -244,7 +245,8 @@ export function semanticAuditPrompt(req: ApiReq, out: ApiOut): string {
     "Check grammar, semantic coherence, field voice, grammatical person, direct address where the field role requires or permits it, querent-gender agreement when gender is known, neutral phrasing when gender is unspecified/nonbinary, reader identity, physical actor ownership, ritual continuity, single-cast continuity, medium grounding, substantial repetition, and whether result references are genuinely being used as result identities rather than ordinary words.",
     "For ritual prose, distinguish an action that is actually performed from an action that is negated, hypothetical, remembered or merely discussed.",
     ...(req.task === "ritual" && req.lang.toLowerCase().startsWith("es") ? [
-      "For Spanish ritual prose, actor establishment is local to the current visible ritual. The first action attributed to a person must make that actor unambiguous if the actor has not already been established in this ritual; previous rituals do not count as establishment. Once established, accept natural pro-drop while the actor remains unchanged and unambiguous.",
+      "For Spanish ritual prose, apply this exact canonical actor-continuity contract across ritual.opening, ritual.ritual and ritual.gesture as one continuous visible ritual:",
+      spanishRitualActorContract(req),
     ] : []),
     "For hidden/future results, only flag a disclosure when the prose actually identifies that result. A common noun that happens to match a result name is not automatically a disclosure.",
     "Never treat user-authored quoted/question text as prose written by the reader.",
