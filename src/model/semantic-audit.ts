@@ -273,7 +273,7 @@ export function semanticFindingsAsAuditIssues(
     path: finding.path,
     message: `${finding.path}: semantic audit found ${finding.code}; evidence=${JSON.stringify(finding.evidence)}; expected=${JSON.stringify(finding.expected)}; repair_scope=local`,
     evidence: finding.evidence,
-    expected,
+    expected: finding.expected,
     repairScope: "local" as const,
   }));
 }
