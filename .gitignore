@@ -4,6 +4,7 @@ dist/
 src/readers/personas.generated.json
 src/model/fallbacks.generated.json
 reports/live-prose/
+reports/live-chain/
 reports/live-prose-summary.json
 reports/live-prose-summary.md
 reports/live-prose-review.md
