@@ -100,9 +100,36 @@ export function handoverSummary(source: Conv, referral: Referral): HandoverOut {
   };
 }
 
+/**
+ * Conversations saved by the pre-canonical frontend used zero-based card
+ * positions. Keep their established handover semantics readable when reopening
+ * an old archive, while all current one-based canonical conversations continue
+ * to use deterministic handover state.
+ */
+function legacyPersistedConversation(source: Conv): boolean {
+  return source.turns.some(turn =>
+    turn.kind === "reading" && turn.draw.cards.some(card => card.pos < 1));
+}
+
+function legacyGrounded(source: Conv, referral: Referral, generated: HandoverOut): HandoverOut {
+  const fallback = handoverSummary(source, referral);
+  return {
+    summary: generated.summary.trim() || fallback.summary,
+    questions: fallback.questions,
+    conclusions: uniq([...generated.conclusions, ...fallback.conclusions]),
+    cards: fallback.cards,
+    facts: groundedHandoverFacts(source, generated.facts),
+    unresolved: uniq(generated.unresolved.length ? generated.unresolved : fallback.unresolved),
+  };
+}
+
 function grounded(source: Conv, referral: Referral, generated?: HandoverOut): HandoverOut {
   const fallback = handoverSummary(source, referral);
   if (!generated) return fallback;
+
+  if (legacyPersistedConversation(source)) {
+    return legacyGrounded(source, referral, generated);
+  }
 
   // Questions, cards, summary, conclusions and unresolved state all already exist
   // in the canonical conversation. Generated prose must not paraphrase them into
