@@ -6,12 +6,13 @@ on:
       - main
       - agent/core-prose-audit
       - agent/contextual-fallback-engine
+      - fix/source-consumer-compat
   pull_request:
     branches:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   test:
@@ -30,3 +31,19 @@ jobs:
         run: npm ci
       - name: Run typecheck, build and tests
         run: npm run ci
+      - name: Materialise deterministic source-consumer data
+        if: github.ref == 'refs/heads/fix/source-consumer-compat' && github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          npm run generate:data
+          git add -f src/readers/personas.generated.json \
+                     src/model/fallbacks.generated.json \
+                     src/model/reserve-corpus.generated.json
+          if git diff --cached --quiet; then
+            echo "Generated runtime data already matches the branch."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Materialise generated runtime data"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
