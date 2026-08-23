@@ -4,6 +4,9 @@ import { auditLanguage } from "./language.js";
 const SPANISH_NARRATOR_ACTOR_CLARITY =
   "En prosa del narrador, el sujeto omitido solo es seguro mientras el actor siga siendo inequívocamente el mismo. Si la acción cambia entre la persona consultante y el tarotista —o viceversa— vuelve a establecer explícitamente al nuevo actor antes de omitirlo otra vez. No dejes una forma verbal sin sujeto tras una acción en segunda persona si puede leerse como imperativo dirigido a la persona.";
 
+const SPANISH_RITUAL_ACTOR_CLARITY =
+  "En cada ritual, la primera acción atribuida a una persona debe dejar inequívocamente claro quién la realiza si ese actor aún no ha quedado establecido dentro de ese mismo ritual; los rituales anteriores no cuentan como establecimiento. Una vez que el actor sea inequívoco, usa con naturalidad el sujeto omitido mientras no cambie ni se vuelva ambiguo.";
+
 export function querentNeedsNeutralAddress(req: ApiReq): boolean {
   return auditLanguage(req.lang) === "es" && (req.gender === undefined || req.gender === "nonbinary");
 }
@@ -13,12 +16,16 @@ export function querentLanguageContract(req: ApiReq): string {
     return "Do not infer the querent's gender or pronouns from their name. Address them directly as you/your unless an explicit grammatical choice is supplied.";
   }
 
+  const actorClarity = req.task === "ritual"
+    ? `${SPANISH_NARRATOR_ACTOR_CLARITY}\n${SPANISH_RITUAL_ACTOR_CLARITY}`
+    : SPANISH_NARRATOR_ACTOR_CLARITY;
+
   if (req.gender === "woman") {
     return [
       "GÉNERO GRAMATICAL DE LA PERSONA: mujer.",
       "Cuando una referencia directa a la persona necesite concordancia de género en español, usa femenino.",
       "No infieras ningún otro dato de identidad a partir del nombre o del género.",
-      SPANISH_NARRATOR_ACTOR_CLARITY,
+      actorClarity,
     ].join("\n");
   }
 
@@ -27,7 +34,7 @@ export function querentLanguageContract(req: ApiReq): string {
       "GÉNERO GRAMATICAL DE LA PERSONA: hombre.",
       "Cuando una referencia directa a la persona necesite concordancia de género en español, usa masculino.",
       "No infieras ningún otro dato de identidad a partir del nombre o del género.",
-      SPANISH_NARRATOR_ACTOR_CLARITY,
+      actorClarity,
     ].join("\n");
   }
 
@@ -41,7 +48,7 @@ export function querentLanguageContract(req: ApiReq): string {
     "Evita especialmente formas que ya han demostrado causar concordancia indebida: «estás dispuesto/dispuesta», «quedarte suspendido/suspendida», «acompañado/acompañada» y «entre ambos/ambas» cuando el grupo incluye a la persona. Reformula, por ejemplo, como «lo que estás dispuesto a sostener» → «lo que puedes sostener», «quedarte suspendido» → «quedarte en suspenso», «acompañado por» → «con el apoyo de» y «entre ambos» → «entre las dos partes» o «en el espacio compartido».",
     "Mantén el tuteo normal: tú, te, ti, contigo, tu y tus no marcan género y son apropiados. Lo que debe evitarse es añadirles una concordancia como «tú mismo», «contigo misma» o equivalente.",
     "No uses @, x, barras, paréntesis, duplicaciones tipo «preparado/a» ni terminaciones inclusivas forzadas en -e. La neutralidad debe lograrse mediante redacción natural.",
-    SPANISH_NARRATOR_ACTOR_CLARITY,
+    actorClarity,
   ].join("\n");
 }
 
