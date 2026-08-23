@@ -2,154 +2,154 @@
 
 The model layer converts a validated, core-canonicalised `ApiReq` into the unchanged `ApiOut` contract used by Online Arcana. Generation is bilingual, reader-aware and medium-aware. Card, spread, reader, ritual and reveal facts come from core-owned canonical data rather than client prose.
 
-## Pipeline
+## Production pipeline
+
+For ordinary free model prose, the canonical production flow is:
 
 ```text
 canonical request
     -> build prompt from reader + querent + task + ritual/reveal state
     -> strict structured-output generation
-    -> deterministic preparation of facts/state only
-    -> structural/base audit
-    -> if a local finding is repairable:
-         atomic LLM review of only the affected prose field(s)
-         -> merge exact patch into original candidate
-         -> prepare + audit again
-    -> otherwise one bounded broader corrective model attempt
-    -> if any usable LLM candidate exists:
-         deliver the best model candidate
-       else, when guaranteeOutput is enabled:
-         deterministic contextual availability reserve
-    -> attach public mapped-media presentation data
-    -> request-context audit of otherwise-valid model prose
-    -> if a contextual-only finding is repairable:
-         atomic LLM review with compiled audit context + finding metadata
-         -> merge exact patch
-         -> contextual re-audit
+    -> deterministic preparation/canonicalisation of known facts and state
+    -> deterministic production audit
+    -> if deterministic correction is required and safely repairable:
+         bounded model correction
+         -> deterministic preparation + audit again
+    -> if no usable parsed model candidate exists and guaranteeOutput is enabled:
+         deterministic availability reserve
+    -> otherwise keep the usable LLM candidate
+    -> GPT-5.6 Luna low semantic audit (isolated, conversation:false)
+         -> pass: preserve the candidate byte-for-byte
+         -> findings: send untouched candidate + exact findings + canonical context
+              to GPT-5.6 Luna medium atomic repair
+              -> deterministic safety audit of patched candidate
+              -> GPT-5.6 Luna low re-audit
+              -> if concrete findings remain after a safe first patch:
+                   one bounded second Luna-medium atomic repair
+                   -> deterministic safety audit
+                   -> one final Luna-low re-audit
+              -> stop; never loop
+    -> attach/retain public mapped-media presentation data
     -> unchanged ApiOut contract
 ```
 
-The important ordering rule is that **quality failures do not route usable model prose to deterministic prose**. Deterministic reconstruction is an availability reserve for cases where generation does not yield a usable parsed candidate. A minor voice, gender, identity or ritual-actor defect is handled by model correction while preserving the original response.
+The low semantic auditor **never edits**. Luna medium is a reviser, not a second author: it may only apply exact-span surgical patches. Whole-field semantic rewrites are rejected.
 
-`prepareModelOutDetailed()` canonicalises facts and state the core already knows. It may repair deterministic reveal/handover state, but it does not rewrite narrator perspective, audience, grammar or style. Public mapped `media`/`medium` presentation metadata is attached only after the prose candidate has passed the relevant audit stage.
+The important availability rule is that **quality findings do not route usable model prose to deterministic prose**. Deterministic reconstruction is an availability reserve for cases where generation fails to produce a usable parsed candidate. If semantic infrastructure itself fails, usable model prose is preserved and observability records `semantic_final:unknown`.
 
-`finaliseModelOutDetailed()` remains the compatibility helper for direct callers: it performs preparation and presentation attachment. Preparation and public finalisation are idempotent.
+Canonical handover state is the exception to the semantic path. Handover summary/questions/conclusions/cards/unresolved are rebuilt from canonical conversation state, while facts are transcript-grounded. After deterministic validation, handover skips Luna semantic review so a reviewer can never mutate accepted state such as exact result identity/orientation.
+
+`prepareModelOutDetailed()` canonicalises facts and state the core already knows. It does not mechanically rewrite narrator perspective, audience, grammar or style.
+
+`finaliseModelOutDetailed()` remains the compatibility helper for direct callers and is idempotent.
 
 ## Model lanes
 
-The current default lanes all use GPT-5.6 Luna:
+The default generation lanes use GPT-5.6 Luna. Semantic audit and repair are fixed separately:
 
 ```text
-ordinary short tasks: gpt-5.6-luna
-ritual:               gpt-5.6-luna
-read / chat:           gpt-5.6-luna
+generation:                gpt-5.6-luna (task-appropriate cheap effort)
+semantic correctness audit: gpt-5.6-luna, low
+semantic atomic repair:     gpt-5.6-luna, medium
+semantic re-audit:          gpt-5.6-luna, low
 ```
 
-`DEFAULT_MODEL_TIERS` still keeps primary and escalation roles independently configurable. Normal generation and atomic review use cheap reasoning effort; the bounded broader corrective attempt uses medium effort. Callers may override individual model roles through `ModelCfg.models` without changing task classification.
+Generation, semantic audit and semantic repair use separate `OpenAISchema` instances and semantic calls use `conversation:false`, preventing mutable schema/conversation contamination.
 
-The structured-output parse/shape retry budget defaults to one retry when callers omit `retries`.
+`DEFAULT_MODEL_TIERS` keeps primary and escalation generation roles independently configurable. The structured-output parse/shape retry budget defaults to one retry when callers omit `retries`.
 
 ## Language and voice contract
 
-English visible prose is requested as natural British English. Spanish visible prose is requested as natural Spain Spanish with tuteo and normal subject omission when the conjugation already establishes the actor.
+English visible prose is natural British English. Spanish visible prose is natural Spain Spanish with tuteo and normal pro-drop when the actor remains unambiguous.
 
-Narrator and reader voices have different ownership:
+Narrator and reader voices have distinct ownership:
 
-- narrator fields are external third-person scene prose describing the reader, movement, setting and ritual
-- narrator fields address the person receiving the reading naturally in second person where grammar requires it
+- narrator fields are external scene prose describing the selected reader in third person
+- narrator fields may address the querent/viewer naturally in second person (`you/your`, `tú/te/ti/contigo/tu/tus`)
 - reader-dialogue fields are the selected reader speaking directly and may use first person for self-reference
-- a reader is established by configured identity when needed, then natural discourse and Spanish pro-drop are allowed
-- narrator prose never uses the querent's proper name as a substitute for second-person immersion
-- generic labels such as `the reader`, `the querent`, `el lector`, `la lectora` or `la persona consultante` are not substitutes for the configured voices
+- suggestion chips are `querent_question` fields: editable questions written in the querent's own first-person voice
+- narrator prose never substitutes the querent's proper name for direct viewer address
+- generic labels such as `the reader`, `the querent`, `el lector`, `la lectora` or `la persona consultante` are not substitutes for configured voices
 - structured identity notation and private prompt metadata must never become visible prose
 
-Mapped readers receive the same language and voice contract. Their public medium augments the prompt rather than replacing those rules.
+Spanish pro-drop has an actor-switch boundary: omission is safe only while the actor stays unambiguous. If narration switches between querent and reader, the new actor must be explicitly re-established before omission resumes. This prevents a third-person reader action after second-person querent action from being misread as an imperative.
 
-There is **no deterministic audience transformer** in the production path. The legacy `addressViewer()` symbol remains only as a deprecated identity compatibility shim and returns prose unchanged. Perspective and grammar are authored by the model, audited, and corrected narrowly when necessary.
+Mapped readers receive the same language and voice contract. Their public medium augments rather than replaces those rules.
 
-## Immutable request audit context
+There is **no deterministic audience transformer** in the production path. The deprecated `addressViewer()` compatibility symbol returns prose unchanged.
 
-The contextual auditor compiles an immutable `AuditContext` for every request. It contains the state that determines what is valid for this specific reading, including:
+## Deterministic production audit
+
+`src/model/production-audit.ts` is the production synchronous audit boundary. The package-root `auditModelOut` points to this deterministic-only auditor.
+
+It owns facts that code can establish objectively, including structural contracts and exact lexical/private-boundary violations. Examples include an exact querent proper name in narrator-only prose, private/internal references and structural output faults.
+
+It deliberately does **not** decide semantic Spanish gender/person, grammatical actor attribution, naturalness, negation meaning, ritual continuity meaning, reader voice semantics or other contextual judgements that previously produced regex false positives.
+
+The lower-level/legacy audit modules and `contextualAuditModelOut` remain explicit compatibility and sensor surfaces. They are useful for regression tests, but they are not a second production semantic authority and paid harnesses must not use them as final gates.
+
+## Semantic audit context
+
+`src/model/semantic-audit.ts` builds a fresh request-specific context for Luna low. It includes:
 
 - language and task
-- configured reader identity, grammatical gender/pronouns, voice, manner and limits
-- current querent name and optional grammatical gender
-- field ownership such as narrator, reader dialogue, handover state or title
-- mapped ritual mode, actor, action, verbs, objects, grounding and medium
-- opening versus continuation phase
-- prior ritual theatre
-- current spread position
-- revealed and still-hidden results
-- conversation/history count
+- configured reader identity and voice
+- querent name and optional grammatical gender
+- explicit field roles (`narrator`, `reader_dialogue`, `querent_question`, etc.)
+- mapped ritual phase, actor, action, medium and grounding
+- prior ritual theatre and current position
+- revealed and still-hidden **public** result identities
+- exact conversation/handover context relevant to the task
 
-The same surface wording can therefore receive different findings under different requests. A second-person physical action can be correct for Ngaru or Amaru because their current ritual contract assigns the draw to the querent, while a second-person action on Brennos's shield can be suspicious because Brennos owns that medium action.
+Mapped result identity must be the same identity generation sees. For mapped `return`, semantic context is derived through the same public handover translation used by generation; Luna must never "correct" Nahid, Amaru or another mapped reader back into canonical tarot names.
 
-No global mutable audit state is used. Each request builds its own context, which keeps concurrent readings isolated.
+The auditor is instructed to be conservative: valid alternative wording is not a defect, uncertainty should pass, and Spanish tokens must be interpreted in the complete sentence rather than through isolated morphological guesses.
 
-## Sensors versus semantic verdicts
+## Semantic findings
 
-Regex, tokenisation and lexical matching are allowed as bounded **sensors**. They may observe evidence such as:
-
-- a configured proper name appearing in a narrator-owned field
-- a generic reader/querent label
-- a first-person narrator marker
-- a known Spanish case or language defect
-- a second-person physical verb applied locally to a mapped medium object
-- a contract verb/object or grounding phrase
-- operational/internal terminology
-- canonical tarot terminology in mapped public prose
-
-A sensor observation is not, by itself, semantic truth. The contextual layer combines evidence with `AuditContext` before creating a request-specific finding.
-
-For example, the ritual actor sensor requires a plausible local verb-to-medium-object relation. It does not treat an unrelated movement by the querent and a reader-owned object elsewhere in the field as one action. The resulting observation is then checked against the current ritual actor contract.
-
-## Structured contextual findings
-
-Contextual findings retain the legacy `AuditIssue` fields and may additionally carry machine-readable repair metadata:
+A semantic finding is structured and local:
 
 ```ts
-interface ContextualAuditIssue extends AuditIssue {
-  evidence?: string;
-  expected?: string;
-  repairScope?: "local";
-}
+type SemanticFinding = {
+  path: string;
+  code:
+    | "grammar"
+    | "naturalness"
+    | "direct_address"
+    | "voice"
+    | "querent_gender"
+    | "reader_identity"
+    | "actor"
+    | "ritual_continuity"
+    | "medium_grounding"
+    | "repetition"
+    | "result_reference"
+    | "semantic_consistency"
+    | "other";
+  evidence: string;   // short exact substring from the field
+  expected: string;   // objective correction requirement, not replacement prose
+};
 ```
 
-A finding therefore says what was observed and which current invariant appears to be violated, without dictating the replacement prose.
+The finding identifies the suspected defect. It does not author replacement prose.
 
-A representative finding is conceptually:
+## Atomic semantic revision
 
-```json
-{
-  "code": "querent_name_narrator",
-  "path": "ritual.opening",
-  "evidence": "Alex",
-  "expected": "address the current querent naturally in second person",
-  "repairScope": "local"
-}
-```
+`finalProofreadShape()` constrains corrections to exact edits. Each ordinary edit identifies one short exact `before` span and a minimal `after` replacement. Oversized, overlapping or whole-field rewrites are rejected.
 
-The auditor does **not** decide that a particular name must mechanically become `you`, `your`, `tú`, `te`, `ti`, `contigo`, `tu` or a dropped subject. The reviewer sees the original sentence and current context and chooses the smallest grammatical correction.
+For semantic repair:
 
-## Atomic LLM revision
+1. Luna medium receives the untouched candidate, canonical generation context and exact Luna-low findings.
+2. It reviews every finding independently; one false positive does not justify ignoring the rest.
+3. Confirmed findings receive the smallest exact-span patch.
+4. Unrelated fields remain byte-for-byte unchanged.
+5. The patched candidate must still pass deterministic production safety checks.
+6. Luna low re-audits the patched result using a fresh isolated schema.
+7. If concrete findings remain, one bounded second medium → low pass is allowed.
+8. If a later patch is unsafe or fails to improve the candidate, the safer earlier usable revision/original is preserved.
+9. The pipeline stops after the bounded retry; there is no semantic loop.
 
-`finalProofreadShape()` constrains prose correction to exact edits. For ordinary corrections, each edit identifies one short exact `before` span and a minimal `after` replacement. Oversized or whole-field rewrites are rejected.
-
-For audit-triggered review:
-
-1. only reviewable local findings are selected
-2. only affected prose paths are editable
-3. the reviewer receives the original field text
-4. it receives canonical generation context
-5. contextual-only review also receives `<compiled_audit_context>` and structured `<compiled_audit_findings>`
-6. the reviewer may return no edits when a heuristic finding is a false positive
-7. any returned patch is merged into the original candidate
-8. unrelated fields remain unchanged
-9. the revised candidate is audited again
-10. an invalid or over-broad contextual revision is rejected and the original usable LLM candidate is preserved
-
-The reviewer is explicitly a reviser, not a second author. It must preserve meaning, facts, result state/orientation, chronology, scene state, reader personality, imagery, emphasis and all unrelated wording.
-
-The older Spanish-specific narrow-correction helpers remain available for compatibility and regression coverage, but the production review selector is language-agnostic.
+The repair prompt also owns generic subject/actor correction: when fixing an actor switch it must restore the actor established by canonical ritual context and update dependent agreement, rather than reassigning reader-owned choreography to the querent.
 
 ## Ritual participation
 
@@ -164,44 +164,24 @@ Examples:
 - Ame: reader-operated single cast
 - Nahid: reader-operated observation
 
-Natural Spanish pro-drop is part of the authored contract. Phrases such as `Introduces la mano sin mirar y extraes una concha` do not require an explicit `tú` to establish the querent as actor.
+Natural Spanish pro-drop is valid when actor continuity is clear. A phrase such as `Introduces la mano sin mirar y extraes una concha` establishes the querent naturally without explicit `tú`. If the following action returns to Ngaru, generation should re-establish `Ngaru` (or another unambiguous reader reference) before omitting the subject again.
 
-The contextual ritual auditor currently covers local findings such as missing required participation, apparent invented querent participation in a reader-operated medium, repeated single-cast action during continuation and missing medium grounding. These findings are review signals tied to the current registry state, not universal grammar rules.
+Semantic Luna owns meaning-dependent actor and ritual-continuity judgements. Deterministic code continues to own canonical participation/state data and structural impossibilities it can prove exactly.
 
-## Structural/base audit
-
-The lower-level `model/audit` module remains responsible for structural and bounded language checks such as:
-
-- required field, count, line and word constraints
-- complete sentence endings
-- direct-address evidence where the task requires it
-- narrator/reader field ownership
-- generic labels and obvious operational/internal prose
-- mapped canonical-medium leakage
-- duplicate/repetitive prose
-- hidden/future result leakage
-- exact handover cards/questions
-- title/list bounds
-- known language defects
-
-The package-root `auditModelOut` is the canonical public auditor and points to the contextual audit layer. Direct imports from `model/audit` intentionally expose the lower-level base auditor for internal/compatibility use.
-
-Some legacy mapped ritual checks still exist in the base module while migration finishes. New semantic actor decisions belong in the contextual layer and new tests should target the package-root/contextual auditor rather than extending those legacy regex rules.
-
-## Recovery and fallbacks
+## Recovery and availability reserve
 
 When `guaranteeOutput` is false, a bounded failed model path produces `ModelOutputError`.
 
 When `guaranteeOutput` is true:
 
-- if parsed model candidates exist, the runner prefers the best usable LLM candidate after bounded repair attempts
-- it does not replace prose merely because deterministic heuristics still dislike it
-- if no usable parsed model candidate exists because generation/structured output is unavailable, the core may use deterministic contextual reconstruction
-- legacy/bare/panic reserves exist only behind that availability path
+- if parsed model candidates exist, the runner prefers the best usable LLM candidate after bounded correction/semantic repair
+- usable model prose is not replaced merely because a quality finding remains
+- if no usable parsed model candidate exists because generation/structured output is unavailable, deterministic reconstruction may be used
+- legacy/bare/panic reserve paths remain availability-only
 
 `src/model/fallbacks.xml` is the authoritative shared fallback source. `scripts/generate-fallbacks.mjs` validates it and emits generated runtime data.
 
-Mapped ritual choreography is owned by `src/readers/media/rituals.json`. `ritual-recovery.ts` selects authored ritual and atmosphere material from canonical data instead of creating reader choreography in TypeScript.
+Mapped ritual choreography is owned by canonical media data. `ritual-recovery.ts` selects authored ritual/atmosphere material instead of creating reader choreography ad hoc in shared TypeScript.
 
 ## Result provenance
 
@@ -218,7 +198,21 @@ type ModelResult = {
 };
 ```
 
-`auditErrors` is non-customer-facing observability data. It can include preparation, audit, review, delivery and availability-path diagnostics and must never be rendered as reading prose.
+`auditErrors` is non-customer-facing observability data. Semantic diagnostics include initial pass/findings, repair edit counts, re-audit results, bounded retry results, `semantic_final:pass`, `semantic_final:unknown` and exact `semantic_final_issue:*` entries for surviving findings.
+
+## Paid/live reporting
+
+Paid workers use the same production boundary as `runModelSession`:
+
+- deterministic `productionAuditModelOut` for objective final checks
+- the runner's `semantic_final_issue:*` diagnostics for surviving semantic findings
+- `semantic_final:unknown` as an explicit hard failure in release reporting
+- bounded semantic generation/audit/repair/re-audit calls excluded from `retryRequests`
+- `retryRequests` reserved for actual extra transport/parse request attempts
+
+The single-cell matrix uses schema-v3 reports. Full aggregation refuses legacy report schemas so old regex-era counters cannot silently mix with current semantic-final metrics.
+
+The chained smoke directly emits production-accounted summaries for seven mapped readers across accepted handovers; its wrapper also retains defensive provenance/normalisation logic for older saved chain artefacts.
 
 ## Release gates
 
@@ -231,6 +225,6 @@ npm run build
 npm run test
 ```
 
-The deterministic release matrix covers all configured readers, both languages, all supported spreads and applicable task/state combinations. Paid live matrices are separate local release gates and require `OPENAI_API_KEY`; they preserve generated strings and provenance for human review.
+The deterministic release matrix covers all configured readers, both languages, all supported spreads and applicable task/state combinations.
 
-A paid report is not cultural or prose approval by itself. Human review remains required before release.
+Paid live validation is separate. The latest targeted validation strategy uses single reader/language cells to investigate regressions, followed by the bilingual seven-reader chained smoke. Automated paid success remains necessary but not sufficient for cultural/persona approval; human review of visible prose is still required before release.
