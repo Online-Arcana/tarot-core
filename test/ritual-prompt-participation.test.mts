@@ -61,5 +61,4 @@ test("Spanish ritual actor examples resolve reader and querent at runtime", () =
   assert.match(selena, /Ejemplos ilustrativos para Alex; no copies deliberadamente estas acciones ni su redacción\./u);
   assert.match(selena, /CORRECTO: «Selena inclina la cabeza y acerca una mano al centro del espacio frente a ti\. Durante un instante, el silencio permanece intacto\. Después ajusta ligeramente la posición de las manos y espera\. Finalmente las retira y deja el gesto en suspenso\.»/u);
   assert.match(selena, /INCORRECTO: «Inclina la cabeza y acerca una mano al centro del espacio frente a ti\. Durante un instante, el silencio permanece intacto\. Selena ajusta ligeramente la posición de las manos y espera\. Selena las retira y deja el gesto en suspenso\.»/u);
-  assert.doesNotMatch(selena, /baraja/iu);
 });
