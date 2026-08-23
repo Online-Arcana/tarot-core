@@ -15,12 +15,12 @@ const card = {
 };
 const draw = { id: "one", name: "One", purpose: "Answer", cards: [card] };
 
-function ritual(reader, lang = "en-GB") {
+function ritual(reader, lang = "en-GB", name = "") {
   return {
     task: "ritual",
     lang,
     reader,
-    name: "",
+    name,
     history: [],
     question: "What now?",
     spread: "one",
@@ -48,9 +48,17 @@ test("Spanish querent-operated ritual prompts preserve natural pro-drop", () => 
   assert.match(ngaru, /Introduces la mano sin mirar y extraes una concha/iu);
   assert.match(amaru, /Introduces la mano sin mirar y extraes un cordón/iu);
   assert.match(ngaru, /El español puede omitir «tú» cuando la conjugación ya deja claro el sujeto/iu);
-  assert.match(ngaru, /En cada ritual, la primera acción atribuida a una persona debe dejar inequívocamente claro quién la realiza/iu);
+  assert.match(ngaru, /En cada ritual, la primera acción atribuida a una persona debe dejar inequívocamente claro para el usuario quién la realiza/iu);
   assert.match(ngaru, /los rituales anteriores no cuentan como establecimiento/iu);
-  assert.match(ngaru, /usa con naturalidad el sujeto omitido mientras no cambie ni se vuelva ambiguo/iu);
+  assert.match(ngaru, /puede usar con naturalidad el sujeto omitido mientras no cambie ni se vuelva ambiguo/iu);
   assert.doesNotMatch(ngaru, /Tú introduces la mano/iu);
   assert.doesNotMatch(amaru, /Tú introduces la mano/iu);
+});
+
+test("Spanish ritual actor examples resolve reader and querent at runtime", () => {
+  const selena = modelPrompt(pack, ritual("selena", "es-ES", "Alex"));
+
+  assert.match(selena, /Ejemplos ilustrativos para Alex; no copies deliberadamente estas acciones ni su redacción\./u);
+  assert.match(selena, /CORRECTO: «Selena inclina la cabeza y observa la baraja\. Después acerca una mano hacia ella\.»/u);
+  assert.match(selena, /INCORRECTO: «Inclina la cabeza y observa la baraja\. Selena acerca una mano hacia ella\.»/u);
 });
