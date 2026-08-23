@@ -9,6 +9,7 @@ import { isMappedReader, mediaFor } from "../readers/media/runtime.js";
 import { buildAuditContext } from "./audit-context.js";
 import type { AuditIssue } from "./audit.js";
 import { proofreadFields } from "./final-proofread.js";
+import { mappedHandContext } from "./mapped-history.js";
 
 export const SEMANTIC_AUDIT_MODEL = "gpt-5.6-luna";
 export const SEMANTIC_AUDIT_EFFORT = "low";
@@ -99,6 +100,14 @@ function semanticResultState(req: ApiReq): {
     };
   }
   if (req.task === "return") {
+    if (isMappedReader(req.reader)) {
+      const publicHand = mappedHandContext(req.reader, req.handover, req.lang);
+      if (record(publicHand) && Array.isArray(publicHand.results)) {
+        const names = publicHand.results.flatMap(result =>
+          record(result) && typeof result.name === "string" ? [result.name] : []);
+        if (names.length) return { revealedResults: names, hiddenResults: [] };
+      }
+    }
     return {
       revealedResults: req.handover?.results?.map(result => result.name) ?? req.handover?.cards ?? [],
       hiddenResults: [],
