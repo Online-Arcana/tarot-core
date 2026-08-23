@@ -44,17 +44,22 @@ test("chain returns from Mictli to Selena without paying for another Selena read
   assert.match(worker, /targetReader: "brennos"/u);
 });
 
-test("chained paid reports use the same contextual audit contract as production", () => {
-  assert.match(worker, /contextualAuditModelOut/u);
+test("chained paid worker uses deterministic production audit plus semantic-final diagnostics", () => {
+  assert.match(worker, /productionAuditModelOut/u);
+  assert.match(worker, /semanticFinalIssues\(result\)/u);
+  assert.match(worker, /semantic_final_issue:/u);
+  assert.match(worker, /semantic_final:unknown/u);
+  assert.match(worker, /delivery_path:semantic_atomic_revision/u);
+  assert.match(worker, /delivery_path:semantic_atomic_revision_retry/u);
+  assert.doesNotMatch(worker, /contextualAuditModelOut/u);
   assert.doesNotMatch(worker, /from "\.\.\/dist\/model\/audit\.js"/u);
-  assert.match(worker, /delivery_path:contextual_atomic_revision/u);
-  assert.match(worker, /delivery_path:atomic_revision/u);
-  assert.doesNotMatch(worker, /narrow_spanish_narrator_correction/u);
 });
 
-test("chained retry accounting separates semantic repair calls from transport retries", () => {
-  assert.match(worker, /function semanticCallCount\(result\)/u);
-  assert.match(worker, /Math\.max\(0, calls\.length - semanticCallCount\(result\)\)/u);
+test("chained retry accounting separates bounded semantic calls from transport retries", () => {
+  assert.match(worker, /function logicalCallCount\(result, task\)/u);
+  assert.match(worker, /semantic_retry_repair:/u);
+  assert.match(worker, /semantic_retry_reaudit:/u);
+  assert.match(worker, /Math\.max\(0, calls\.length - logicalCallCount\(result, req\.task\)\)/u);
 });
 
 test("bilingual chain uses one seed and compares identical reader plans", () => {
