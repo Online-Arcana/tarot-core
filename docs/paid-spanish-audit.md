@@ -1,31 +1,33 @@
 # Paid Spanish prose audit
 
-This document records the concrete defects found during the local paid `selena/es-ES` prose cells and the deterministic coverage added for them. It is a regression record, not a claim that automated checks replace human Spanish, tarot or cultural review.
+This document records concrete defects found during local paid Spanish prose runs and the shared core behaviour added in response. It is a regression record, not a claim that automated checks replace human Spanish, tarot or cultural review.
 
-## Current release gate
+## Current release evidence
 
-The full Selena Spanish cell remains the language-path gate before the targeted cross-reader chain. A paid run is not considered clean merely because `finalAuditIssues` is zero: the generated prose is reviewed manually for grammar, scene continuity, voice ownership, semantic preservation and natural Spanish.
+The production quality path is now deterministic structural validation followed by isolated GPT-5.6 Luna low semantic audit, bounded Luna-medium atomic repair when needed, and Luna-low re-audit. Legacy contextual/regex helpers are not the paid final gate.
 
-The paid cell on `ffaafa0855fe021a070ff0c7f43679786d88eff2` completed all five readings and reported zero hard failures, zero placeholder risk and zero final audit issues. Human review still failed that run because one three-card reading fell through to emergency boilerplate and several accepted fields contained gender assumptions or ritual resets that the counters did not detect. This is why the manual gate remains separate from the automated summary.
+Recent paid evidence:
 
-## Findings converted into shared behaviour
+- A controlled `nahid/es-ES` cell on `fdd9b055bcff609d12bfbcb8a16e0993a3ba100f` completed **5/5 readings and 65/65 tasks** with zero reconstruction, emergency fallback, semantic unknown, querent-name narrator leaks, voice leaks, mapped-canonical leaks, future-result leaks or placeholder risk. One final Spanish agreement error survived (`el Caballero ... hablan`), treated as ordinary stochastic LLM residue rather than a reason for a phrase-specific rule.
+- The bilingual seven-reader chain on `73caa5bd558d212671ca8d99974e309bbc8a13a9` completed **14/14 readings and 70/70 paid tasks** across English and Spanish with zero reconstruction, emergency fallback, semantic unknown, handover acceptance failure, mapped-canonical leakage, narrator-name leakage, voice leakage or placeholder risk. English had zero final findings. Spanish had one genuine actor-continuity finding in an Ngaru ritual.
+- That Ngaru finding exposed a generic Spanish pro-drop boundary: after the querent is established as actor (`extraes`, `recibes`), an omitted-subject reader action (`Aparta ... traza ...`) can be misread as an imperative to the querent. The generation contract now requires the new actor to be explicitly re-established whenever narration switches between querent and reader before pro-drop resumes. This was fixed generically, not with a Ngaru-specific regex.
 
-The paid runs exposed the following shared core issues:
+The chain did not need to be repurchased after that prompt-level fix. Future paid runs exercise the rule naturally.
 
-- narrator audience transformation could choose the wrong Spanish pronoun case or mutate unrelated scene nouns while trying to force direct address;
-- missing querent gender allowed masculine and feminine agreement to alternate inside one conversation;
-- natural Spanish perfect constructions and imperatives could be misclassified as lacking direct address;
-- a single gender-agreement error in otherwise good reader dialogue could discard the entire reading instead of correcting that field only;
-- finite constructions such as `te mantiene atrapado` could evade the first neutral-gender detector;
-- group/reflexive forms such as `contigo mismo`, `exploremos juntos`, `entre ambos` and `hacerte más pequeño` could still encode gender while passing the earlier detector;
-- bare participial agreement could create false positives, for example treating `una incomodidad que pide ser escuchada` as if `escuchada` described the querent rather than `incomodidad`;
-- a narrow correction request could return the same rejected phrase unchanged, leaving the runner to discard otherwise good prose;
-- reader/querent subject agreement could drift inside fit prose, for example switching from `qué temes` to first-person `qué deseo`;
-- canonical handover conclusions could exceed their own deterministic word ceiling even when the model output was structurally usable;
-- exact user questions could be copied into the handover `facts` category despite not being facts;
-- return prose could lose reversed-state meaning, invent an unreceived tarot result, or describe mapped readers generically as tarot readers;
-- accepted handovers were persisted but were not originally included in ordinary receiving-reader model payloads;
-- sequential rituals could mechanically warm/cut the same deck again, contradict an established physical scene, or make the hidden result visible before the reveal stage.
+## What the paid runs changed
+
+The paid runs exposed several architecture-level issues over time:
+
+- deterministic/regex language heuristics produced false positives for Spanish gender, direct address, actor attribution and ritual continuity;
+- narrator proper-name leakage (`Alex`) needed an exact deterministic boundary rather than a semantic guess;
+- narrator prose legitimately addresses the viewer with `tú/te/tu`, while describing the reader in third person;
+- suggestion chips are querent-first-person questions, not reader dialogue;
+- semantic repair needed a bounded second attempt for concrete leftovers without becoming a loop;
+- canonical handover state must never be rewritten by a semantic reviewer;
+- mapped `return` audit context must use the same public result identities as mapped generation, otherwise the auditor can incorrectly demand canonical tarot names;
+- sequential Spanish narrator prose must re-establish the actor after a querent↔reader subject switch before using pro-drop again;
+- paid harnesses must count normal generation/audit/repair/re-audit calls separately from true transport/parse retries;
+- report aggregation must not mix legacy regex-era schemas with current semantic-final reports.
 
 The fixes are shared across readers. Reader-specific facts and choreography remain data-driven.
 
@@ -33,40 +35,62 @@ The fixes are shared across readers. Reader-specific facts and choreography rema
 
 `gender` is optional and backward-compatible. Supported values are `woman`, `man` and `nonbinary`.
 
-For Spanish, a missing value and `nonbinary` both use natural gender-neutral phrasing. The generator must avoid guessing agreement from a name or context and must avoid artificial `@`, `x`, slash, parenthetical or forced `-e` forms. Natural circumlocution is preferred, for example `¿sientes que puedes avanzar?`, `con cansancio`, `sentir que te eligen`, `para ti` or simply `exploremos` rather than `exploremos juntos/juntas`.
+For Spanish, a missing value and `nonbinary` both use natural gender-neutral phrasing. Generation must not infer agreement from a name or surrounding context and must avoid artificial `@`, `x`, slash, parenthetical or forced `-e` forms. Natural circumlocution is preferred.
 
-The deterministic detector now distinguishes agreement that actually targets the querent from agreement belonging to another noun. A phrase such as `quieres ser escuchado` is gendered direct address when gender is unavailable; `una incomodidad que pide ser escuchada` is ordinary grammatical agreement and must not be rejected for that reason.
+Legacy deterministic gender sensors remain regression tools, but production semantic correctness is decided by Luna in full sentence/context rather than promoting noun endings or isolated morphology into facts.
 
-User-authored wording remains opaque. If a person writes a gendered form in their own question, the core preserves it when that exact question is carried through a handover rather than treating the user's language as generated-prose evidence.
+User-authored wording remains opaque. If a person writes a gendered form in their own question, the core preserves it when that exact question is carried through a handover.
+
+## Narrator direct address and actor continuity
+
+Narrator prose is external scene narration **about the reader**, but it may address the querent naturally in second person. Spanish forms such as `tú`, `te`, `ti`, `contigo`, `tu` and `tus` are valid in narrator fields when they refer to the viewer.
+
+The querent proper name is different: an exact configured querent name in narrator-only prose is a deterministic production violation, because visible narration should use natural direct address rather than `Alex observa...`.
+
+Spanish pro-drop is valid while the actor remains clear. When narration switches between querent and reader, the new actor must be explicitly established first. For example:
+
+```text
+Cuando extraes la concha, la recibes con la mano cerrada.
+Ngaru aparta la bolsa y traza alrededor de ella una ruta amplia...
+```
+
+is unambiguous, whereas an immediate bare `Aparta ... traza ...` after second-person actions can be read as an imperative.
 
 ## Handover and return grounding
 
-Handover state now preserves exact result ID, visible name, orientation/state, position and established meaning. Canonical summary/conclusion prose is compacted deterministically to the existing audit ceilings rather than relaxing those ceilings.
+Handover summary/questions/conclusions/cards/unresolved are canonical conversation state, not free prose. Facts are restricted to transcript-grounded statements. After deterministic validation, handover skips semantic review entirely so exact accepted state cannot be mutated by Luna.
 
-Questions are kept in the question fields and exact user questions are excluded from `facts`. Receiving readers receive the accepted handover as model context; mapped readers receive an equivalent public-medium translation rather than canonical tarot internals.
+Questions stay in question fields and exact user questions are excluded from `facts`. Receiving readers get accepted handover context; mapped readers receive the public-medium translation rather than canonical tarot internals.
 
-Return prompts and audits preserve the exact handed-over state, reject invented tarot results and avoid generic `reader`/`tarotista` labelling of intermediate mapped readers. Spanish return wording uses neutral `otras voces` when a collective reference is needed.
+Mapped `return` generation and semantic audit now share the same public handover translation. The auditor therefore sees identities such as Nahid's public smoke forms rather than canonical tarot card names and cannot "repair" mapped prose back into tarot terminology.
 
-## Surgical Spanish correction
+## Semantic correction
 
-The narrow Spanish correction path can now repair only the prose fields that failed a grammar/audience audit, including individual `cardText[i]` entries, synthesis, reading, closing, fit prose and other selected direct-speech fields. The remainder of a good model response is retained unchanged.
+Production correction is language-agnostic and semantic:
 
-This is important for missing/nonbinary gender: a phrase such as `qué no estás dispuesto a sacrificar` should become a natural neutral equivalent such as `qué no quieres sacrificar`; it should not force replacement of an otherwise detailed three-card reading with emergency boilerplate.
+1. Luna low audits the complete visible candidate conservatively.
+2. Findings contain an exact field path, code, evidence substring and objective expected correction.
+3. Luna medium receives the untouched original prose plus those findings and canonical context.
+4. Only exact-span surgical patches are permitted; whole-field semantic rewrites are rejected.
+5. The patched candidate must remain deterministically safe.
+6. Luna low re-audits it.
+7. One bounded second medium → low pass is allowed for concrete leftovers.
+8. If a repair regresses deterministic safety or fails to improve the candidate, the safer usable candidate is retained.
 
-The correction prompt now states explicitly that an already-rejected expression may not be returned unchanged and gives minimal neutral rewrites for the failure classes actually seen in paid output.
+No deterministic audience transformer rewrites model prose. Older Spanish-specific narrow-correction helpers remain compatibility/regression surfaces only.
 
 ## Ritual continuity
 
-Ritual prompts and deterministic checks preserve physical sequencing across positions. For the vanilla tarot medium, repeating even one active preparation action already established earlier — warming, cutting or shuffling the deck — is a scene reset and is rejected before the ordinary prose audit. Retrospective continuity such as saying the deck remains warm after an earlier preparation is still valid.
+Ritual prompts preserve physical sequencing across positions. Canonical media data owns which participant performs the mapped physical action.
 
-This semantic tarot check is kept separate from generic lexical similarity and is not applied to mapped readers. Mapped media may legitimately repeat their canonical per-result physical action; their own participation, grounding and single-cast rules continue to govern that choreography.
+Semantic Luna evaluates meaning-dependent continuity such as whether an action is actually repeated, negated, remembered or hypothetical. Deterministic code retains exact canonical state and structural boundaries it can prove.
 
-A ritual also cannot repeat the same active tarot preparation inside its own combined opening/ritual/gesture paragraph. The hidden current result must remain concealed until the reveal stage, so pre-reveal prose that turns or places it face-up is rejected even if it does not name the result.
+The Ngaru/Amaru querent-operated draw contracts remain compatible with natural Spanish pro-drop. Reader-operated media remain reader-owned. A semantic repair must restore the actor established by canonical context rather than reassigning reader choreography to the querent merely to make a sentence grammatical.
 
-## Human-review findings
+## Harness and human review
 
-Some defects are better handled by stronger natural-language instructions and manual review than by brittle lexical rejection. Examples from paid output included redundant constructions such as `exploremos contigo`, repeated roots such as `conversación clara para aclarar`, and anthropomorphic invitation wording in which a card was said to want to hear a word. The shared Spanish task prompts discourage these constructions.
+Paid workers now use the deterministic production audit plus `semantic_final_issue:*` / `semantic_final:unknown` diagnostics from `runModelSession()` as their final quality contract. Normal semantic calls are excluded from `retryRequests`, which represents actual additional transport/parse attempts.
 
-The latest paid run also invented an unstated material property in `la madera de las cartas cede al tacto`. Because physical scene details for Selena belong in persona data rather than a global regex, Selena's bilingual persona now explicitly tells generation not to invent materials or physical properties of the tarot deck that the scene has not established.
+Full-matrix aggregation accepts only current schema-v3 cell reports. Legacy report schemas are rejected rather than mixed into current statistics.
 
-Human review remains mandatory after the deterministic suite is green.
+Human review remains mandatory after deterministic CI and paid model validation. Automated checks can establish structure, state ownership and known leakage boundaries; they cannot certify nuanced cultural accuracy, reader personality or prose taste.
