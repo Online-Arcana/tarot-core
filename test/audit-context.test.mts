@@ -121,9 +121,10 @@ test("reader-operated ritual turns a local second-person medium action into a co
   assert.match(issue.expected ?? "", /keep Brennos as the actor/iu);
   assert.equal(issue.repairScope, "local");
 
-  const review = contextualProseCorrection(req, audit);
-  assert.ok(review);
-  assert.deepEqual(review.paths, ["ritual.ritual"]);
+  // This legacy contextual diagnostic remains useful evidence, but actor
+  // attribution is semantic. The base deterministic reviewer must not select
+  // it; production routes actor findings through the isolated Luna audit.
+  assert.equal(contextualProseCorrection(req, audit), null);
 });
 
 test("querent movement stays valid when the reader performs the nearby medium action", () => {
