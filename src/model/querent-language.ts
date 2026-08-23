@@ -1,11 +1,20 @@
 import type { ApiReq } from "../contracts/types.js";
+import { profileFor } from "../readers/profiles.js";
 import { auditLanguage } from "./language.js";
 
 const SPANISH_NARRATOR_ACTOR_CLARITY =
   "En prosa del narrador, el sujeto omitido solo es seguro mientras el actor siga siendo inequívocamente el mismo. Si la acción cambia entre la persona consultante y el tarotista —o viceversa— vuelve a establecer explícitamente al nuevo actor antes de omitirlo otra vez. No dejes una forma verbal sin sujeto tras una acción en segunda persona si puede leerse como imperativo dirigido a la persona.";
 
-const SPANISH_RITUAL_ACTOR_CLARITY =
-  "En cada ritual, la primera acción atribuida a una persona debe dejar inequívocamente claro quién la realiza si ese actor aún no ha quedado establecido dentro de ese mismo ritual; los rituales anteriores no cuentan como establecimiento. Una vez que el actor sea inequívoco, usa con naturalidad el sujeto omitido mientras no cambie ni se vuelva ambiguo.";
+function spanishRitualActorClarity(req: ApiReq): string {
+  const readerName = profileFor(req.reader).public.name;
+  const querentName = req.name.trim() || "la persona consultante";
+  return [
+    "En cada ritual, la primera acción atribuida a una persona debe dejar inequívocamente claro para el usuario quién la realiza si ese actor aún no ha quedado establecido dentro de ese mismo ritual; los rituales anteriores no cuentan como establecimiento. Una vez que el actor sea inequívoco, puede usar con naturalidad el sujeto omitido mientras no cambie ni se vuelva ambiguo.",
+    `Ejemplos ilustrativos para ${querentName}; no copies deliberadamente estas acciones ni su redacción.`,
+    `CORRECTO: «${readerName} inclina la cabeza y observa la baraja. Después acerca una mano hacia ella.»`,
+    `INCORRECTO: «Inclina la cabeza y observa la baraja. ${readerName} acerca una mano hacia ella.»`,
+  ].join("\n");
+}
 
 export function querentNeedsNeutralAddress(req: ApiReq): boolean {
   return auditLanguage(req.lang) === "es" && (req.gender === undefined || req.gender === "nonbinary");
@@ -17,7 +26,7 @@ export function querentLanguageContract(req: ApiReq): string {
   }
 
   const actorClarity = req.task === "ritual"
-    ? `${SPANISH_NARRATOR_ACTOR_CLARITY}\n${SPANISH_RITUAL_ACTOR_CLARITY}`
+    ? `${SPANISH_NARRATOR_ACTOR_CLARITY}\n${spanishRitualActorClarity(req)}`
     : SPANISH_NARRATOR_ACTOR_CLARITY;
 
   if (req.gender === "woman") {
@@ -142,7 +151,7 @@ export function neutralSpanishQuerentIssue(value: string, req: ApiReq): string |
     return "must use natural gender-neutral Spanish for the querent because gender is missing or nonbinary";
   }
   if (req.task === "suggest" && FIRST_PERSON_NEUTRAL_FORBIDDEN.test(value)) {
-    return "suggestions are written from the querent's point of view and must remain naturally gender-neutral when gender is missing or nonbinary";
+    return "suggestions are written from the querent's point of-view and must remain naturally gender-neutral when gender is missing or nonbinary";
   }
   if (ARTIFICIAL_INCLUSIVE.test(value)) {
     return "must use natural neutral phrasing rather than @, x, slash or parenthetical gender forms";
