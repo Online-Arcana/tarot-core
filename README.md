@@ -6,19 +6,22 @@ This repository owns the deterministic tarot domain, reader data, mapped media s
 
 ## Core boundary
 
-The browser-facing `ApiReq` and `ApiOut` contracts remain compatible with the existing Online Arcana application. Client-supplied card and spread descriptions are treated as compatibility data only: the core rebuilds semantic card, orientation, spread and position facts from canonical IDs before model generation.
+The browser-facing `ApiReq` and `ApiOut` contracts remain compatible with the existing Online Arcana application. Client-supplied card and spread descriptions are compatibility data only: the core rebuilds semantic card, orientation, spread and position facts from canonical IDs before model generation.
 
 ```text
 canonical deck + spreads + personas + mapped media
         -> request canonicalisation
         -> shared bilingual prompt construction
         -> strict structured model output
-        -> pre-audit prose preparation
-        -> deterministic audit / constrained correction
-        -> deterministic recovery when required
-        -> attach public mapped presentation data
+        -> deterministic preparation + production audit
+        -> GPT-5.6 Luna low semantic audit
+             -> pass, or
+             -> bounded Luna-medium exact-span repair + Luna-low re-audit
+        -> deterministic availability reserve only when no usable model candidate exists
         -> unchanged ApiOut
 ```
+
+Canonical handover state is deterministically grounded and skips semantic rewrite after validation.
 
 ## Canonical data
 
@@ -34,19 +37,28 @@ Generated persona and fallback JSON files are build products and are not authori
 
 ## Language and voice
 
-Generation supports English and Spanish through one shared architecture. English is requested as natural British English. Spanish is requested as natural Spain Spanish with tuteo and normal pro-drop.
+Generation supports English and Spanish through one shared architecture. English is requested as natural British English. Spanish is requested as natural Spain Spanish with tuteo and natural pro-drop while the grammatical actor remains unambiguous.
 
-Narrator fields and reader dialogue are distinct contracts. Spanish narrator audience normalisation is conservative and applies only to narrator-owned fields; reader dialogue is never transformed as narration. Mapped readers use their public physical medium in model-facing data rather than canonical tarot identifiers.
+Narrator fields and reader dialogue are distinct contracts. Narrator prose describes the configured reader in third person while naturally addressing the querent/viewer in second person. Suggestion chips are first-person querent questions. When Spanish narration switches actor between querent and reader, the new actor must be re-established before pro-drop resumes.
+
+There is no deterministic audience transformer in production. Grammar, person, actor ownership, naturalness and ritual-continuity meaning are semantic responsibilities of the isolated Luna audit/repair path. Exact structural/private-boundary faults remain deterministic.
+
+Mapped readers use their public physical medium and public result identities in both generation and semantic-audit context rather than exposing canonical tarot identifiers.
 
 ## Model routing
 
-Default lanes are independently configurable:
+Default prose generation routes through GPT-5.6 Luna with task-appropriate cheap reasoning effort. Semantic quality control is fixed separately:
 
-- ordinary short tasks: `gpt-5-nano` -> `gpt-5.6-luna`
-- ritual: `gpt-5-mini` -> `gpt-5.6-luna`
-- read/chat: `gpt-5.6-luna` -> `gpt-5.6-luna`
+- generation: `gpt-5.6-luna`
+- semantic audit: `gpt-5.6-luna`, low effort
+- semantic atomic repair: `gpt-5.6-luna`, medium effort
+- semantic re-audit: `gpt-5.6-luna`, low effort
 
-Every accepted generated candidate has its prose prepared and deterministically audited before public mapped presentation metadata is attached. Spanish narrator grammar failures caused by a leaked querent name or invalid tuteo pronoun case have a dedicated minimal correction schema that exposes only the affected narrator field or fields. Guaranteed recovery is available for customer-facing callers and remains diagnosable when reconstruction fails.
+Generation, semantic audit and semantic repair use isolated schema instances. Semantic calls do not share generation conversation state.
+
+The low semantic auditor never edits. Medium repair receives the untouched candidate plus exact findings and may return only surgical exact-span patches. A single bounded second medium → low pass is available for concrete leftovers; there is no repair loop. Unsafe or deterministic-regressing patches are rejected in favour of the safer usable model candidate.
+
+Guaranteed deterministic recovery is an availability path only when no usable parsed model candidate exists; it is not a quality fallback for imperfect prose.
 
 See [`docs/model.md`](docs/model.md) for the complete orchestration contract.
 
@@ -62,21 +74,25 @@ npm run ci
 
 `npm run ci` regenerates derived persona/fallback data, type-checks the core, syntax-checks the local live-test harness, builds `dist/` and runs the full deterministic test suite. It does not make paid model calls.
 
-The active tests include canonical-data checks, request canonicalisation, bilingual prompt and voice checks, mapped-medium validation, sequential ritual recovery and an exhaustive deterministic release matrix across all eight readers, both languages and all five spreads.
+The active tests include canonical-data checks, request canonicalisation, bilingual prompt and voice checks, deterministic production-audit boundaries, semantic audit/repair policy, mapped-medium validation, sequential ritual recovery and an exhaustive deterministic release matrix across all eight readers, both languages and all five spreads.
 
-The paid model-facing release matrix is intentionally local, not a GitHub Actions job. With `OPENAI_API_KEY` set in your shell:
+Paid model-facing release validation is intentionally local, not a GitHub Actions job. With `OPENAI_API_KEY` set in your shell, targeted cells and the chained smoke can be run independently; the full matrix remains available when a complete release sample is required:
 
 ```bash
+npm run test:live:cell
+npm run test:live:chain
 npm run test:live
+npm run test:live:aggregate
+npm run test:live:review
 ```
 
-That command runs all 80 complete reader/language/spread readings locally, aggregates commit-bound machine gates and writes `reports/live-prose-review.md` for human review. Generated live reports and raw model attempts are ignored by Git.
+Live reports are commit-stamped and gitignored. Current matrix aggregation accepts only the production semantic-report schema so legacy regex-era counters cannot be mixed into current release gates.
 
-See [`docs/testing.md`](docs/testing.md) for the full release gates and single-cell debugging commands.
+See [`docs/testing.md`](docs/testing.md) for release gates and debugging commands.
 
 ## Release status
 
-Automated deterministic validation is an engineering gate, not a claim of cultural or prose approval. Canonical card prose, reader personas and mapped cultural systems retain explicit human review requirements. The paid local live-model matrix and human review must be completed before the audited core replaces the application pin.
+Automated deterministic validation is an engineering gate, not a claim of cultural or prose approval. Canonical card prose, reader personas and mapped cultural systems retain explicit human review requirements. Paid local model validation and human review remain release inputs before the audited core replaces the application pin.
 
 ## Documentation
 
