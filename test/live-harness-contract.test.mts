@@ -6,6 +6,8 @@ const cellRunner = await readFile(new URL("../scripts/run-live-prose-cell.mjs", 
 const matrixRunner = await readFile(new URL("../scripts/run-live-prose-matrix.mjs", import.meta.url), "utf8");
 const matrixWorker = await readFile(new URL("../scripts/live-prose-matrix.mjs", import.meta.url), "utf8");
 const chainRunner = await readFile(new URL("../scripts/run-live-chained-smoke.mjs", import.meta.url), "utf8");
+const chainWorker = await readFile(new URL("../scripts/live-chained-smoke.mjs", import.meta.url), "utf8");
+const aggregateRunner = await readFile(new URL("../scripts/aggregate-live-prose.mjs", import.meta.url), "utf8");
 const reviewRenderer = await readFile(new URL("../scripts/render-live-prose-review.mjs", import.meta.url), "utf8");
 const testingDocs = await readFile(new URL("../docs/testing.md", import.meta.url), "utf8");
 
@@ -52,26 +54,37 @@ test("paid matrix retry accounting separates the bounded semantic pipeline from 
   assert.match(matrixWorker, /Math\.max\(0, calls\.length - logicalCallCount\(result, req\.task\)\)/u);
 });
 
-test("chained paid wrapper replaces the legacy worker gate with production diagnostics", () => {
+test("chained paid worker uses production deterministic and semantic-final accounting directly", () => {
+  assert.match(chainWorker, /productionAuditModelOut/u);
+  assert.match(chainWorker, /function semanticFinalIssues\(result\)/u);
+  assert.match(chainWorker, /semantic_final_issue:/u);
+  assert.match(chainWorker, /semantic_final:unknown/u);
+  assert.match(chainWorker, /function logicalCallCount\(result, task\)/u);
+  assert.match(chainWorker, /semantic_retry_repair:/u);
+  assert.match(chainWorker, /semantic_retry_reaudit:/u);
+  assert.match(chainWorker, /Math\.max\(0, calls\.length - logicalCallCount\(result, req\.task\)\)/u);
+  assert.doesNotMatch(chainWorker, /contextualAuditModelOut/u);
+});
+
+test("chained wrapper verifies report provenance and can normalise older chain artifacts defensively", () => {
   assert.match(chainRunner, /function semanticFinalIssues\(result\)/u);
   assert.match(chainRunner, /semantic_final_issue:/u);
   assert.match(chainRunner, /semantic_final:unknown/u);
-  assert.match(chainRunner, /semantic_audit:skipped_due_deterministic_findings/u);
   assert.match(chainRunner, /function normaliseReport\(report\)/u);
-  assert.match(chainRunner, /correctedSummary/u);
   assert.doesNotMatch(chainRunner, /contextualAuditModelOut/u);
-});
-
-test("chained paid retry accounting recognises both semantic repair passes", () => {
-  assert.match(chainRunner, /function logicalCallCount\(result, task\)/u);
-  assert.match(chainRunner, /semantic_retry_repair:/u);
-  assert.match(chainRunner, /semantic_retry_reaudit:/u);
-  assert.match(chainRunner, /Math\.max\(0, calls - logicalCallCount\(task, task\.task\)\)/u);
-});
-
-test("chained paid wrapper cannot reuse a stale report from an earlier checkout", () => {
   assert.match(chainRunner, /await rm\(path, \{ force: true \}\)/u);
   assert.match(chainRunner, /report\.commit !== commit/u);
+});
+
+test("full-matrix aggregation accepts only current semantic-audit report schemas", () => {
+  assert.match(aggregateRunner, /Number\(parsed\.schemaVersion \?\? 0\) >= 3/u);
+  assert.match(aggregateRunner, /rejectedLegacyReports/u);
+  assert.match(aggregateRunner, /noLegacyReportSchemas/u);
+  assert.match(aggregateRunner, /noSemanticUnknown/u);
+  assert.match(aggregateRunner, /semanticRepairs/u);
+  assert.match(aggregateRunner, /semanticRetryRepairs/u);
+  assert.doesNotMatch(aggregateRunner, /heuristicFindingsDismissed/u);
+  assert.doesNotMatch(aggregateRunner, /contextualAtomicRevisions/u);
 });
 
 test("human review pack exposes canonical draw references only as review context", () => {
