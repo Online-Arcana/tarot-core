@@ -1,15 +1,90 @@
-import type { ApiOut, ApiReq } from "../contracts/types.js";
+import type { ApiOut, ApiReq, ChatOut, ReadingOut, RitualOut } from "../contracts/types.js";
+
+const EN_AGREEMENT: readonly [RegExp, string][] = [
+  [/^(\s*)is\b/iu, "$1are"],
+  [/^(\s*)was\b/iu, "$1were"],
+  [/^(\s*)has\b/iu, "$1have"],
+  [/^(\s*)does\b/iu, "$1do"],
+  [/^(\s*)waits\b/iu, "$1wait"],
+  [/^(\s*)stands\b/iu, "$1stand"],
+  [/^(\s*)sits\b/iu, "$1sit"],
+  [/^(\s*)watches\b/iu, "$1watch"],
+  [/^(\s*)listens\b/iu, "$1listen"],
+  [/^(\s*)remains\b/iu, "$1remain"],
+  [/^(\s*)feels\b/iu, "$1feel"],
+  [/^(\s*)rests\b/iu, "$1rest"],
+  [/^(\s*)moves\b/iu, "$1move"],
+  [/^(\s*)reaches\b/iu, "$1reach"],
+  [/^(\s*)holds\b/iu, "$1hold"],
+  [/^(\s*)looks\b/iu, "$1look"],
+  [/^(\s*)hears\b/iu, "$1hear"],
+  [/^(\s*)sees\b/iu, "$1see"],
+  [/^(\s*)follows\b/iu, "$1follow"],
+  [/^(\s*)carries\b/iu, "$1carry"],
+  [/^(\s*)faces\b/iu, "$1face"],
+  [/^(\s*)touches\b/iu, "$1touch"],
+  [/^(\s*)breathes\b/iu, "$1breathe"],
+  [/^(\s*)walks\b/iu, "$1walk"],
+];
+const USER_NOUN_EN = "life|question|path|choice|voice|body|breath|hands?|face|future|past|situation|world|thoughts?|feelings?|heart|mind|attention|experience|home|work|relationship|decision|grief|hope|fear";
+
+function escape(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+function agreement(value: string): string {
+  for (const [pattern, replacement] of EN_AGREEMENT) {
+    const next = value.replace(pattern, replacement);
+    if (next !== value) return next;
+  }
+  return value;
+}
+
+function sentence(value: string, name: string): string {
+  const match = new RegExp(`(?<![\\p{L}\\p{N}])${escape(name)}(?:['’]s)?(?![\\p{L}\\p{N}])`, "iu").exec(value);
+  if (!match || match.index === undefined) return value;
+
+  const before = value.slice(0, match.index);
+  const after = value.slice(match.index + match[0].length);
+  if (/['’]s$/iu.test(match[0])) return `${before}your${after}`;
+
+  const owned = after.replace(
+    new RegExp(`\\b(?:his|her|their)\\s+(${USER_NOUN_EN})\\b`, "giu"),
+    (_whole, noun: string) => `your ${noun}`,
+  );
+  return `${before}you${agreement(owned)}`;
+}
+
+function narrator(value: string, req: ApiReq): string {
+  const name = req.name.trim();
+  if (!name || req.lang.toLowerCase().startsWith("es")) return value;
+  return value.replace(/[^.!?]+(?:[.!?]+|$)/gu, part => sentence(part, name));
+}
 
 /**
- * @deprecated Audience perspective is authored by the generation prompt and,
- * when necessary, corrected by the contextual atomic LLM reviewer.
- *
- * This compatibility export intentionally performs no transformation. The old
- * implementation attempted to infer grammatical role and rewrite generated
- * English/Spanish prose deterministically, which could damage otherwise-natural
- * text. Keep this symbol only so existing consumers do not break while they
- * remove obsolete post-processing calls.
+ * @deprecated Modern production generation already enforces narrator audience
+ * and exact querent-name boundaries. This narrow bridge remains for source
+ * consumers that still call the historical post-processor. It repairs only an
+ * exact known English querent-name leak in narrator fields; it does not infer
+ * voice, actor, gender or general grammar, and production runners do not use it.
  */
-export function addressViewer(_req: ApiReq, out: ApiOut): ApiOut {
+export function addressViewer(req: ApiReq, out: ApiOut): ApiOut {
+  if (req.task === "ritual") {
+    const value = out as RitualOut;
+    return {
+      ...value,
+      gesture: narrator(value.gesture, req),
+      opening: narrator(value.opening, req),
+      ritual: narrator(value.ritual, req),
+    };
+  }
+  if (req.task === "read") {
+    const value = out as ReadingOut;
+    return { ...value, note: narrator(value.note, req) };
+  }
+  if (req.task === "chat") {
+    const value = out as ChatOut;
+    return { ...value, gesture: narrator(value.gesture, req) };
+  }
   return out;
 }
