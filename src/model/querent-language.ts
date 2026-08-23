@@ -11,8 +11,8 @@ function spanishRitualActorClarity(req: ApiReq): string {
   return [
     "En cada ritual, la primera acción atribuida a una persona debe dejar inequívocamente claro para el usuario quién la realiza si ese actor aún no ha quedado establecido dentro de ese mismo ritual; los rituales anteriores no cuentan como establecimiento. Una vez que el actor sea inequívoco, puede usar con naturalidad el sujeto omitido mientras no cambie ni se vuelva ambiguo.",
     `Ejemplos ilustrativos para ${querentName}; no copies deliberadamente estas acciones ni su redacción.`,
-    `CORRECTO: «${readerName} inclina la cabeza y observa la baraja. Después acerca una mano hacia ella.»`,
-    `INCORRECTO: «Inclina la cabeza y observa la baraja. ${readerName} acerca una mano hacia ella.»`,
+    `CORRECTO: «${readerName} inclina la cabeza y acerca una mano al centro del espacio frente a ti. Durante un instante, el silencio permanece intacto. Después ajusta ligeramente la posición de las manos y espera. Finalmente las retira y deja el gesto en suspenso.»`,
+    `INCORRECTO: «Inclina la cabeza y acerca una mano al centro del espacio frente a ti. Durante un instante, el silencio permanece intacto. ${readerName} ajusta ligeramente la posición de las manos y espera. ${readerName} las retira y deja el gesto en suspenso.»`,
   ].join("\n");
 }
 
