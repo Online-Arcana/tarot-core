@@ -21,7 +21,7 @@ const englishReq = {
   question: "What is changing?",
 };
 
-test("deprecated audience helper never rewrites Spanish model prose", () => {
+test("deprecated audience helper does not revive Spanish semantic rewriting", () => {
   const out = {
     gesture: "Selena piensa en Alex mientras ordena el espacio y deja la mesa exactamente como estaba antes de volver a tu pregunta.",
     response: "Puedes decidir qué parte de esto merece más atención.",
@@ -29,12 +29,23 @@ test("deprecated audience helper never rewrites Spanish model prose", () => {
   assert.deepEqual(addressViewer(spanishReq, out), out);
 });
 
-test("deprecated audience helper never rewrites English model prose", () => {
+test("deprecated audience helper leaves name-free English prose unchanged", () => {
   const out = {
-    gesture: "Selena watches Alex while the candlelight stays steady across the table and the room remains quiet around the question.",
+    gesture: "Selena watches you while the candlelight stays steady across the table and the room remains quiet around your question.",
     response: "You can decide which part of this deserves more attention.",
   };
   assert.deepEqual(addressViewer(englishReq, out), out);
+});
+
+test("deprecated audience helper narrowly repairs exact English querent-name narrator leaks", () => {
+  const out = {
+    gesture: "Selena watches Alex while Alex waits beside the candle and his question settles into the room.",
+    response: "You can decide which part of this deserves more attention.",
+  };
+  assert.deepEqual(addressViewer(englishReq, out), {
+    ...out,
+    gesture: "Selena watches you while you wait beside the candle and your question settles into the room.",
+  });
 });
 
 test("production runners do not import the retired audience transformer", async () => {
