@@ -41,18 +41,27 @@ function agreement(value: string): string {
 }
 
 function sentence(value: string, name: string): string {
-  const match = new RegExp(`(?<![\\p{L}\\p{N}])${escape(name)}(?:['’]s)?(?![\\p{L}\\p{N}])`, "iu").exec(value);
-  if (!match || match.index === undefined) return value;
+  const pattern = new RegExp(`(?<![\\p{L}\\p{N}])${escape(name)}(?:['’]s)?(?![\\p{L}\\p{N}])`, "iu");
+  let output = value;
 
-  const before = value.slice(0, match.index);
-  const after = value.slice(match.index + match[0].length);
-  if (/['’]s$/iu.test(match[0])) return `${before}your${after}`;
+  for (let repairs = 0; repairs < 8; repairs += 1) {
+    const match = pattern.exec(output);
+    if (!match || match.index === undefined) return output;
 
-  const owned = after.replace(
-    new RegExp(`\\b(?:his|her|their)\\s+(${USER_NOUN_EN})\\b`, "giu"),
-    (_whole, noun: string) => `your ${noun}`,
-  );
-  return `${before}you${agreement(owned)}`;
+    const before = output.slice(0, match.index);
+    const after = output.slice(match.index + match[0].length);
+    if (/['’]s$/iu.test(match[0])) {
+      output = `${before}your${after}`;
+      continue;
+    }
+
+    const owned = after.replace(
+      new RegExp(`\\b(?:his|her|their)\\s+(${USER_NOUN_EN})\\b`, "giu"),
+      (_whole, noun: string) => `your ${noun}`,
+    );
+    output = `${before}you${agreement(owned)}`;
+  }
+  return output;
 }
 
 function narrator(value: string, req: ApiReq): string {
