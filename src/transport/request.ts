@@ -1,5 +1,5 @@
 import { isConv, isReading, rec } from "../contracts/guard.js";
-import { canonicalCardAt, canonicaliseDraw } from "../domain/canonical.js";
+import { canonicalCardAt, canonicaliseDraw, canonicalSpread } from "../domain/canonical.js";
 import { isReader } from "../readers/ids.js";
 import type {
   ApiReq,
@@ -97,7 +97,8 @@ function wireCard(value: unknown): DrawnCard | null {
   };
 }
 
-function wireDraw(value: unknown): Draw | null {
+/** Legacy structural draw parser retained for the deployed frontend wire contract. */
+function draw(value: unknown): Draw | null {
   if (!rec(value) || !SPREADS.has(value.id as SpreadId)) return null;
   const name = text(value.name, 120);
   const purpose = text(value.purpose, 500);
@@ -111,11 +112,36 @@ function wireDraw(value: unknown): Draw | null {
   return { id: value.id as SpreadId, name, purpose, cards };
 }
 
-function draw(value: unknown, lang: string): Draw | null {
-  const parsed = wireDraw(value);
+/**
+ * Canonicalise a structurally valid client draw. A complete draw takes the strict
+ * canonical path. A legacy partial prefix is accepted only at the transport
+ * boundary, with every supplied card rebuilt from canonical IDs, sides and
+ * positions. The production model boundary remains strict and canonicalises its
+ * request again before generation.
+ */
+function canonicalDraw(parsed: Draw | null, lang: string, allowPartial = false): Draw | null {
   if (!parsed) return null;
   try {
     return canonicaliseDraw(parsed, lang);
+  } catch {
+    if (!allowPartial) return null;
+  }
+
+  try {
+    const spread = canonicalSpread(parsed.id, lang);
+    if (parsed.cards.length > spread.pos.length) return null;
+    const ids = new Set<string>();
+    const cards = parsed.cards.map((card, index) => {
+      if (card.pos !== index + 1 || ids.has(card.id)) throw new Error("invalid partial draw");
+      ids.add(card.id);
+      return canonicalCardAt(card.id, card.side, index + 1, parsed.id, lang);
+    });
+    return {
+      id: spread.id,
+      name: spread.name,
+      purpose: spread.purpose,
+      cards,
+    };
   } catch {
     return null;
   }
@@ -141,7 +167,7 @@ function readTurn(value: unknown, lang: string): ReadTurn | null {
   const id = text(value.id, 80);
   const at = text(value.at, 80);
   const question = text(value.question, 2000);
-  const parsedDraw = draw(value.draw, lang);
+  const parsedDraw = canonicalDraw(draw(value.draw), lang);
   if (!id || !at || !question || !parsedDraw || !isReading(value.out)) return null;
   return {
     id,
@@ -207,7 +233,8 @@ export function parseReq(value: unknown, allowedLangs: ReadonlySet<string>): Api
       const spreadId = spread as SpreadId;
       const index = Number(cardNo);
       const drawn = value.drawn === undefined ? undefined : drawnCard(value.drawn, spreadId, index, lang);
-      const parsedDraw = value.draw === undefined ? undefined : draw(value.draw, lang);
+      const legacyDraw = value.draw === undefined ? undefined : draw(value.draw);
+      const parsedDraw = legacyDraw === undefined ? undefined : canonicalDraw(legacyDraw, lang, true);
       if (drawn === null || parsedDraw === null) return null;
       if (parsedDraw !== undefined) {
         if (parsedDraw.id !== spreadId || index >= parsedDraw.cards.length) return null;
@@ -231,7 +258,7 @@ export function parseReq(value: unknown, allowedLangs: ReadonlySet<string>): Api
     }
     case "read": {
       const question = text(value.question, 2000);
-      const parsedDraw = draw(value.draw, lang);
+      const parsedDraw = canonicalDraw(draw(value.draw), lang, true);
       const hasTheatre = value.ritualTheatre !== undefined;
       const ritualTheatre = theatreList(value.ritualTheatre, true);
       if (!question || !parsedDraw || ritualTheatre === null) return null;
@@ -257,6 +284,7 @@ export function parseReq(value: unknown, allowedLangs: ReadonlySet<string>): Api
     case "handover": {
       const question = text(value.question, 2000);
       const target = value.target;
+      if (!isConv(value.conv)) return null;
       const conv = canonicalConv(value.conv, lang);
       if (!question || !isReader(target) || target === reader || !conv) return null;
       if (conv.reader !== reader || conv.lang !== lang || conv.name !== name) return null;
