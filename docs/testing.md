@@ -14,13 +14,20 @@ npm run ci
 3. a clean build
 4. the full Node test suite
 
-The suite covers canonical deck/spread validation, exact request canonicalisation, reader personas, mapped media, ritual participation, prompt language/voice contracts, output schema, base and contextual auditing, atomic prose review, deterministic availability reconstruction, reveal ordering, public metadata, handover/return state and compatibility with the existing application boundary.
+The suite covers canonical deck/spread validation, exact request canonicalisation, reader personas, mapped media, ritual participation, prompt language/voice contracts, output schema, deterministic production auditing, isolated semantic-audit/review policy, deterministic availability reconstruction, reveal ordering, public metadata, handover/return state and compatibility with the existing application boundary.
 
 Both untrusted wire input and direct typed library requests are covered. `parseReq` proves the HTTP/persistence boundary replaces compatibility prose with canonical semantics, while `canonicaliseApiReq`, public `modelPrompt` and `runModelSession` tests prove a direct caller cannot bypass that trust boundary by constructing an `ApiReq` manually.
 
 ## Audit architecture tests
 
-Contextual audit tests are intentionally written as **state pairs**, not only as lists of bad phrases. The same wording is exercised under different requests to prove that the verdict comes from current state rather than a global blacklist.
+Production has two deliberately separate audit layers:
+
+1. **Deterministic production audit** owns objective structural and exact lexical contracts. The package-root synchronous `auditModelOut` is deterministic-only.
+2. **GPT-5.6 Luna low semantic audit** owns grammar, naturalness, grammatical person, reader/querent identity, actor ownership, ritual continuity, semantic result references and other meaning-dependent judgements. It never edits prose. Confirmed findings are passed with the untouched candidate to Luna medium for atomic repair, then re-audited by Luna low. One bounded second medium → low pass is permitted for concrete leftovers.
+
+Legacy contextual/regex helpers remain explicit compatibility and sensor surfaces for bounded regression coverage. They are not the production semantic authority and paid harnesses must not use them as final gates.
+
+Context-sensitive legacy sensor tests are intentionally written as **state pairs**, not only lists of bad phrases. The same wording is exercised under different requests to prove that a sensor is interpreted against current state rather than promoted into a global blacklist.
 
 Examples include:
 
@@ -28,29 +35,35 @@ Examples include:
 - the same masculine Spanish agreement is invalid for a woman querent but valid for a man querent
 - Ngaru and Amaru require querent-operated draws while Brennos/Nahid/Ame use reader-operated actions
 - natural Spanish pro-drop such as `Introduces la mano ... extraes una concha` satisfies the Ngaru contract without an explicit `tú`
+- after an actor switch between querent and reader, Spanish generation must re-establish the new actor before pro-drop becomes safe again
 - `Agitas el escudo` is suspicious when Brennos owns the current shield action
 - an unrelated querent hand movement followed by Brennos operating the shield is not treated as the same action
 - opening versus continuation ritual state changes revealed/hidden result context and single-cast rules
-- the package-root `auditModelOut` includes request-context findings that the low-level `model/audit` subpath intentionally does not
+- mapped return semantic context exposes the same public result identities as generation rather than canonical tarot names
 
-The lexical/regex layer has its own bounded sensor tests. A sensor match is not sufficient evidence of a semantic error unless the current `AuditContext` activates the corresponding rule.
+The lexical/regex layer has its own bounded sensor tests. A sensor match is never sufficient evidence of a production semantic error merely because a phrase matched.
 
-## Atomic revision tests
+## Semantic audit and atomic revision tests
 
-Tests cover both Spanish and English local correction paths. They verify that:
+Tests cover both Spanish and English semantic correction paths. They verify that:
 
+- Luna low receives canonical request context and explicit field roles
+- narrator prose may address the querent naturally in second person while describing the selected reader in third person
+- suggestion chips are querent-first-person questions rather than reader dialogue
+- mapped results are audited through the public reader-specific medium
 - only affected paths are editable
-- the reviewer receives original prose and current generation context
-- contextual-only review receives compiled audit context plus structured `code`, `path`, `evidence`, `expected` and `repairScope` metadata
+- Luna medium receives the untouched candidate plus exact low-audit findings
 - an exact small patch is merged into the original candidate
 - untouched fields remain byte-for-byte unchanged
-- the revised candidate is re-audited
-- an over-broad/invalid revision is rejected
-- the reviewer may dismiss a heuristic false positive by returning no edits
+- the revised candidate is re-audited by a fresh isolated Luna-low schema
+- one bounded second medium → low repair pass can address concrete leftovers
+- an over-broad or deterministic-regressing revision is rejected
+- a semantic finding may be dismissed when medium judges it to be a false positive
 - usable LLM prose is preferred over deterministic prose after bounded quality-repair attempts
 - deterministic reconstruction is used only when no usable parsed model candidate exists and guaranteed output is enabled
+- canonical handover state skips semantic rewrite entirely after deterministic grounding
 
-The primary realistic immersion regression is a querent proper-name leak in narrator prose. The auditor identifies the forbidden reference and the reviewer chooses the natural second-person repair from context. Low-level malformed forms such as invalid Spanish prepositional pronoun case remain useful sensor regressions, but they are not the model architecture’s canonical correction example and are never repaired by a deterministic audience transformer.
+Low-level malformed forms remain useful regression sensors, but they are not invitations to add deterministic audience rewriting or language-specific prose replacement.
 
 ## Privacy-safe fixtures
 
@@ -89,22 +102,24 @@ Important regression families include:
 - direct-address recognition without confusing possessives such as `sus`
 - valid and invalid Spanish prepositional pronoun forms as bounded language sensors
 - narrator first-person leakage
-- querent proper-name leakage from narrator-owned fields
+- exact querent proper-name leakage from narrator-owned fields
 - reader/querent grammatical-gender drift
 - reader self-reference and generic reader/querent labels
 - Spanish pro-drop in legitimate querent-operated mapped rituals
+- explicit actor re-establishment after Spanish querent↔reader subject switches
 - context-derived mapped actor ownership
 - single-cast continuation state
 - exact user-authored handover questions remaining opaque to generated-prose correction
 - `Death` / `La Muerte` supplied by the user not becoming false future-result leaks
 - future mapped public-result names being repaired before reveal
+- mapped return audit context never substituting canonical tarot identities for public reader-specific results
 - exact three-item suggestions
 - mapped generated prose being rejected rather than scrubbed by presentation code
 - public media metadata containing no archival/operational controls
 - deleted duplicate mapping authorities not reappearing
 - direct typed requests receiving canonical card/spread semantics
 - application compatibility transforms being no-ops/idempotent after core finalisation
-- root/public audit using contextual semantics while the base-audit subpath stays explicitly low-level
+- package-root synchronous audit remaining deterministic-only while legacy contextual diagnostics stay explicitly named
 
 ## Local paid prose matrix
 
@@ -123,11 +138,21 @@ For one reader/language cell:
 LIVE_READER=selena LIVE_LANG=en-GB npm run test:live:cell
 ```
 
-The wrappers refuse dirty worktrees. Reports are stamped with the tested commit; aggregation rejects mixed/stale provenance and requires all expected cells to describe the same commit.
+For the seven-reader handover chain in both languages:
 
-The full matrix exercises complete reader/language/spread flows and collects generated prose, model provenance, audit/review/recovery diagnostics and placeholder-risk counters. The A → B → A fixture uses real `handoverConv()` state and deterministic target-side state where needed to avoid adding unrelated paid calls.
+```bash
+npm run test:live:chain
+```
 
-`runModelSession()` is the production authority for paid generation and applies contextual review. Both paid worker scripts also use `contextualAuditModelOut()` for their final report audit and deterministic seed/target fixtures, so report counters and hard gates use the same request-context semantics as production. Their retry accounting distinguishes semantic reviewer/correction calls from transport or parse retries. The existing `narrowCorrections` report field is retained for report-schema compatibility but now counts language-agnostic atomic revisions, including contextual atomic revisions.
+The wrappers refuse dirty worktrees. Reports are stamped with the tested commit; aggregation rejects mixed/stale provenance and rejects legacy report schemas that pre-date the production semantic-final contract.
+
+`runModelSession()` is the production authority for paid generation. Paid workers use the deterministic production audit plus the runner's `semantic_final_issue:*` / `semantic_final:unknown` diagnostics for final reporting. They do not run the retired contextual regex auditor as a second semantic authority.
+
+Normal generation/audit/repair/re-audit model calls are counted as the bounded semantic pipeline rather than transport retries. `retryRequests` therefore represents actual extra request/parse transport attempts. `narrowCorrections` counts atomic revision paths and `semanticRepairs` records the production Luna-medium semantic repair path.
+
+The full matrix exercises complete reader/language/spread flows and collects generated prose, model provenance, production audit/review/recovery diagnostics and placeholder-risk counters. Its aggregator accepts only current schema-v3 cell reports, requires all 16 cells to describe the exact checkout commit, and hard-fails semantic unknowns as well as surviving final findings.
+
+The chained smoke exercises seven mapped readers, three-result spreads, exact accepted handover state and the return to Selena. The chain worker itself now emits production-accounted summaries; the wrapper retains defensive report normalisation/provenance checks for compatibility with older saved chain artefacts.
 
 Live reports are written below `reports/` and are gitignored. They contain generated review prose and should be treated as review artefacts rather than source files.
 
