@@ -21,23 +21,39 @@ const englishReq = {
   question: "What is changing?",
 };
 
-test("deprecated audience helper never rewrites Spanish model prose", () => {
+test("legacy frontend audience helper repairs an exact Spanish querent-name narrator leak", () => {
   const out = {
-    gesture: "Selena piensa en Alex mientras ordena el espacio y deja la mesa exactamente como estaba antes de volver a tu pregunta.",
+    gesture: "Selena piensa en Alex mientras Alex espera junto a su pregunta.",
     response: "Puedes decidir qué parte de esto merece más atención.",
   };
-  assert.deepEqual(addressViewer(spanishReq, out), out);
+  const revised = addressViewer(spanishReq, out);
+  assert.equal(revised.gesture.includes("Alex"), false);
+  assert.match(revised.gesture, /tú esperas/u);
+  assert.match(revised.gesture, /tu pregunta/u);
+  assert.equal(revised.response, out.response);
 });
 
-test("deprecated audience helper never rewrites English model prose", () => {
+test("legacy frontend audience helper repairs an exact English querent-name narrator leak", () => {
   const out = {
-    gesture: "Selena watches Alex while the candlelight stays steady across the table and the room remains quiet around the question.",
+    gesture: "Selena watches Alex while Alex waits beside his question.",
+    response: "You can decide which part of this deserves more attention.",
+  };
+  const revised = addressViewer(englishReq, out);
+  assert.equal(revised.gesture.includes("Alex"), false);
+  assert.match(revised.gesture, /you wait/u);
+  assert.match(revised.gesture, /your question/u);
+  assert.equal(revised.response, out.response);
+});
+
+test("legacy frontend audience helper leaves narrator prose without an exact name leak untouched", () => {
+  const out = {
+    gesture: "Selena watches the candlelight while your question remains present.",
     response: "You can decide which part of this deserves more attention.",
   };
   assert.deepEqual(addressViewer(englishReq, out), out);
 });
 
-test("production runners do not import the retired audience transformer", async () => {
+test("production runners do not import the legacy audience compatibility transformer", async () => {
   const runner = await readFile(new URL("../src/model/runner.ts", import.meta.url), "utf8");
   const contextual = await readFile(new URL("../src/model/contextual-runner.ts", import.meta.url), "utf8");
   assert.doesNotMatch(runner, /viewer-narration|addressViewer/u);
