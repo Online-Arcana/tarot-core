@@ -45,6 +45,12 @@ export interface ContextualProseReview {
  * Semantic/contextual findings are deliberately not accepted here. They are
  * produced by the isolated Luna-low audit and repaired, when confirmed, by the
  * Luna-medium semantic path in contextual-runner.ts.
+ *
+ * Findings are copied before they are handed to the reviewer. The base runner
+ * retains a legacy object-identity helper that can dismiss advisory findings
+ * when a reviewer returns no edits; production deterministic findings are not
+ * advisory and must never be removable through that path. A no-edit review
+ * therefore falls through to deterministic corrective generation instead.
  */
 export function contextualProseCorrection(
   _req: ApiReq,
@@ -55,6 +61,6 @@ export function contextualProseCorrection(
   if (!findings.length) return null;
   return {
     paths: [...new Set(findings.map(issue => issue.path))],
-    findings,
+    findings: findings.map(issue => ({ ...issue })),
   };
 }
