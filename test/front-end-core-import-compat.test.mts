@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 import { Deck } from "../dist/domain/deck.js";
@@ -10,6 +12,12 @@ import { resolveFit } from "../dist/reading/fit.js";
 import { handoverConv } from "../dist/reading/handover.js";
 import { futureLeaks, repairFutureLeaks, withRituals } from "../dist/reading/reveal.js";
 import { readingStages } from "../dist/reading/stages.js";
+
+const SOURCE_RUNTIME_DATA = [
+  "src/readers/personas.generated.json",
+  "src/model/fallbacks.generated.json",
+  "src/model/reserve-corpus.generated.json",
+] as const;
 
 // Online Arcana imports these symbols directly from its src/core submodule.
 // This is deliberately a path/export freeze: moving or removing one of these
@@ -32,4 +40,18 @@ test("the deployed front-end direct core import surface remains available", () =
   assert.equal(typeof repairFutureLeaks, "function");
   assert.equal(typeof withRituals, "function");
   assert.equal(typeof readingStages, "function");
+});
+
+// The deployed app compiles the core submodule source directly. Generated runtime
+// data therefore belongs to the source-consumer contract: a clean checkout must
+// contain it before any core-specific npm lifecycle command has run.
+test("a clean core checkout contains every generated runtime data file required by source consumers", () => {
+  for (const path of SOURCE_RUNTIME_DATA) {
+    assert.equal(existsSync(path), true, `${path} must exist in a clean checkout`);
+    const tracked = spawnSync("git", ["ls-files", "--error-unmatch", path], {
+      encoding: "utf8",
+      stdio: "pipe",
+    });
+    assert.equal(tracked.status, 0, `${path} must be tracked by git`);
+  }
 });
