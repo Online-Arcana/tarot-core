@@ -37,7 +37,7 @@ test("deprecated audience helper leaves name-free English prose unchanged", () =
   assert.deepEqual(addressViewer(englishReq, out), out);
 });
 
-test("deprecated audience helper narrowly repairs exact English querent-name narrator leaks", () => {
+test("deprecated audience helper narrowly repairs an exact English querent-name narrator leak", () => {
   const out = {
     gesture: "Selena watches Alex while Alex waits beside the candle and his question settles into the room.",
     response: "You can decide which part of this deserves more attention.",
