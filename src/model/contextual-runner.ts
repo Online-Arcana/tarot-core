@@ -13,6 +13,7 @@ import {
 } from "./final-proofread.js";
 import { prepareModelOutDetailed } from "./finalise.js";
 import { auditModelOut as deterministicAuditModelOut } from "./production-audit.js";
+import { spanishRitualActorContract } from "./querent-language.js";
 import {
   SEMANTIC_AUDIT_EFFORT,
   SEMANTIC_AUDIT_MODEL,
@@ -113,6 +114,11 @@ async function semanticRepair(
     "<compiled_audit_context>",
     JSON.stringify(auditContextSummary(buildAuditContext(req))),
     "</compiled_audit_context>",
+    ...(req.task === "ritual" && req.lang.toLowerCase().startsWith("es") ? [
+      "<spanish_ritual_actor_contract>",
+      spanishRitualActorContract(req),
+      "</spanish_ritual_actor_contract>",
+    ] : []),
     "<semantic_audit_findings>",
     JSON.stringify(audit.findings),
     "</semantic_audit_findings>",
