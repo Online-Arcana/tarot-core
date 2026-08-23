@@ -1,21 +1,15 @@
 import type { ApiReq } from "../contracts/types.js";
 import type { AuditIssue, ModelAudit } from "./audit.js";
 
+// The base runner receives production-audit findings only. Keep this selector
+// limited to exact, objectively provable local prose faults that the production
+// deterministic audit can actually emit. Grammar, gender, actor attribution,
+// ritual continuity and other semantic findings belong exclusively to the
+// Luna-low -> Luna-medium semantic pipeline.
 const REVIEWABLE_CODES = new Set([
   "querent_name_narrator",
-  "querent_gender",
-  "direct_address",
-  "reader_subject_drift",
-  "narrator_first_person",
-  "reader_third_person",
   "generic_querent",
   "generic_reader",
-  "spanish_pronoun_case",
-  "spanish_language",
-  "missing_participation",
-  "invented_participation",
-  "repeated_cast",
-  "medium_grounding",
 ]);
 
 const FIXED_PATHS = new Set([
@@ -45,13 +39,12 @@ export interface ContextualProseReview {
 }
 
 /**
- * Select only local prose findings that are safe to hand to the atomic LLM
- * reviewer. The findings remain advisory: the reviewer may dismiss every one
- * as a contextual false positive and return no edits.
+ * Select only deterministic local prose findings that are safe to hand to the
+ * base runner's atomic LLM reviewer.
  *
- * This selector is intentionally language-agnostic. Reader, querent, task,
- * ritual and language semantics are already encoded in the request-specific
- * audit findings and in the canonical generation context supplied to review.
+ * Semantic/contextual findings are deliberately not accepted here. They are
+ * produced by the isolated Luna-low audit and repaired, when confirmed, by the
+ * Luna-medium semantic path in contextual-runner.ts.
  */
 export function contextualProseCorrection(
   _req: ApiReq,
