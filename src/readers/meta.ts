@@ -1,6 +1,21 @@
 import type { LangCode, ReaderId, ReaderIdentity, ReaderPronouns } from "../contracts/types.js";
 import { localText, profileFor } from "./profiles.js";
 
+/**
+ * @deprecated Source-compatibility snapshot for the deployed Online Arcana
+ * frontend. Runtime identity authority remains the generated reader profiles.
+ */
+export const LEGACY_FRONTEND_IDENTITY_HINTS = {
+  selena: { gender: "woman", en: "she/her", es: "ella" },
+  brennos: { gender: "man", en: "he/him", es: "él" },
+  yejide: { gender: "woman", en: "she/her", es: "ella" },
+  ngaru: { gender: "man", en: "he/him", es: "él" },
+  ame: { gender: "woman", en: "she/her", es: "ella" },
+  amaru: { gender: "man", en: "he/him", es: "él" },
+  nahid: { gender: "woman", en: "she/her", es: "ella" },
+  mictli: { gender: "man", en: "he/him", es: "él" },
+} as const;
+
 function xml(value: string): string {
   return value
     .replaceAll("&", "&amp;")

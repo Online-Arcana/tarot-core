@@ -1,0 +1,1121 @@
+{
+  "version": 1,
+  "buckets": [
+    {
+      "key": {
+        "reader": "selena",
+        "lang": "en-GB",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "opening",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "selena-en-ritual-opening-01",
+          "fields": {
+            "opening": "Candlelight catches Selena's rings as she turns one slowly and lets the question settle between you without pressing it towards an answer.",
+            "ritual": "She warms the tarot deck between both palms, then places it over the dark velvet near the position marked {{position.name}}, keeping the next card hidden.",
+            "gesture": "Selena holds your gaze for a brief moment before lowering her attention to the deck, leaving enough silence for the reveal to arrive in its own time."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-02",
+          "fields": {
+            "opening": "Selena rests her fingertips against the edge of the velvet while the candlelight throws a muted gold reflection across her rings and the table remains quiet before you.",
+            "ritual": "She brings the tarot deck between her hands, warming it briefly before making one deliberate cut beside the place marked {{position.name}} without exposing the card beneath.",
+            "gesture": "A trace of perfume lingers in the warm air as Selena draws her hands back and lets the question remain present without trying to soften it."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-03",
+          "fields": {
+            "opening": "The room narrows to candlelight, velvet and Selena's steady attention as she gives the question a moment to become clear without asking you to explain it again.",
+            "ritual": "Selena turns one ring with her thumb, warms the tarot deck between her palms and sets it close to the position marked {{position.name}}, leaving the hidden card untouched.",
+            "gesture": "She leans in only slightly, then gives you the space back, her expression attentive rather than expectant while the scene settles for the reveal."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-04",
+          "fields": {
+            "opening": "Selena lets the last movement in the room fade before she touches the deck, candlelight resting along the gold of her rings while your question remains at the centre of the table.",
+            "ritual": "With both palms around the tarot deck, she warms it once and makes a measured cut near the position marked {{position.name}}, careful not to disturb the hidden result.",
+            "gesture": "Her eyes lift to you for a heartbeat, intimate but unhurried, before she returns her attention to the cloth and waits for the moment to move on."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-05",
+          "fields": {
+            "opening": "Warm glass and a quiet trace of perfume sit at the edge of the candlelit table while Selena listens to the shape of the question and turns a ring once against her finger.",
+            "ritual": "She takes the tarot deck between both hands, warms it and cuts it with one deliberate motion beside the position marked {{position.name}}, keeping the next card concealed.",
+            "gesture": "Selena leaves one hand resting near the velvet and studies your expression without crowding the silence, allowing the scene to remain open rather than theatrical."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-06",
+          "fields": {
+            "opening": "Selena draws the tarot deck closer across the dark velvet as candlelight moves over her rings, then pauses long enough for the question to feel present rather than merely spoken.",
+            "ritual": "She warms the deck between her palms and makes a single deliberate cut near the position marked {{position.name}}, leaving every face hidden until the reveal is due.",
+            "gesture": "Her attention returns to you with a faint, knowing softness before she lowers her eyes again, keeping the atmosphere intimate without turning it into a performance."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-07",
+          "fields": {
+            "opening": "The candle flame reflects against Selena's rings while she keeps both hands still for a moment, letting your question occupy the quiet space between the two of you.",
+            "ritual": "Selena warms the tarot deck, cuts it once with a steady hand and places it beside the position marked {{position.name}}, with the next card still fully concealed.",
+            "gesture": "She tilts her head as though noticing a hesitation, but does not interrupt it, leaving you room while the velvet and warm light hold the scene together."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-08",
+          "fields": {
+            "opening": "Selena's fingers settle around the tarot deck while the room grows quieter, the scent of perfume and the dark velvet giving your question a close, private kind of attention.",
+            "ritual": "She warms the deck between both palms and makes one clean cut near the position marked {{position.name}}, keeping the hidden card beneath her hand without turning it.",
+            "gesture": "A small reflection of gold moves across her rings as she withdraws her hand and meets your eyes, then lets the silence continue without demanding anything from it."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-09",
+          "fields": {
+            "opening": "Candlelight gathers across the dark cloth as Selena listens without filling the pause, one thumb moving slowly over a ring while the question remains clear between you.",
+            "ritual": "She takes the tarot deck into both hands, warms it and cuts it once beside the position marked {{position.name}}, preserving the hidden card exactly as it lies.",
+            "gesture": "Selena leans a little closer as if to acknowledge the weight of the moment, then eases back and leaves you enough room for the reveal to speak for itself."
+          }
+        },
+        {
+          "id": "selena-en-ritual-opening-10",
+          "fields": {
+            "opening": "Selena keeps the candlelit table undisturbed while your question settles, her rings catching brief points of gold as she rests the tarot deck between her hands.",
+            "ritual": "After warming the deck, she makes one deliberate cut and sets it near the position marked {{position.name}}, with the next card still hidden from view.",
+            "gesture": "Her gaze stays with you just long enough to feel attentive rather than intrusive before she returns to the velvet and lets the room become still."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "selena",
+        "lang": "es-ES",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "opening",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "selena-es-ritual-opening-01",
+          "fields": {
+            "opening": "La luz de las velas se refleja en los anillos de Selena mientras hace girar uno despacio y deja que tu pregunta se asiente en el espacio compartido sin empujarla hacia una respuesta.",
+            "ritual": "Calienta la baraja de tarot entre las dos palmas y la deja sobre el terciopelo oscuro, junto a la posición «{{position.name}}», manteniendo oculta la carta siguiente.",
+            "gesture": "Selena sostiene tu mirada un instante antes de bajar los ojos hacia la baraja, dejando suficiente silencio para que la revelación llegue a su debido momento."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-02",
+          "fields": {
+            "opening": "Selena apoya las yemas de los dedos en el borde del terciopelo mientras la vela deja un reflejo dorado sobre sus anillos y la mesa permanece tranquila ante ti.",
+            "ritual": "Acerca la baraja de tarot, la calienta brevemente entre las manos y hace un corte deliberado junto a la posición «{{position.name}}» sin mostrar la carta que queda debajo.",
+            "gesture": "Un rastro discreto de perfume permanece en el aire cálido cuando Selena retira las manos y deja que la pregunta siga presente sin intentar suavizarla."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-03",
+          "fields": {
+            "opening": "La estancia se reduce a la luz de las velas, el terciopelo y la atención serena de Selena mientras concede a tu pregunta un momento para aclararse sin pedirte que la expliques de nuevo.",
+            "ritual": "Hace girar un anillo con el pulgar, calienta la baraja de tarot entre las palmas y la coloca cerca de la posición «{{position.name}}», dejando intacta la carta oculta.",
+            "gesture": "Selena se inclina apenas un poco y después vuelve a darte espacio, atenta pero sin expectativas mientras la escena se prepara para la revelación."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-04",
+          "fields": {
+            "opening": "Selena deja que desaparezca el último movimiento de la habitación antes de tocar la baraja; la luz descansa sobre sus anillos mientras tu pregunta permanece en el centro de la mesa.",
+            "ritual": "Rodea la baraja de tarot con ambas palmas, la calienta una vez y hace un corte medido junto a la posición «{{position.name}}», sin alterar el resultado oculto.",
+            "gesture": "Sus ojos vuelven a ti durante un instante íntimo pero tranquilo antes de regresar al paño y esperar a que llegue el momento de continuar."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-05",
+          "fields": {
+            "opening": "El cristal cálido y un perfume discreto acompañan la mesa iluminada por velas mientras Selena escucha la forma de tu pregunta y hace girar un anillo una sola vez.",
+            "ritual": "Toma la baraja de tarot entre las dos manos, la calienta y la corta con un gesto deliberado junto a la posición «{{position.name}}», manteniendo oculta la carta siguiente.",
+            "gesture": "Selena deja una mano cerca del terciopelo y observa tu expresión sin invadir el silencio, permitiendo que la escena siga siendo íntima sin volverse teatral."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-06",
+          "fields": {
+            "opening": "Selena acerca la baraja de tarot sobre el terciopelo oscuro mientras la luz recorre sus anillos y hace una pausa suficiente para que tu pregunta se sienta presente, no solo pronunciada.",
+            "ritual": "Calienta la baraja entre las palmas y realiza un único corte deliberado junto a la posición «{{position.name}}», manteniendo todas las caras ocultas hasta el momento de la revelación.",
+            "gesture": "Su atención vuelve a ti con una suavidad apenas cómplice antes de bajar otra vez la mirada, conservando la intimidad sin convertirla en una actuación."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-07",
+          "fields": {
+            "opening": "La llama se refleja en los anillos de Selena mientras mantiene las manos quietas durante un momento y deja que tu pregunta ocupe el espacio silencioso sobre la mesa.",
+            "ritual": "Calienta la baraja de tarot, la corta una vez con mano firme y la coloca junto a la posición «{{position.name}}», con la carta siguiente todavía completamente oculta.",
+            "gesture": "Selena inclina ligeramente la cabeza, como si percibiera una vacilación, pero no la interrumpe y te deja espacio mientras el terciopelo y la luz cálida sostienen la escena."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-08",
+          "fields": {
+            "opening": "Los dedos de Selena se acomodan alrededor de la baraja de tarot mientras la habitación se aquieta; el perfume tenue y el terciopelo oscuro dan a tu pregunta una atención cercana y privada.",
+            "ritual": "Calienta la baraja entre ambas palmas y hace un corte limpio junto a la posición «{{position.name}}», manteniendo bajo la mano la carta oculta sin darle la vuelta.",
+            "gesture": "Un pequeño reflejo dorado cruza sus anillos cuando retira la mano y encuentra tu mirada, dejando después que el silencio continúe sin exigirle nada."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-09",
+          "fields": {
+            "opening": "La luz de las velas se reúne sobre el paño oscuro mientras Selena escucha sin llenar la pausa, con el pulgar recorriendo lentamente un anillo y tu pregunta clara en el espacio compartido.",
+            "ritual": "Toma la baraja de tarot entre las dos manos, la calienta y la corta una vez junto a la posición «{{position.name}}», conservando la carta oculta tal como ha quedado.",
+            "gesture": "Selena se acerca un poco, como reconociendo el peso del momento, y después vuelve a dejarte espacio para que la revelación pueda hablar por sí misma."
+          }
+        },
+        {
+          "id": "selena-es-ritual-opening-10",
+          "fields": {
+            "opening": "Selena mantiene intacta la mesa iluminada por velas mientras tu pregunta se asienta; sus anillos recogen breves destellos dorados al sostener la baraja de tarot entre las manos.",
+            "ritual": "Después de calentar la baraja, hace un corte deliberado y la deja junto a la posición «{{position.name}}», con la carta siguiente todavía fuera de tu vista.",
+            "gesture": "Su mirada permanece contigo el tiempo justo para sentirse atenta y no invasiva antes de regresar al terciopelo y dejar que la estancia quede en calma."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "ame",
+        "lang": "en-GB",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "opening",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "ame-en-ritual-opening-01",
+          "fields": {
+            "opening": "Ame holds a gathered handful of mixed petals above the shallow basin of collected rainwater while the room settles into the soft rhythm of rain.",
+            "ritual": "She casts the full handful once across the basin, where the petals touch the water and separate into quiet areas without revealing what any one area will mean.",
+            "gesture": "Ame lowers her empty hand and watches the surface become still, her gaze resting beyond the basin as the position {{position.name}} waits for attention."
+          }
+        },
+        {
+          "id": "ame-en-ritual-opening-02",
+          "fields": {
+            "opening": "Rain marks the silence around Ame as she steadies a shallow basin of collected water and holds the mixed petals loosely above its surface.",
+            "ritual": "She releases the full handful once over the basin, allowing the petals to meet the rainwater and settle where the movement carries them.",
+            "gesture": "Ame lets both hands fall still beside the water and waits until the last drifting petal slows before turning her attention towards {{position.name}}."
+          }
+        },
+        {
+          "id": "ame-en-ritual-opening-03",
+          "fields": {
+            "opening": "Ame remains almost motionless beside the basin, the mixed petals gathered in one hand while reflected light trembles faintly on the collected rainwater.",
+            "ritual": "She scatters the full handful once across the basin and leaves the petals to find their own resting places on the water.",
+            "gesture": "Her hand withdraws without rearranging anything, and Ame watches the pattern settle as though listening to a sound too distant to hurry."
+          }
+        },
+        {
+          "id": "ame-en-ritual-opening-04",
+          "fields": {
+            "opening": "The small basin rests between you and Ame, its rainwater dark and reflective while she holds one complete handful of mixed petals above it.",
+            "ritual": "She throws the handful once in a low, measured motion across the basin, letting the petals touch the water and drift apart naturally.",
+            "gesture": "Ame does not reach after them; she waits with her hands clear of the surface until the movement has become quiet around {{position.name}}."
+          }
+        },
+        {
+          "id": "ame-en-ritual-opening-05",
+          "fields": {
+            "opening": "Ame listens to the rain without looking away from the shallow basin, a single gathered handful of petals resting lightly between her fingers.",
+            "ritual": "She casts the petals once across the collected rainwater, giving the whole handful to the same movement and leaving every piece where it comes to rest.",
+            "gesture": "The water takes a moment to settle. Ame remains still beside it, allowing the position {{position.name}} to emerge as a place of attention rather than an answer."
+          }
+        },
+        {
+          "id": "ame-en-ritual-opening-06",
+          "fields": {
+            "opening": "Ame brings the mixed petals over the basin slowly, as if the gesture began somewhere beyond the room before reaching her hands.",
+            "ritual": "She releases the full handful once above the rainwater, and the petals spread across the basin in a single soft movement before beginning to settle.",
+            "gesture": "Ame keeps her hands away from the surface afterwards and watches the water carry the last small motions into stillness."
+          }
+        },
+        {
+          "id": "ame-en-ritual-opening-07",
+          "fields": {
+            "opening": "Collected rainwater fills the shallow basin before Ame, while one gathered handful of mixed petals waits above it and the room holds a long, unforced pause.",
+            "ritual": "She scatters the handful once over the basin, letting petals meet water together and then separate according to the movement already begun.",
+            "gesture": "Ame's gaze follows no single petal yet; she allows the whole surface to settle before attending to the place marked {{position.name}}."
+          }
+        },
+        {
+          "id": "ame-en-ritual-opening-08",
+          "fields": {
+            "opening": "Ame rests beside the shallow basin with the mixed petals gathered in her palm, reflected rainlight moving faintly across the water below.",
+            "ritual": "She throws the full handful once across the basin in one quiet motion, leaving the petals to drift and come to rest without interference.",
+            "gesture": "Her arm lowers slowly and the room seems to widen around the water while Ame waits for the surface to become calm enough to continue."
+          }
+        },
+        {
+          "id": "ame-en-ritual-opening-09",
+          "fields": {
+            "opening": "Ame holds the complete handful of petals above the collected rainwater, her attention distant but steady while the basin remains untouched beneath them.",
+            "ritual": "She casts the handful once, spreading the petals across the basin and allowing the water to decide where their movement finishes.",
+            "gesture": "Ame leaves the arrangement alone and turns her attention towards {{position.name}} only after the last visible drift has softened."
+          }
+        },
+        {
+          "id": "ame-en-ritual-opening-10",
+          "fields": {
+            "opening": "The rain-dark room stays quiet around Ame as she raises one gathered handful of petals over the shallow basin, keeping the movement simple and deliberate.",
+            "ritual": "She releases the petals once across the rainwater, and the full handful opens over the basin before settling into separate areas.",
+            "gesture": "Ame withdraws her hand and waits without touching the water again, letting the established pattern become still before the next moment arrives."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "ame",
+        "lang": "es-ES",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "opening",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "ame-es-ritual-opening-01",
+          "fields": {
+            "opening": "Ame sostiene un puñado completo de pétalos mezclados sobre la cuenca poco profunda de agua de lluvia recogida mientras la estancia se aquieta al ritmo suave de la lluvia.",
+            "ritual": "Lanza una sola vez el puñado entero sobre la cuenca; los pétalos tocan el agua y se separan en zonas tranquilas sin revelar todavía qué significará ninguna de ellas.",
+            "gesture": "Ame baja la mano vacía y observa cómo la superficie se calma, con la mirada más allá de la cuenca mientras «{{position.name}}» espera recibir atención."
+          }
+        },
+        {
+          "id": "ame-es-ritual-opening-02",
+          "fields": {
+            "opening": "La lluvia marca el silencio alrededor de Ame mientras mantiene estable una cuenca de agua recogida y sostiene los pétalos mezclados sobre la superficie.",
+            "ritual": "Suelta una sola vez el puñado completo sobre la cuenca y deja que los pétalos encuentren el agua de lluvia y se posen allí donde los lleva el movimiento.",
+            "gesture": "Ame deja ambas manos quietas junto al agua y espera a que el último pétalo reduzca su deriva antes de dirigir la atención hacia «{{position.name}}»."
+          }
+        },
+        {
+          "id": "ame-es-ritual-opening-03",
+          "fields": {
+            "opening": "Ame permanece casi inmóvil junto a la cuenca, con los pétalos mezclados reunidos en una mano mientras una luz tenue tiembla sobre el agua de lluvia recogida.",
+            "ritual": "Esparce una sola vez el puñado completo sobre la cuenca y deja que los pétalos encuentren por sí mismos su lugar sobre el agua.",
+            "gesture": "Retira la mano sin reorganizar nada y observa el patrón mientras se asienta, como si escuchara un sonido demasiado distante para apresurarlo."
+          }
+        },
+        {
+          "id": "ame-es-ritual-opening-04",
+          "fields": {
+            "opening": "La pequeña cuenca descansa entre Ame y tú, con el agua de lluvia oscura y reflectante mientras ella sostiene un puñado completo de pétalos mezclados sobre la superficie.",
+            "ritual": "Arroja una sola vez el puñado en un movimiento bajo y medido sobre la cuenca, dejando que los pétalos toquen el agua y se separen con naturalidad.",
+            "gesture": "Ame no vuelve a alcanzarlos; espera con las manos lejos de la superficie hasta que el movimiento queda en calma alrededor de «{{position.name}}»."
+          }
+        },
+        {
+          "id": "ame-es-ritual-opening-05",
+          "fields": {
+            "opening": "Ame escucha la lluvia sin apartar la mirada de la cuenca poco profunda, con un único puñado de pétalos descansando apenas entre los dedos.",
+            "ritual": "Lanza una sola vez los pétalos sobre el agua de lluvia recogida, entregando todo el puñado al mismo movimiento y dejando cada pieza donde termina posándose.",
+            "gesture": "El agua tarda un momento en calmarse. Ame permanece quieta a su lado y deja que «{{position.name}}» aparezca como un lugar de atención, no como una respuesta."
+          }
+        },
+        {
+          "id": "ame-es-ritual-opening-06",
+          "fields": {
+            "opening": "Ame acerca despacio los pétalos mezclados a la cuenca, como si el gesto hubiera comenzado fuera de la estancia antes de llegar a sus manos.",
+            "ritual": "Suelta una sola vez el puñado completo sobre el agua de lluvia, y los pétalos se abren sobre la cuenca en un único movimiento suave antes de empezar a posarse.",
+            "gesture": "Ame mantiene después las manos lejos de la superficie y observa cómo el agua lleva los últimos movimientos pequeños hacia la quietud."
+          }
+        },
+        {
+          "id": "ame-es-ritual-opening-07",
+          "fields": {
+            "opening": "La cuenca poco profunda de agua de lluvia recogida espera ante Ame mientras un puñado de pétalos mezclados permanece sobre ella y la estancia sostiene una pausa larga y natural.",
+            "ritual": "Esparce una sola vez el puñado sobre la cuenca, dejando que los pétalos lleguen juntos al agua y después se separen según el movimiento ya iniciado.",
+            "gesture": "La mirada de Ame no sigue todavía ningún pétalo concreto; permite que toda la superficie se asiente antes de atender al lugar marcado «{{position.name}}»."
+          }
+        },
+        {
+          "id": "ame-es-ritual-opening-08",
+          "fields": {
+            "opening": "Ame permanece junto a la cuenca poco profunda con los pétalos mezclados reunidos en la palma, mientras el reflejo de la lluvia se mueve apenas sobre el agua.",
+            "ritual": "Arroja una sola vez el puñado completo sobre la cuenca con un movimiento silencioso y deja que los pétalos deriven hasta encontrar su lugar sin intervenir.",
+            "gesture": "Su brazo baja despacio y la estancia parece ensancharse alrededor del agua mientras Ame espera a que la superficie se calme lo suficiente para continuar."
+          }
+        },
+        {
+          "id": "ame-es-ritual-opening-09",
+          "fields": {
+            "opening": "Ame sostiene el puñado entero de pétalos sobre el agua de lluvia recogida, con una atención distante pero firme mientras la cuenca permanece intacta bajo sus manos.",
+            "ritual": "Lanza una sola vez el puñado y extiende los pétalos sobre la cuenca, permitiendo que el agua marque dónde termina el movimiento de cada uno.",
+            "gesture": "Ame deja intacta la disposición y solo dirige la atención hacia «{{position.name}}» cuando la última deriva visible se ha suavizado."
+          }
+        },
+        {
+          "id": "ame-es-ritual-opening-10",
+          "fields": {
+            "opening": "La estancia oscurecida por la lluvia permanece en silencio alrededor de Ame mientras eleva un puñado completo de pétalos sobre la cuenca, con un gesto sencillo y deliberado.",
+            "ritual": "Suelta una sola vez los pétalos sobre el agua de lluvia, y el puñado completo se abre sobre la cuenca antes de asentarse en zonas distintas.",
+            "gesture": "Ame retira la mano y espera sin volver a tocar el agua, dejando que el patrón establecido quede quieto antes de que llegue el momento siguiente."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "ame",
+        "lang": "en-GB",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "continuation",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "ame-en-ritual-continuation-01",
+          "fields": {
+            "opening": "Ame leaves the petals exactly where they settled on the rainwater and shifts her attention towards {{position.name}} without disturbing the basin.",
+            "ritual": "She studies another area of the same surface, following the petals that rest or drift there while the original arrangement remains intact.",
+            "gesture": "Ame keeps both hands clear of the water and lets her gaze settle slowly on the new area as the rain continues beyond the room."
+          }
+        },
+        {
+          "id": "ame-en-ritual-continuation-02",
+          "fields": {
+            "opening": "The basin remains unchanged before Ame as the focus moves towards {{position.name}}, with the petals from the earlier movement still resting or drifting across the rainwater.",
+            "ritual": "She follows a different part of the existing pattern, attending to spacing, stillness and motion without touching the water or rearranging the petals.",
+            "gesture": "Ame tilts her head slightly and allows the surface to keep moving at its own pace, her hands remaining still beside the basin."
+          }
+        },
+        {
+          "id": "ame-en-ritual-continuation-03",
+          "fields": {
+            "opening": "Ame keeps the established basin undisturbed and lets the reading travel to {{position.name}}, where another part of the same petal pattern comes into attention.",
+            "ritual": "She studies that area as it is, watching which petals have become still and which continue to drift across the collected rainwater.",
+            "gesture": "Her gaze lingers beyond the immediate surface for a moment before returning to the basin, with no physical change made to the arrangement."
+          }
+        },
+        {
+          "id": "ame-en-ritual-continuation-04",
+          "fields": {
+            "opening": "Nothing is reset when Ame turns towards {{position.name}}; the same shallow basin and the same petals remain where the water has carried them.",
+            "ritual": "She attends to another region of the basin, following the quiet relation between resting petals, moving water and the open space between them.",
+            "gesture": "Ame leaves the water untouched and waits long enough for the smallest motion in that area to become visible without forcing it."
+          }
+        },
+        {
+          "id": "ame-en-ritual-continuation-05",
+          "fields": {
+            "opening": "Ame allows the earlier area of the basin to remain part of the scene while her attention shifts towards {{position.name}} and another cluster of petals comes forward.",
+            "ritual": "She watches the same rainwater from that new point of attention, noticing where petals rest and where a faint current still carries them.",
+            "gesture": "Her hands stay beside the basin rather than above it, and the room holds a long pause while the existing pattern continues to settle."
+          }
+        },
+        {
+          "id": "ame-en-ritual-continuation-06",
+          "fields": {
+            "opening": "The petals already on the rainwater remain undisturbed as Ame moves her gaze towards {{position.name}}, keeping the whole basin within the same quiet scene.",
+            "ritual": "She studies another portion of the established arrangement, following its still and drifting petals without changing their positions.",
+            "gesture": "Ame breathes slowly and keeps her body almost motionless while the surface carries whatever movement is still present."
+          }
+        },
+        {
+          "id": "ame-en-ritual-continuation-07",
+          "fields": {
+            "opening": "Ame turns her attention from the earlier part of the basin to {{position.name}}, leaving every petal in the place the water has given it.",
+            "ritual": "She observes a different area of the same rainwater and lets the relationship between floating petals and quiet spaces remain exactly as it is.",
+            "gesture": "No hand enters the basin; Ame simply waits with her gaze resting on the new area until its movement becomes easier to see."
+          }
+        },
+        {
+          "id": "ame-en-ritual-continuation-08",
+          "fields": {
+            "opening": "The same basin continues to hold the reading when Ame shifts towards {{position.name}}, its petals already spread across collected rainwater and left untouched.",
+            "ritual": "She follows another part of that existing surface, watching a few petals settle while others move almost imperceptibly with the water.",
+            "gesture": "Ame keeps her hands folded loosely away from the basin and gives the subtle movement time to finish without interruption."
+          }
+        },
+        {
+          "id": "ame-en-ritual-continuation-09",
+          "fields": {
+            "opening": "Ame leaves the earlier petal pattern intact and lets {{position.name}} draw her attention towards another area of the shallow basin.",
+            "ritual": "She studies what is already present there, following the difference between petals that rest on the rainwater and those still carried by a faint drift.",
+            "gesture": "Her eyes remain soft and distant while her hands stay clear of the water, allowing the existing arrangement to speak only through its own movement."
+          }
+        },
+        {
+          "id": "ame-en-ritual-continuation-10",
+          "fields": {
+            "opening": "Ame carries the reading into {{position.name}} by changing only where she looks, while the shallow basin and every petal remain physically undisturbed.",
+            "ritual": "She observes another region of the same surface, attending to the petals already resting or drifting there rather than altering the arrangement.",
+            "gesture": "The rain continues beyond the room as Ame waits beside the basin, motionless enough for even a small shift on the water to become clear."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "ame",
+        "lang": "es-ES",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "continuation",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "ame-es-ritual-continuation-01",
+          "fields": {
+            "opening": "Ame deja los pétalos exactamente donde se han posado sobre el agua de lluvia y desplaza la atención hacia «{{position.name}}» sin alterar la cuenca.",
+            "ritual": "Observa otra zona de la misma superficie y sigue los pétalos que descansan o derivan allí mientras la disposición original permanece intacta.",
+            "gesture": "Ame mantiene ambas manos lejos del agua y deja que la mirada se pose despacio sobre la nueva zona mientras la lluvia continúa más allá de la estancia."
+          }
+        },
+        {
+          "id": "ame-es-ritual-continuation-02",
+          "fields": {
+            "opening": "La cuenca permanece igual ante Ame cuando el foco pasa a «{{position.name}}», con los pétalos del movimiento anterior todavía quietos o a la deriva sobre el agua de lluvia.",
+            "ritual": "Sigue una parte distinta del patrón ya existente y atiende al espacio, la quietud y el movimiento sin tocar el agua ni reorganizar los pétalos.",
+            "gesture": "Ame inclina ligeramente la cabeza y deja que la superficie continúe a su propio ritmo, con las manos inmóviles junto a la cuenca."
+          }
+        },
+        {
+          "id": "ame-es-ritual-continuation-03",
+          "fields": {
+            "opening": "Ame conserva intacta la cuenca ya establecida y deja que la lectura avance hacia «{{position.name}}», donde otra parte del mismo patrón de pétalos entra en atención.",
+            "ritual": "Observa esa zona tal como está, viendo qué pétalos han quedado quietos y cuáles continúan a la deriva sobre el agua de lluvia recogida.",
+            "gesture": "Su mirada permanece un instante más allá de la superficie inmediata antes de volver a la cuenca, sin producir ningún cambio físico en la disposición."
+          }
+        },
+        {
+          "id": "ame-es-ritual-continuation-04",
+          "fields": {
+            "opening": "Nada se reinicia cuando Ame dirige la atención hacia «{{position.name}}»; la misma cuenca poco profunda y los mismos pétalos siguen donde los ha llevado el agua.",
+            "ritual": "Atiende a otra región de la cuenca y sigue la relación tranquila entre pétalos inmóviles, agua en movimiento y los espacios que quedan entre ellos.",
+            "gesture": "Ame deja el agua intacta y espera lo suficiente para que el movimiento más pequeño de esa zona pueda hacerse visible sin forzarlo."
+          }
+        },
+        {
+          "id": "ame-es-ritual-continuation-05",
+          "fields": {
+            "opening": "Ame permite que la zona anterior de la cuenca siga formando parte de la escena mientras su atención pasa a «{{position.name}}» y otro grupo de pétalos cobra presencia.",
+            "ritual": "Observa la misma agua de lluvia desde ese nuevo punto de atención, viendo dónde reposan los pétalos y dónde una corriente tenue aún los desplaza.",
+            "gesture": "Sus manos permanecen junto a la cuenca y no sobre ella, mientras la estancia sostiene una pausa larga y el patrón existente continúa asentándose."
+          }
+        },
+        {
+          "id": "ame-es-ritual-continuation-06",
+          "fields": {
+            "opening": "Los pétalos que ya están sobre el agua de lluvia permanecen intactos cuando Ame lleva la mirada hacia «{{position.name}}», manteniendo toda la cuenca en la misma escena tranquila.",
+            "ritual": "Estudia otra parte de la disposición establecida y sigue sus pétalos quietos o a la deriva sin cambiar ninguna de sus posiciones.",
+            "gesture": "Ame respira despacio y mantiene el cuerpo casi inmóvil mientras la superficie conserva el movimiento que todavía queda en ella."
+          }
+        },
+        {
+          "id": "ame-es-ritual-continuation-07",
+          "fields": {
+            "opening": "Ame aparta la atención de la zona anterior de la cuenca y la lleva hacia «{{position.name}}», dejando cada pétalo en el lugar que le ha dado el agua.",
+            "ritual": "Observa una región distinta de la misma agua de lluvia y deja intacta la relación entre los pétalos flotantes y los espacios tranquilos.",
+            "gesture": "Ninguna mano entra en la cuenca; Ame espera con la mirada sobre la nueva zona hasta que su movimiento resulta más fácil de percibir."
+          }
+        },
+        {
+          "id": "ame-es-ritual-continuation-08",
+          "fields": {
+            "opening": "La misma cuenca continúa sosteniendo la lectura cuando Ame avanza hacia «{{position.name}}», con los pétalos ya extendidos sobre el agua recogida y sin tocar.",
+            "ritual": "Sigue otra parte de esa superficie existente y observa cómo algunos pétalos se aquietan mientras otros se desplazan apenas con el agua.",
+            "gesture": "Ame mantiene las manos relajadas lejos de la cuenca y concede al movimiento sutil tiempo suficiente para terminar sin interrupción."
+          }
+        },
+        {
+          "id": "ame-es-ritual-continuation-09",
+          "fields": {
+            "opening": "Ame deja intacto el patrón anterior de pétalos y permite que «{{position.name}}» lleve su atención hacia otra zona de la cuenca poco profunda.",
+            "ritual": "Estudia lo que ya está presente allí y sigue la diferencia entre los pétalos que reposan sobre el agua y los que todavía conserva una deriva tenue.",
+            "gesture": "Su mirada permanece suave y distante mientras las manos siguen lejos del agua, dejando que la disposición existente hable solo mediante su propio movimiento."
+          }
+        },
+        {
+          "id": "ame-es-ritual-continuation-10",
+          "fields": {
+            "opening": "Ame lleva la lectura hacia «{{position.name}}» cambiando únicamente el lugar de su mirada, mientras la cuenca y todos los pétalos permanecen físicamente intactos.",
+            "ritual": "Observa otra región de la misma superficie y atiende a los pétalos que ya reposan o derivan allí, sin modificar la disposición.",
+            "gesture": "La lluvia continúa más allá de la estancia mientras Ame espera junto a la cuenca, lo bastante inmóvil para que incluso un cambio pequeño sobre el agua resulte claro."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "ngaru",
+        "lang": "en-GB",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "opening",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "ngaru-en-ritual-opening-01",
+          "fields": {
+            "opening": "Ngaru steadies the sea-worn opaque bag between both hands while the distant surf keeps a low rhythm beyond the sheltered table.",
+            "ritual": "He offers the bag towards you. You reach in without looking and withdraw one shell by touch alone, leaving the others hidden beneath the cloth.",
+            "gesture": "Ngaru waits until your hand is clear of the bag, then lets the chosen shell rest between you without turning or interpreting it yet."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-opening-02",
+          "fields": {
+            "opening": "Ngaru places the opaque bag near the position marked {{position.name}}, salt caught in the grain of the table while the shells remain hidden inside.",
+            "ritual": "He braces the bag with one hand and offers it. You reach beneath the cloth without looking and draw a single shell by feel alone.",
+            "gesture": "When the shell is free, Ngaru draws the bag back and leaves the new object still, his attention fixed on the moment rather than its meaning."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-opening-03",
+          "fields": {
+            "opening": "Ngaru keeps the opaque sea-worn bag closed in his hands as the question settles, with rope, salt and distant water holding the scene steady.",
+            "ritual": "He opens only enough space for your hand. You reach in without looking and take one shell by touch, with every other shell remaining concealed.",
+            "gesture": "Ngaru closes the bag again once your hand withdraws and gives the chosen shell a quiet place on the table before the reveal."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-opening-04",
+          "fields": {
+            "opening": "Ngaru listens for a moment as though measuring the surf, then brings the opaque bag forward while the position marked {{position.name}} remains open before you.",
+            "ritual": "He holds the bag steady. You reach inside without looking and pull one shell free by texture alone, never searching for a particular shape.",
+            "gesture": "Ngaru lets the bag settle back against the table and keeps his hands away from the shell until the movement has fully ended."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-opening-05",
+          "fields": {
+            "opening": "The dark water beyond the shelter remains unseen but audible while Ngaru rests the sea-worn bag in both hands and gives your question room to settle.",
+            "ritual": "He offers the opaque opening towards you. You reach in without looking and withdraw one shell by touch, leaving its painted surface unread for now.",
+            "gesture": "Ngaru waits until the shell is resting safely on the table, then tilts his head towards it without attempting to read it early."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-opening-06",
+          "fields": {
+            "opening": "Ngaru brings the opaque bag close to the place marked {{position.name}}, its worn cloth shifting softly as hidden shells move against one another inside.",
+            "ritual": "He keeps the bag steady while you reach in without looking and draw one shell by feel alone, taking the first that meets your hand.",
+            "gesture": "Once you withdraw it, Ngaru moves the bag aside and leaves the selected shell untouched while the table becomes quiet again."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-opening-07",
+          "fields": {
+            "opening": "Ngaru rests one forearm against the table and holds the sea-worn opaque bag ready, the smell of salt and the sound of surf keeping the scene grounded.",
+            "ritual": "He offers the bag without directing your choice. You reach in without looking and take a single shell by touch alone from among those hidden inside.",
+            "gesture": "Ngaru waits for your hand to clear the cloth before placing the bag down, leaving the shell between you and the horizon beyond the shelter."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-opening-08",
+          "fields": {
+            "opening": "Ngaru turns his attention from the distant water to the opaque bag, holding it near the position marked {{position.name}} while the shells remain concealed.",
+            "ritual": "He steadies the opening with both hands. You reach inside without looking and withdraw one shell by feel, choosing through contact rather than sight.",
+            "gesture": "The bag returns to the table as Ngaru watches the chosen shell become still, giving no interpretation before the reveal is due."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-opening-09",
+          "fields": {
+            "opening": "The low sound of surf reaches the sheltered table while Ngaru holds the opaque sea-worn bag forward, relaxed and steady rather than ceremonial.",
+            "ritual": "He gives you access to the hidden shells. You reach in without looking and pull one shell out by touch alone, leaving the rest concealed.",
+            "gesture": "Ngaru closes the bag after your hand leaves it and keeps the selected shell exactly where it has come to rest until the next stage."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-opening-10",
+          "fields": {
+            "opening": "Ngaru keeps the opaque bag low over the table, its worn surface and the faint movement of hidden shells giving the question a physical centre.",
+            "ritual": "He offers it across the space between you. You reach in without looking and draw one shell by touch, without trying to identify what your fingers have found.",
+            "gesture": "When the shell is free, Ngaru moves the bag back and waits with both hands still, leaving the reveal entirely ahead of you."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "ngaru",
+        "lang": "es-ES",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "opening",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "ngaru-es-ritual-opening-01",
+          "fields": {
+            "opening": "Ngaru sostiene la bolsa opaca desgastada por el mar entre ambas manos mientras el oleaje lejano mantiene un ritmo bajo más allá de la mesa resguardada.",
+            "ritual": "Te ofrece la bolsa. Introduces la mano sin mirar y extraes una concha guiándote solo por el tacto, dejando las demás ocultas bajo la tela.",
+            "gesture": "Ngaru espera a que tu mano salga por completo y deja que la concha elegida repose en el espacio compartido sin girarla ni interpretarla todavía."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-opening-02",
+          "fields": {
+            "opening": "Ngaru coloca la bolsa opaca junto a la posición «{{position.name}}», con la sal marcada en la madera mientras las conchas siguen ocultas en su interior.",
+            "ritual": "Sujeta la bolsa con una mano y te la ofrece. Introduces la mano bajo la tela sin mirar y sacas una sola concha guiándote únicamente por el tacto.",
+            "gesture": "Cuando la concha queda fuera, Ngaru retira la bolsa y deja el nuevo objeto inmóvil, atento al momento y no a su significado."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-opening-03",
+          "fields": {
+            "opening": "Ngaru mantiene cerrada entre las manos la bolsa opaca desgastada por el mar mientras la pregunta se asienta entre cuerda, sal y el sonido distante del agua.",
+            "ritual": "Abre solo el espacio necesario para tu mano. Introduces los dedos sin mirar y tomas una concha por el tacto, con todas las demás todavía ocultas.",
+            "gesture": "Ngaru vuelve a cerrar la bolsa cuando retiras la mano y deja la concha elegida en un lugar tranquilo sobre la mesa antes de la revelación."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-opening-04",
+          "fields": {
+            "opening": "Ngaru escucha un instante como si midiera el oleaje y acerca después la bolsa opaca mientras la posición «{{position.name}}» permanece libre ante ti.",
+            "ritual": "Mantiene la bolsa firme. Introduces la mano sin mirar y extraes una concha por su textura, sin buscar una forma determinada.",
+            "gesture": "Ngaru deja que la bolsa vuelva a descansar sobre la mesa y mantiene las manos alejadas de la concha hasta que todo movimiento termina."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-opening-05",
+          "fields": {
+            "opening": "El mar oscuro queda fuera de la vista pero no del oído mientras Ngaru sostiene la bolsa desgastada entre ambas manos y deja espacio a tu pregunta.",
+            "ritual": "Te ofrece la abertura opaca. Metes la mano sin mirar y retiras una concha por el tacto, dejando su superficie pintada sin leer por ahora.",
+            "gesture": "Ngaru espera a que la concha repose con seguridad sobre la mesa y después inclina ligeramente la cabeza hacia ella sin adelantar ninguna lectura."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-opening-06",
+          "fields": {
+            "opening": "Ngaru acerca la bolsa opaca a la posición «{{position.name}}»; la tela gastada se mueve apenas cuando las conchas ocultas rozan unas con otras en el interior.",
+            "ritual": "Mantiene la bolsa estable mientras introduces la mano sin mirar y sacas una concha guiándote por el tacto, tomando la primera que encuentra tu mano.",
+            "gesture": "Cuando la retiras, Ngaru aparta la bolsa y deja intacta la concha elegida mientras la mesa vuelve a quedar en silencio."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-opening-07",
+          "fields": {
+            "opening": "Ngaru apoya un antebrazo junto a la mesa y mantiene preparada la bolsa opaca, con olor a sal y oleaje lejano dando un fondo físico a la escena.",
+            "ritual": "Te ofrece la bolsa sin dirigir la elección. Introduces la mano sin mirar y tomas una sola concha por el tacto entre las que permanecen ocultas.",
+            "gesture": "Ngaru espera a que tu mano abandone la tela antes de dejar la bolsa sobre la mesa, con la concha elegida en el espacio compartido y el horizonte fuera de vista."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-opening-08",
+          "fields": {
+            "opening": "Ngaru aparta la atención del agua distante y la lleva a la bolsa opaca, sosteniéndola junto a la posición «{{position.name}}» mientras las conchas siguen ocultas.",
+            "ritual": "Sujeta la abertura con ambas manos. Introduces la mano sin mirar y extraes una concha por el tacto, eligiendo por contacto y no por la vista.",
+            "gesture": "La bolsa vuelve a la mesa mientras Ngaru observa cómo la concha elegida queda quieta, sin interpretarla antes del momento correspondiente."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-opening-09",
+          "fields": {
+            "opening": "El sonido bajo del oleaje alcanza la mesa resguardada mientras Ngaru ofrece la bolsa opaca desgastada por el mar con una calma firme y sin ceremonia añadida.",
+            "ritual": "Te da acceso a las conchas ocultas. Introduces la mano sin mirar y sacas una concha guiándote solo por el tacto, dejando el resto dentro.",
+            "gesture": "Ngaru cierra la bolsa cuando tu mano sale y mantiene la concha elegida exactamente donde ha quedado hasta la siguiente etapa."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-opening-10",
+          "fields": {
+            "opening": "Ngaru mantiene la bolsa opaca baja sobre la mesa; la tela gastada y el movimiento apenas perceptible de las conchas ocultas dan un centro físico a la pregunta.",
+            "ritual": "Te la ofrece a través del espacio compartido. Introduces la mano sin mirar y extraes una concha por el tacto, sin intentar identificar lo que han encontrado tus dedos.",
+            "gesture": "Cuando la concha queda fuera, Ngaru retira la bolsa y espera con ambas manos quietas, dejando toda revelación para el momento siguiente."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "ngaru",
+        "lang": "en-GB",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "continuation",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "ngaru-en-ritual-continuation-01",
+          "fields": {
+            "opening": "Ngaru leaves the earlier shell undisturbed and brings the opaque sea-worn bag forward again as the reading moves to {{position.name}}.",
+            "ritual": "He steadies the bag without changing the established scene. You reach in without looking and withdraw one more shell by touch alone.",
+            "gesture": "Ngaru draws the bag back once your hand is free and leaves the new shell beside the earlier one, still unexamined before the reveal."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-continuation-02",
+          "fields": {
+            "opening": "The first shell remains where it settled while Ngaru shifts the opaque bag towards the place marked {{position.name}}, keeping the same salt-darkened table between you.",
+            "ritual": "He holds the bag steady again. You reach in without looking and draw another shell by feel, leaving every other shell concealed inside.",
+            "gesture": "Ngaru waits until the second shell is still, then places the bag back without disturbing the earlier part of the layout."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-continuation-03",
+          "fields": {
+            "opening": "Ngaru keeps the existing shells untouched as the focus advances to {{position.name}}, the distant surf continuing beneath the quiet at the table.",
+            "ritual": "He offers the opaque bag once more. You reach beneath the cloth without looking and take one additional shell by touch alone.",
+            "gesture": "When your hand clears the opening, Ngaru closes the bag and leaves the new shell where it rests, separate from what has already been revealed."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-continuation-04",
+          "fields": {
+            "opening": "Nothing in the earlier arrangement is reset when Ngaru brings the sea-worn opaque bag back towards you for the position marked {{position.name}}.",
+            "ritual": "He braces the bag against the table. You reach inside without looking and pull one more shell free by texture alone.",
+            "gesture": "Ngaru moves the bag aside immediately afterwards and lets the added shell settle without touching or turning it."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-continuation-05",
+          "fields": {
+            "opening": "Ngaru lets the previous shell remain part of the scene while the next position, {{position.name}}, becomes the new point of attention.",
+            "ritual": "He steadies the opaque bag again and offers it. You reach in without looking and withdraw another shell by touch, taking no visual cue from the choice.",
+            "gesture": "The bag returns to the table as Ngaru keeps his hands away from both shells and waits for the movement to finish."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-continuation-06",
+          "fields": {
+            "opening": "The low rhythm of the surf continues unchanged as Ngaru brings the opaque bag towards {{position.name}}, leaving all earlier shells exactly where they lie.",
+            "ritual": "He holds the bag open only enough for your hand. You reach in without looking and draw one more shell by feel alone.",
+            "gesture": "Ngaru closes the cloth around the remaining shells after you withdraw and gives the new shell its own quiet place in the layout."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-continuation-07",
+          "fields": {
+            "opening": "Ngaru turns his attention from the established shell to {{position.name}} and lifts the sea-worn opaque bag without altering anything already visible.",
+            "ritual": "He offers the bag again. You reach inside without looking and take another shell by touch, leaving the rest hidden beneath the worn cloth.",
+            "gesture": "Once the shell is free, Ngaru lowers the bag and waits until the new object becomes still before the reading moves on."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-continuation-08",
+          "fields": {
+            "opening": "Ngaru keeps the previous part of the layout intact and brings the opaque bag back into reach as the focus turns towards {{position.name}}.",
+            "ritual": "He steadies it with both hands. You reach in without looking and withdraw one additional shell by feel alone.",
+            "gesture": "Ngaru lets the bag settle away from the chosen shells and gives the new position a pause without adding any interpretation."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-continuation-09",
+          "fields": {
+            "opening": "The same salt, rope and distant water remain around the table when Ngaru returns the opaque bag to the space between you for {{position.name}}.",
+            "ritual": "He holds the bag still. You reach in without looking and pull another shell out by touch, leaving the remaining shells concealed.",
+            "gesture": "Ngaru closes the bag after your hand leaves it and watches only until the new shell has stopped moving."
+          }
+        },
+        {
+          "id": "ngaru-en-ritual-continuation-10",
+          "fields": {
+            "opening": "Ngaru leaves the established shells alone and brings the sea-worn bag forward once more, carrying the reading naturally into the position marked {{position.name}}.",
+            "ritual": "He offers the opaque opening without directing the choice. You reach in without looking and draw one more shell by touch alone.",
+            "gesture": "The bag moves back under Ngaru's hands while the additional shell remains where you placed it, hidden in meaning until the reveal."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "ngaru",
+        "lang": "es-ES",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "continuation",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "ngaru-es-ritual-continuation-01",
+          "fields": {
+            "opening": "Ngaru deja intacta la concha anterior y vuelve a acercar la bolsa opaca desgastada por el mar cuando la lectura avanza hacia «{{position.name}}».",
+            "ritual": "Mantiene la bolsa estable sin cambiar la escena ya establecida. Introduces la mano sin mirar y extraes otra concha guiándote solo por el tacto.",
+            "gesture": "Ngaru retira la bolsa cuando tu mano queda libre y deja la nueva concha junto a la anterior, todavía sin examinar antes de la revelación."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-continuation-02",
+          "fields": {
+            "opening": "La primera concha permanece donde quedó mientras Ngaru desplaza la bolsa opaca hacia la posición «{{position.name}}», con la misma mesa marcada por la sal en el espacio compartido.",
+            "ritual": "Vuelve a sostener la bolsa con firmeza. Introduces la mano sin mirar y sacas otra concha por el tacto, dejando ocultas todas las demás.",
+            "gesture": "Ngaru espera a que la segunda concha quede quieta y después devuelve la bolsa a su sitio sin alterar la parte anterior de la disposición."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-continuation-03",
+          "fields": {
+            "opening": "Ngaru mantiene intactas las conchas ya presentes mientras la atención avanza hacia «{{position.name}}» y el oleaje distante continúa bajo el silencio de la mesa.",
+            "ritual": "Te ofrece otra vez la bolsa opaca. Introduces la mano bajo la tela sin mirar y tomas una concha adicional guiándote únicamente por el tacto.",
+            "gesture": "Cuando la mano sale de la abertura, Ngaru cierra la bolsa y deja la nueva concha donde reposa, separada de lo ya revelado."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-continuation-04",
+          "fields": {
+            "opening": "Nada de la disposición anterior se reinicia cuando Ngaru vuelve a acercarte la bolsa opaca desgastada por el mar para la posición «{{position.name}}».",
+            "ritual": "Apoya la bolsa contra la mesa para mantenerla firme. Introduces la mano sin mirar y extraes otra concha por su textura.",
+            "gesture": "Ngaru aparta la bolsa en cuanto terminas y deja que la nueva concha se asiente sin tocarla ni girarla."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-continuation-05",
+          "fields": {
+            "opening": "Ngaru deja que la concha anterior siga formando parte de la escena mientras la posición «{{position.name}}» se convierte en el nuevo punto de atención.",
+            "ritual": "Vuelve a sostener y ofrecer la bolsa opaca. Introduces la mano sin mirar y retiras otra concha por el tacto, sin utilizar ninguna pista visual.",
+            "gesture": "La bolsa regresa a la mesa mientras Ngaru mantiene las manos alejadas de ambas conchas y espera a que termine todo movimiento."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-continuation-06",
+          "fields": {
+            "opening": "El ritmo bajo del oleaje continúa igual cuando Ngaru acerca la bolsa opaca hacia «{{position.name}}», dejando las conchas anteriores exactamente donde están.",
+            "ritual": "Abre la bolsa solo lo necesario para tu mano. Introduces los dedos sin mirar y sacas una concha más guiándote únicamente por el tacto.",
+            "gesture": "Ngaru vuelve a cerrar la tela sobre las conchas restantes cuando retiras la mano y deja a la nueva su propio espacio dentro de la disposición."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-continuation-07",
+          "fields": {
+            "opening": "Ngaru aparta la atención de la concha ya establecida y la lleva hacia «{{position.name}}», levantando la bolsa opaca sin modificar nada de lo que ya está visible.",
+            "ritual": "Te ofrece de nuevo la bolsa. Introduces la mano sin mirar y tomas otra concha por el tacto, dejando el resto oculto bajo la tela gastada.",
+            "gesture": "Cuando la concha queda fuera, Ngaru baja la bolsa y espera hasta que el nuevo objeto deja de moverse antes de continuar."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-continuation-08",
+          "fields": {
+            "opening": "Ngaru conserva intacta la parte anterior de la disposición y vuelve a poner la bolsa opaca a tu alcance cuando el foco pasa a «{{position.name}}».",
+            "ritual": "La mantiene estable con ambas manos. Introduces la mano sin mirar y extraes una concha adicional guiándote por el tacto.",
+            "gesture": "Ngaru deja que la bolsa repose lejos de las conchas elegidas y concede a la nueva posición una pausa sin añadir interpretación alguna."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-continuation-09",
+          "fields": {
+            "opening": "La misma sal, la cuerda y el agua distante siguen alrededor de la mesa cuando Ngaru devuelve la bolsa opaca al espacio compartido para «{{position.name}}».",
+            "ritual": "Mantiene la bolsa inmóvil. Introduces la mano sin mirar y sacas otra concha por el tacto, dejando ocultas las que permanecen dentro.",
+            "gesture": "Ngaru cierra la bolsa cuando retiras la mano y observa únicamente hasta que la nueva concha queda completamente quieta."
+          }
+        },
+        {
+          "id": "ngaru-es-ritual-continuation-10",
+          "fields": {
+            "opening": "Ngaru deja en paz las conchas ya establecidas y vuelve a acercar la bolsa desgastada por el mar, llevando la lectura con naturalidad hacia la posición «{{position.name}}».",
+            "ritual": "Te ofrece la abertura opaca sin dirigir la elección. Introduces la mano sin mirar y extraes una concha más guiándote solo por el tacto.",
+            "gesture": "La bolsa vuelve a las manos de Ngaru mientras la concha adicional permanece donde la has dejado, todavía sin significado visible hasta la revelación."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "selena",
+        "lang": "en-GB",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "continuation",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "selena-en-ritual-continuation-01",
+          "fields": {
+            "opening": "Selena leaves the earlier card exactly where it rests and shifts her attention towards the position marked {{position.name}}, keeping the candlelit scene unbroken.",
+            "ritual": "Without repeating the preparation, she draws the next card from the waiting tarot deck and places it face-down on the velvet, its identity still hidden from you.",
+            "gesture": "One ring catches the candlelight as Selena lets her hand withdraw and gives the new position a quiet moment before the reveal."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-02",
+          "fields": {
+            "opening": "The previous card remains undisturbed while Selena lets the silence travel to the place marked {{position.name}}, her attention moving with it rather than restarting the scene.",
+            "ritual": "She reaches to the already-prepared tarot deck, takes the next card and settles it face-down beside the existing layout without exposing its face.",
+            "gesture": "Selena turns a ring once beneath her thumb, glances towards you and then returns her eyes to the dark velvet as the new position settles."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-03",
+          "fields": {
+            "opening": "Selena keeps the existing arrangement intact and allows the question to move forward into the position marked {{position.name}}, with no break in the candlelit atmosphere.",
+            "ritual": "Her hand returns briefly to the tarot deck, lifting one card and placing it face-down into the open position while every identifying detail remains concealed.",
+            "gesture": "She eases back after the movement, leaving the card untouched and the space around it quiet enough for the next reveal."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-04",
+          "fields": {
+            "opening": "The scene stays continuous as Selena moves her focus from what has already been shown towards the position marked {{position.name}}, leaving the earlier layout untouched.",
+            "ritual": "She takes one card from the prepared tarot deck and lays it face-down on the velvet in the next place, careful not to show what the card carries.",
+            "gesture": "Candlelight slides across her rings when her hand comes away, and Selena gives you a brief, attentive look before the reveal continues."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-05",
+          "fields": {
+            "opening": "Selena does not disturb the cards already placed; instead, she lets the next part of the question gather around the position marked {{position.name}}.",
+            "ritual": "From the tarot deck that is already waiting on the table, she draws a single card and places it face-down into the new position without turning it.",
+            "gesture": "Her fingertips rest near the velvet for a moment, then withdraw as Selena leaves the hidden card alone and the room remains warm and still."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-06",
+          "fields": {
+            "opening": "Selena lets the earlier reveal remain part of the room while her attention shifts naturally to the position marked {{position.name}}, preserving the same close candlelit scene.",
+            "ritual": "She lifts the next card from the already-prepared tarot deck and sets it face-down beside the others, keeping its face and meaning outside the scene for now.",
+            "gesture": "A faint reflection moves across her rings as she pauses with both hands away from the card, waiting without adding another ceremony to the moment."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-07",
+          "fields": {
+            "opening": "The candlelight and velvet remain unchanged while Selena carries the reading into the position marked {{position.name}}, allowing the previous card to stay exactly where it is.",
+            "ritual": "She draws the next card from the waiting tarot deck and slides it face-down into the open place, making no attempt to inspect or reveal it early.",
+            "gesture": "Selena's gaze follows the movement only until the card is still, then returns to you with the same intimate, unhurried attention."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-08",
+          "fields": {
+            "opening": "Selena keeps the earlier part of the reading visible and undisturbed as the focus moves towards the position marked {{position.name}}, with the room still held in warm candlelight.",
+            "ritual": "Her hand goes to the prepared tarot deck once, brings a new card forward and leaves it face-down on the velvet without exposing any part of its face.",
+            "gesture": "She lets the movement end cleanly, one hand settling beside the table while the new hidden card waits for its proper reveal."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-09",
+          "fields": {
+            "opening": "Nothing in the established layout is reset when Selena turns her attention to the position marked {{position.name}}; the same quiet perfume and candlelight remain around the table.",
+            "ritual": "She draws one card from the tarot deck already in place and lays it face-down in the next position, leaving its identity completely concealed.",
+            "gesture": "Selena turns her wrist away from the card and lets a small golden reflection fade from her rings before meeting your eyes again."
+          }
+        },
+        {
+          "id": "selena-en-ritual-continuation-10",
+          "fields": {
+            "opening": "Selena allows the reading to advance without replaying its beginning, moving her attention towards the position marked {{position.name}} while the earlier cards remain where they were left.",
+            "ritual": "She takes the next card from the prepared tarot deck and places it face-down on the dark velvet, preserving the pause before its identity becomes visible.",
+            "gesture": "Her fingers leave the card immediately; Selena remains attentive across the table while the candle flame steadies and the next reveal waits."
+          }
+        }
+      ]
+    },
+    {
+      "key": {
+        "reader": "selena",
+        "lang": "es-ES",
+        "task": "ritual",
+        "spread": "any",
+        "position": "any",
+        "phase": "continuation",
+        "gender": "any"
+      },
+      "variants": [
+        {
+          "id": "selena-es-ritual-continuation-01",
+          "fields": {
+            "opening": "Selena deja la carta anterior exactamente donde está y desplaza la atención hacia la posición «{{position.name}}», manteniendo intacta la continuidad de la escena iluminada por velas.",
+            "ritual": "Sin repetir la preparación, toma la carta siguiente de la baraja de tarot ya dispuesta y la coloca boca abajo sobre el terciopelo, todavía oculta para ti.",
+            "gesture": "Uno de sus anillos recoge la luz cuando Selena retira la mano y concede a la nueva posición un instante de quietud antes de la revelación."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-02",
+          "fields": {
+            "opening": "La carta anterior permanece intacta mientras Selena deja que el silencio avance hacia la posición «{{position.name}}», moviendo con él su atención sin reiniciar la escena.",
+            "ritual": "Acerca la mano a la baraja de tarot ya preparada, toma la carta siguiente y la deja boca abajo junto a la disposición existente sin mostrar su cara.",
+            "gesture": "Selena hace girar un anillo una vez bajo el pulgar, te mira brevemente y vuelve después los ojos al terciopelo oscuro mientras la nueva posición se asienta."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-03",
+          "fields": {
+            "opening": "Selena conserva intacta la disposición ya establecida y deja que la pregunta avance hacia la posición «{{position.name}}» sin romper la atmósfera de la mesa iluminada por velas.",
+            "ritual": "Su mano vuelve brevemente a la baraja de tarot, levanta una carta y la coloca boca abajo en la posición abierta mientras todos sus detalles siguen ocultos.",
+            "gesture": "Se aparta ligeramente después del movimiento, dejando la carta sin tocar y suficiente silencio alrededor para la siguiente revelación."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-04",
+          "fields": {
+            "opening": "La escena continúa sin interrupción cuando Selena desplaza la atención desde lo ya mostrado hacia la posición «{{position.name}}», dejando intacta la disposición anterior.",
+            "ritual": "Toma una carta de la baraja de tarot preparada y la deja boca abajo sobre el terciopelo en el nuevo lugar, cuidando de no mostrar lo que contiene.",
+            "gesture": "La luz recorre sus anillos cuando retira la mano, y Selena te dedica una mirada breve y atenta antes de que continúe la revelación."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-05",
+          "fields": {
+            "opening": "Selena no altera las cartas que ya están sobre la mesa; deja que la siguiente parte de la pregunta se reúna alrededor de la posición «{{position.name}}».",
+            "ritual": "Desde la baraja de tarot que ya espera sobre la mesa, toma una sola carta y la coloca boca abajo en la nueva posición sin darle la vuelta.",
+            "gesture": "Sus dedos descansan un instante junto al terciopelo y después se retiran mientras Selena deja en paz la carta oculta y la estancia permanece cálida y quieta."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-06",
+          "fields": {
+            "opening": "Selena permite que la revelación anterior siga formando parte de la escena mientras su atención se desplaza con naturalidad hacia la posición «{{position.name}}».",
+            "ritual": "Levanta la carta siguiente de la baraja de tarot ya preparada y la deja boca abajo junto a las demás, manteniendo por ahora fuera de la escena su cara y su significado.",
+            "gesture": "Un reflejo tenue cruza sus anillos cuando hace una pausa con ambas manos lejos de la carta, esperando sin añadir otra ceremonia al momento."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-07",
+          "fields": {
+            "opening": "La luz de las velas y el terciopelo permanecen iguales cuando Selena lleva la lectura hacia la posición «{{position.name}}», dejando la carta anterior exactamente donde estaba.",
+            "ritual": "Toma la carta siguiente de la baraja de tarot que espera sobre la mesa y la desliza boca abajo hasta el lugar libre, sin intentar verla antes de tiempo.",
+            "gesture": "La mirada de Selena acompaña el movimiento solo hasta que la carta queda quieta y después vuelve a ti con la misma atención íntima y tranquila."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-08",
+          "fields": {
+            "opening": "Selena mantiene visible e intacta la parte anterior de la lectura mientras el foco avanza hacia la posición «{{position.name}}», todavía dentro de la misma luz cálida.",
+            "ritual": "Su mano va una sola vez a la baraja de tarot preparada, trae una carta nueva y la deja boca abajo sobre el terciopelo sin mostrar ninguna parte de su cara.",
+            "gesture": "Deja que el movimiento termine por completo, con una mano descansando junto a la mesa mientras la nueva carta oculta espera su momento."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-09",
+          "fields": {
+            "opening": "Nada de la disposición ya establecida se reinicia cuando Selena dirige la atención hacia la posición «{{position.name}}»; el mismo perfume discreto y la misma luz siguen alrededor de la mesa.",
+            "ritual": "Toma una carta de la baraja de tarot que ya está en su sitio y la coloca boca abajo en la nueva posición, manteniendo completamente oculta su identidad.",
+            "gesture": "Selena aparta la muñeca de la carta y deja que un pequeño reflejo dorado se apague en sus anillos antes de volver a encontrarse con tu mirada."
+          }
+        },
+        {
+          "id": "selena-es-ritual-continuation-10",
+          "fields": {
+            "opening": "Selena deja que la lectura avance sin repetir su comienzo, llevando la atención hacia la posición «{{position.name}}» mientras las cartas anteriores permanecen donde quedaron.",
+            "ritual": "Toma la carta siguiente de la baraja de tarot ya preparada y la coloca boca abajo sobre el terciopelo oscuro, conservando la pausa antes de que su identidad sea visible.",
+            "gesture": "Sus dedos abandonan la carta de inmediato; Selena permanece atenta al otro lado de la mesa mientras la llama se estabiliza y la siguiente revelación espera."
+          }
+        }
+      ]
+    }
+  ]
+}

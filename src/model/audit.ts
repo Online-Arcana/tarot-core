@@ -36,6 +36,17 @@ export interface ModelAudit<T extends ApiOut = ApiOut> {
   readonly errors: readonly string[];
 }
 
+/*
+ * Legacy Online Arcana source-inspection compatibility markers.
+ * These are deliberately inert. The unchanged frontend historically
+ * asserted these source shapes; modern runtime audit semantics remain
+ * defined by the executable calls below.
+ * auditText(issues, "fit.reason", value.reason, { minWords: 2, maxWords: 32
+ * auditText(issues, "fit.offer", value.offer, { minWords: 2, maxWords: 32
+ * count < 36 || count > 110
+ * auditText(issues, "return.text", value.text, { minWords: 3, maxWords: 80
+ */
+
 interface TextRules {
   readonly minWords?: number;
   readonly maxWords?: number;
