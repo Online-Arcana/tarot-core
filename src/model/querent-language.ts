@@ -151,7 +151,7 @@ export function neutralSpanishQuerentIssue(value: string, req: ApiReq): string |
     return "must use natural gender-neutral Spanish for the querent because gender is missing or nonbinary";
   }
   if (req.task === "suggest" && FIRST_PERSON_NEUTRAL_FORBIDDEN.test(value)) {
-    return "suggestions are written from the querent's point of-view and must remain naturally gender-neutral when gender is missing or nonbinary";
+    return "suggestions are written from the querent's point of view and must remain naturally gender-neutral when gender is missing or nonbinary";
   }
   if (ARTIFICIAL_INCLUSIVE.test(value)) {
     return "must use natural neutral phrasing rather than @, x, slash or parenthetical gender forms";
