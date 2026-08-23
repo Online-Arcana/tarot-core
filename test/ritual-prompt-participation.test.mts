@@ -48,6 +48,9 @@ test("Spanish querent-operated ritual prompts preserve natural pro-drop", () => 
   assert.match(ngaru, /Introduces la mano sin mirar y extraes una concha/iu);
   assert.match(amaru, /Introduces la mano sin mirar y extraes un cordón/iu);
   assert.match(ngaru, /El español puede omitir «tú» cuando la conjugación ya deja claro el sujeto/iu);
+  assert.match(ngaru, /En cada ritual, la primera acción atribuida a una persona debe dejar inequívocamente claro quién la realiza/iu);
+  assert.match(ngaru, /los rituales anteriores no cuentan como establecimiento/iu);
+  assert.match(ngaru, /usa con naturalidad el sujeto omitido mientras no cambie ni se vuelva ambiguo/iu);
   assert.doesNotMatch(ngaru, /Tú introduces la mano/iu);
   assert.doesNotMatch(amaru, /Tú introduces la mano/iu);
 });
