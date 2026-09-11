@@ -1,0 +1,33 @@
+name: diag-spanish-ritual-actor-paid
+
+on:
+  pull_request:
+
+jobs:
+  diagnose:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm ci
+      - name: Build core
+        run: npm run build
+      - name: Run paid Spanish ritual actor diagnostic
+        run: node scripts/diagnose-spanish-ritual-actor.mjs
+      - name: Upload diagnostic report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spanish-ritual-actor-diagnostic
+          path: spanish-ritual-actor-diagnostic.json
+          if-no-files-found: ignore
